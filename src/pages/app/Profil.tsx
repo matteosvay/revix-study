@@ -9,6 +9,7 @@ import { LogOut, Trash2, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { CURSUS_OPTIONS } from "@/data/cursus";
 
 export default function Profil() {
   const { user } = useAuth();
@@ -93,7 +94,7 @@ export default function Profil() {
           <div className="space-y-1.5"><Label>Cursus</Label>
             <select value={profile.cursus ?? ""} onChange={(e) => setProfile({ ...profile, cursus: e.target.value })} className="w-full h-10 rounded-md border bg-background px-3 text-sm">
               <option value="">—</option>
-              {["BTS", "Licence", "Prépa", "Autre"].map(c => <option key={c} value={c}>{c}</option>)}
+              {CURSUS_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
           </div>
           <Button onClick={save} className="w-full rounded-full gradient-primary border-0">Enregistrer</Button>
