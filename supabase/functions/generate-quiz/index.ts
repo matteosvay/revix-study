@@ -8,21 +8,38 @@ const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
-    const { content, subject, level, title, count = 5 } = await req.json();
+    const { content, subject, level, title, count = 10, quizType = "qcm" } = await req.json();
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
     if (!content || content.trim().length < 20) {
       return new Response(JSON.stringify({ error: "Contenu trop court" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
+    const safeCount = Math.max(3, Math.min(30, Number(count) || 10));
+    const allowedTypes = ["qcm", "vrai_faux", "ouvert", "trous"];
+    const type = allowedTypes.includes(quizType) ? quizType : "qcm";
+
+    const typeInstructions: Record<string, string> = {
+      qcm: `Génère des QCM. Chaque question a EXACTEMENT 4 réponses (A/B/C/D), UNE SEULE correcte.
+Renseigne "type":"qcm", "answers" (4 strings), "correct_index" (0-3), "explanation" (1-2 phrases).`,
+      vrai_faux: `Génère des affirmations à juger Vrai ou Faux.
+Renseigne "type":"vrai_faux", "answers":["Vrai","Faux"], "correct_index" (0 si l'affirmation est vraie, 1 si fausse), "explanation" (justifie).`,
+      ouvert: `Génère des questions OUVERTES qui demandent une réponse rédigée courte (1 à 3 phrases).
+Renseigne "type":"ouvert", "accepted_answers" (3 à 5 reformulations valides de la bonne réponse, mots-clés essentiels inclus), "explanation" (la réponse modèle complète).
+Ne renseigne PAS answers ni correct_index.`,
+      trous: `Génère des phrases à TROUS. La question contient un ou plusieurs "____" à compléter.
+Renseigne "type":"trous", "accepted_answers" (toutes les variantes valides du mot/expression à insérer, en minuscule), "explanation" (la phrase complète corrigée).
+Ne renseigne PAS answers ni correct_index.`,
+    };
 
     const system = `Tu es un examinateur français pour étudiants ${level ?? ""}.
-Tu crées des QCM rigoureux en français, basés sur le cours fourni.
-Chaque question a 4 réponses (A/B/C/D), une seule correcte, et une courte explication pédagogique.
-Niveau de difficulté progressif. Pas de question piège ridicule. Utilise "tu".`;
+Tu crées des questions rigoureuses en français, basées sur le cours fourni.
+Niveau de difficulté progressif (facile -> difficile). Pas de question piège ridicule. Utilise "tu".
+
+Format demandé : ${typeInstructions[type]}`;
 
     const userPrompt = `Matière : ${subject ?? "non précisée"}
 Titre : ${title ?? "Cours"}
-Génère ${count} questions à partir de ce cours :
+Génère EXACTEMENT ${safeCount} questions à partir de ce cours :
 """
 ${content.slice(0, 12000)}
 """`;
@@ -47,11 +64,13 @@ ${content.slice(0, 12000)}
                     type: "object",
                     properties: {
                       question: { type: "string" },
-                      answers: { type: "array", items: { type: "string" }, minItems: 4, maxItems: 4 },
-                      correct_index: { type: "integer", minimum: 0, maximum: 3 },
+                      type: { type: "string", enum: ["qcm", "vrai_faux", "ouvert", "trous"] },
+                      answers: { type: "array", items: { type: "string" } },
+                      correct_index: { type: "integer", minimum: 0 },
+                      accepted_answers: { type: "array", items: { type: "string" } },
                       explanation: { type: "string" },
                     },
-                    required: ["question", "answers", "correct_index", "explanation"],
+                    required: ["question", "type", "explanation"],
                   },
                 },
               },
