@@ -10,6 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { CURSUS_OPTIONS } from "@/data/cursus";
+import { SearchableCombobox, SearchableMultiCombobox } from "@/components/revix/SearchableCombobox";
+import { FORMATIONS } from "@/data/formations";
+import { SUBJECTS } from "@/data/subjects";
 
 export default function Profil() {
   const { user } = useAuth();
@@ -36,7 +39,11 @@ export default function Profil() {
   const save = async () => {
     if (!user || !profile) return;
     const { error } = await supabase.from("profiles").update({
-      display_name: profile.display_name, school: profile.school, cursus: profile.cursus,
+      display_name: profile.display_name,
+      school: profile.school,
+      cursus: profile.cursus,
+      formation: profile.formation,
+      subjects: profile.subjects ?? [],
     }).eq("id", user.id);
     if (error) toast.error(error.message); else toast.success("Profil enregistré");
   };
@@ -46,6 +53,13 @@ export default function Profil() {
   if (!profile) return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement...</div></AppLayout>;
 
   const initials = (profile.display_name ?? "U").split(" ").map((s: string) => s[0]).join("").slice(0, 2).toUpperCase();
+
+  const formationItems = FORMATIONS.map(f => ({
+    value: f.name,
+    label: f.abbr ? `${f.abbr} — ${f.name.replace(`${f.abbr} - `, "").replace(`${f.abbr} `, "")}` : f.name,
+    group: f.category,
+  }));
+  const subjectItems = SUBJECTS.map(s => ({ value: s.name, label: s.name, group: s.category, emoji: s.emoji }));
 
   return (
     <AppLayout>
@@ -96,6 +110,25 @@ export default function Profil() {
               <option value="">—</option>
               {CURSUS_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
             </select>
+          </div>
+          <div className="space-y-1.5">
+            <Label>Formation précise</Label>
+            <SearchableCombobox
+              items={formationItems}
+              value={profile.formation ?? ""}
+              onChange={(v) => setProfile({ ...profile, formation: v })}
+              placeholder="ex : BUT GEA, Licence Droit..."
+            />
+          </div>
+          <div className="space-y-1.5">
+            <Label>Mes matières</Label>
+            <SearchableMultiCombobox
+              items={subjectItems}
+              values={(profile.subjects as string[]) ?? []}
+              onChange={(v) => setProfile({ ...profile, subjects: v })}
+              placeholder="Ajouter une matière"
+              max={20}
+            />
           </div>
           <Button onClick={save} className="w-full rounded-full gradient-primary border-0">Enregistrer</Button>
         </div>
