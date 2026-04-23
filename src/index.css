@@ -7,15 +7,16 @@
    Typography: Inter (UI) + Instrument Serif (titles, Notion-vibe) */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&display=swap');
 
 @layer base {
   :root {
-    /* Notion-like warm paper */
-    --background: 40 28% 97%;
-    --foreground: 28 12% 14%;
+    /* Cahier d'étudiant : papier crème chaud */
+    --background: 38 36% 95%;
+    --foreground: 25 22% 16%;
 
-    --card: 40 30% 99%;
-    --card-foreground: 28 12% 14%;
+    --card: 40 42% 97%;
+    --card-foreground: 25 22% 16%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 28 12% 14%;
@@ -25,11 +26,11 @@
     --primary-foreground: 0 0% 100%;
     --primary-glow: 258 90% 76%;
 
-    --secondary: 40 18% 92%;
-    --secondary-foreground: 28 12% 14%;
+    --secondary: 38 28% 90%;
+    --secondary-foreground: 25 22% 16%;
 
-    --muted: 40 22% 94%;
-    --muted-foreground: 28 10% 42%;
+    --muted: 38 30% 92%;
+    --muted-foreground: 25 14% 40%;
 
     /* Soft violet #A78BFA */
     --accent: 258 90% 76%;
@@ -41,21 +42,37 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 18% 88%;
-    --input: 35 18% 88%;
+    --border: 35 22% 84%;
+    --input: 35 22% 84%;
     --ring: 263 53% 51%;
+
+    /* Univers académique */
+    --paper: 38 36% 95%;
+    --paper-line: 210 60% 70%;
+    --ink: 230 50% 25%;
+    --highlight-yellow: 48 100% 80%;
+    --highlight-pink: 340 90% 88%;
+    --highlight-green: 130 70% 80%;
+    --tape: 48 80% 78%;
+    --tape-pink: 340 70% 82%;
+    --tape-mint: 160 50% 78%;
+    --postit: 50 95% 78%;
+    --postit-pink: 340 90% 86%;
 
     --radius: 0.75rem;
 
     --gradient-primary: linear-gradient(135deg, hsl(263 53% 51%), hsl(258 90% 76%));
     --gradient-hero: linear-gradient(135deg, hsl(263 53% 51%) 0%, hsl(280 70% 60%) 50%, hsl(258 90% 76%) 100%);
     --gradient-dark: linear-gradient(135deg, hsl(28 15% 18%) 0%, hsl(263 30% 25%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(42 90% 60%), hsl(38 90% 50%));
     --shadow-soft: 0 2px 8px -2px hsl(28 15% 20% / 0.08);
     --shadow-glow: 0 10px 40px -10px hsl(263 53% 51% / 0.4);
     --shadow-card: 0 1px 3px hsl(28 15% 20% / 0.04), 0 1px 2px hsl(28 15% 20% / 0.03);
     --shadow-phone: 0 30px 60px -20px hsl(28 15% 20% / 0.25), 0 20px 40px -25px hsl(263 53% 51% / 0.2);
+    --shadow-paper: 0 1px 0 hsl(28 15% 20% / 0.04), 0 2px 6px -2px hsl(28 15% 20% / 0.08);
 
     --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
+    --font-hand: 'Caveat', 'Kalam', cursive;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 11%;
