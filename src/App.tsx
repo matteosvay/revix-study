@@ -14,33 +14,39 @@ import Fiches from "./pages/app/Fiches";
 import Quizz from "./pages/app/Quizz";
 import Planning from "./pages/app/Planning";
 import Profil from "./pages/app/Profil";
-import Communaute from "./pages/app/Communaute";
+import Oral from "./pages/app/Oral";
+import CourseDetail from "./pages/app/CourseDetail";
+import { AuthProvider } from "./hooks/useAuth";
+import { RequireAuth } from "./components/revix/RequireAuth";
 
 const queryClient = new QueryClient();
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/reset-password" element={<Reset />} />
-          <Route path="/app" element={<Dashboard />} />
-          <Route path="/app/upload" element={<Upload />} />
-          <Route path="/app/fiches" element={<Fiches />} />
-          <Route path="/app/quizz" element={<Quizz />} />
-          <Route path="/app/planning" element={<Planning />} />
-          <Route path="/app/profil" element={<Profil />} />
-          <Route path="/app/communaute" element={<Communaute />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
+    <AuthProvider>
+      <TooltipProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Index />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/reset-password" element={<Reset />} />
+            <Route path="/app" element={<RequireAuth><Dashboard /></RequireAuth>} />
+            <Route path="/app/upload" element={<RequireAuth><Upload /></RequireAuth>} />
+            <Route path="/app/fiches" element={<RequireAuth><Fiches /></RequireAuth>} />
+            <Route path="/app/fiches/:id" element={<RequireAuth><CourseDetail /></RequireAuth>} />
+            <Route path="/app/quizz" element={<RequireAuth><Quizz /></RequireAuth>} />
+            <Route path="/app/planning" element={<RequireAuth><Planning /></RequireAuth>} />
+            <Route path="/app/oral" element={<RequireAuth><Oral /></RequireAuth>} />
+            <Route path="/app/profil" element={<RequireAuth><Profil /></RequireAuth>} />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </TooltipProvider>
+    </AuthProvider>
   </QueryClientProvider>
 );
 
