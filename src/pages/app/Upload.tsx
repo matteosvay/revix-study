@@ -73,6 +73,10 @@ export default function Upload() {
       if (fiches.length === 0) throw new Error("L'IA n'a pas pu générer de fiches. Réessaie.");
 
       setStep(3);
+      // Save rich summary on the course
+      if (gen?.summary) {
+        await supabase.from("courses").update({ summary: gen.summary }).eq("id", course.id);
+      }
       const rows = fiches.map((f, i) => ({ course_id: course.id, user_id: user.id, front: f.front, back: f.back, position: i }));
       const { error: fErr } = await supabase.from("flashcards").insert(rows);
       if (fErr) throw fErr;
