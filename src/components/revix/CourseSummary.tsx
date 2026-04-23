@@ -28,19 +28,24 @@ function renderInline(text: string) {
 function Block({ b }: { b: SummaryBlock }) {
   switch (b.kind) {
     case "paragraph":
+      if (!b.text) return null;
       return <p className="text-[15px] leading-relaxed text-foreground/90">{renderInline(b.text)}</p>;
     case "definition":
+      if (!b.text && !b.term) return null;
       return (
         <div className="rounded-xl border-l-4 border-primary bg-primary/5 px-4 py-3">
           <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-primary font-semibold mb-1">
             <BookMarked className="h-3 w-3" /> Définition
           </div>
           <p className="text-[15px] leading-relaxed">
-            <span className="font-semibold text-primary">{b.term}</span> — {renderInline(b.text)}
+            <span className="font-semibold text-primary">{b.term ?? ""}</span>
+            {b.term && b.text ? " — " : ""}
+            {b.text ? renderInline(b.text) : null}
           </p>
         </div>
       );
     case "key_point":
+      if (!b.text) return null;
       return (
         <div className="flex gap-2 items-start">
           <span className="mt-1.5 h-2 w-2 rounded-full bg-primary shrink-0" />
@@ -50,6 +55,7 @@ function Block({ b }: { b: SummaryBlock }) {
         </div>
       );
     case "example":
+      if (!b.text) return null;
       return (
         <div className="rounded-xl bg-secondary/60 px-4 py-3 border border-border/60">
           <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-muted-foreground font-semibold mb-1">
@@ -59,6 +65,7 @@ function Block({ b }: { b: SummaryBlock }) {
         </div>
       );
     case "tip":
+      if (!b.text) return null;
       return (
         <div className="rounded-xl bg-[hsl(48_95%_88%)] dark:bg-[hsl(48_70%_25%)] px-4 py-3">
           <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider font-semibold mb-1 text-[hsl(28_80%_30%)] dark:text-[hsl(48_95%_75%)]">
@@ -67,10 +74,14 @@ function Block({ b }: { b: SummaryBlock }) {
           <p className="text-[14px] leading-relaxed text-foreground/90">{renderInline(b.text)}</p>
         </div>
       );
-    case "list":
+    case "list": {
+      const items = Array.isArray((b as any).items)
+        ? (b as any).items
+        : (b as any).text ? [(b as any).text] : [];
+      if (items.length === 0) return null;
       return (
         <ul className="space-y-1.5">
-          {b.items.map((it, i) => (
+          {items.map((it: string, i: number) => (
             <li key={i} className="flex gap-2 items-start text-[15px] leading-relaxed">
               <ListChecks className="h-4 w-4 text-primary mt-0.5 shrink-0" />
               <span>{renderInline(it)}</span>
@@ -78,6 +89,9 @@ function Block({ b }: { b: SummaryBlock }) {
           ))}
         </ul>
       );
+    }
+    default:
+      return null;
   }
 }
 
