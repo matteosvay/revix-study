@@ -8,6 +8,8 @@ import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, Chevr
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { awardXp, bumpQuest } from "@/hooks/useGamification";
+import { XP_REWARDS } from "@/lib/gamification";
 
 type QType = "qcm" | "vrai_faux" | "ouvert" | "trous";
 type Q = {
@@ -86,8 +88,20 @@ export default function Quizz() {
           // Incrémente le compteur quiz et octroie un jeton tous les 10 quiz
           const { data: tokenRes } = await supabase.rpc("increment_quiz_count", { p_user_id: user.id });
           if ((tokenRes as any)?.earned) {
-            toast.success("❄️ Jeton de restauration gagné !", { description: "Sauve ta streak en cas de pépin." });
+            toast.success("📎 Pass de restauration gagné !", { description: "Colle-le sur une streak perdue." });
           }
+          // XP : finir un quiz + bonus score
+          const pct = (nextScore / questions.length) * 100;
+          let total = XP_REWARDS.quiz_finish;
+          if (pct >= 80) total += XP_REWARDS.quiz_high_score;
+          if (pct === 100) total += XP_REWARDS.quiz_perfect;
+          await awardXp(user.id, total, "quiz_finish");
+          // Bump quêtes
+          await bumpQuest(user.id, "quiz_done", 1);
+          await bumpQuest(user.id, "questions_answered", questions.length);
+          if (pct >= 80) await bumpQuest(user.id, "high_score", 1);
+          if (pct === 100) await bumpQuest(user.id, "perfect_quiz", 1);
+          await bumpQuest(user.id, "streak_kept", 1);
         }
       } else {
         setQIdx(qIdx + 1); setPicked(null); setTextAnswer(""); setOpenResult(null);
