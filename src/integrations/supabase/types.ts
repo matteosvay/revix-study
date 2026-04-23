@@ -197,6 +197,8 @@ export type Database = {
           formation: string | null
           id: string
           last_active_date: string | null
+          league: string
+          level: number
           plan: string
           quiz_completed_count: number
           school: string | null
@@ -205,6 +207,9 @@ export type Database = {
           streak_tokens: number
           subjects: Json | null
           updated_at: string
+          week_started_at: string | null
+          xp_total: number
+          xp_week: number
         }
         Insert: {
           created_at?: string
@@ -214,6 +219,8 @@ export type Database = {
           formation?: string | null
           id: string
           last_active_date?: string | null
+          league?: string
+          level?: number
           plan?: string
           quiz_completed_count?: number
           school?: string | null
@@ -222,6 +229,9 @@ export type Database = {
           streak_tokens?: number
           subjects?: Json | null
           updated_at?: string
+          week_started_at?: string | null
+          xp_total?: number
+          xp_week?: number
         }
         Update: {
           created_at?: string
@@ -231,6 +241,8 @@ export type Database = {
           formation?: string | null
           id?: string
           last_active_date?: string | null
+          league?: string
+          level?: number
           plan?: string
           quiz_completed_count?: number
           school?: string | null
@@ -239,6 +251,9 @@ export type Database = {
           streak_tokens?: number
           subjects?: Json | null
           updated_at?: string
+          week_started_at?: string | null
+          xp_total?: number
+          xp_week?: number
         }
         Relationships: []
       }
@@ -362,14 +377,146 @@ export type Database = {
           },
         ]
       }
+      user_badges: {
+        Row: {
+          badge_key: string
+          id: string
+          unlocked_at: string
+          user_id: string
+        }
+        Insert: {
+          badge_key: string
+          id?: string
+          unlocked_at?: string
+          user_id: string
+        }
+        Update: {
+          badge_key?: string
+          id?: string
+          unlocked_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_inventory: {
+        Row: {
+          acquired_at: string
+          id: string
+          item_key: string
+          quantity: number
+          user_id: string
+        }
+        Insert: {
+          acquired_at?: string
+          id?: string
+          item_key: string
+          quantity?: number
+          user_id: string
+        }
+        Update: {
+          acquired_at?: string
+          id?: string
+          item_key?: string
+          quantity?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_quests: {
+        Row: {
+          claimed: boolean
+          completed: boolean
+          created_at: string
+          description: string | null
+          emoji: string | null
+          id: string
+          period_end: string
+          period_start: string
+          progress: number
+          quest_key: string
+          quest_type: string
+          target: number
+          title: string
+          user_id: string
+          xp_reward: number
+        }
+        Insert: {
+          claimed?: boolean
+          completed?: boolean
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          period_end: string
+          period_start: string
+          progress?: number
+          quest_key: string
+          quest_type: string
+          target?: number
+          title: string
+          user_id: string
+          xp_reward?: number
+        }
+        Update: {
+          claimed?: boolean
+          completed?: boolean
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          period_end?: string
+          period_start?: string
+          progress?: number
+          quest_key?: string
+          quest_type?: string
+          target?: number
+          title?: string
+          user_id?: string
+          xp_reward?: number
+        }
+        Relationships: []
+      }
+      xp_events: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          reason: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          id?: string
+          reason: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          reason?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      award_xp: {
+        Args: { p_amount: number; p_reason: string; p_user_id: string }
+        Returns: Json
+      }
+      bump_quest: {
+        Args: { p_inc?: number; p_quest_key: string; p_user_id: string }
+        Returns: Json
+      }
       bump_streak: { Args: { p_user_id: string }; Returns: undefined }
       increment_quiz_count: { Args: { p_user_id: string }; Returns: Json }
       restore_streak: { Args: { p_user_id: string }; Returns: Json }
+      xp_for_level: { Args: { p_level: number }; Returns: number }
     }
     Enums: {
       [_ in never]: never

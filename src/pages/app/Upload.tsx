@@ -11,6 +11,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { extractPdfText, fileToBase64 } from "@/lib/pdf";
 import { toast } from "sonner";
+import { awardXp, bumpQuest } from "@/hooks/useGamification";
+import { XP_REWARDS } from "@/lib/gamification";
 
 const STEPS = ["Lecture du fichier...", "Extraction du contenu...", "Analyse IA...", "Création des fiches..."];
 
@@ -83,6 +85,11 @@ export default function Upload() {
 
       // Bump streak
       await supabase.rpc("bump_streak", { p_user_id: user.id });
+
+      // XP : +50 pour un upload
+      await awardXp(user.id, XP_REWARDS.upload, "course_upload");
+      await bumpQuest(user.id, "course_uploaded", 1);
+      await bumpQuest(user.id, "streak_kept", 1);
 
       toast.success(`${fiches.length} fiches créées ✨`);
       nav(`/app/fiches/${course.id}`);

@@ -7,15 +7,16 @@
    Typography: Inter (UI) + Instrument Serif (titles, Notion-vibe) */
 
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&display=swap');
 
 @layer base {
   :root {
-    /* Notion-like warm paper */
-    --background: 40 28% 97%;
-    --foreground: 28 12% 14%;
+    /* Cahier d'étudiant : papier crème chaud */
+    --background: 38 36% 95%;
+    --foreground: 25 22% 16%;
 
-    --card: 40 30% 99%;
-    --card-foreground: 28 12% 14%;
+    --card: 40 42% 97%;
+    --card-foreground: 25 22% 16%;
 
     --popover: 0 0% 100%;
     --popover-foreground: 28 12% 14%;
@@ -25,11 +26,11 @@
     --primary-foreground: 0 0% 100%;
     --primary-glow: 258 90% 76%;
 
-    --secondary: 40 18% 92%;
-    --secondary-foreground: 28 12% 14%;
+    --secondary: 38 28% 90%;
+    --secondary-foreground: 25 22% 16%;
 
-    --muted: 40 22% 94%;
-    --muted-foreground: 28 10% 42%;
+    --muted: 38 30% 92%;
+    --muted-foreground: 25 14% 40%;
 
     /* Soft violet #A78BFA */
     --accent: 258 90% 76%;
@@ -41,21 +42,37 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 18% 88%;
-    --input: 35 18% 88%;
+    --border: 35 22% 84%;
+    --input: 35 22% 84%;
     --ring: 263 53% 51%;
+
+    /* Univers académique */
+    --paper: 38 36% 95%;
+    --paper-line: 210 60% 70%;
+    --ink: 230 50% 25%;
+    --highlight-yellow: 48 100% 80%;
+    --highlight-pink: 340 90% 88%;
+    --highlight-green: 130 70% 80%;
+    --tape: 48 80% 78%;
+    --tape-pink: 340 70% 82%;
+    --tape-mint: 160 50% 78%;
+    --postit: 50 95% 78%;
+    --postit-pink: 340 90% 86%;
 
     --radius: 0.75rem;
 
     --gradient-primary: linear-gradient(135deg, hsl(263 53% 51%), hsl(258 90% 76%));
     --gradient-hero: linear-gradient(135deg, hsl(263 53% 51%) 0%, hsl(280 70% 60%) 50%, hsl(258 90% 76%) 100%);
     --gradient-dark: linear-gradient(135deg, hsl(28 15% 18%) 0%, hsl(263 30% 25%) 100%);
+    --gradient-gold: linear-gradient(135deg, hsl(42 90% 60%), hsl(38 90% 50%));
     --shadow-soft: 0 2px 8px -2px hsl(28 15% 20% / 0.08);
     --shadow-glow: 0 10px 40px -10px hsl(263 53% 51% / 0.4);
     --shadow-card: 0 1px 3px hsl(28 15% 20% / 0.04), 0 1px 2px hsl(28 15% 20% / 0.03);
     --shadow-phone: 0 30px 60px -20px hsl(28 15% 20% / 0.25), 0 20px 40px -25px hsl(263 53% 51% / 0.2);
+    --shadow-paper: 0 1px 0 hsl(28 15% 20% / 0.04), 0 2px 6px -2px hsl(28 15% 20% / 0.08);
 
     --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
+    --font-hand: 'Caveat', 'Kalam', cursive;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 11%;
@@ -148,6 +165,127 @@
     backdrop-filter: blur(28px) saturate(200%);
     -webkit-backdrop-filter: blur(28px) saturate(200%);
   }
+
+  /* ===== Univers académique ===== */
+  .font-hand { font-family: var(--font-hand); }
+
+  /* Papier crème + lignes Seyes très subtiles */
+  .paper {
+    background-color: hsl(var(--paper));
+    background-image:
+      linear-gradient(hsl(var(--paper-line) / 0.10) 1px, transparent 1px);
+    background-size: 100% 28px;
+  }
+  .paper-grain {
+    background-color: hsl(var(--card));
+    background-image:
+      radial-gradient(hsl(28 15% 20% / 0.025) 1px, transparent 1px),
+      radial-gradient(hsl(28 15% 20% / 0.02) 1px, transparent 1px);
+    background-size: 14px 14px, 22px 22px;
+    background-position: 0 0, 7px 11px;
+  }
+
+  /* Scotch / washi tape — petit morceau collé en haut */
+  .tape {
+    position: absolute;
+    top: -10px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-3deg);
+    width: 70px;
+    height: 22px;
+    background: hsl(var(--tape) / 0.75);
+    border-left: 1px dashed hsl(28 15% 20% / 0.15);
+    border-right: 1px dashed hsl(28 15% 20% / 0.15);
+    box-shadow: 0 1px 3px hsl(28 15% 20% / 0.12);
+    z-index: 2;
+  }
+  .tape-left { left: 14px; transform: rotate(-8deg); }
+  .tape-right { left: auto; right: 14px; transform: rotate(6deg); }
+  .tape-pink { background: hsl(var(--tape-pink) / 0.8); }
+  .tape-mint { background: hsl(var(--tape-mint) / 0.8); }
+
+  /* Post-it */
+  .postit {
+    background: hsl(var(--postit));
+    box-shadow:
+      0 1px 1px hsl(28 15% 20% / 0.1),
+      0 8px 18px -10px hsl(28 15% 20% / 0.3);
+    transform: rotate(-1.5deg);
+    font-family: var(--font-hand);
+  }
+  .postit-pink { background: hsl(var(--postit-pink)); transform: rotate(1.5deg); }
+
+  /* Punaise */
+  .pin {
+    width: 14px; height: 14px; border-radius: 9999px;
+    background: radial-gradient(circle at 35% 30%, hsl(0 90% 70%), hsl(0 75% 45%));
+    box-shadow: 0 2px 4px hsl(28 15% 20% / 0.3), inset -2px -2px 3px hsl(0 0% 0% / 0.2);
+  }
+  .pin-blue { background: radial-gradient(circle at 35% 30%, hsl(220 90% 70%), hsl(220 75% 45%)); }
+  .pin-purple { background: radial-gradient(circle at 35% 30%, hsl(263 80% 70%), hsl(263 60% 45%)); }
+
+  /* Surligneur (highlight marker) */
+  .marker-yellow {
+    background: linear-gradient(180deg, transparent 50%, hsl(var(--highlight-yellow) / 0.85) 50%);
+    padding: 0 2px;
+  }
+  .marker-pink {
+    background: linear-gradient(180deg, transparent 50%, hsl(var(--highlight-pink) / 0.8) 50%);
+    padding: 0 2px;
+  }
+
+  /* Soulignement crayon (squiggly) */
+  .underline-pencil {
+    text-decoration: underline wavy hsl(263 53% 51% / 0.5);
+    text-underline-offset: 4px;
+  }
+
+  /* Card "fiche bristol" : crème, ombre douce, coin légèrement penché possible */
+  .card-paper {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    box-shadow: var(--shadow-paper);
+    border-radius: var(--radius);
+    position: relative;
+  }
+  .tilt-l { transform: rotate(-0.6deg); }
+  .tilt-r { transform: rotate(0.6deg); }
+
+  /* Bouton "stamp" */
+  .stamp {
+    font-family: var(--font-hand);
+    color: hsl(var(--primary));
+    border: 2px solid hsl(var(--primary) / 0.6);
+    padding: 2px 10px;
+    border-radius: 6px;
+    transform: rotate(-4deg);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    font-weight: 700;
+  }
+
+  /* Animations */
+  .float-slow { animation: float 4.5s ease-in-out infinite; }
+  .wiggle { animation: wiggle 2.4s ease-in-out infinite; }
+  @keyframes wiggle {
+    0%, 100% { transform: rotate(-1.5deg); }
+    50% { transform: rotate(1.5deg); }
+  }
+  @keyframes scribble-in {
+    0% { stroke-dashoffset: 200; opacity: 0; }
+    40% { opacity: 1; }
+    100% { stroke-dashoffset: 0; opacity: 1; }
+  }
+  .scribble path { stroke-dasharray: 200; animation: scribble-in 1.2s ease-out forwards; }
+
+  /* XP gain pill */
+  @keyframes xp-rise {
+    0% { transform: translateY(0) scale(0.9); opacity: 0; }
+    20% { opacity: 1; transform: translateY(-10px) scale(1); }
+    100% { transform: translateY(-60px) scale(1); opacity: 0; }
+  }
+  .xp-pill { animation: xp-rise 1.6s ease-out forwards; }
 
   /* Decorative ambient blobs */
   .ambient-glow::before {

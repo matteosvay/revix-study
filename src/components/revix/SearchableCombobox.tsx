@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, forwardRef } from "react";
 import { Check, Search, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
@@ -18,10 +18,10 @@ type Props = {
 };
 
 /** Notion-style searchable picker with grouped results. */
-export function SearchableCombobox({
+export const SearchableCombobox = forwardRef<HTMLDivElement, Props>(function SearchableCombobox({
   items, value, onChange, placeholder = "Sélectionner...",
   searchPlaceholder = "Rechercher...", emptyText = "Aucun résultat", className,
-}: Props) {
+}, ref) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
 
@@ -42,6 +42,7 @@ export function SearchableCombobox({
   const selected = items.find(i => i.value === value);
 
   return (
+    <div ref={ref}>
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
@@ -104,8 +105,9 @@ export function SearchableCombobox({
         </div>
       </PopoverContent>
     </Popover>
+    </div>
   );
-}
+});
 
 /** Multi-select variant for tags (subjects). */
 type MultiProps = Omit<Props, "value" | "onChange"> & {
@@ -114,10 +116,10 @@ type MultiProps = Omit<Props, "value" | "onChange"> & {
   max?: number;
 };
 
-export function SearchableMultiCombobox({
+export const SearchableMultiCombobox = forwardRef<HTMLDivElement, MultiProps>(function SearchableMultiCombobox({
   items, values, onChange, placeholder = "Ajouter...", searchPlaceholder = "Rechercher...",
   emptyText = "Aucun résultat", max, className,
-}: MultiProps) {
+}, ref) {
   const [open, setOpen] = useState(false);
   const [q, setQ] = useState("");
 
@@ -143,7 +145,7 @@ export function SearchableMultiCombobox({
   const selectedItems = values.map(v => items.find(i => i.value === v)).filter(Boolean) as ComboItem[];
 
   return (
-    <div className={className}>
+    <div ref={ref} className={className}>
       {selectedItems.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-2">
           {selectedItems.map(i => (
@@ -204,4 +206,4 @@ export function SearchableMultiCombobox({
       </Popover>
     </div>
   );
-}
+});

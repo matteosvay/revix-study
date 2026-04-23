@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
+import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 
 type Profile = {
   streak_days: number;
@@ -17,6 +18,7 @@ type Profile = {
 };
 
 function ymd(d: Date) { return d.toISOString().slice(0, 10); }
+const WEEK_LABELS = ["L", "M", "M", "J", "V", "S", "D"];
 
 export default function Streak() {
   const { user } = useAuth();
@@ -29,11 +31,10 @@ export default function Streak() {
     const { data: p } = await supabase
       .from("profiles")
       .select("streak_days, streak_record, streak_tokens, quiz_completed_count, last_active_date, plan")
-      .eq("id", user.id).single();
+      .eq("id", user.id).maybeSingle();
     setProfile(p as any);
 
-    // 30 derniers jours d'activité (quiz_attempts comme proxy d'activité)
-    const since = new Date(); since.setDate(since.getDate() - 30);
+    const since = new Date(); since.setDate(since.getDate() - 60);
     const { data: attempts } = await supabase
       .from("quiz_attempts").select("created_at")
       .eq("user_id", user.id).gte("created_at", since.toISOString());
@@ -55,7 +56,7 @@ export default function Streak() {
     if (!res?.success) {
       const map: Record<string, string> = {
         pro_required: "Réservé aux membres Pro ✨",
-        no_tokens: "Tu n'as pas de jeton de restauration",
+        no_tokens: "Tu n'as pas de pass de restauration",
         no_broken_streak: "Aucune streak à restaurer",
       };
       toast.error(map[res?.error] ?? "Impossible de restaurer");
@@ -67,18 +68,33 @@ export default function Streak() {
 
   if (!profile) return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement...</div></AppLayout>;
 
-  // Construit la grille des 30 derniers jours
-  const days: { date: Date; key: string; active: boolean; today: boolean }[] = [];
+  // Grille hebdo : 8 semaines, alignée lundi → dimanche, dernière colonne contient aujourd'hui
   const today = new Date(); today.setHours(0, 0, 0, 0);
-  for (let i = 29; i >= 0; i--) {
-    const d = new Date(today); d.setDate(today.getDate() - i);
+  const todayDow = (today.getDay() + 6) % 7; // monday = 0
+  const weeksToShow = 8;
+  const totalCells = weeksToShow * 7;
+  // We want last column to end on today: produce cells from oldest -> newest, monday-first per column
+  const cells: { date: Date; key: string; active: boolean; today: boolean; future: boolean }[] = [];
+  // start = today - (weeksToShow-1)*7 days, but adjusted so column starts on Monday
+  const start = new Date(today);
+  start.setDate(today.getDate() - ((weeksToShow - 1) * 7 + todayDow));
+  for (let i = 0; i < totalCells; i++) {
+    const d = new Date(start);
+    d.setDate(start.getDate() + i);
     const key = ymd(d);
-    days.push({ date: d, key, active: activeDates.has(key), today: i === 0 });
+    const future = d > today;
+    cells.push({
+      date: d,
+      key,
+      active: activeDates.has(key),
+      today: key === ymd(today),
+      future,
+    });
   }
 
   const todayActive = activeDates.has(ymd(today));
   const yest = new Date(today); yest.setDate(today.getDate() - 1);
-  const lostYesterday = profile.last_active_date && profile.last_active_date < ymd(yest);
+  const lostYesterday = !!profile.last_active_date && profile.last_active_date < ymd(yest);
 
   const nextTokenIn = 10 - (profile.quiz_completed_count % 10);
   const tokenProgress = ((profile.quiz_completed_count % 10) / 10) * 100;
@@ -87,15 +103,16 @@ export default function Streak() {
     <AppLayout>
       <PageHeader emoji="🔥" title="Streak" subtitle="Chaque jour compte." />
 
-      <div className="px-5 space-y-5">
-        {/* Hero streak */}
+      <div className="px-5 space-y-5 pb-6">
+        {/* Hero */}
         <div className="relative overflow-hidden rounded-3xl gradient-hero p-6 text-primary-foreground shadow-glow">
+          <Pin color="red" className="absolute top-3 right-3 z-10" />
           <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
           <div className="absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
           <div className="relative">
             <div className="flex items-center gap-3">
               <div className="h-14 w-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
-                <Flame className="h-8 w-8 animate-pulse" />
+                <Flame className="h-8 w-8 wiggle" />
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wider opacity-80">Série actuelle</p>
@@ -113,81 +130,98 @@ export default function Streak() {
         </div>
 
         {/* Stats */}
-        <div className="grid grid-cols-2 gap-2">
-          <div className="rounded-2xl border bg-card/80 backdrop-blur p-4 text-center">
-            <Trophy className="h-4 w-4 mx-auto text-primary" />
+        <div className="grid grid-cols-2 gap-3">
+          <div className="card-paper p-4 text-center relative tilt-l">
+            <Tape variant="pink" position="top" />
+            <Trophy className="h-4 w-4 mx-auto text-primary mt-1" />
             <p className="font-serif text-2xl mt-1">{profile.streak_record}j</p>
             <p className="text-[11px] text-muted-foreground">Record</p>
           </div>
-          <div className="rounded-2xl border bg-card/80 backdrop-blur p-4 text-center">
-            <CalendarIcon className="h-4 w-4 mx-auto text-primary" />
+          <div className="card-paper p-4 text-center relative tilt-r">
+            <Tape variant="mint" position="top" />
+            <CalendarIcon className="h-4 w-4 mx-auto text-primary mt-1" />
             <p className="font-serif text-2xl mt-1">{activeDates.size}</p>
-            <p className="text-[11px] text-muted-foreground">Jours actifs (30j)</p>
+            <p className="text-[11px] text-muted-foreground">Jours actifs</p>
           </div>
         </div>
 
-        {/* Calendrier 30 jours */}
-        <div className="rounded-2xl border bg-card/80 backdrop-blur p-4">
-          <div className="flex items-center justify-between mb-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">30 derniers jours</p>
+        {/* Calendrier hebdomadaire */}
+        <div className="card-paper p-4 relative">
+          <Tape variant="yellow" position="top-left" />
+          <div className="mb-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Activité — 8 dernières semaines</p>
+            <ScribbleUnderline className="w-28" />
           </div>
-          <div className="grid grid-cols-10 gap-1.5">
-            {days.map(d => (
-              <div
-                key={d.key}
-                title={d.date.toLocaleDateString("fr-FR")}
-                className={`aspect-square rounded-md transition-all ${
-                  d.active
-                    ? "gradient-primary shadow-sm"
-                    : "bg-muted/60"
-                } ${d.today ? "ring-2 ring-primary ring-offset-2 ring-offset-background" : ""}`}
-              />
-            ))}
-          </div>
-          <div className="flex items-center justify-between mt-3 text-[10px] text-muted-foreground">
-            <span>Il y a 30j</span>
-            <span>Aujourd'hui</span>
-          </div>
-        </div>
-
-        {/* Jetons de restauration */}
-        <div className="rounded-2xl border bg-card/80 backdrop-blur p-4">
-          <div className="flex items-start justify-between mb-3">
-            <div>
-              <p className="font-serif text-lg">Jetons de restauration</p>
-              <p className="text-xs text-muted-foreground">Sauve une streak perdue</p>
+          <div className="flex gap-2">
+            <div className="flex flex-col gap-[5px] pt-[2px] pr-1">
+              {WEEK_LABELS.map((l, i) => (
+                <span key={i} className="text-[9px] text-muted-foreground/70 h-5 leading-5 text-right w-3">{l}</span>
+              ))}
             </div>
-            <div className="flex gap-1">
-              {[0, 1, 2].map(i => (
+            <div className="grid grid-flow-col grid-rows-7 auto-cols-fr gap-[5px] flex-1">
+              {cells.map((d) => (
+                <div
+                  key={d.key}
+                  title={`${d.date.toLocaleDateString("fr-FR")}${d.active ? " · actif" : ""}`}
+                  className={`h-5 rounded-[4px] transition-all ${
+                    d.future
+                      ? "bg-muted/30"
+                      : d.active
+                      ? "gradient-primary shadow-sm"
+                      : "bg-muted/60"
+                  } ${d.today ? "ring-2 ring-primary ring-offset-1 ring-offset-card" : ""}`}
+                />
+              ))}
+            </div>
+          </div>
+          <div className="flex items-center justify-end gap-1.5 mt-3 text-[10px] text-muted-foreground">
+            <span>Moins</span>
+            <span className="h-2.5 w-2.5 rounded-sm bg-muted/60" />
+            <span className="h-2.5 w-2.5 rounded-sm bg-primary/40" />
+            <span className="h-2.5 w-2.5 rounded-sm bg-primary/70" />
+            <span className="h-2.5 w-2.5 rounded-sm gradient-primary" />
+            <span>Plus</span>
+          </div>
+        </div>
+
+        {/* Pass de restauration */}
+        <div className="card-paper p-4 relative">
+          <Tape variant="mint" position="top-right" />
+          <div className="flex items-start justify-between mb-3 gap-3">
+            <div>
+              <p className="font-serif text-lg">Pass de restauration</p>
+              <p className="text-xs text-muted-foreground">Colle un scotch sur ta streak perdue</p>
+            </div>
+            <div className="flex gap-2 shrink-0">
+              {[0, 1, 2].map((i) => (
                 <div
                   key={i}
-                  className={`h-9 w-9 rounded-xl flex items-center justify-center text-base ${
-                    i < profile.streak_tokens
-                      ? "gradient-primary text-primary-foreground shadow-sm"
-                      : "bg-muted text-muted-foreground/40"
+                  className={`relative h-10 w-12 rounded-sm flex items-center justify-center text-[10px] font-bold uppercase tracking-wider shadow-soft ${
+                    i < profile.streak_tokens ? "text-foreground/70" : "text-muted-foreground/40 border border-dashed border-muted-foreground/30 bg-muted/30"
                   }`}
+                  style={
+                    i < profile.streak_tokens
+                      ? { background: "hsl(var(--tape-pink) / 0.85)", transform: `rotate(${i % 2 === 0 ? -4 : 5}deg)` }
+                      : undefined
+                  }
                 >
-                  ❄️
+                  pass
                 </div>
               ))}
             </div>
           </div>
 
-          {/* Progression vers le prochain jeton */}
           <div>
             <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
-              <span>Prochain jeton</span>
+              <span>Prochain pass</span>
               <span>{profile.streak_tokens >= 3 ? "Max atteint" : `${nextTokenIn} quiz restants`}</span>
             </div>
             <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div
-                className="h-full gradient-primary transition-all"
-                style={{ width: `${profile.streak_tokens >= 3 ? 100 : tokenProgress}%` }}
-              />
+              <div className="h-full gradient-primary transition-all duration-700" style={{ width: `${profile.streak_tokens >= 3 ? 100 : tokenProgress}%` }} />
             </div>
+            <p className="text-[10px] text-muted-foreground mt-1.5">{profile.quiz_completed_count} quiz complétés au total</p>
           </div>
 
-          {/* CTA restauration */}
           {profile.plan === "pro" ? (
             <Button
               onClick={restore}
@@ -195,7 +229,7 @@ export default function Streak() {
               className="w-full mt-4 rounded-full gradient-primary border-0"
             >
               <RotateCcw className="h-4 w-4 mr-2" />
-              {profile.streak_tokens < 1 ? "Aucun jeton" : !lostYesterday ? "Streak intacte" : "Restaurer ma streak"}
+              {profile.streak_tokens < 1 ? "Aucun pass" : !lostYesterday ? "Streak intacte" : "Restaurer ma streak"}
             </Button>
           ) : (
             <Button asChild variant="outline" className="w-full mt-4 rounded-full border-primary/30">
@@ -207,14 +241,14 @@ export default function Streak() {
         </div>
 
         {/* Comment ça marche */}
-        <div className="rounded-2xl border-2 border-dashed border-primary/20 p-4">
+        <div className="rounded-2xl border-2 border-dashed border-primary/20 p-4 paper-grain">
           <p className="text-xs font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
             <Sparkles className="h-3 w-3" /> Comment ça marche
           </p>
           <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
             <li>• 1 activité par jour pour entretenir la flamme 🔥</li>
-            <li>• Tous les <strong className="text-foreground">10 quiz</strong>, tu gagnes 1 jeton ❄️ (max 3)</li>
-            <li>• Avec Pro, dépense un jeton pour restaurer une streak perdue la veille</li>
+            <li>• Tous les <strong className="text-foreground">10 quiz</strong>, tu gagnes 1 pass de scotch (max 3)</li>
+            <li>• Avec Pro, colle un pass pour restaurer une streak perdue la veille</li>
           </ul>
         </div>
       </div>

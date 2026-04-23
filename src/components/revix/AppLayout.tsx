@@ -1,11 +1,12 @@
 import { ReactNode } from "react";
 import { NavLink } from "@/components/NavLink";
-import { Home, BookOpen, Brain, Calendar, Flame, User } from "lucide-react";
+import { Home, BookOpen, Brain, Calendar, Flame, User, Map } from "lucide-react";
 
 const nav = [
   { to: "/app", end: true, label: "Accueil", icon: Home },
   { to: "/app/fiches", label: "Cours", icon: BookOpen },
   { to: "/app/quizz", label: "Quizz", icon: Brain },
+  { to: "/app/aventure", label: "Quêtes", icon: Map },
   { to: "/app/planning", label: "Planning", icon: Calendar },
   { to: "/app/streak", label: "Streak", icon: Flame },
   { to: "/app/profil", label: "Profil", icon: User },
@@ -17,7 +18,7 @@ const nav = [
  */
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-0 sm:p-6 lg:p-10 bg-gradient-to-br from-muted via-background to-secondary relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center p-0 sm:p-6 lg:p-10 paper-grain relative overflow-hidden">
       {/* Ambient background glows on desktop */}
       <div className="hidden sm:block absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
       <div className="hidden sm:block absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-accent/10 blur-[120px] pointer-events-none" />
@@ -40,16 +41,16 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
 
         {/* Bottom tab bar */}
         <nav className="absolute bottom-0 inset-x-0 border-t glass-tab">
-          <div className="grid grid-cols-6 px-1 pt-1.5 pb-2">
+          <div className="grid grid-cols-7 px-1 pt-1.5 pb-2">
             {nav.map((n) => (
               <NavLink
                 key={n.to}
                 to={n.to}
                 end={n.end}
-                className="flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-lg text-[10px] font-medium text-muted-foreground transition-colors"
+                className="flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-lg text-[9px] font-medium text-muted-foreground transition-colors"
                 activeClassName="!text-primary"
               >
-                <n.icon className="h-[22px] w-[22px]" strokeWidth={2} />
+                <n.icon className="h-[20px] w-[20px]" strokeWidth={2} />
                 {n.label}
               </NavLink>
             ))}
