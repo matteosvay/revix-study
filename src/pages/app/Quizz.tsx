@@ -1,146 +1,188 @@
-import { useState } from "react";
-import { AppLayout } from "@/components/revix/AppLayout";
-import { Card } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { useSearchParams } from "react-router-dom";
+import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle } from "lucide-react";
-import { courses, quizQuestions } from "@/data/mock";
+import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
-type Phase = "select" | "play" | "end";
+type Q = { id: string; question: string; answers: string[]; correct_index: number; explanation: string };
+type Quiz = { id: string; title: string };
 
 export default function Quizz() {
-  const [phase, setPhase] = useState<Phase>("select");
-  const [courseId, setCourseId] = useState(courses[0].id);
+  const { user } = useAuth();
+  const [params] = useSearchParams();
+  const presetId = params.get("id");
+  const [quizzes, setQuizzes] = useState<Quiz[]>([]);
+  const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
+  const [questions, setQuestions] = useState<Q[]>([]);
+  const [phase, setPhase] = useState<"select" | "play" | "end">("select");
   const [qIdx, setQIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [score, setScore] = useState(0);
   const [wrong, setWrong] = useState<number[]>([]);
 
-  const start = () => { setPhase("play"); setQIdx(0); setPicked(null); setScore(0); setWrong([]); };
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase.from("quizzes").select("id,title").eq("user_id", user.id).order("created_at", { ascending: false });
+      setQuizzes((data as any) ?? []);
+      if (presetId && data?.find(q => q.id === presetId)) {
+        const q = data.find(x => x.id === presetId)!;
+        startQuiz(q as any);
+      }
+    })();
+  }, [user, presetId]);
+
+  const startQuiz = async (q: Quiz) => {
+    const { data } = await supabase.from("quiz_questions").select("*").eq("quiz_id", q.id).order("position");
+    if (!data || !data.length) { toast.error("Quizz vide"); return; }
+    setActiveQuiz(q);
+    setQuestions(data as any);
+    setQIdx(0); setPicked(null); setScore(0); setWrong([]);
+    setPhase("play");
+  };
 
   const pick = (i: number) => {
     if (picked !== null) return;
     setPicked(i);
-    const correct = quizQuestions[qIdx].correct === i;
-    if (correct) setScore(s => s + 1); else setWrong(w => [...w, qIdx]);
-    setTimeout(() => {
-      if (qIdx + 1 >= quizQuestions.length) setPhase("end");
-      else { setQIdx(qIdx + 1); setPicked(null); }
-    }, 1100);
+    const ok = questions[qIdx].correct_index === i;
+    if (ok) setScore(s => s + 1); else setWrong(w => [...w, qIdx]);
+    setTimeout(async () => {
+      if (qIdx + 1 >= questions.length) {
+        setPhase("end");
+        if (user && activeQuiz) {
+          await supabase.from("quiz_attempts").insert({
+            user_id: user.id, quiz_id: activeQuiz.id,
+            score: ok ? score + 1 : score, total: questions.length,
+            wrong_indices: ok ? wrong : [...wrong, qIdx],
+          });
+          await supabase.rpc("bump_streak", { p_user_id: user.id });
+        }
+      } else {
+        setQIdx(qIdx + 1); setPicked(null);
+      }
+    }, 1300);
   };
 
   if (phase === "select") {
     return (
       <AppLayout>
-        <div className="max-w-3xl mx-auto">
-          <h1 className="text-3xl font-extrabold tracking-tight">Quizz</h1>
-          <p className="text-muted-foreground mt-1">Choisis un cours pour tester tes connaissances.</p>
-          <div className="grid sm:grid-cols-2 gap-4 mt-8">
-            {courses.map(c => (
-              <Card key={c.id} onClick={() => setCourseId(c.id)} className={`p-6 rounded-2xl border-2 cursor-pointer transition ${courseId === c.id ? "border-primary shadow-glow" : "hover:border-primary/40"}`}>
-                <Badge variant="secondary" className="rounded-full">{c.level}</Badge>
-                <h3 className="font-bold mt-3">{c.title}</h3>
-                <p className="text-xs text-muted-foreground mt-1">{c.flashcards.length} fiches · 5 questions</p>
-              </Card>
+        <PageHeader emoji="🧠" title="Quizz" subtitle="Choisis un quizz pour t'entraîner." />
+        {quizzes.length === 0 ? (
+          <div className="px-5 mt-6 text-center">
+            <Brain className="h-10 w-10 mx-auto text-muted-foreground/50" />
+            <p className="font-serif text-xl mt-3">Aucun quizz</p>
+            <p className="text-sm text-muted-foreground mt-1 mb-4">Génère un quizz depuis un cours.</p>
+          </div>
+        ) : (
+          <div className="px-2">
+            {quizzes.map(q => (
+              <button key={q.id} onClick={() => startQuiz(q)} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg notion-row text-left">
+                <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <Brain className="h-4 w-4" />
+                </div>
+                <p className="flex-1 text-sm font-medium truncate">{q.title}</p>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              </button>
             ))}
           </div>
-          <Button onClick={start} size="lg" className="w-full mt-8 rounded-full gradient-primary border-0 h-14 text-base shadow-glow">
-            <Brain className="h-5 w-5 mr-2" /> Démarrer le quizz
-          </Button>
-        </div>
+        )}
       </AppLayout>
     );
   }
 
   if (phase === "play") {
-    const q = quizQuestions[qIdx];
+    const q = questions[qIdx];
     return (
       <AppLayout>
-        <div className="max-w-2xl mx-auto">
-          <div className="flex items-center justify-between mb-3 text-sm font-medium text-muted-foreground">
-            <span>Question {qIdx + 1} / {quizQuestions.length}</span>
+        <div className="px-5 pt-5">
+          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground mb-2">
+            <span>Question {qIdx + 1} / {questions.length}</span>
             <span>Score : {score}</span>
           </div>
-          <Progress value={((qIdx) / quizQuestions.length) * 100} className="h-2" />
+          <Progress value={(qIdx / questions.length) * 100} className="h-1.5" />
 
-          <Card className="p-8 rounded-2xl border-2 mt-6 shadow-card animate-fade-in" key={qIdx}>
-            <p className="text-xl font-semibold leading-relaxed">{q.q}</p>
-            <div className="mt-6 grid gap-3">
+          <div className="mt-6 animate-fade-in" key={qIdx}>
+            <p className="font-serif text-xl leading-snug">{q.question}</p>
+            <div className="mt-5 space-y-2">
               {q.answers.map((a, i) => {
-                const isCorrect = i === q.correct;
+                const isCorrect = i === q.correct_index;
                 const isPicked = picked === i;
-                let cls = "border-2 hover:border-primary hover:bg-primary/5";
+                let cls = "border bg-card hover:border-primary";
                 if (picked !== null) {
                   if (isCorrect) cls = "border-2 border-success bg-success/10 text-success";
                   else if (isPicked) cls = "border-2 border-destructive bg-destructive/10 text-destructive";
-                  else cls = "border-2 opacity-60";
+                  else cls = "border opacity-50";
                 }
                 return (
                   <button key={i} onClick={() => pick(i)} disabled={picked !== null}
-                    className={`flex items-center gap-3 p-4 rounded-xl text-left transition ${cls}`}>
-                    <span className="h-8 w-8 rounded-lg bg-muted flex items-center justify-center font-bold text-sm shrink-0">
+                    className={`w-full flex items-center gap-3 p-3.5 rounded-xl text-left transition ${cls}`}>
+                    <span className="h-7 w-7 rounded-md bg-muted flex items-center justify-center font-semibold text-xs shrink-0">
                       {String.fromCharCode(65 + i)}
                     </span>
-                    <span className="flex-1">{a}</span>
-                    {picked !== null && isCorrect && <CheckCircle2 className="h-5 w-5" />}
-                    {picked !== null && isPicked && !isCorrect && <XCircle className="h-5 w-5" />}
+                    <span className="flex-1 text-sm">{a}</span>
+                    {picked !== null && isCorrect && <CheckCircle2 className="h-4 w-4" />}
+                    {picked !== null && isPicked && !isCorrect && <XCircle className="h-4 w-4" />}
                   </button>
                 );
               })}
             </div>
-          </Card>
+            {picked !== null && q.explanation && (
+              <div className="mt-4 p-3 rounded-xl bg-muted/60 text-xs text-muted-foreground animate-fade-in">
+                💡 {q.explanation}
+              </div>
+            )}
+          </div>
         </div>
       </AppLayout>
     );
   }
 
   // end
-  const pct = Math.round((score / quizQuestions.length) * 100);
+  const pct = Math.round((score / questions.length) * 100);
   const predicted = Math.round((pct / 100) * 20);
   return (
     <AppLayout>
-      <div className="max-w-2xl mx-auto text-center animate-scale-in">
-        <div className="inline-flex h-20 w-20 rounded-full gradient-primary items-center justify-center shadow-glow mx-auto">
-          <Trophy className="h-10 w-10 text-primary-foreground" />
+      <div className="px-5 pt-10 text-center animate-scale-in">
+        <div className="inline-flex h-16 w-16 rounded-full gradient-primary items-center justify-center shadow-glow mx-auto">
+          <Trophy className="h-8 w-8 text-primary-foreground" />
         </div>
-        <h1 className="text-4xl font-extrabold mt-6">Quizz terminé !</h1>
-        <p className="text-muted-foreground mt-2">Tu as répondu correctement à {score} / {quizQuestions.length} questions</p>
+        <h1 className="font-serif text-3xl mt-4">Bien joué !</h1>
+        <p className="text-sm text-muted-foreground mt-1">{score} / {questions.length} bonnes réponses</p>
 
-        <Card className="p-8 rounded-2xl border-2 mt-8 text-left shadow-card">
-          <div className="grid grid-cols-2 gap-6">
-            <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider">Score</p>
-              <p className="text-4xl font-extrabold mt-1 gradient-text">{pct}%</p>
-            </div>
-            <div>
-              <p className="text-xs text-muted-foreground uppercase tracking-wider flex items-center gap-1"><Target className="h-3 w-3" /> Prédiction exam</p>
-              <p className="text-4xl font-extrabold mt-1">~{predicted}/20 🎯</p>
+        <div className="mt-6 grid grid-cols-2 gap-3 text-left">
+          <div className="rounded-xl border p-4">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Score</p>
+            <p className="font-serif text-3xl mt-1 gradient-text">{pct}%</p>
+          </div>
+          <div className="rounded-xl border p-4">
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1"><Target className="h-3 w-3" /> Pré-exam</p>
+            <p className="font-serif text-3xl mt-1">~{predicted}/20</p>
+          </div>
+        </div>
+
+        {wrong.length > 0 && (
+          <div className="mt-6 text-left">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">À retravailler</p>
+            <div className="space-y-2">
+              {wrong.map(i => (
+                <div key={i} className="rounded-lg border p-3 text-xs">
+                  <p className="font-medium">{questions[i].question}</p>
+                  <p className="text-success mt-1">✓ {questions[i].answers[questions[i].correct_index]}</p>
+                </div>
+              ))}
             </div>
           </div>
+        )}
 
-          <div className="mt-8">
-            <p className="text-sm font-semibold mb-3">Points faibles</p>
-            {wrong.length === 0 ? (
-              <p className="text-sm text-success">Aucun ! Tu maîtrises tout 💪</p>
-            ) : (
-              <ul className="space-y-2">
-                {wrong.map(i => (
-                  <li key={i} className="text-sm text-muted-foreground flex items-start gap-2">
-                    <XCircle className="h-4 w-4 text-destructive mt-0.5 shrink-0" />
-                    {quizQuestions[i].q}
-                  </li>
-                ))}
-              </ul>
-            )}
-          </div>
-        </Card>
-
-        <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
-          <Button onClick={start} size="lg" className="rounded-full gradient-primary border-0">
-            <RefreshCw className="h-4 w-4 mr-2" /> Refaire les questions ratées
+        <div className="mt-6 space-y-2">
+          <Button onClick={() => activeQuiz && startQuiz(activeQuiz)} className="w-full rounded-full gradient-primary border-0">
+            <RefreshCw className="h-4 w-4 mr-2" /> Refaire
           </Button>
-          <Button onClick={() => setPhase("select")} size="lg" variant="outline" className="rounded-full">Choisir un autre cours</Button>
+          <Button onClick={() => setPhase("select")} variant="outline" className="w-full rounded-full">Autre quizz</Button>
         </div>
       </div>
     </AppLayout>

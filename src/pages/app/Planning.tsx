@@ -1,81 +1,138 @@
-import { useState } from "react";
-import { AppLayout } from "@/components/revix/AppLayout";
-import { Card } from "@/components/ui/card";
+import { useEffect, useState } from "react";
+import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Sparkles, Flame } from "lucide-react";
-import { planning, todayTasks } from "@/data/mock";
+import { Sparkles, Loader2, Plus } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
+type Task = { id: string; task_date: string; start_time: string | null; end_time: string | null; subject: string; title: string | null; done: boolean };
+
+const dayLabels = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+
+function startOfWeek(d = new Date()) {
+  const x = new Date(d);
+  const day = (x.getDay() + 6) % 7;
+  x.setDate(x.getDate() - day);
+  x.setHours(0, 0, 0, 0);
+  return x;
+}
+function fmtDate(d: Date) { return d.toISOString().slice(0, 10); }
+
 export default function Planning() {
-  const [tasks, setTasks] = useState(todayTasks);
-  const toggle = (id: number) => setTasks(t => t.map(x => x.id === id ? { ...x, done: !x.done } : x));
+  const { user } = useAuth();
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [open, setOpen] = useState(false);
+  const [generating, setGenerating] = useState(false);
+
+  const week = startOfWeek();
+  const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(week); d.setDate(week.getDate() + i); return d; });
+
+  const load = async () => {
+    if (!user) return;
+    const start = fmtDate(week);
+    const end = fmtDate(days[6]);
+    const { data } = await supabase.from("planning_tasks").select("*").eq("user_id", user.id).gte("task_date", start).lte("task_date", end).order("task_date").order("start_time");
+    setTasks((data as any) ?? []);
+  };
+
+  useEffect(() => { load(); }, [user]);
+
+  const toggle = async (t: Task) => {
+    setTasks(ts => ts.map(x => x.id === t.id ? { ...x, done: !x.done } : x));
+    await supabase.from("planning_tasks").update({ done: !t.done }).eq("id", t.id);
+  };
+
+  const generate = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    if (!user) return;
+    const fd = new FormData(e.currentTarget);
+    setGenerating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-planning", {
+        body: {
+          hoursPerDay: Number(fd.get("hours")),
+          examDate: fd.get("exam") || null,
+          subjects: String(fd.get("subjects") ?? "").split(",").map(s => s.trim()).filter(Boolean),
+          startDate: fmtDate(week),
+        },
+      });
+      if (error) throw error;
+      const tasksGen = data?.tasks ?? [];
+      if (!tasksGen.length) throw new Error("Aucune tâche générée");
+      const rows = tasksGen.map((t: any) => ({ ...t, user_id: user.id }));
+      await supabase.from("planning_tasks").insert(rows);
+      toast.success("Planning généré ✨");
+      setOpen(false);
+      load();
+    } catch (e: any) { toast.error(e?.message ?? "Erreur"); }
+    finally { setGenerating(false); }
+  };
 
   return (
     <AppLayout>
-      <Card className="p-5 rounded-2xl border-0 gradient-hero text-primary-foreground mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <Flame className="h-8 w-8" />
-          <div>
-            <p className="font-bold">Tu es sur une série de 7 jours 🔥</p>
-            <p className="text-sm opacity-90">Encore 3 jours pour battre ton record !</p>
-          </div>
-        </div>
-      </Card>
+      <PageHeader
+        emoji="🗓️"
+        title="Planning"
+        subtitle="Cette semaine"
+        action={
+          <Dialog open={open} onOpenChange={setOpen}>
+            <DialogTrigger asChild>
+              <Button size="sm" className="rounded-full gradient-primary border-0">
+                <Sparkles className="h-3.5 w-3.5 mr-1" /> IA
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="rounded-2xl">
+              <DialogHeader><DialogTitle className="font-serif">Générer ton planning ✨</DialogTitle></DialogHeader>
+              <form onSubmit={generate} className="space-y-3 mt-2">
+                <div className="space-y-1.5"><Label>Heures dispo / jour</Label><Input name="hours" type="number" defaultValue={3} min={1} max={12} required /></div>
+                <div className="space-y-1.5"><Label>Date du prochain examen</Label><Input name="exam" type="date" /></div>
+                <div className="space-y-1.5"><Label>Matières prioritaires</Label><Input name="subjects" placeholder="Droit, Marketing..." /></div>
+                <Button type="submit" disabled={generating} className="w-full rounded-full gradient-primary border-0">
+                  {generating ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Génération...</> : "Générer"}
+                </Button>
+              </form>
+            </DialogContent>
+          </Dialog>
+        }
+      />
 
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight">Planning</h1>
-          <p className="text-muted-foreground mt-1">Semaine du 13 au 19 octobre</p>
-        </div>
-        <Dialog>
-          <DialogTrigger asChild>
-            <Button className="rounded-full gradient-primary border-0"><Sparkles className="h-4 w-4 mr-2" /> Générer un planning IA</Button>
-          </DialogTrigger>
-          <DialogContent className="rounded-2xl">
-            <DialogHeader><DialogTitle>Génère ton planning IA ✨</DialogTitle></DialogHeader>
-            <form onSubmit={(e) => { e.preventDefault(); toast.success("Planning généré !"); }} className="space-y-4 mt-2">
-              <div className="space-y-2"><Label>Heures dispo / jour</Label><Input type="number" defaultValue={3} min={1} max={12} /></div>
-              <div className="space-y-2"><Label>Date du prochain examen</Label><Input type="date" /></div>
-              <div className="space-y-2"><Label>Matières prioritaires</Label><Input placeholder="Droit, Marketing..." /></div>
-              <Button type="submit" className="w-full rounded-full gradient-primary border-0">Générer</Button>
-            </form>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      <div className="grid grid-cols-7 gap-3 mb-8">
-        {planning.map(d => (
-          <Card key={d.day} className="p-3 rounded-2xl border-2 min-h-[180px]">
-            <p className="font-bold text-sm text-center pb-2 border-b">{d.day}</p>
-            <div className="space-y-2 mt-2">
-              {d.tasks.map((t, i) => (
-                <div key={i} className="rounded-lg p-2 bg-muted/50 border-l-4" style={{ borderLeftColor: 'hsl(var(--primary))' }}>
-                  <div className={`h-1.5 w-1.5 rounded-full ${t.color} mb-1`} />
-                  <p className="text-[10px] font-medium">{t.time}</p>
-                  <p className="text-xs font-semibold truncate">{t.subject}</p>
-                </div>
-              ))}
-            </div>
-          </Card>
-        ))}
-      </div>
-
-      <Card className="p-6 rounded-2xl border-2 shadow-card">
-        <h2 className="font-bold text-lg mb-4">Tâches du jour</h2>
-        <div className="space-y-2">
-          {tasks.map(t => (
-            <button key={t.id} onClick={() => toggle(t.id)} className={`w-full flex items-center gap-3 p-3 rounded-xl border text-left ${t.done ? "bg-muted/50 opacity-60" : "hover:border-primary/40"}`}>
-              <div className={`h-5 w-5 rounded-md border-2 flex items-center justify-center ${t.done ? "bg-success border-success" : "border-muted-foreground/40"}`}>
-                {t.done && <span className="text-success-foreground text-xs">✓</span>}
+      <div className="px-5 space-y-4">
+        {days.map((d, i) => {
+          const dayTasks = tasks.filter(t => t.task_date === fmtDate(d));
+          const isToday = fmtDate(d) === fmtDate(new Date());
+          return (
+            <div key={i}>
+              <div className="flex items-baseline gap-2 mb-1.5">
+                <p className={`text-xs font-semibold uppercase tracking-wider ${isToday ? "text-primary" : "text-muted-foreground"}`}>
+                  {dayLabels[i]} {d.getDate()}
+                </p>
+                {isToday && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">Aujourd'hui</span>}
               </div>
-              <span className={`text-sm flex-1 ${t.done ? "line-through" : ""}`}>{t.label}</span>
-            </button>
-          ))}
-        </div>
-      </Card>
+              {dayTasks.length === 0 ? (
+                <p className="text-xs text-muted-foreground/60 italic px-2">Rien de prévu</p>
+              ) : (
+                <div className="space-y-1">
+                  {dayTasks.map(t => (
+                    <button key={t.id} onClick={() => toggle(t)} className={`w-full flex items-center gap-3 p-2.5 rounded-lg notion-row text-left ${t.done ? "opacity-50" : ""}`}>
+                      <div className={`h-4 w-4 rounded border-2 flex items-center justify-center shrink-0 ${t.done ? "bg-primary border-primary" : "border-muted-foreground/40"}`}>
+                        {t.done && <span className="text-primary-foreground text-[10px]">✓</span>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`text-sm font-medium truncate ${t.done ? "line-through" : ""}`}>{t.title ?? t.subject}</p>
+                        <p className="text-[11px] text-muted-foreground">{t.start_time} – {t.end_time} · {t.subject}</p>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
     </AppLayout>
   );
 }

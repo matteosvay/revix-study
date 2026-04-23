@@ -2,38 +2,38 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Revix design system — French study assistant
-   Palette: dark navy + electric purple + soft violet + white
-   Typography: Inter (sans) */
+/* Revix design system — Notion-hybrid + Revix purple
+   Palette: warm beige paper, charcoal ink, electric purple accent
+   Typography: Inter (UI) + Instrument Serif (titles, Notion-vibe) */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap');
 
 @layer base {
   :root {
-    --background: 210 40% 98%;
-    --foreground: 222 47% 11%;
+    /* Notion-like warm paper */
+    --background: 40 28% 97%;
+    --foreground: 28 12% 14%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card: 40 30% 99%;
+    --card-foreground: 28 12% 14%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 28 12% 14%;
 
     /* Electric purple #6C3FC4 */
     --primary: 263 53% 51%;
     --primary-foreground: 0 0% 100%;
     --primary-glow: 258 90% 76%;
 
-    /* Dark navy #0F172A */
-    --secondary: 222 47% 11%;
-    --secondary-foreground: 0 0% 100%;
+    --secondary: 40 18% 92%;
+    --secondary-foreground: 28 12% 14%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 9% 46%;
+    --muted: 40 22% 94%;
+    --muted-foreground: 28 10% 42%;
 
     /* Soft violet #A78BFA */
     --accent: 258 90% 76%;
-    --accent-foreground: 222 47% 11%;
+    --accent-foreground: 28 12% 14%;
 
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
@@ -41,18 +41,21 @@
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
+    --border: 35 18% 88%;
+    --input: 35 18% 88%;
     --ring: 263 53% 51%;
 
-    --radius: 1rem;
+    --radius: 0.75rem;
 
     --gradient-primary: linear-gradient(135deg, hsl(263 53% 51%), hsl(258 90% 76%));
     --gradient-hero: linear-gradient(135deg, hsl(263 53% 51%) 0%, hsl(280 70% 60%) 50%, hsl(258 90% 76%) 100%);
-    --gradient-dark: linear-gradient(135deg, hsl(222 47% 11%) 0%, hsl(263 40% 20%) 100%);
-    --shadow-soft: 0 4px 20px -4px hsl(263 53% 51% / 0.15);
+    --gradient-dark: linear-gradient(135deg, hsl(28 15% 18%) 0%, hsl(263 30% 25%) 100%);
+    --shadow-soft: 0 2px 8px -2px hsl(28 15% 20% / 0.08);
     --shadow-glow: 0 10px 40px -10px hsl(263 53% 51% / 0.4);
-    --shadow-card: 0 2px 12px -2px hsl(222 47% 11% / 0.08);
+    --shadow-card: 0 1px 3px hsl(28 15% 20% / 0.04), 0 1px 2px hsl(28 15% 20% / 0.03);
+    --shadow-phone: 0 30px 60px -20px hsl(28 15% 20% / 0.25), 0 20px 40px -25px hsl(263 53% 51% / 0.2);
+
+    --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
 
     --sidebar-background: 0 0% 100%;
     --sidebar-foreground: 222 47% 11%;
@@ -106,6 +109,7 @@
     font-family: 'Inter', system-ui, sans-serif;
     font-feature-settings: 'cv11', 'ss01';
   }
+  h1, h2, h3, .font-serif { font-family: var(--font-serif); font-weight: 400; letter-spacing: -0.01em; }
 }
 
 @layer utilities {
@@ -121,6 +125,10 @@
   .shadow-soft { box-shadow: var(--shadow-soft); }
   .shadow-glow { box-shadow: var(--shadow-glow); }
   .shadow-card { box-shadow: var(--shadow-card); }
+  .shadow-phone { box-shadow: var(--shadow-phone); }
+
+  /* Notion-style hover row */
+  .notion-row { @apply transition-colors hover:bg-muted/60 rounded-md; }
 
   .flip-card { perspective: 1000px; }
   .flip-inner {

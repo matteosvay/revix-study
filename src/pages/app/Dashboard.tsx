@@ -1,128 +1,105 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { AppLayout } from "@/components/revix/AppLayout";
-import { Card } from "@/components/ui/card";
+import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
-import { Flame, Upload, Brain, Trophy, Sparkles, Lock, Plus, ArrowRight, Calendar } from "lucide-react";
-import { recentActivity, todayTasks } from "@/data/mock";
+import { Flame, Plus, BookOpen, Brain, Calendar, Mic, Sparkles, ChevronRight } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
-const iconMap = { trophy: Trophy, upload: Upload, flame: Flame, sparkles: Sparkles };
+type Profile = { display_name: string | null; streak_days: number; streak_record: number };
 
 export default function Dashboard() {
-  const score = 76;
+  const { user } = useAuth();
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [stats, setStats] = useState({ courses: 0, fiches: 0, quizzes: 0, avg: 0 });
+
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const [{ data: p }, { count: cc }, { count: fc }, { count: qc }, { data: attempts }] = await Promise.all([
+        supabase.from("profiles").select("display_name, streak_days, streak_record").eq("id", user.id).single(),
+        supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("flashcards").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+        supabase.from("quiz_attempts").select("score, total").eq("user_id", user.id),
+      ]);
+      setProfile(p as any);
+      const avg = attempts && attempts.length
+        ? Math.round(attempts.reduce((s, a) => s + (a.score / a.total) * 100, 0) / attempts.length)
+        : 0;
+      setStats({ courses: cc ?? 0, fiches: fc ?? 0, quizzes: qc ?? 0, avg });
+    })();
+  }, [user]);
+
+  const name = profile?.display_name?.split(" ")[0] ?? "toi";
+
+  const tiles = [
+    { to: "/app/upload", icon: Plus, label: "Nouveau cours", desc: "Upload un PDF ou photo", accent: true },
+    { to: "/app/fiches", icon: BookOpen, label: "Mes fiches", desc: `${stats.fiches} fiches` },
+    { to: "/app/quizz", icon: Brain, label: "Quizz", desc: `Score moyen ${stats.avg}%` },
+    { to: "/app/planning", icon: Calendar, label: "Planning", desc: "Organise tes révisions" },
+    { to: "/app/oral", icon: Mic, label: "Mode oral", desc: "Entraîne-toi à l'oral" },
+  ];
+
   return (
     <AppLayout>
-      <div className="mb-8">
-        <h1 className="text-3xl font-extrabold tracking-tight">Salut Léa 👋</h1>
-        <p className="text-muted-foreground mt-1">Continue sur ta lancée, tu cartonnes cette semaine.</p>
-      </div>
+      <PageHeader emoji="✨" title={`Salut ${name}`} subtitle="Reprends là où tu t'es arrêté." />
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-        {/* Streak */}
-        <Card className="p-5 rounded-2xl border-2 shadow-card relative overflow-hidden">
-          <div className="absolute -right-6 -top-6 h-24 w-24 rounded-full bg-orange-500/10" />
-          <div className="flex items-center gap-2 text-orange-600">
-            <Flame className="h-5 w-5" />
-            <span className="text-xs font-semibold uppercase tracking-wider">Streak</span>
+      <div className="px-5">
+        <div className="rounded-2xl border bg-gradient-to-br from-orange-50 to-amber-50 p-4 flex items-center gap-3">
+          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0 shadow-sm">
+            <Flame className="h-6 w-6 text-white" />
           </div>
-          <p className="mt-3 text-3xl font-extrabold">7 jours 🔥</p>
-          <p className="text-xs text-muted-foreground mt-1">Record perso : 12 jours</p>
-        </Card>
+          <div className="flex-1">
+            <p className="font-semibold">{profile?.streak_days ?? 0} jours d'affilée</p>
+            <p className="text-xs text-muted-foreground">Record perso : {profile?.streak_record ?? 0}j</p>
+          </div>
+        </div>
 
-        {/* Uploads */}
-        <Card className="p-5 rounded-2xl border-2 shadow-card relative">
-          <div className="flex items-center gap-2 text-primary">
-            <Upload className="h-5 w-5" />
-            <span className="text-xs font-semibold uppercase tracking-wider">Uploads</span>
-          </div>
-          <p className="mt-3 text-3xl font-extrabold">2<span className="text-base text-muted-foreground font-normal">/3</span></p>
-          <Progress value={66} className="mt-3 h-2" />
-          <p className="text-xs text-muted-foreground mt-2 flex items-center gap-1"><Lock className="h-3 w-3" /> Plan gratuit</p>
-        </Card>
-
-        {/* Score */}
-        <Card className="p-5 rounded-2xl border-2 shadow-card">
-          <div className="flex items-center gap-2 text-primary">
-            <Trophy className="h-5 w-5" />
-            <span className="text-xs font-semibold uppercase tracking-wider">Score moyen</span>
-          </div>
-          <div className="mt-3 flex items-center gap-4">
-            <div className="relative h-16 w-16">
-              <svg className="h-full w-full -rotate-90">
-                <circle cx="32" cy="32" r="28" className="stroke-muted fill-none" strokeWidth="6" />
-                <circle cx="32" cy="32" r="28" className="stroke-primary fill-none" strokeWidth="6" strokeLinecap="round" strokeDasharray={2 * Math.PI * 28} strokeDashoffset={2 * Math.PI * 28 * (1 - score / 100)} />
-              </svg>
-              <span className="absolute inset-0 flex items-center justify-center text-sm font-bold">{score}%</span>
+        <div className="mt-5 mb-2 px-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Vue d'ensemble</p>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {[
+            { v: stats.courses, l: "Cours" },
+            { v: stats.fiches, l: "Fiches" },
+            { v: stats.quizzes, l: "Quizz" },
+          ].map((s) => (
+            <div key={s.l} className="rounded-xl border bg-card p-3 text-center">
+              <p className="text-2xl font-serif">{s.v}</p>
+              <p className="text-[11px] text-muted-foreground mt-0.5">{s.l}</p>
             </div>
-            <div>
-              <p className="text-xs text-muted-foreground">Sur 12 quizz</p>
-              <p className="text-xs text-success font-medium mt-1">+8% ce mois</p>
-            </div>
-          </div>
-        </Card>
+          ))}
+        </div>
 
-        {/* Quiz reco */}
-        <Card className="p-5 rounded-2xl border-2 shadow-card gradient-primary text-primary-foreground">
-          <div className="flex items-center gap-2 opacity-90">
-            <Brain className="h-5 w-5" />
-            <span className="text-xs font-semibold uppercase tracking-wider">Recommandé</span>
-          </div>
-          <p className="mt-3 font-bold">Quizz Marketing Mix</p>
-          <p className="text-xs opacity-80 mt-1">20 questions · 10 min</p>
-          <Button asChild size="sm" variant="secondary" className="mt-4 rounded-full w-full">
-            <Link to="/app/quizz">Démarrer <ArrowRight className="ml-1 h-3 w-3" /></Link>
-          </Button>
-        </Card>
-      </div>
+        <div className="mt-6 mb-2 px-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Raccourcis</p>
+        </div>
+        <div className="space-y-1">
+          {tiles.map((t) => (
+            <Link key={t.to} to={t.to} className="flex items-center gap-3 px-2 py-2.5 rounded-lg notion-row">
+              <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${t.accent ? "gradient-primary text-primary-foreground" : "bg-muted"}`}>
+                <t.icon className="h-4 w-4" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium">{t.label}</p>
+                <p className="text-xs text-muted-foreground truncate">{t.desc}</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+          ))}
+        </div>
 
-      <div className="grid lg:grid-cols-3 gap-6">
-        {/* Today */}
-        <Card className="lg:col-span-2 p-6 rounded-2xl border-2 shadow-card">
-          <div className="flex items-center justify-between mb-4">
-            <div>
-              <h2 className="font-bold text-lg flex items-center gap-2"><Calendar className="h-5 w-5 text-primary" /> Planning du jour</h2>
-              <p className="text-xs text-muted-foreground mt-0.5">3 tâches prévues</p>
-            </div>
-            <Button asChild variant="ghost" size="sm" className="rounded-full">
-              <Link to="/app/planning">Voir tout</Link>
+        {stats.courses === 0 && (
+          <div className="mt-6 rounded-2xl border-2 border-dashed border-primary/30 p-6 text-center">
+            <Sparkles className="h-8 w-8 mx-auto text-primary" />
+            <p className="font-serif text-xl mt-2">Crée ta première fiche</p>
+            <p className="text-xs text-muted-foreground mt-1 mb-4">Upload un cours et l'IA fait le reste.</p>
+            <Button asChild className="rounded-full gradient-primary border-0">
+              <Link to="/app/upload"><Plus className="h-4 w-4 mr-1" /> Commencer</Link>
             </Button>
           </div>
-          <div className="space-y-2">
-            {todayTasks.map((t) => (
-              <div key={t.id} className={`flex items-center gap-3 p-3 rounded-xl border ${t.done ? "bg-muted/50 opacity-60" : "bg-card"}`}>
-                <div className={`h-5 w-5 rounded-md border-2 flex items-center justify-center ${t.done ? "bg-success border-success" : "border-muted-foreground/40"}`}>
-                  {t.done && <span className="text-success-foreground text-xs">✓</span>}
-                </div>
-                <span className={`text-sm flex-1 ${t.done ? "line-through" : ""}`}>{t.label}</span>
-              </div>
-            ))}
-          </div>
-          <Button asChild className="mt-4 w-full rounded-full gradient-primary border-0">
-            <Link to="/app/upload"><Plus className="h-4 w-4 mr-1" /> Nouveau cours</Link>
-          </Button>
-        </Card>
-
-        {/* Activity */}
-        <Card className="p-6 rounded-2xl border-2 shadow-card">
-          <h2 className="font-bold text-lg mb-4">Activité récente</h2>
-          <div className="space-y-4">
-            {recentActivity.map((a) => {
-              const I = iconMap[a.icon as keyof typeof iconMap];
-              return (
-                <div key={a.id} className="flex items-start gap-3">
-                  <div className="h-8 w-8 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                    <I className="h-4 w-4" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm leading-snug">{a.text}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{a.time}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
+        )}
       </div>
     </AppLayout>
   );
