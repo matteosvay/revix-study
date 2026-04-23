@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { AuthShell } from "./AuthShell";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { CURSUS_OPTIONS } from "@/data/cursus";
 
 export default function SignUp() {
   const nav = useNavigate();
@@ -51,10 +52,9 @@ export default function SignUp() {
           <Select value={cursus} onValueChange={setCursus}>
             <SelectTrigger><SelectValue placeholder="Choisis ton cursus" /></SelectTrigger>
             <SelectContent>
-              <SelectItem value="BTS">BTS</SelectItem>
-              <SelectItem value="Licence">Licence</SelectItem>
-              <SelectItem value="Prépa">Prépa</SelectItem>
-              <SelectItem value="Autre">Autre</SelectItem>
+              {CURSUS_OPTIONS.map(c => (
+                <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
