@@ -83,6 +83,11 @@ export default function Quizz() {
             wrong_indices: nextWrong,
           });
           await supabase.rpc("bump_streak", { p_user_id: user.id });
+          // Incrémente le compteur quiz et octroie un jeton tous les 10 quiz
+          const { data: tokenRes } = await supabase.rpc("increment_quiz_count", { p_user_id: user.id });
+          if ((tokenRes as any)?.earned) {
+            toast.success("❄️ Jeton de restauration gagné !", { description: "Sauve ta streak en cas de pépin." });
+          }
         }
       } else {
         setQIdx(qIdx + 1); setPicked(null); setTextAnswer(""); setOpenResult(null);

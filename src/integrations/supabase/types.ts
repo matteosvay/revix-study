@@ -194,12 +194,16 @@ export type Database = {
           cursus: string | null
           display_name: string | null
           email: string | null
+          formation: string | null
           id: string
           last_active_date: string | null
           plan: string
+          quiz_completed_count: number
           school: string | null
           streak_days: number
           streak_record: number
+          streak_tokens: number
+          subjects: Json | null
           updated_at: string
         }
         Insert: {
@@ -207,12 +211,16 @@ export type Database = {
           cursus?: string | null
           display_name?: string | null
           email?: string | null
+          formation?: string | null
           id: string
           last_active_date?: string | null
           plan?: string
+          quiz_completed_count?: number
           school?: string | null
           streak_days?: number
           streak_record?: number
+          streak_tokens?: number
+          subjects?: Json | null
           updated_at?: string
         }
         Update: {
@@ -220,12 +228,16 @@ export type Database = {
           cursus?: string | null
           display_name?: string | null
           email?: string | null
+          formation?: string | null
           id?: string
           last_active_date?: string | null
           plan?: string
+          quiz_completed_count?: number
           school?: string | null
           streak_days?: number
           streak_record?: number
+          streak_tokens?: number
+          subjects?: Json | null
           updated_at?: string
         }
         Relationships: []
@@ -356,6 +368,8 @@ export type Database = {
     }
     Functions: {
       bump_streak: { Args: { p_user_id: string }; Returns: undefined }
+      increment_quiz_count: { Args: { p_user_id: string }; Returns: Json }
+      restore_streak: { Args: { p_user_id: string }; Returns: Json }
     }
     Enums: {
       [_ in never]: never

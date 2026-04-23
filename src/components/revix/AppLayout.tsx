@@ -1,13 +1,13 @@
 import { ReactNode } from "react";
 import { NavLink } from "@/components/NavLink";
-import { Home, BookOpen, Brain, Calendar, Mic, User } from "lucide-react";
+import { Home, BookOpen, Brain, Calendar, Flame, User } from "lucide-react";
 
 const nav = [
   { to: "/app", end: true, label: "Accueil", icon: Home },
   { to: "/app/fiches", label: "Cours", icon: BookOpen },
   { to: "/app/quizz", label: "Quizz", icon: Brain },
   { to: "/app/planning", label: "Planning", icon: Calendar },
-  { to: "/app/oral", label: "Oral", icon: Mic },
+  { to: "/app/streak", label: "Streak", icon: Flame },
   { to: "/app/profil", label: "Profil", icon: User },
 ];
 
@@ -17,8 +17,11 @@ const nav = [
  */
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center p-0 sm:p-6 lg:p-10 bg-gradient-to-br from-muted via-background to-secondary">
-      <div className="w-full sm:w-[420px] sm:h-[860px] sm:rounded-[2.5rem] sm:shadow-phone bg-background relative overflow-hidden flex flex-col h-screen sm:border-8 sm:border-foreground/90">
+    <div className="min-h-screen w-full flex items-center justify-center p-0 sm:p-6 lg:p-10 bg-gradient-to-br from-muted via-background to-secondary relative overflow-hidden">
+      {/* Ambient background glows on desktop */}
+      <div className="hidden sm:block absolute top-1/4 left-1/4 h-96 w-96 rounded-full bg-primary/10 blur-[120px] pointer-events-none" />
+      <div className="hidden sm:block absolute bottom-1/4 right-1/4 h-96 w-96 rounded-full bg-accent/10 blur-[120px] pointer-events-none" />
+      <div className="w-full sm:w-[420px] sm:h-[860px] sm:rounded-[2.5rem] sm:shadow-phone bg-background relative overflow-hidden flex flex-col h-screen sm:border-8 sm:border-foreground/90 z-10">
         {/* Status bar (decorative on desktop) */}
         <div className="hidden sm:flex h-7 items-center justify-between px-7 text-[11px] font-semibold text-foreground shrink-0 pt-2">
           <span>9:41</span>
@@ -36,7 +39,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
         </main>
 
         {/* Bottom tab bar */}
-        <nav className="absolute bottom-0 inset-x-0 border-t bg-background/95 backdrop-blur-xl">
+        <nav className="absolute bottom-0 inset-x-0 border-t glass-tab">
           <div className="grid grid-cols-6 px-1 pt-1.5 pb-2">
             {nav.map((n) => (
               <NavLink

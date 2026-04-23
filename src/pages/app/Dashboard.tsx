@@ -2,11 +2,11 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Flame, Plus, BookOpen, Brain, Calendar, Mic, Sparkles, ChevronRight } from "lucide-react";
+import { Flame, Plus, BookOpen, Brain, Calendar, Sparkles, ChevronRight, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
-type Profile = { display_name: string | null; streak_days: number; streak_record: number };
+type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
 
 export default function Dashboard() {
   const { user } = useAuth();
@@ -17,7 +17,7 @@ export default function Dashboard() {
     if (!user) return;
     (async () => {
       const [{ data: p }, { count: cc }, { count: fc }, { count: qc }, { data: attempts }] = await Promise.all([
-        supabase.from("profiles").select("display_name, streak_days, streak_record").eq("id", user.id).single(),
+        supabase.from("profiles").select("display_name, streak_days, streak_record, streak_tokens").eq("id", user.id).single(),
         supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("flashcards").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id),
@@ -38,7 +38,7 @@ export default function Dashboard() {
     { to: "/app/fiches", icon: BookOpen, label: "Mes fiches", desc: `${stats.fiches} fiches` },
     { to: "/app/quizz", icon: Brain, label: "Quizz", desc: `Score moyen ${stats.avg}%` },
     { to: "/app/planning", icon: Calendar, label: "Planning", desc: "Organise tes révisions" },
-    { to: "/app/oral", icon: Mic, label: "Mode oral", desc: "Entraîne-toi à l'oral" },
+    { to: "/app/streak", icon: Flame, label: "Ma streak", desc: `${profile?.streak_days ?? 0}j d'affilée` },
   ];
 
   return (
@@ -46,15 +46,23 @@ export default function Dashboard() {
       <PageHeader emoji="✨" title={`Salut ${name}`} subtitle="Reprends là où tu t'es arrêté." />
 
       <div className="px-5">
-        <div className="rounded-2xl border bg-gradient-to-br from-orange-50 to-amber-50 p-4 flex items-center gap-3">
-          <div className="h-12 w-12 rounded-xl bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center shrink-0 shadow-sm">
-            <Flame className="h-6 w-6 text-white" />
+        <Link to="/app/streak" className="block relative overflow-hidden rounded-2xl gradient-hero p-5 text-primary-foreground shadow-glow group">
+          <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
+          <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
+          <div className="relative flex items-center gap-3">
+            <div className="h-14 w-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0">
+              <Flame className="h-7 w-7 animate-pulse" />
+            </div>
+            <div className="flex-1">
+              <div className="flex items-baseline gap-1.5">
+                <p className="font-serif text-3xl leading-none">{profile?.streak_days ?? 0}</p>
+                <p className="text-sm opacity-90">jours d'affilée</p>
+              </div>
+              <p className="text-xs opacity-80 mt-1">Record : {profile?.streak_record ?? 0}j · {profile?.streak_tokens ?? 0} jeton{(profile?.streak_tokens ?? 0) > 1 ? "s" : ""} ❄️</p>
+            </div>
+            <ChevronRight className="h-5 w-5 opacity-80 group-hover:translate-x-0.5 transition-transform" />
           </div>
-          <div className="flex-1">
-            <p className="font-semibold">{profile?.streak_days ?? 0} jours d'affilée</p>
-            <p className="text-xs text-muted-foreground">Record perso : {profile?.streak_record ?? 0}j</p>
-          </div>
-        </div>
+        </Link>
 
         <div className="mt-5 mb-2 px-1">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Vue d'ensemble</p>
@@ -65,7 +73,7 @@ export default function Dashboard() {
             { v: stats.fiches, l: "Fiches" },
             { v: stats.quizzes, l: "Quizz" },
           ].map((s) => (
-            <div key={s.l} className="rounded-xl border bg-card p-3 text-center">
+            <div key={s.l} className="rounded-xl glass p-3 text-center hover:shadow-soft transition-shadow">
               <p className="text-2xl font-serif">{s.v}</p>
               <p className="text-[11px] text-muted-foreground mt-0.5">{s.l}</p>
             </div>
@@ -77,22 +85,22 @@ export default function Dashboard() {
         </div>
         <div className="space-y-1">
           {tiles.map((t) => (
-            <Link key={t.to} to={t.to} className="flex items-center gap-3 px-2 py-2.5 rounded-lg notion-row">
-              <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${t.accent ? "gradient-primary text-primary-foreground" : "bg-muted"}`}>
+            <Link key={t.to} to={t.to} className="flex items-center gap-3 px-2 py-2.5 rounded-xl notion-row group">
+              <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${t.accent ? "gradient-primary text-primary-foreground shadow-glow" : "bg-muted"}`}>
                 <t.icon className="h-4 w-4" />
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium">{t.label}</p>
                 <p className="text-xs text-muted-foreground truncate">{t.desc}</p>
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
             </Link>
           ))}
         </div>
 
         {stats.courses === 0 && (
-          <div className="mt-6 rounded-2xl border-2 border-dashed border-primary/30 p-6 text-center">
-            <Sparkles className="h-8 w-8 mx-auto text-primary" />
+          <div className="mt-6 rounded-2xl border-2 border-dashed border-primary/30 p-6 text-center glass">
+            <Sparkles className="h-8 w-8 mx-auto text-primary animate-pulse" />
             <p className="font-serif text-xl mt-2">Crée ta première fiche</p>
             <p className="text-xs text-muted-foreground mt-1 mb-4">Upload un cours et l'IA fait le reste.</p>
             <Button asChild className="rounded-full gradient-primary border-0">

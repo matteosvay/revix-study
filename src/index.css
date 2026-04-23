@@ -130,6 +130,49 @@
   /* Notion-style hover row */
   .notion-row { @apply transition-colors hover:bg-muted/60 rounded-md; }
 
+  /* Glassmorphism — subtle, premium */
+  .glass {
+    background: hsl(var(--card) / 0.65);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    border: 1px solid hsl(var(--border) / 0.6);
+  }
+  .glass-strong {
+    background: hsl(var(--card) / 0.85);
+    backdrop-filter: blur(24px) saturate(200%);
+    -webkit-backdrop-filter: blur(24px) saturate(200%);
+    border: 1px solid hsl(var(--border) / 0.7);
+  }
+  .glass-tab {
+    background: hsl(var(--background) / 0.75);
+    backdrop-filter: blur(28px) saturate(200%);
+    -webkit-backdrop-filter: blur(28px) saturate(200%);
+  }
+
+  /* Decorative ambient blobs */
+  .ambient-glow::before {
+    content: "";
+    position: absolute;
+    top: -20%;
+    right: -10%;
+    width: 60%;
+    height: 50%;
+    background: radial-gradient(circle, hsl(var(--primary) / 0.18) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  .ambient-glow::after {
+    content: "";
+    position: absolute;
+    bottom: -10%;
+    left: -10%;
+    width: 50%;
+    height: 40%;
+    background: radial-gradient(circle, hsl(var(--accent) / 0.15) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
   .flip-card { perspective: 1000px; }
   .flip-inner {
     position: relative;

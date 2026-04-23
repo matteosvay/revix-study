@@ -14,7 +14,7 @@ import Fiches from "./pages/app/Fiches";
 import Quizz from "./pages/app/Quizz";
 import Planning from "./pages/app/Planning";
 import Profil from "./pages/app/Profil";
-import Oral from "./pages/app/Oral";
+import Streak from "./pages/app/Streak";
 import CourseDetail from "./pages/app/CourseDetail";
 import { AuthProvider } from "./hooks/useAuth";
 import { RequireAuth } from "./components/revix/RequireAuth";
@@ -39,7 +39,7 @@ const App = () => (
             <Route path="/app/fiches/:id" element={<RequireAuth><CourseDetail /></RequireAuth>} />
             <Route path="/app/quizz" element={<RequireAuth><Quizz /></RequireAuth>} />
             <Route path="/app/planning" element={<RequireAuth><Planning /></RequireAuth>} />
-            <Route path="/app/oral" element={<RequireAuth><Oral /></RequireAuth>} />
+            <Route path="/app/streak" element={<RequireAuth><Streak /></RequireAuth>} />
             <Route path="/app/profil" element={<RequireAuth><Profil /></RequireAuth>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
