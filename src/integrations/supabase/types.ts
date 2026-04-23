@@ -24,6 +24,7 @@ export type Database = {
           source_content: string | null
           source_file_path: string | null
           subject: string | null
+          summary: Json | null
           title: string
           updated_at: string
           user_id: string
@@ -37,6 +38,7 @@ export type Database = {
           source_content?: string | null
           source_file_path?: string | null
           subject?: string | null
+          summary?: Json | null
           title: string
           updated_at?: string
           user_id: string
@@ -50,6 +52,7 @@ export type Database = {
           source_content?: string | null
           source_file_path?: string | null
           subject?: string | null
+          summary?: Json | null
           title?: string
           updated_at?: string
           user_id?: string
@@ -267,33 +270,39 @@ export type Database = {
       }
       quiz_questions: {
         Row: {
-          answers: Json
-          correct_index: number
+          accepted_answers: Json | null
+          answers: Json | null
+          correct_index: number | null
           explanation: string | null
           id: string
           position: number
           question: string
           quiz_id: string
+          type: string
           user_id: string
         }
         Insert: {
-          answers: Json
-          correct_index: number
+          accepted_answers?: Json | null
+          answers?: Json | null
+          correct_index?: number | null
           explanation?: string | null
           id?: string
           position?: number
           question: string
           quiz_id: string
+          type?: string
           user_id: string
         }
         Update: {
-          answers?: Json
-          correct_index?: number
+          accepted_answers?: Json | null
+          answers?: Json | null
+          correct_index?: number | null
           explanation?: string | null
           id?: string
           position?: number
           question?: string
           quiz_id?: string
+          type?: string
           user_id?: string
         }
         Relationships: [
@@ -311,6 +320,7 @@ export type Database = {
           course_id: string | null
           created_at: string
           id: string
+          quiz_type: string
           title: string
           user_id: string
         }
@@ -318,6 +328,7 @@ export type Database = {
           course_id?: string | null
           created_at?: string
           id?: string
+          quiz_type?: string
           title: string
           user_id: string
         }
@@ -325,6 +336,7 @@ export type Database = {
           course_id?: string | null
           created_at?: string
           id?: string
+          quiz_type?: string
           title?: string
           user_id?: string
         }
