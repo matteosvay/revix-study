@@ -17,8 +17,21 @@ Deno.serve(async (req) => {
     }
 
     const system = `Tu es un assistant pédagogique français pour étudiants ${level ?? ""}.
-À partir d'un cours, tu génères 5 à 10 fiches de révision claires et concises en français.
-Chaque fiche a un "front" (question / concept court) et un "back" (réponse claire, 1-3 phrases max, vocabulaire académique).
+À partir d'un cours, tu produis DEUX choses :
+
+1) Un RÉSUMÉ DE COURS structuré, vivant et clair, en français — pas un simple texte plat.
+   Le résumé est une liste de SECTIONS. Chaque section contient un titre court et des "blocs" parmi :
+     - {"kind":"paragraph","text":"..."} : phrase ou paragraphe explicatif (peut contenir des marqueurs **mot** pour mettre en gras les mots clés).
+     - {"kind":"definition","term":"...","text":"..."} : définition d'un concept clé.
+     - {"kind":"key_point","text":"..."} : idée à retenir absolument (sera surlignée en couleur).
+     - {"kind":"example","text":"..."} : exemple concret, illustration, mini cas pratique.
+     - {"kind":"tip","text":"..."} : astuce / mémo / piège à éviter.
+     - {"kind":"list","items":["...","..."]} : liste à puces.
+   Vise 3 à 6 sections, chacune avec 3 à 7 blocs. Mélange les types pour rendre le cours vivant.
+   Reformule, organise et hiérarchise — ne recopie pas brutalement le texte source.
+
+2) 6 à 10 FLASHCARDS de révision (front = question/concept court, back = réponse 1-3 phrases).
+
 Tu utilises "tu" et un ton motivant. Pas d'emoji.`;
 
     const userPrompt = `Matière : ${subject ?? "non précisée"}
@@ -40,11 +53,41 @@ Génère les fiches.`;
         tools: [{
           type: "function",
           function: {
-            name: "save_flashcards",
-            description: "Enregistre les fiches générées",
+            name: "save_course",
+            description: "Enregistre le résumé structuré et les flashcards générés",
             parameters: {
               type: "object",
               properties: {
+                summary: {
+                  type: "object",
+                  properties: {
+                    intro: { type: "string", description: "1 à 2 phrases d'introduction motivante" },
+                    sections: {
+                      type: "array",
+                      items: {
+                        type: "object",
+                        properties: {
+                          title: { type: "string" },
+                          blocks: {
+                            type: "array",
+                            items: {
+                              type: "object",
+                              properties: {
+                                kind: { type: "string", enum: ["paragraph", "definition", "key_point", "example", "tip", "list"] },
+                                text: { type: "string" },
+                                term: { type: "string" },
+                                items: { type: "array", items: { type: "string" } },
+                              },
+                              required: ["kind"],
+                            },
+                          },
+                        },
+                        required: ["title", "blocks"],
+                      },
+                    },
+                  },
+                  required: ["sections"],
+                },
                 flashcards: {
                   type: "array",
                   items: {
@@ -54,11 +97,11 @@ Génère les fiches.`;
                   },
                 },
               },
-              required: ["flashcards"],
+              required: ["summary", "flashcards"],
             },
           },
         }],
-        tool_choice: { type: "function", function: { name: "save_flashcards" } },
+        tool_choice: { type: "function", function: { name: "save_course" } },
       }),
     });
 
@@ -73,7 +116,10 @@ Génère les fiches.`;
     const data = await resp.json();
     const args = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
     const parsed = typeof args === "string" ? JSON.parse(args) : args;
-    return new Response(JSON.stringify({ flashcards: parsed?.flashcards ?? [] }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return new Response(JSON.stringify({
+      summary: parsed?.summary ?? null,
+      flashcards: parsed?.flashcards ?? [],
+    }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     console.error(e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erreur" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
