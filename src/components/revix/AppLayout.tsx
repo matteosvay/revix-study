@@ -1,85 +1,76 @@
 import { ReactNode } from "react";
 import { NavLink } from "@/components/NavLink";
-import { Home, BookOpen, Brain, Calendar, Users, User, Bell, Flame } from "lucide-react";
-import { Logo } from "./Logo";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Home, BookOpen, Brain, Calendar, Mic, User } from "lucide-react";
 
 const nav = [
   { to: "/app", end: true, label: "Accueil", icon: Home },
-  { to: "/app/fiches", label: "Mes Cours", icon: BookOpen },
+  { to: "/app/fiches", label: "Cours", icon: BookOpen },
   { to: "/app/quizz", label: "Quizz", icon: Brain },
   { to: "/app/planning", label: "Planning", icon: Calendar },
-  { to: "/app/communaute", label: "Communauté", icon: Users },
+  { to: "/app/oral", label: "Oral", icon: Mic },
   { to: "/app/profil", label: "Profil", icon: User },
 ];
 
+/**
+ * Phone-frame layout — the entire app lives inside a centered iPhone-style frame,
+ * even on desktop, with a bottom tab bar (Notion-meets-iOS).
+ */
 export const AppLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="min-h-screen bg-muted/30">
-      {/* Desktop sidebar */}
-      <aside className="hidden lg:flex fixed inset-y-0 left-0 w-64 flex-col border-r bg-card">
-        <div className="px-6 py-5 border-b">
-          <Logo />
+    <div className="min-h-screen w-full flex items-center justify-center p-0 sm:p-6 lg:p-10 bg-gradient-to-br from-muted via-background to-secondary">
+      <div className="w-full sm:w-[420px] sm:h-[860px] sm:rounded-[2.5rem] sm:shadow-phone bg-background relative overflow-hidden flex flex-col h-screen sm:border-8 sm:border-foreground/90">
+        {/* Status bar (decorative on desktop) */}
+        <div className="hidden sm:flex h-7 items-center justify-between px-7 text-[11px] font-semibold text-foreground shrink-0 pt-2">
+          <span>9:41</span>
+          <span className="absolute left-1/2 -translate-x-1/2 top-1.5 h-5 w-24 rounded-full bg-foreground/90" />
+          <span className="flex gap-1 items-center">
+            <span className="h-2 w-3 rounded-sm bg-foreground/80" />
+            <span className="h-2 w-2 rounded-full bg-foreground/80" />
+            <span className="h-2 w-5 rounded-sm border border-foreground/80" />
+          </span>
         </div>
-        <nav className="flex-1 p-3 space-y-1">
-          {nav.map((n) => (
-            <NavLink
-              key={n.to}
-              to={n.to}
-              end={n.end}
-              className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
-              activeClassName="!bg-primary/10 !text-primary"
-            >
-              <n.icon className="h-5 w-5" />
-              {n.label}
-            </NavLink>
-          ))}
+
+        {/* Scrollable content */}
+        <main className="flex-1 overflow-y-auto overscroll-contain pb-24 animate-fade-in">
+          {children}
+        </main>
+
+        {/* Bottom tab bar */}
+        <nav className="absolute bottom-0 inset-x-0 border-t bg-background/95 backdrop-blur-xl">
+          <div className="grid grid-cols-6 px-1 pt-1.5 pb-2">
+            {nav.map((n) => (
+              <NavLink
+                key={n.to}
+                to={n.to}
+                end={n.end}
+                className="flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-lg text-[10px] font-medium text-muted-foreground transition-colors"
+                activeClassName="!text-primary"
+              >
+                <n.icon className="h-[22px] w-[22px]" strokeWidth={2} />
+                {n.label}
+              </NavLink>
+            ))}
+          </div>
+          {/* iOS home indicator */}
+          <div className="hidden sm:flex justify-center pb-1.5">
+            <div className="h-1 w-32 rounded-full bg-foreground/80" />
+          </div>
         </nav>
-        <div className="p-3 border-t">
-          <div className="rounded-xl gradient-primary p-4 text-primary-foreground">
-            <p className="text-sm font-semibold">Passe en Pro ✨</p>
-            <p className="text-xs opacity-90 mt-1">Quizz illimités + planning IA</p>
-            <Button size="sm" variant="secondary" className="w-full mt-3 rounded-full">Découvrir</Button>
-          </div>
-        </div>
-      </aside>
-
-      {/* Top bar */}
-      <div className="lg:pl-64">
-        <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b bg-background/80 backdrop-blur px-4 lg:px-8">
-          <div className="lg:hidden"><Logo /></div>
-          <div className="hidden lg:block" />
-          <div className="flex items-center gap-3">
-            <div className="flex items-center gap-1.5 rounded-full bg-orange-500/10 px-3 py-1.5 text-sm font-semibold text-orange-600">
-              <Flame className="h-4 w-4" /> 7 jours
-            </div>
-            <Button variant="ghost" size="icon" className="rounded-full">
-              <Bell className="h-5 w-5" />
-            </Button>
-            <Avatar className="h-9 w-9 border-2 border-primary/20">
-              <AvatarFallback className="gradient-primary text-primary-foreground font-semibold">LM</AvatarFallback>
-            </Avatar>
-          </div>
-        </header>
-        <main className="p-4 lg:p-8 pb-24 lg:pb-8 animate-fade-in">{children}</main>
       </div>
-
-      {/* Mobile bottom nav */}
-      <nav className="lg:hidden fixed bottom-0 inset-x-0 z-40 border-t bg-card grid grid-cols-6">
-        {nav.map((n) => (
-          <NavLink
-            key={n.to}
-            to={n.to}
-            end={n.end}
-            className="flex flex-col items-center justify-center gap-1 py-2.5 text-[10px] text-muted-foreground"
-            activeClassName="!text-primary"
-          >
-            <n.icon className="h-5 w-5" />
-            {n.label}
-          </NavLink>
-        ))}
-      </nav>
     </div>
   );
 };
+
+/** Page header with serif title (Notion vibe) */
+export const PageHeader = ({ emoji, title, subtitle, action }: { emoji?: string; title: string; subtitle?: string; action?: ReactNode }) => (
+  <div className="px-5 pt-5 pb-3">
+    {emoji && <div className="text-4xl mb-2">{emoji}</div>}
+    <div className="flex items-start justify-between gap-3">
+      <div className="flex-1 min-w-0">
+        <h1 className="text-3xl font-serif tracking-tight">{title}</h1>
+        {subtitle && <p className="text-sm text-muted-foreground mt-1">{subtitle}</p>}
+      </div>
+      {action}
+    </div>
+  </div>
+);
