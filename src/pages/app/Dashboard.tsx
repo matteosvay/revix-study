@@ -5,6 +5,8 @@ import { Button } from "@/components/ui/button";
 import { Flame, Plus, BookOpen, Brain, Calendar, Sparkles, ChevronRight, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useGamification } from "@/hooks/useGamification";
+import { Tape, Pin } from "@/components/revix/AcademicDecor";
 
 type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
 
@@ -12,6 +14,7 @@ export default function Dashboard() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState({ courses: 0, fiches: 0, quizzes: 0, avg: 0 });
+  const { profile: gam, levelTier, xp } = useGamification();
 
   useEffect(() => {
     if (!user) return;
@@ -37,6 +40,7 @@ export default function Dashboard() {
     { to: "/app/upload", icon: Plus, label: "Nouveau cours", desc: "Upload un PDF ou photo", accent: true },
     { to: "/app/fiches", icon: BookOpen, label: "Mes fiches", desc: `${stats.fiches} fiches` },
     { to: "/app/quizz", icon: Brain, label: "Quizz", desc: `Score moyen ${stats.avg}%` },
+    { to: "/app/aventure", icon: Sparkles, label: "Aventure", desc: levelTier ? `${levelTier.emoji} ${levelTier.name}` : "Quêtes & XP" },
     { to: "/app/planning", icon: Calendar, label: "Planning", desc: "Organise tes révisions" },
     { to: "/app/streak", icon: Flame, label: "Ma streak", desc: `${profile?.streak_days ?? 0}j d'affilée` },
   ];
@@ -46,6 +50,29 @@ export default function Dashboard() {
       <PageHeader emoji="✨" title={`Salut ${name}`} subtitle="Reprends là où tu t'es arrêté." />
 
       <div className="px-5">
+        {/* XP / niveau bandeau */}
+        {gam && levelTier && xp && (
+          <Link to="/app/aventure" className="block card-paper p-4 relative mb-3 tilt-l hover:shadow-glow transition-shadow">
+            <Tape variant="yellow" position="top-left" />
+            <Pin color="purple" className="absolute top-2 right-3" />
+            <div className="flex items-center gap-3">
+              <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center text-2xl shadow-soft">
+                {levelTier.emoji}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-baseline gap-1.5">
+                  <p className="font-serif text-lg leading-none">Niveau {gam.level}</p>
+                  <span className="text-xs text-muted-foreground">· {levelTier.name}</span>
+                </div>
+                <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
+                  <div className="h-full gradient-primary transition-all duration-700" style={{ width: `${xp.pct}%` }} />
+                </div>
+                <p className="text-[10px] text-muted-foreground mt-1">{xp.into} / {xp.span} XP vers niveau {gam.level + 1}</p>
+              </div>
+            </div>
+          </Link>
+        )}
+
         <Link to="/app/streak" className="block relative overflow-hidden rounded-2xl gradient-hero p-5 text-primary-foreground shadow-glow group">
           <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
           <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
