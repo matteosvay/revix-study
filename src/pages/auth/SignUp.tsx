@@ -8,11 +8,18 @@ import { AuthShell } from "./AuthShell";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CURSUS_OPTIONS } from "@/data/cursus";
+import { SearchableCombobox } from "@/components/revix/SearchableCombobox";
+import { FORMATIONS } from "@/data/formations";
 
 export default function SignUp() {
   const nav = useNavigate();
   const [cursus, setCursus] = useState<string>("");
+  const [formation, setFormation] = useState<string>("");
   const [loading, setLoading] = useState(false);
+
+  const formationItems = FORMATIONS.map(f => ({
+    value: f.name, label: f.abbr ? `${f.abbr} — ${f.name.replace(`${f.abbr} - `, "").replace(`${f.abbr} `, "")}` : f.name, group: f.category,
+  }));
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -26,6 +33,11 @@ export default function SignUp() {
         data: { display_name: String(data.get("name")), cursus },
       },
     });
+    // On set la formation après création (le trigger de profil n'a pas accès à formation)
+    if (!error && formation) {
+      const { data: u } = await supabase.auth.getUser();
+      if (u.user) await supabase.from("profiles").update({ formation }).eq("id", u.user.id);
+    }
     setLoading(false);
     if (error) { toast.error(error.message); return; }
     toast.success("Compte créé ! Bienvenue sur Revix ✨");
@@ -57,6 +69,16 @@ export default function SignUp() {
               ))}
             </SelectContent>
           </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>Ma formation précise (optionnel)</Label>
+          <SearchableCombobox
+            items={formationItems}
+            value={formation}
+            onChange={setFormation}
+            placeholder="ex : BUT GEA, Licence Droit, Prépa MPSI..."
+            searchPlaceholder="Rechercher une formation..."
+          />
         </div>
         <Button type="submit" disabled={loading} className="w-full rounded-full gradient-primary border-0 h-11">
           {loading ? "Création..." : "Créer mon compte"}
