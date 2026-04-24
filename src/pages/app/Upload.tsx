@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { UploadCloud, Sparkles, Loader2, FileText, Image as ImageIcon, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { extractPdfText, fileToBase64 } from "@/lib/pdf";
+import { extractPdfText, fileToBase64, extractDocxText, isDocx, DOCX_MIME } from "@/lib/pdf";
 import { toast } from "sonner";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { XP_REWARDS } from "@/lib/gamification";
@@ -46,7 +46,8 @@ export default function Upload() {
 
   const onFile = (f: File | null) => { if (!f) return; setFile(f); if (!title) setTitle(f.name.replace(/\.[^.]+$/, "")); };
 
-  const isAcceptedFile = (f: File) => f.type === "application/pdf" || f.type.startsWith("image/");
+  const isAcceptedFile = (f: File) =>
+    f.type === "application/pdf" || f.type.startsWith("image/") || isDocx(f);
 
   const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
@@ -55,7 +56,7 @@ export default function Upload() {
     const dropped = e.dataTransfer?.files?.[0];
     if (!dropped) return;
     if (!isAcceptedFile(dropped)) {
-      toast.error("Format non supporté. Glisse un PDF ou une image.");
+      toast.error("Format non supporté. Glisse un PDF, un Word (.docx) ou une image.");
       return;
     }
     onFile(dropped);
@@ -81,6 +82,8 @@ export default function Upload() {
         setStep(1);
         if (file.type === "application/pdf") {
           content = await extractPdfText(file);
+        } else if (isDocx(file)) {
+          content = await extractDocxText(file);
         } else if (file.type.startsWith("image/")) {
           const b64 = await fileToBase64(file);
           const { data, error } = await supabase.functions.invoke("extract-pdf", { body: { imageBase64: b64, mimeType: file.type } });
@@ -196,18 +199,30 @@ export default function Upload() {
           onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(false); }}
           onDrop={handleDrop}
         >
-          <input type="file" className="hidden" accept="application/pdf,image/*" onChange={(e) => onFile(e.target.files?.[0] ?? null)} />
+          <input
+            type="file"
+            className="hidden"
+            accept={`application/pdf,image/*,.docx,${DOCX_MIME}`}
+            onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+          />
           {file ? (
             <>
-              {file.type.startsWith("image/") ? <ImageIcon className="h-10 w-10 mx-auto text-primary" /> : <FileText className="h-10 w-10 mx-auto text-primary" />}
+              {file.type.startsWith("image/") ? (
+                <ImageIcon className="h-10 w-10 mx-auto text-primary" />
+              ) : (
+                <FileText className="h-10 w-10 mx-auto text-primary" />
+              )}
               <p className="mt-3 font-hand text-xl truncate">{file.name}</p>
               <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Cliquer pour changer</p>
             </>
           ) : (
             <>
               <UploadCloud className="h-10 w-10 mx-auto text-primary" />
-              <p className="mt-3 font-hand text-xl">📷 Photo ou 📄 PDF</p>
+              <p className="mt-3 font-hand text-xl">📷 Photo · 📄 PDF · 📝 Word</p>
               <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Glisse ou clique ici</p>
+              <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-1">
+                Google Docs : Fichier → Télécharger → .docx
+              </p>
             </>
           )}
         </label>

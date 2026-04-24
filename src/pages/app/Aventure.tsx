@@ -4,7 +4,7 @@ import { Tape, Postit, Pin, ScribbleUnderline, Stamp } from "@/components/revix/
 import { Flame, Sparkles, Trophy, Target, Zap, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { levelInfo, xpForLevel } from "@/lib/gamification";
+import { levelInfo, xpForLevel, LEVEL_NAMES } from "@/lib/gamification";
 
 export default function Aventure() {
   const { profile, dailyQuests, weeklyQuest, xp, levelTier, loading } = useGamification();
@@ -49,6 +49,65 @@ export default function Aventure() {
               <div className="ruler-fill" style={{ width: `${xp.pct}%` }} />
             </div>
           </div>
+        </div>
+
+        {/* Chemin des niveaux — tous les titres */}
+        <div className="card-paper p-4 relative paper-grain">
+          <Tape variant="mint" position="top-left" />
+          <div className="mb-3">
+            <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">Chemin des titres</p>
+            <p className="font-serif text-lg leading-tight">Ton parcours Revix</p>
+            <ScribbleUnderline className="w-32" />
+          </div>
+          <ol className="relative space-y-2 pl-1">
+            {LEVEL_NAMES.map((tier, i) => {
+              const reached = profile.level >= tier.min;
+              const current = profile.level >= tier.min && profile.level <= tier.max;
+              const xpToReach = xpForLevel(tier.min);
+              return (
+                <li
+                  key={tier.name}
+                  className={`relative flex items-center gap-3 rounded-xl border-2 p-2.5 transition-all ${
+                    current
+                      ? "border-primary bg-primary/10 shadow-brutal"
+                      : reached
+                      ? "border-foreground/80 bg-card"
+                      : "border-dashed border-muted-foreground/30 bg-muted/30 opacity-70"
+                  }`}
+                >
+                  <div
+                    className={`h-10 w-10 shrink-0 rounded-lg flex items-center justify-center text-xl border-2 ${
+                      current
+                        ? "border-foreground bg-card"
+                        : reached
+                        ? "border-foreground/80 bg-secondary"
+                        : "border-muted-foreground/30 bg-muted"
+                    }`}
+                  >
+                    {reached ? tier.emoji : <Lock className="h-4 w-4 text-muted-foreground" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className={`font-serif text-base leading-tight truncate ${!reached ? "text-muted-foreground" : ""}`}>
+                        {tier.name}
+                      </p>
+                      {current && (
+                        <span className="rubber-stamp-purple rubber-stamp text-[8px] !px-1.5 !py-0.5">
+                          ici
+                        </span>
+                      )}
+                    </div>
+                    <p className="font-mono-tag text-[9px] uppercase tracking-wider text-muted-foreground">
+                      Niv. {tier.min}–{tier.max} · {xpToReach} XP
+                    </p>
+                  </div>
+                  {reached && !current && (
+                    <span className="font-hand text-success text-sm shrink-0">✓</span>
+                  )}
+                </li>
+              );
+            })}
+          </ol>
         </div>
 
         {/* Mini stats : streak + ligue (placeholder) */}

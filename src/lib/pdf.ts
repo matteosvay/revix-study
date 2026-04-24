@@ -1,5 +1,6 @@
 import * as pdfjs from "pdfjs-dist";
 import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
+import mammoth from "mammoth";
 
 pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
 
@@ -25,4 +26,18 @@ export async function fileToBase64(file: File): Promise<string> {
     r.onerror = reject;
     r.readAsDataURL(file);
   });
+}
+
+/** Extrait le texte brut d'un fichier .docx (Word ou Google Docs exporté). */
+export async function extractDocxText(file: File): Promise<string> {
+  const buf = await file.arrayBuffer();
+  const result = await mammoth.extractRawText({ arrayBuffer: buf });
+  return (result.value ?? "").trim();
+}
+
+export const DOCX_MIME =
+  "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
+
+export function isDocx(file: File) {
+  return file.type === DOCX_MIME || /\.docx$/i.test(file.name);
 }
