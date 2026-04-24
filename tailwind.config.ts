@@ -70,7 +70,19 @@ export default {
       },
       fontFamily: {
         hand: ["Caveat", "Kalam", "cursive"],
-        serif: ["Instrument Serif", "Georgia", "serif"],
+        serif: ["Archivo Black", "Space Grotesk", "sans-serif"],
+        display: ["Archivo Black", "sans-serif"],
+        sans: ["Space Grotesk", "Inter", "system-ui", "sans-serif"],
+        mono: ["JetBrains Mono", "ui-monospace", "monospace"],
+        marker: ["Architects Daughter", "Caveat", "cursive"],
+      },
+      boxShadow: {
+        "brutal-sm": "2px 2px 0 0 hsl(var(--foreground))",
+        brutal: "4px 4px 0 0 hsl(var(--foreground))",
+        "brutal-lg": "6px 6px 0 0 hsl(var(--foreground))",
+        "brutal-xl": "8px 8px 0 0 hsl(var(--foreground))",
+        "brutal-primary": "4px 4px 0 0 hsl(var(--primary))",
+        "brutal-accent": "4px 4px 0 0 hsl(var(--accent))",
       },
       keyframes: {
         "accordion-down": {
@@ -102,8 +114,17 @@ export default {
           "50%": { transform: "translateY(-8px)" },
         },
         "pulse-glow": {
-          "0%,100%": { boxShadow: "0 0 20px hsl(263 53% 51% / 0.4)" },
-          "50%": { boxShadow: "0 0 40px hsl(263 53% 51% / 0.7)" },
+          "0%,100%": { boxShadow: "4px 4px 0 0 hsl(var(--foreground))" },
+          "50%": { boxShadow: "6px 6px 0 0 hsl(var(--primary))" },
+        },
+        "press-down": {
+          "0%": { transform: "translate(0,0)", boxShadow: "4px 4px 0 0 hsl(var(--foreground))" },
+          "100%": { transform: "translate(2px,2px)", boxShadow: "2px 2px 0 0 hsl(var(--foreground))" },
+        },
+        "shake-x": {
+          "0%,100%": { transform: "translateX(0)" },
+          "25%": { transform: "translateX(-3px)" },
+          "75%": { transform: "translateX(3px)" },
         },
       },
       animation: {
@@ -113,6 +134,8 @@ export default {
         "scale-in": "scale-in 0.3s ease-out",
         "float": "float 3s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
+        "press-down": "press-down 0.12s ease forwards",
+        "shake-x": "shake-x 0.4s ease",
       },
     },
   },
