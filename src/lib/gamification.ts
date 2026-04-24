@@ -109,3 +109,55 @@ export const XP_REWARDS = {
   streak_7: 100,
   share_fiche: 25,
 } as const;
+
+/** Ligues hebdomadaires, classées par XP de la semaine. */
+export const LEAGUES: { key: string; name: string; emoji: string; minWeekXp: number }[] = [
+  { key: "bronze", name: "Bronze", emoji: "🥉", minWeekXp: 0 },
+  { key: "argent", name: "Argent", emoji: "🥈", minWeekXp: 300 },
+  { key: "or", name: "Or", emoji: "🥇", minWeekXp: 700 },
+  { key: "saphir", name: "Saphir", emoji: "💎", minWeekXp: 1200 },
+  { key: "rubis", name: "Rubis", emoji: "❤️‍🔥", minWeekXp: 1800 },
+  { key: "diamant", name: "Diamant", emoji: "💠", minWeekXp: 2500 },
+  { key: "maitre", name: "Maître", emoji: "🏆", minWeekXp: 3500 },
+  { key: "legende", name: "Légende", emoji: "👑", minWeekXp: 5000 },
+];
+
+export function leagueInfo(weekXp: number) {
+  let current = LEAGUES[0];
+  let nextIdx = 1;
+  for (let i = 0; i < LEAGUES.length; i++) {
+    if (weekXp >= LEAGUES[i].minWeekXp) {
+      current = LEAGUES[i];
+      nextIdx = i + 1;
+    }
+  }
+  const next = LEAGUES[nextIdx] ?? null;
+  return { current, next };
+}
+
+/** Prestiges streak — paliers symboliques avec titre et emoji. */
+export const STREAK_PRESTIGES: { days: number; name: string; emoji: string; tagline: string }[] = [
+  { days: 3, name: "Étincelle", emoji: "✨", tagline: "T'as allumé la flamme." },
+  { days: 7, name: "Flammèche", emoji: "🔥", tagline: "Une semaine pleine, respect." },
+  { days: 14, name: "Brasier", emoji: "🔥🔥", tagline: "Deux semaines : c'est solide." },
+  { days: 30, name: "Volcan", emoji: "🌋", tagline: "Un mois entier — tu es chaud." },
+  { days: 60, name: "Tempête de feu", emoji: "⚡🔥", tagline: "Deux mois, t'es hors-norme." },
+  { days: 100, name: "Phénix", emoji: "🐦‍🔥", tagline: "100 jours. Tu renais chaque jour." },
+  { days: 180, name: "Soleil", emoji: "☀️", tagline: "6 mois — tu brilles tout seul." },
+  { days: 365, name: "Supernova", emoji: "💫", tagline: "Une année. Légendaire." },
+  { days: 500, name: "Constellation", emoji: "🌌", tagline: "Tu fais partie du ciel Revix." },
+  { days: 1000, name: "Éternel", emoji: "♾️", tagline: "1000 jours. Statut mythique." },
+];
+
+export function streakPrestige(days: number) {
+  let current: typeof STREAK_PRESTIGES[number] | null = null;
+  let nextIdx = 0;
+  for (let i = 0; i < STREAK_PRESTIGES.length; i++) {
+    if (days >= STREAK_PRESTIGES[i].days) {
+      current = STREAK_PRESTIGES[i];
+      nextIdx = i + 1;
+    }
+  }
+  const next = STREAK_PRESTIGES[nextIdx] ?? null;
+  return { current, next };
+}
