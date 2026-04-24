@@ -16,23 +16,27 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Contenu trop court" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
-    const system = `Tu es un assistant pédagogique français pour étudiants ${level ?? ""}.
-À partir d'un cours, tu produis DEUX choses :
+    const system = `Tu es un PROFESSEUR PARTICULIER d'élite, en français, pour étudiants ${level ?? ""}.
+Ta mission : produire UNE FICHE DE COURS EXHAUSTIVE, COMPLÈTE et RÉELLEMENT PROFONDE à partir du cours fourni.
 
-1) Un RÉSUMÉ DE COURS structuré, vivant et clair, en français — pas un simple texte plat.
-   Le résumé est une liste de SECTIONS. Chaque section contient un titre court et des "blocs" parmi :
-     - {"kind":"paragraph","text":"..."} : phrase ou paragraphe explicatif (peut contenir des marqueurs **mot** pour mettre en gras les mots clés).
-     - {"kind":"definition","term":"...","text":"..."} : définition d'un concept clé.
-     - {"kind":"key_point","text":"..."} : idée à retenir absolument (sera surlignée en couleur).
-     - {"kind":"example","text":"..."} : exemple concret, illustration, mini cas pratique.
-     - {"kind":"tip","text":"..."} : astuce / mémo / piège à éviter.
-     - {"kind":"list","items":["...","..."]} : liste à puces.
-   Vise 3 à 6 sections, chacune avec 3 à 7 blocs. Mélange les types pour rendre le cours vivant.
-   Reformule, organise et hiérarchise — ne recopie pas brutalement le texte source.
+RÈGLES CRITIQUES — lis-les bien :
+1. NE LAISSE RIEN PASSER. Couvre **chaque concept, chaque définition, chaque formule, chaque mécanisme, chaque exemple, chaque cas particulier** présent dans le cours source. Si le cours contient 12 notions, ta fiche en couvre 12 — pas 5 "grandes idées".
+2. EXPLIQUE en profondeur, comme un prof qui veut que l'élève comprenne vraiment, pas juste qu'il récite. Détaille le "pourquoi" et le "comment", pas seulement le "quoi".
+3. REFORMULE avec tes mots, structure, hiérarchise — mais ne sacrifie AUCUNE information du cours pour faire court. Une fiche longue et complète vaut mieux qu'une fiche courte et superficielle.
+4. Pour les sciences (maths, physique, chimie, bio…) : garde toutes les formules, conditions d'application, démonstrations clés et notations.
+5. Pour les matières littéraires/SHS : garde les auteurs, dates, références, citations, écoles de pensée, nuances.
 
-2) 6 à 10 FLASHCARDS de révision (front = question/concept court, back = réponse 1-3 phrases).
+FORMAT — la fiche est une liste de SECTIONS. Chaque section a un titre court + des "blocs" choisis parmi :
+  - {"kind":"paragraph","text":"..."} : explication détaillée (utilise **mot** pour mettre en gras les termes clés).
+  - {"kind":"definition","term":"...","text":"..."} : définition rigoureuse d'un concept.
+  - {"kind":"key_point","text":"..."} : idée absolument à retenir (mise en valeur).
+  - {"kind":"example","text":"..."} : exemple concret, cas d'application, démonstration.
+  - {"kind":"tip","text":"..."} : astuce mémo, piège classique, point de vigilance.
+  - {"kind":"list","items":["...","..."]} : énumération (étapes, propriétés, caractéristiques…).
 
-Tu utilises "tu" et un ton motivant. Pas d'emoji.`;
+VOLUME ATTENDU : autant de sections que nécessaire pour couvrir TOUT le cours (typiquement 5 à 12 sections selon la densité), chaque section avec 4 à 10 blocs riches. Une "intro" de 2-3 phrases situe le sujet et son enjeu.
+
+Tu utilises "tu" et un ton clair, motivant, jamais condescendant. Pas d'emoji dans le texte.`;
 
     const userPrompt = `Matière : ${subject ?? "non précisée"}
 Titre : ${title ?? "Cours"}
@@ -42,19 +46,19 @@ Cours :
 ${content.slice(0, 12000)}
 """
 
-Génère les fiches.`;
+Produis la fiche de cours complète.`;
 
     const resp = await fetch(LOVABLE_AI_URL, {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "openai/gpt-5-mini",
+        model: "google/gemini-2.5-pro",
         messages: [{ role: "system", content: system }, { role: "user", content: userPrompt }],
         tools: [{
           type: "function",
           function: {
             name: "save_course",
-            description: "Enregistre le résumé structuré et les flashcards générés",
+            description: "Enregistre la fiche de cours structurée et exhaustive",
             parameters: {
               type: "object",
               properties: {
@@ -88,16 +92,8 @@ Génère les fiches.`;
                   },
                   required: ["sections"],
                 },
-                flashcards: {
-                  type: "array",
-                  items: {
-                    type: "object",
-                    properties: { front: { type: "string" }, back: { type: "string" } },
-                    required: ["front", "back"],
-                  },
-                },
               },
-              required: ["summary", "flashcards"],
+              required: ["summary"],
             },
           },
         }],
@@ -118,7 +114,6 @@ Génère les fiches.`;
     const parsed = typeof args === "string" ? JSON.parse(args) : args;
     return new Response(JSON.stringify({
       summary: parsed?.summary ?? null,
-      flashcards: parsed?.flashcards ?? [],
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     console.error(e);
