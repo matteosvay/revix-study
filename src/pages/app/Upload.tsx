@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -32,6 +32,17 @@ export default function Upload() {
   const [examDate, setExamDate] = useState("");
   const [step, setStep] = useState<number>(-1); // -1 idle
   const [dragOver, setDragOver] = useState(false);
+
+  // Empêche le navigateur d'ouvrir le fichier si l'utilisateur rate la zone de drop
+  useEffect(() => {
+    const prevent = (e: DragEvent) => { e.preventDefault(); };
+    window.addEventListener("dragover", prevent);
+    window.addEventListener("drop", prevent);
+    return () => {
+      window.removeEventListener("dragover", prevent);
+      window.removeEventListener("drop", prevent);
+    };
+  }, []);
 
   const onFile = (f: File | null) => { if (!f) return; setFile(f); if (!title) setTitle(f.name.replace(/\.[^.]+$/, "")); };
 
