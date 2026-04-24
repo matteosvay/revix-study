@@ -10,6 +10,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CourseSummary, type CourseSummaryData } from "@/components/revix/CourseSummary";
+import { bumpQuest } from "@/hooks/useGamification";
 
 type Course = { id: string; title: string; subject: string | null; emoji: string | null; source_content: string | null; summary: CourseSummaryData | null };
 type Card = { id: string; front: string; back: string };
@@ -152,8 +153,8 @@ export default function CourseDetail() {
                   </Button>
                 </div>
                 <div className="mt-5 flex gap-3 justify-center">
-                  <button onClick={() => { setFlipped(false); setIdx(i => Math.min(cards.length - 1, i + 1)); }} className="pen-btn pen-btn-red">À revoir 👎</button>
-                  <button onClick={() => { setFlipped(false); setIdx(i => Math.min(cards.length - 1, i + 1)); }} className="pen-btn pen-btn-green">Je savais 👍</button>
+                  <button onClick={async () => { if (course?.id) { const { data: { user } } = await supabase.auth.getUser(); if (user) { await bumpQuest(user.id, "flashcards_reviewed", 1); await bumpQuest(user.id, "w_25_flashcards", 1); } } setFlipped(false); setIdx(i => Math.min(cards.length - 1, i + 1)); }} className="pen-btn pen-btn-red">À revoir 👎</button>
+                  <button onClick={async () => { if (course?.id) { const { data: { user } } = await supabase.auth.getUser(); if (user) { await bumpQuest(user.id, "flashcards_reviewed", 1); await bumpQuest(user.id, "w_25_flashcards", 1); } } setFlipped(false); setIdx(i => Math.min(cards.length - 1, i + 1)); }} className="pen-btn pen-btn-green">Je savais 👍</button>
                 </div>
               </div>
             )}

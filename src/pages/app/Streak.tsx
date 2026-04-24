@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
+import { addDays, localDateKey, startOfLocalWeek } from "@/lib/date";
 
 type Profile = {
   streak_days: number;
@@ -17,7 +18,6 @@ type Profile = {
   plan: string;
 };
 
-function ymd(d: Date) { return d.toISOString().slice(0, 10); }
 const WEEK_LABELS = ["L", "M", "M", "J", "V", "S", "D"];
 const MONTHS_FR = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Aoû", "Sep", "Oct", "Nov", "Déc"];
 
@@ -38,9 +38,9 @@ export default function Streak() {
     const since = new Date(); since.setDate(since.getDate() - 60);
     const { data: attempts } = await supabase
       .from("quiz_attempts").select("created_at")
-      .eq("user_id", user.id).gte("created_at", since.toISOString());
+       .eq("user_id", user.id).gte("created_at", since.toISOString());
     const set = new Set<string>();
-    attempts?.forEach((a: any) => set.add(a.created_at.slice(0, 10)));
+    attempts?.forEach((a: any) => set.add(localDateKey(new Date(a.created_at))));
     if (p?.last_active_date) set.add(p.last_active_date);
     setActiveDates(set);
   };
@@ -71,28 +71,23 @@ export default function Streak() {
 
   // Grille hebdo : 8 semaines de lundi à dimanche, today dans la dernière semaine
   const today = new Date(); today.setHours(0, 0, 0, 0);
-  const todayDow = (today.getDay() + 6) % 7; // lundi = 0
   const weeksToShow = 8;
-  // Trouver le lundi de la semaine d'aujourd'hui
-  const currentMonday = new Date(today);
-  currentMonday.setDate(today.getDate() - todayDow);
+  const currentMonday = startOfLocalWeek(today);
   // Premier lundi affiché
-  const firstMonday = new Date(currentMonday);
-  firstMonday.setDate(currentMonday.getDate() - (weeksToShow - 1) * 7);
+  const firstMonday = addDays(currentMonday, -((weeksToShow - 1) * 7));
 
   type Cell = { date: Date; key: string; active: boolean; today: boolean; future: boolean };
   const weekColumns: Cell[][] = [];
   for (let w = 0; w < weeksToShow; w++) {
     const col: Cell[] = [];
     for (let d = 0; d < 7; d++) {
-      const dt = new Date(firstMonday);
-      dt.setDate(firstMonday.getDate() + w * 7 + d);
-      const key = ymd(dt);
+       const dt = addDays(firstMonday, w * 7 + d);
+       const key = localDateKey(dt);
       col.push({
         date: dt,
         key,
         active: activeDates.has(key),
-        today: key === ymd(today),
+         today: key === localDateKey(today),
         future: dt > today,
       });
     }
@@ -106,9 +101,10 @@ export default function Streak() {
     return m !== prev ? MONTHS_FR[m] : "";
   });
 
-  const todayActive = activeDates.has(ymd(today));
-  const yest = new Date(today); yest.setDate(today.getDate() - 1);
-  const lostYesterday = !!profile.last_active_date && profile.last_active_date < ymd(yest);
+  const todayActive = activeDates.has(localDateKey(today));
+  const yest = addDays(today, -1);
+  const yesterdayKey = localDateKey(yest);
+  const lostYesterday = !!profile.last_active_date && profile.last_active_date < yesterdayKey;
 
   const nextTokenIn = 10 - (profile.quiz_completed_count % 10);
   const tokenProgress = ((profile.quiz_completed_count % 10) / 10) * 100;
