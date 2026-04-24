@@ -48,6 +48,7 @@ export const DAILY_QUEST_POOL = [
   { key: "flashcards_reviewed", title: "Lecteur", description: "Révise 15 flashcards", emoji: "📚", target: 15, xp: 60 },
   { key: "task_added", title: "Planificateur", description: "Ajoute une session au planning", emoji: "🗓️", target: 1, xp: 50 },
   { key: "perfect_quiz", title: "Sans faute", description: "Termine un quiz sans erreur", emoji: "💪", target: 1, xp: 100 },
+  { key: "coach_question", title: "Consulte ton coach", description: "Pose 1 question au coach IA", emoji: "🧠", target: 1, xp: 60 },
 ] as const;
 
 export const WEEKLY_QUEST_POOL = [
