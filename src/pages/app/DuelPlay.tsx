@@ -226,21 +226,25 @@ export default function DuelPlay() {
         <div className="space-y-2">
           {q.answers.map((a, i) => {
             const isSelected = selected === i;
-            const isCorrect = selected !== null && i === q.correct_index;
-            const isWrong = isSelected && i !== q.correct_index;
             return (
               <button
                 key={i}
                 disabled={selected !== null}
                 onClick={() => handleConfirm(i)}
                 className={`w-full text-left p-3 rounded-md border-2 border-foreground font-medium text-sm transition-all
-                  ${isCorrect ? "bg-success text-success-foreground" : isWrong ? "bg-destructive text-destructive-foreground" : "bg-card hover:shadow-brutal-sm"}`}
+                  ${isSelected ? "bg-primary text-primary-foreground" : selected !== null ? "bg-card opacity-60" : "bg-card hover:shadow-brutal-sm"}`}
               >
                 <span className="font-mono font-bold mr-2">{String.fromCharCode(65 + i)}.</span>{a}
               </button>
             );
           })}
         </div>
+
+        {selected !== null && (
+          <p className="text-center text-xs text-muted-foreground">
+            Réponse enregistrée ✓ — la correction sera révélée à la fin du duel.
+          </p>
+        )}
 
         <div className="text-center pt-2">
           <Swords className="h-5 w-5 inline text-primary" /> <span className="text-xs font-bold uppercase tracking-wider">Duel en cours</span>
