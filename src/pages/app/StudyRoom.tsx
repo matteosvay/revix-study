@@ -7,12 +7,18 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Play, Pause, SkipForward, LogOut, Send, Plus, Check, Copy } from "lucide-react";
+import { Play, Pause, SkipForward, LogOut, Send, Plus, Check, Copy, BookOpen, Sparkles, X, Download, StickyNote, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 
 type RoomMember = { id: string; user_id: string; status: string; last_seen: string };
 type Msg = { id: string; user_id: string; content: string; is_system: boolean; created_at: string };
 type Goal = { id: string; user_id: string; content: string; done: boolean };
 type Profile = { id: string; display_name: string | null; avatar_url: string | null };
+type SharedCourse = { id: string; room_id: string; course_id: string; shared_by: string; created_at: string };
+type CourseInfo = { id: string; title: string; emoji: string | null; subject: string | null; summary: any; user_id: string };
+type WhiteboardNote = { id: string; room_id: string; user_id: string; content: string; color: string; created_at: string };
+type MyCourse = { id: string; title: string; emoji: string | null };
 
 const PRESETS: Record<string, { focus: number; pause: number }> = {
   pomodoro_25_5: { focus: 25 * 60, pause: 5 * 60 },
@@ -21,6 +27,34 @@ const PRESETS: Record<string, { focus: number; pause: number }> = {
 };
 
 const initials = (n?: string | null) => (n ?? "?").split(" ").map(s => s[0]).join("").slice(0, 2).toUpperCase();
+
+const NOTE_COLORS = ["yellow", "mint", "pink", "blue"] as const;
+const noteColorClass: Record<string, string> = {
+  yellow: "bg-yellow-200 dark:bg-yellow-900/50",
+  mint: "bg-emerald-200 dark:bg-emerald-900/50",
+  pink: "bg-pink-200 dark:bg-pink-900/50",
+  blue: "bg-sky-200 dark:bg-sky-900/50",
+};
+
+function summaryToText(summary: any): string {
+  if (!summary) return "";
+  if (typeof summary === "string") return summary;
+  try {
+    if (Array.isArray(summary)) {
+      return summary.map((s) => (typeof s === "string" ? s : s?.content ?? s?.text ?? "")).filter(Boolean).join("\n\n");
+    }
+    if (typeof summary === "object") {
+      if (summary.text) return String(summary.text);
+      if (Array.isArray(summary.sections)) {
+        return summary.sections
+          .map((sec: any) => `${sec.title ? `## ${sec.title}\n` : ""}${sec.content ?? sec.text ?? ""}`)
+          .join("\n\n");
+      }
+      return JSON.stringify(summary, null, 2);
+    }
+  } catch { /* ignore */ }
+  return String(summary);
+}
 
 export default function StudyRoom() {
   const { id } = useParams<{ id: string }>();
@@ -36,6 +70,22 @@ export default function StudyRoom() {
   const [now, setNow] = useState(Date.now());
   const msgEndRef = useRef<HTMLDivElement>(null);
 
+  // Fiches partagées
+  const [sharedCourses, setSharedCourses] = useState<SharedCourse[]>([]);
+  const [courseInfos, setCourseInfos] = useState<Record<string, CourseInfo>>({});
+  const [openCourseId, setOpenCourseId] = useState<string | null>(null);
+  const [shareDialogOpen, setShareDialogOpen] = useState(false);
+  const [myCourses, setMyCourses] = useState<MyCourse[]>([]);
+
+  // Coach IA sur sélection
+  const [selection, setSelection] = useState("");
+  const [askingAI, setAskingAI] = useState(false);
+
+  // Whiteboard
+  const [notes, setNotes] = useState<WhiteboardNote[]>([]);
+  const [noteInput, setNoteInput] = useState("");
+  const [noteColor, setNoteColor] = useState<string>("yellow");
+
   // Tick every second for timer display
   useEffect(() => {
     const t = setInterval(() => setNow(Date.now()), 1000);
@@ -50,16 +100,35 @@ export default function StudyRoom() {
 
   const loadAll = async () => {
     if (!id) return;
-    const [{ data: r }, { data: ms }, { data: msgs }, { data: gs }] = await Promise.all([
+    const [{ data: r }, { data: ms }, { data: msgs }, { data: gs }, { data: sc }, { data: nts }] = await Promise.all([
       supabase.from("study_rooms").select("*").eq("id", id).maybeSingle(),
       supabase.from("room_members").select("*").eq("room_id", id),
       supabase.from("room_messages").select("*").eq("room_id", id).order("created_at").limit(50),
       supabase.from("room_goals").select("*").eq("room_id", id),
+      supabase.from("room_shared_courses").select("*").eq("room_id", id).order("created_at"),
+      supabase.from("room_whiteboard").select("*").eq("room_id", id).order("created_at", { ascending: false }).limit(40),
     ]);
     setRoom(r);
     setMembers((ms ?? []) as any);
     setMessages((msgs ?? []) as any);
     setGoals((gs ?? []) as any);
+    setSharedCourses((sc ?? []) as any);
+    setNotes((nts ?? []) as any);
+
+    // Charge les infos des cours partagés
+    const courseIds = Array.from(new Set((sc ?? []).map((s: any) => s.course_id)));
+    if (courseIds.length) {
+      const { data: cs } = await supabase
+        .from("courses")
+        .select("id, title, emoji, subject, summary, user_id")
+        .in("id", courseIds);
+      const cmap: Record<string, CourseInfo> = {};
+      (cs ?? []).forEach((c: any) => { cmap[c.id] = c; });
+      setCourseInfos(cmap);
+    } else {
+      setCourseInfos({});
+    }
+
     const ids = Array.from(new Set((ms ?? []).map((m: any) => m.user_id)));
     if (ids.length) {
       const profs = await Promise.all(ids.map(uid => supabase.rpc("get_public_profile", { p_user_id: uid }).then(r => r.data?.[0])));
@@ -76,6 +145,8 @@ export default function StudyRoom() {
       .on("postgres_changes", { event: "*", schema: "public", table: "room_members", filter: `room_id=eq.${id}` }, () => loadAll())
       .on("postgres_changes", { event: "*", schema: "public", table: "room_messages", filter: `room_id=eq.${id}` }, () => loadAll())
       .on("postgres_changes", { event: "*", schema: "public", table: "room_goals", filter: `room_id=eq.${id}` }, () => loadAll())
+      .on("postgres_changes", { event: "*", schema: "public", table: "room_shared_courses", filter: `room_id=eq.${id}` }, () => loadAll())
+      .on("postgres_changes", { event: "*", schema: "public", table: "room_whiteboard", filter: `room_id=eq.${id}` }, () => loadAll())
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "study_rooms", filter: `id=eq.${id}` }, () => loadRoom())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
@@ -161,6 +232,93 @@ export default function StudyRoom() {
     navigator.clipboard.writeText(room.invite_code);
     toast.success(`Code ${room.invite_code} copié !`);
   };
+
+  // -------- Fiches partagées --------
+  const openShareDialog = async () => {
+    if (!user) return;
+    const { data } = await supabase.from("courses").select("id, title, emoji").eq("user_id", user.id).order("created_at", { ascending: false }).limit(50);
+    setMyCourses((data ?? []) as MyCourse[]);
+    setShareDialogOpen(true);
+  };
+
+  const shareCourse = async (courseId: string) => {
+    if (!user) return;
+    const { error } = await supabase.from("room_shared_courses").insert({ room_id: room.id, course_id: courseId, shared_by: user.id });
+    if (error) {
+      if (error.code === "23505") toast.info("Cette fiche est déjà partagée.");
+      else toast.error(error.message);
+      return;
+    }
+    toast.success("Fiche partagée 📤");
+    setShareDialogOpen(false);
+  };
+
+  const unshareCourse = async (sharedId: string) => {
+    const { error } = await supabase.from("room_shared_courses").delete().eq("id", sharedId);
+    if (error) toast.error(error.message);
+  };
+
+  const saveCourseToMine = async (courseId: string) => {
+    if (!user) return;
+    const original = courseInfos[courseId];
+    if (!original) return;
+    if (original.user_id === user.id) {
+      toast.info("C'est déjà ta fiche !");
+      return;
+    }
+    const { error } = await supabase.from("courses").insert({
+      user_id: user.id,
+      title: `${original.title} (partagé)`,
+      emoji: original.emoji ?? "📘",
+      subject: original.subject,
+      summary: original.summary,
+    });
+    if (error) toast.error(error.message);
+    else toast.success("Sauvegardée dans tes cours ✅");
+  };
+
+  const askCoach = async () => {
+    const sel = selection.trim();
+    if (!sel || !openCourseId || askingAI) return;
+    setAskingAI(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("room-explain", {
+        body: { room_id: room.id, course_id: openCourseId, selection: sel },
+      });
+      if (error) throw error;
+      if (data?.error === "rate_limited") toast.error("Trop de requêtes, réessaie dans un instant.");
+      else if (data?.error === "credits_exhausted") toast.error("Crédits IA épuisés.");
+      else if (data?.error) toast.error("Erreur du coach IA.");
+      else {
+        toast.success("Le coach a répondu dans le chat 💬");
+        setSelection("");
+        setOpenCourseId(null);
+      }
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erreur");
+    } finally {
+      setAskingAI(false);
+    }
+  };
+
+  // -------- Whiteboard --------
+  const addNote = async () => {
+    const c = noteInput.trim();
+    if (!c || !user) return;
+    const { error } = await supabase.from("room_whiteboard").insert({
+      room_id: room.id, user_id: user.id, content: c.slice(0, 120), color: noteColor,
+    });
+    if (error) toast.error(error.message);
+    setNoteInput("");
+  };
+
+  const removeNote = async (n: WhiteboardNote) => {
+    const { error } = await supabase.from("room_whiteboard").delete().eq("id", n.id);
+    if (error) toast.error(error.message);
+  };
+
+  const openCourse = courseInfos[openCourseId ?? ""];
+  const openCourseSummary = openCourse ? summaryToText(openCourse.summary) : "";
 
   return (
     <AppLayout>
@@ -276,6 +434,13 @@ export default function StudyRoom() {
               {messages.slice(-8).map(m => {
                 const p = profiles[m.user_id];
                 const mine = m.user_id === user?.id;
+                if (m.is_system) {
+                  return (
+                    <div key={m.id} className="text-xs bg-accent/15 border-l-2 border-accent rounded px-2 py-1 whitespace-pre-wrap">
+                      {m.content}
+                    </div>
+                  );
+                }
                 return (
                   <div key={m.id} className={`text-xs ${mine ? "text-right" : ""}`}>
                     <span className="font-bold">{mine ? "Toi" : p?.display_name?.split(" ")[0] ?? "?"} :</span> <span className={`inline-block px-2 py-0.5 rounded ${mine ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{m.content}</span>
@@ -296,7 +461,164 @@ export default function StudyRoom() {
             <p className="text-[9px] text-right text-muted-foreground mt-1">{msgInput.length}/120</p>
           </div>
         </div>
+
+        {/* Fiches partagées */}
+        <div>
+          <div className="flex items-center justify-between mb-2">
+            <div className="label-tape label-tape-mint inline-block">📚 FICHES PARTAGÉES</div>
+            <Button onClick={openShareDialog} size="sm" variant="outline" className="h-7 text-[10px]">
+              <Plus className="h-3 w-3 mr-1" /> Partager
+            </Button>
+          </div>
+          <div className="bg-card border-2 border-foreground rounded-md p-3 space-y-2">
+            {sharedCourses.length === 0 && (
+              <p className="text-xs text-muted-foreground italic">Aucune fiche partagée. Lance le bal 📤</p>
+            )}
+            {sharedCourses.map(sc => {
+              const c = courseInfos[sc.course_id];
+              if (!c) return null;
+              const sharedByMe = sc.shared_by === user?.id;
+              const sharer = profiles[sc.shared_by];
+              return (
+                <div key={sc.id} className="flex items-center gap-2 p-2 rounded border border-foreground/10 bg-muted/30">
+                  <button onClick={() => { setOpenCourseId(c.id); setSelection(""); }} className="flex items-center gap-2 flex-1 text-left min-w-0">
+                    <span className="text-xl shrink-0">{c.emoji ?? "📘"}</span>
+                    <div className="min-w-0">
+                      <p className="text-xs font-bold truncate">{c.title}</p>
+                      <p className="text-[9px] text-muted-foreground">par {sharedByMe ? "toi" : sharer?.display_name?.split(" ")[0] ?? "?"}</p>
+                    </div>
+                  </button>
+                  {!sharedByMe && (
+                    <Button onClick={() => saveCourseToMine(c.id)} size="icon" variant="ghost" className="h-7 w-7" title="Sauvegarder dans mes cours">
+                      <Download className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                  {sharedByMe && (
+                    <Button onClick={() => unshareCourse(sc.id)} size="icon" variant="ghost" className="h-7 w-7 text-destructive" title="Retirer">
+                      <X className="h-3.5 w-3.5" />
+                    </Button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Tableau blanc collaboratif */}
+        <div>
+          <div className="label-tape inline-block mb-2">🧠 TABLEAU BLANC</div>
+          <div className="bg-card border-2 border-foreground rounded-md p-3 space-y-2">
+            <p className="text-[10px] text-muted-foreground">Brainstormez ensemble : mots-clés, idées, formules…</p>
+            <div className="flex flex-wrap gap-2 min-h-[60px]">
+              {notes.length === 0 && <p className="text-xs text-muted-foreground italic">Encore vide. Lance une idée ✏️</p>}
+              {notes.map(n => {
+                const p = profiles[n.user_id];
+                const mine = n.user_id === user?.id;
+                return (
+                  <div
+                    key={n.id}
+                    className={`group relative ${noteColorClass[n.color] ?? noteColorClass.yellow} border-2 border-foreground rounded-md px-2 py-1.5 max-w-[180px] shadow-brutal-sm`}
+                  >
+                    <p className="text-xs font-bold leading-tight whitespace-pre-wrap break-words">{n.content}</p>
+                    <p className="text-[8px] text-foreground/60 mt-1">— {mine ? "toi" : p?.display_name?.split(" ")[0] ?? "?"}</p>
+                    <button
+                      onClick={() => removeNote(n)}
+                      className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
+                      title="Supprimer"
+                    >
+                      <X className="h-2.5 w-2.5" />
+                    </button>
+                  </div>
+                );
+              })}
+            </div>
+            <div className="flex gap-2 pt-2 border-t border-foreground/10">
+              <div className="flex gap-1">
+                {NOTE_COLORS.map(c => (
+                  <button
+                    key={c}
+                    onClick={() => setNoteColor(c)}
+                    className={`h-6 w-6 rounded border-2 ${noteColorClass[c]} ${noteColor === c ? "border-foreground" : "border-foreground/20"}`}
+                    aria-label={c}
+                  />
+                ))}
+              </div>
+              <Input
+                value={noteInput}
+                onChange={(e) => setNoteInput(e.target.value.slice(0, 120))}
+                placeholder="Une idée, un mot-clé..."
+                onKeyDown={(e) => e.key === "Enter" && addNote()}
+                className="text-xs h-8 flex-1"
+              />
+              <Button onClick={addNote} size="icon" className="h-8 w-8 gradient-primary border-2 border-foreground"><StickyNote className="h-4 w-4" /></Button>
+            </div>
+          </div>
+        </div>
       </div>
+
+      {/* Dialog : choisir une fiche à partager */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Partager une fiche</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-1 max-h-[60vh] overflow-y-auto">
+            {myCourses.length === 0 && <p className="text-sm text-muted-foreground">Tu n'as pas encore de fiche. Crées-en une depuis "Mes cours" 📚</p>}
+            {myCourses.map(c => (
+              <button
+                key={c.id}
+                onClick={() => shareCourse(c.id)}
+                className="w-full flex items-center gap-3 p-3 rounded border-2 border-foreground/10 hover:border-foreground hover:bg-muted text-left"
+              >
+                <span className="text-2xl">{c.emoji ?? "📘"}</span>
+                <span className="text-sm font-bold flex-1 truncate">{c.title}</span>
+                <Plus className="h-4 w-4 text-muted-foreground" />
+              </button>
+            ))}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Dialog : voir une fiche partagée + sélection coach IA */}
+      <Dialog open={!!openCourseId} onOpenChange={(o) => { if (!o) { setOpenCourseId(null); setSelection(""); } }}>
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <span>{openCourse?.emoji ?? "📘"}</span>
+              <span>{openCourse?.title ?? "Fiche"}</span>
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto bg-muted/30 rounded p-3 text-sm whitespace-pre-wrap font-mono">
+            {openCourseSummary || <span className="text-muted-foreground italic">Cette fiche n'a pas encore de résumé.</span>}
+          </div>
+          <div className="space-y-2 border-t pt-3">
+            <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
+              <Sparkles className="h-3 w-3" /> Demander au coach IA
+            </p>
+            <p className="text-[10px] text-muted-foreground">Colle/écris un point précis à approfondir. La réponse sera postée dans le chat pour toute la salle.</p>
+            <Textarea
+              value={selection}
+              onChange={(e) => setSelection(e.target.value.slice(0, 800))}
+              placeholder="Ex: Explique-moi ce passage / cette formule..."
+              className="min-h-[60px] text-sm"
+            />
+            <div className="flex gap-2 justify-between items-center">
+              <span className="text-[10px] text-muted-foreground">{selection.length}/800</span>
+              <div className="flex gap-2">
+                {openCourse && openCourse.user_id !== user?.id && (
+                  <Button onClick={() => saveCourseToMine(openCourse.id)} variant="outline" size="sm">
+                    <Download className="h-3.5 w-3.5 mr-1" /> Sauvegarder
+                  </Button>
+                )}
+                <Button onClick={askCoach} disabled={!selection.trim() || askingAI} size="sm" className="gradient-primary">
+                  {askingAI ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
+                  Approfondir
+                </Button>
+              </div>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
