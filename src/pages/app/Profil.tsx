@@ -199,7 +199,11 @@ export default function Profil() {
           <LogOut className="h-4 w-4 mr-2" /> Se déconnecter
         </Button>
 
-        <Button variant="ghost" className="w-full text-destructive">
+        <Button
+          variant="ghost"
+          className="w-full text-destructive"
+          onClick={() => toast.info("Suppression de compte", { description: "Pour supprimer ton compte, écris-nous à support@revix.app — on s'en occupe sous 48h." })}
+        >
           <Trash2 className="h-4 w-4 mr-2" /> Supprimer mon compte
         </Button>
       </div>
