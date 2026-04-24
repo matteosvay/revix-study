@@ -178,16 +178,16 @@ export default function Upload() {
                 const active = i === step;
                 return (
                   <div key={i} className="flex items-center gap-3">
-                    <div className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 transition-all ${done ? "bg-green-500/15" : active ? "bg-primary/15" : "bg-muted"}`}>
+                    <div className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 transition-all ${done ? "bg-success/15" : active ? "bg-primary/15" : "bg-muted"}`}>
                       {done ? (
-                        <CheckCircle2 className="h-5 w-5 text-green-700 stamp-pop" />
+                        <CheckCircle2 className="h-5 w-5 text-success stamp-pop" />
                       ) : active ? (
                         <Loader2 className="h-4 w-4 text-primary animate-spin" />
                       ) : (
                         <span className="font-mono-tag text-[10px] text-muted-foreground">{i + 1}</span>
                       )}
                     </div>
-                    <span className={`font-hand text-lg ${done ? "text-green-700 line-through opacity-70" : active ? "text-foreground" : "text-muted-foreground"}`}>
+                    <span className={`font-hand text-lg ${done ? "text-success line-through opacity-70" : active ? "text-foreground" : "text-muted-foreground"}`}>
                       {s}
                     </span>
                   </div>
