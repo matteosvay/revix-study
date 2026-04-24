@@ -273,6 +273,8 @@
   .tape-right { left: auto; right: 14px; transform: rotate(6deg); }
   .tape-pink { background: hsl(var(--tape-pink)); }
   .tape-mint { background: hsl(var(--tape-mint)); }
+  .tape-violet { background: hsl(var(--primary)); }
+  .tape-orange { background: hsl(var(--accent)); }
 
   /* Post-it brutaliste : bord noir net + ombre dure */
   .postit {
@@ -295,6 +297,8 @@
   }
   .pin-blue { background: hsl(220 90% 60%); }
   .pin-purple { background: hsl(var(--primary)); }
+  .pin-orange { background: hsl(var(--accent)); }
+  .pin-green { background: hsl(var(--success)); }
 
   /* Surligneur — bloc plein, fluo */
   .marker-yellow {
