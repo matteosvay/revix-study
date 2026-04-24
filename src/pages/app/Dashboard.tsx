@@ -73,12 +73,10 @@ export default function Dashboard() {
           </Link>
         )}
 
-        <Link to="/app/streak" className="block relative overflow-hidden rounded-2xl gradient-hero p-5 text-primary-foreground shadow-glow group">
-          <div className="absolute -top-8 -right-8 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
-          <div className="absolute -bottom-10 -left-10 h-32 w-32 rounded-full bg-white/15 blur-2xl" />
+        <Link to="/app/streak" className="block relative overflow-hidden rounded-md border-[2.5px] border-foreground gradient-hero p-5 text-primary-foreground shadow-brutal group hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-brutal-sm transition-all">
           <div className="relative flex items-center gap-3">
-            <div className="h-14 w-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center shrink-0">
-              <Flame className="h-7 w-7 animate-pulse" />
+            <div className="h-14 w-14 rounded-md bg-card text-foreground border-[2.5px] border-foreground flex items-center justify-center shrink-0 shadow-[2px_2px_0_0_hsl(var(--foreground))]">
+              <Flame className="h-7 w-7 wiggle" />
             </div>
             <div className="flex-1">
               <div className="flex items-baseline gap-1.5">
