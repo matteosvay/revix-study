@@ -91,7 +91,7 @@ async function callAI(apiKey: string, system: string, userPrompt: string) {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "google/gemini-2.5-pro",
+      model: "google/gemini-2.5-flash",
       messages: [{ role: "system", content: system }, { role: "user", content: userPrompt }],
       tools: [SUMMARY_TOOL],
       tool_choice: { type: "function", function: { name: "save_course" } },
@@ -137,10 +137,8 @@ Tu utilises "tu" et un ton clair, motivant, jamais condescendant. Pas d'emoji da
     const chunks = chunkContent(content);
     console.log(`[generate-fiches] ${content.length} chars → ${chunks.length} chunk(s)`);
 
-    const allSections: any[] = [];
-    let intro: string | undefined;
-
-    for (let i = 0; i < chunks.length; i++) {
+    // Traite tous les chunks EN PARALLÈLE pour rester sous le timeout (150s)
+    const results = await Promise.all(chunks.map(async (chunk, i) => {
       const isMulti = chunks.length > 1;
       const partInfo = isMulti
         ? `\n\nIMPORTANT : ce cours est volumineux et a été découpé en ${chunks.length} parties. Tu traites ici la PARTIE ${i + 1}/${chunks.length}. Couvre EXHAUSTIVEMENT cette partie (toutes les notions qu'elle contient), sans résumer en survol. ${i === 0 ? "Commence par une courte intro situant le sujet global." : "N'écris PAS d'intro (déjà faite dans la partie 1), commence directement par les sections."}`
@@ -151,13 +149,19 @@ Titre : ${title ?? "Cours"}${partInfo}
 
 Cours${isMulti ? ` (partie ${i + 1}/${chunks.length})` : ""} :
 """
-${chunks[i]}
+${chunk}
 """
 
 Produis la fiche de cours complète et exhaustive pour ${isMulti ? "cette partie" : "ce cours"}.`;
 
       const resp = await callAI(apiKey, system, userPrompt);
+      return { i, resp };
+    }));
 
+    const allSections: any[] = [];
+    let intro: string | undefined;
+
+    for (const { i, resp } of results) {
       if (resp.status === 429) return new Response(JSON.stringify({ error: "Trop de requêtes, réessaie dans un instant." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       if (resp.status === 402) return new Response(JSON.stringify({ error: "Crédits IA épuisés. Recharge ton workspace Lovable." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
       if (!resp.ok) {
