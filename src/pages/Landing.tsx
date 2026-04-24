@@ -106,7 +106,7 @@ export default function Landing() {
             <h2 className="font-serif text-3xl md:text-5xl tracking-tight">
               Tout ce qu'il te faut pour <span className="marker-yellow">cartonner</span>
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">Quatre outils pensés par des étudiants, pour des étudiants.</p>
+            <p className="mt-4 text-lg text-muted-foreground">Quatre outils pensés par un étudiant, pour les étudiants.</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((f, i) => (
