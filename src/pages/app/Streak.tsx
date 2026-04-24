@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Flame, Trophy, Sparkles, Zap, Calendar as CalendarIcon, Lock, RotateCcw } from "lucide-react";
+import { Flame, Trophy, Sparkles, Zap, Calendar as CalendarIcon, Lock, RotateCcw, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 import { addDays, localDateKey, startOfLocalWeek } from "@/lib/date";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { STREAK_PRESTIGES, streakPrestige } from "@/lib/gamification";
 
 type Profile = {
   streak_days: number;
@@ -26,6 +28,7 @@ export default function Streak() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [activeDates, setActiveDates] = useState<Set<string>>(new Set());
   const [restoring, setRestoring] = useState(false);
+  const [openPrestige, setOpenPrestige] = useState(false);
 
   const load = async () => {
     if (!user) return;
@@ -68,6 +71,8 @@ export default function Streak() {
   };
 
   if (!profile) return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement...</div></AppLayout>;
+
+  const prestige = streakPrestige(profile.streak_days);
 
   // Grille hebdo : 8 semaines de lundi à dimanche, today dans la dernière semaine
   const today = new Date(); today.setHours(0, 0, 0, 0);
@@ -114,9 +119,14 @@ export default function Streak() {
       <PageHeader emoji="🔥" title="Streak" subtitle="Chaque jour compte." />
 
       <div className="px-5 space-y-5 pb-6">
-        {/* Hero */}
-        <div className="relative overflow-hidden rounded-3xl gradient-hero p-6 text-primary-foreground shadow-glow">
+        {/* Hero — clic ouvre les prestiges */}
+        <button
+          type="button"
+          onClick={() => setOpenPrestige(true)}
+          className="relative overflow-hidden rounded-3xl gradient-hero p-6 text-primary-foreground shadow-glow w-full text-left hover:shadow-brutal-lg transition-shadow"
+        >
           <Pin color="red" className="absolute top-3 right-3 z-10" />
+          <ChevronRight className="absolute bottom-3 right-3 h-4 w-4 opacity-70" />
           <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
           <div className="absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
           <div className="relative">
@@ -130,6 +140,17 @@ export default function Streak() {
                 <p className="text-xs opacity-80 mt-0.5">{profile.streak_days <= 1 ? "jour" : "jours"} d'affilée</p>
               </div>
             </div>
+            {prestige.current && (
+              <div className="mt-4 inline-flex items-center gap-2 text-xs bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 font-semibold">
+                <span>{prestige.current.emoji}</span>
+                <span>Prestige · {prestige.current.name}</span>
+              </div>
+            )}
+            {prestige.next && (
+              <p className="text-[11px] opacity-80 mt-2">
+                Prochain : {prestige.next.emoji} {prestige.next.name} dans {prestige.next.days - profile.streak_days}j
+              </p>
+            )}
             {!todayActive && (
               <div className="mt-4 flex items-center gap-2 text-xs bg-white/15 backdrop-blur-sm rounded-full px-3 py-2">
                 <Zap className="h-3.5 w-3.5" />
@@ -137,7 +158,7 @@ export default function Streak() {
               </div>
             )}
           </div>
-        </div>
+        </button>
 
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3">
@@ -274,6 +295,53 @@ export default function Streak() {
             <li>• Avec Pro, colle un pass pour restaurer une streak perdue la veille</li>
           </ul>
         </div>
+
+        {/* Modale Prestiges streak */}
+        <Dialog open={openPrestige} onOpenChange={setOpenPrestige}>
+          <DialogContent className="max-h-[85vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Prestiges de la flamme 🔥</DialogTitle>
+              <DialogDescription>
+                Tu en es à <strong>{profile.streak_days} jours</strong>.
+                {prestige.next && ` Encore ${prestige.next.days - profile.streak_days}j pour ${prestige.next.name}.`}
+              </DialogDescription>
+            </DialogHeader>
+            <ol className="space-y-2">
+              {STREAK_PRESTIGES.map((p) => {
+                const reached = profile.streak_days >= p.days;
+                const current = prestige.current?.days === p.days;
+                return (
+                  <li
+                    key={p.days}
+                    className={`flex items-center gap-3 rounded-xl border-2 p-2.5 ${
+                      current
+                        ? "border-primary bg-primary/10 shadow-brutal"
+                        : reached
+                        ? "border-foreground/80 bg-card"
+                        : "border-dashed border-muted-foreground/30 bg-muted/30 opacity-70"
+                    }`}
+                  >
+                    <div className="h-10 w-10 shrink-0 rounded-lg flex items-center justify-center text-xl border-2 border-foreground/80 bg-secondary">
+                      {reached ? p.emoji : <Lock className="h-4 w-4 text-muted-foreground" />}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="font-serif text-base leading-tight">{p.name}</p>
+                        {current && (
+                          <span className="rubber-stamp-purple rubber-stamp text-[8px] !px-1.5 !py-0.5">ici</span>
+                        )}
+                      </div>
+                      <p className="font-mono-tag text-[9px] uppercase tracking-wider text-muted-foreground">
+                        {p.days} jours · {p.tagline}
+                      </p>
+                    </div>
+                    {reached && !current && <span className="font-hand text-success text-sm shrink-0">✓</span>}
+                  </li>
+                );
+              })}
+            </ol>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );
