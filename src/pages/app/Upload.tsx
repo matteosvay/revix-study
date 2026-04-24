@@ -6,7 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { UploadCloud, Sparkles, Loader2, FileText, Image as ImageIcon } from "lucide-react";
+import { UploadCloud, Sparkles, Loader2, FileText, Image as ImageIcon, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { extractPdfText, fileToBase64 } from "@/lib/pdf";
@@ -14,7 +14,12 @@ import { toast } from "sonner";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { XP_REWARDS } from "@/lib/gamification";
 
-const STEPS = ["Lecture du fichier...", "Extraction du contenu...", "Analyse IA...", "Création des fiches..."];
+const STEPS = [
+  "Fichier reçu",
+  "Analyse du contenu...",
+  "Extraction des concepts clés...",
+  "Génération des fiches...",
+];
 
 export default function Upload() {
   const { user } = useAuth();
@@ -103,14 +108,42 @@ export default function Upload() {
   if (step >= 0) {
     return (
       <AppLayout>
-        <div className="px-6 pt-20 text-center">
-          <Loader2 className="h-12 w-12 mx-auto text-primary animate-spin" />
-          <p className="font-serif text-2xl mt-6">{STEPS[step]}</p>
-          <p className="text-sm text-muted-foreground mt-2">Encore quelques secondes...</p>
-          <div className="mt-8 max-w-xs mx-auto flex gap-1.5">
-            {STEPS.map((_, i) => (
-              <div key={i} className={`h-1 flex-1 rounded-full transition-colors ${i <= step ? "bg-primary" : "bg-muted"}`} />
-            ))}
+        <div className="px-6 pt-12 pb-6">
+          <div className="notebook-page relative">
+            <span className="rubber-stamp-blue rubber-stamp absolute top-3 right-4 stamp-pop">En cours</span>
+            <p className="font-mono-tag text-[10px] uppercase tracking-widest text-muted-foreground">Lovable AI</p>
+            <h2 className="font-hand text-3xl text-primary mt-1">L'IA bosse pour toi…</h2>
+
+            <div className="mt-6 space-y-3">
+              {STEPS.map((s, i) => {
+                const done = i < step;
+                const active = i === step;
+                return (
+                  <div key={i} className="flex items-center gap-3">
+                    <div className={`h-7 w-7 rounded-full flex items-center justify-center shrink-0 transition-all ${done ? "bg-green-500/15" : active ? "bg-primary/15" : "bg-muted"}`}>
+                      {done ? (
+                        <CheckCircle2 className="h-5 w-5 text-green-700 stamp-pop" />
+                      ) : active ? (
+                        <Loader2 className="h-4 w-4 text-primary animate-spin" />
+                      ) : (
+                        <span className="font-mono-tag text-[10px] text-muted-foreground">{i + 1}</span>
+                      )}
+                    </div>
+                    <span className={`font-hand text-lg ${done ? "text-green-700 line-through opacity-70" : active ? "text-foreground" : "text-muted-foreground"}`}>
+                      {s}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Crayon qui dessine la barre */}
+            <div className="mt-6">
+              <div className="ruler-bar !h-3">
+                <div className="ruler-fill" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+              </div>
+              <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-2 text-right">{Math.round(((step + 1) / STEPS.length) * 100)} %</p>
+            </div>
           </div>
         </div>
       </AppLayout>
@@ -121,39 +154,39 @@ export default function Upload() {
     <AppLayout>
       <PageHeader emoji="📥" title="Nouveau cours" subtitle="Upload un PDF ou une photo, l'IA s'occupe du reste." />
 
-      <div className="px-5 space-y-5">
-        <label className="block rounded-2xl border-2 border-dashed border-primary/30 bg-primary/5 p-6 text-center hover:border-primary cursor-pointer transition">
+      <div className="px-5 space-y-5 pb-6">
+        <label className="block notebook-card dog-ear tilt-l p-6 text-center cursor-pointer hover:shadow-glow transition-all">
           <input type="file" className="hidden" accept="application/pdf,image/*" onChange={(e) => onFile(e.target.files?.[0] ?? null)} />
           {file ? (
             <>
               {file.type.startsWith("image/") ? <ImageIcon className="h-10 w-10 mx-auto text-primary" /> : <FileText className="h-10 w-10 mx-auto text-primary" />}
-              <p className="mt-3 text-sm font-medium truncate">{file.name}</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Cliquer pour changer</p>
+              <p className="mt-3 font-hand text-xl truncate">{file.name}</p>
+              <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Cliquer pour changer</p>
             </>
           ) : (
             <>
               <UploadCloud className="h-10 w-10 mx-auto text-primary" />
-              <p className="mt-3 text-sm font-medium">Choisir un PDF ou une photo</p>
-              <p className="text-xs text-muted-foreground mt-0.5">Glisse ou clique ici</p>
+              <p className="mt-3 font-hand text-xl">📷 Photo ou 📄 PDF</p>
+              <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Glisse ou clique ici</p>
             </>
           )}
         </label>
 
-        <div className="text-center text-xs text-muted-foreground">— OU —</div>
+        <div className="clip-divider"><span className="font-mono-tag text-[10px] uppercase">ou</span></div>
 
         <div className="space-y-1.5">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Coller du texte</Label>
-          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Tape ou colle tes notes ici..." rows={4} className="resize-none" />
+          <Label className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">✍️ Coller du texte</Label>
+          <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Tape ou colle tes notes ici..." rows={4} className="resize-none notebook-card !pl-12 font-hand !text-lg" />
         </div>
 
         <div className="space-y-1.5">
-          <Label className="text-xs uppercase tracking-wider text-muted-foreground">Titre</Label>
+          <Label className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">Titre</Label>
           <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex. Droit des contrats — chap. 3" />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
-            <Label className="text-xs uppercase tracking-wider text-muted-foreground">Matière</Label>
+            <Label className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">Matière</Label>
             <Select value={subject} onValueChange={setSubject}>
               <SelectTrigger><SelectValue placeholder="Choisir" /></SelectTrigger>
               <SelectContent>
@@ -164,7 +197,7 @@ export default function Upload() {
             </Select>
           </div>
           <div className="space-y-1.5">
-            <Label className="text-xs uppercase tracking-wider text-muted-foreground">Examen</Label>
+            <Label className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">Examen</Label>
             <Input type="date" value={examDate} onChange={(e) => setExamDate(e.target.value)} />
           </div>
         </div>
