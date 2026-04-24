@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "google/gemini-2.5-flash-lite",
         messages: [
           { role: "system", content: "Tu es un expert en OCR pour notes manuscrites et imprimées. Extrais TOUT le texte de l'image fournie en français, en conservant la structure (titres, listes, paragraphes). Ne commente pas, retourne uniquement le texte extrait." },
           { role: "user", content: [
