@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Copy, Check, X, UserPlus, Search, Trophy, Flame, Sparkles, AtSign, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Copy, Check, X, UserPlus, Search, Trophy, Flame, Sparkles, AtSign, Loader2, Swords, BookOpen, Plus, LogIn } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -71,19 +72,42 @@ export default function Campus() {
   // Leaderboard
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
 
+  // Duels & Salles
+  const nav = useNavigate();
+  const [duels, setDuels] = useState<any[]>([]);
+  const [rooms, setRooms] = useState<any[]>([]);
+  const [createDuelOpen, setCreateDuelOpen] = useState(false);
+  const [createRoomOpen, setCreateRoomOpen] = useState(false);
+  const [joinCodeOpen, setJoinCodeOpen] = useState(false);
+  const [myCourses, setMyCourses] = useState<any[]>([]);
+  const [duelOpponent, setDuelOpponent] = useState("");
+  const [duelCourse, setDuelCourse] = useState("");
+  const [duelNum, setDuelNum] = useState(10);
+  const [duelSecs, setDuelSecs] = useState(30);
+  const [roomName, setRoomName] = useState("");
+  const [roomPreset, setRoomPreset] = useState("pomodoro_25_5");
+  const [roomMax, setRoomMax] = useState(4);
+  const [joinCode, setJoinCode] = useState("");
+
   const loadAll = async () => {
     if (!user) return;
     setLoadingFriends(true);
-    const [{ data: prof }, { data: fs }, { data: lb }] = await Promise.all([
+    const [{ data: prof }, { data: fs }, { data: lb }, { data: ds }, { data: rs }, { data: cs }] = await Promise.all([
       supabase.from("profiles").select("student_code, username").eq("id", user.id).maybeSingle(),
       supabase.from("friendships").select("*"),
       supabase.rpc("get_friends_leaderboard"),
+      supabase.from("duels").select("*").order("created_at", { ascending: false }).limit(20),
+      supabase.from("study_rooms").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(10),
+      supabase.from("courses").select("id, title, subject, emoji").eq("user_id", user.id),
     ]);
     setMe(prof as any);
     setUsernameInput((prof as any)?.username ?? "");
     const rows = (fs ?? []) as FriendshipRow[];
     setFriendships(rows);
     setLeaderboard((lb ?? []) as LeaderboardRow[]);
+    setDuels(ds ?? []);
+    setRooms(rs ?? []);
+    setMyCourses(cs ?? []);
 
     // Récupérer les profils des autres utilisateurs liés
     const otherIds = Array.from(new Set(
@@ -169,6 +193,62 @@ export default function Campus() {
     if (error) toast.error(error.message); else loadAll();
   };
 
+  const submitCreateDuel = async () => {
+    if (!duelOpponent || !duelCourse) { toast.error("Choisis un ami et un cours"); return; }
+    const { data, error } = await supabase.rpc("create_duel", {
+      p_opponent_id: duelOpponent, p_course_id: duelCourse,
+      p_num_questions: duelNum, p_seconds_per_question: duelSecs,
+    });
+    if (error) {
+      const msg = error.message.includes("not_enough_questions") ? "Pas assez de QCM dans ce cours (mini 3). Génère un quiz d'abord."
+        : error.message.includes("not_friends") ? "Tu dois être ami avec cette personne"
+        : error.message;
+      toast.error(msg);
+      return;
+    }
+    toast.success("Défi envoyé ⚔️");
+    setCreateDuelOpen(false);
+    loadAll();
+  };
+
+  const acceptDuel = async (duelId: string) => {
+    const { error } = await supabase.rpc("accept_duel", { p_duel_id: duelId });
+    if (error) { toast.error(error.message); return; }
+    nav(`/app/duel/${duelId}`);
+  };
+
+  const submitCreateRoom = async () => {
+    if (!roomName.trim() || !user) return;
+    const { data, error } = await supabase.from("study_rooms").insert({
+      host_id: user.id, name: roomName.trim(), invite_code: "",
+      timer_preset: roomPreset, max_members: roomMax, privacy: "open",
+    }).select().single();
+    if (error) { toast.error(error.message); return; }
+    toast.success("Salle créée 📚");
+    setCreateRoomOpen(false);
+    setRoomName("");
+    nav(`/app/room/${data.id}`);
+  };
+
+  const submitJoinCode = async () => {
+    if (!joinCode.trim()) return;
+    const { data, error } = await supabase.rpc("join_room_by_code", { p_code: joinCode.trim().toUpperCase() });
+    if (error) {
+      const msg = error.message.includes("room_not_found") ? "Salle introuvable"
+        : error.message.includes("room_full") ? "Salle pleine" : error.message;
+      toast.error(msg);
+      return;
+    }
+    setJoinCodeOpen(false);
+    setJoinCode("");
+    nav(`/app/room/${data}`);
+  };
+
+  const acceptedFriends = accepted.map(f => {
+    const otherId = f.requester_id === user?.id ? f.addressee_id : f.requester_id;
+    return profilesMap[otherId];
+  }).filter(Boolean);
+
   const saveUsername = async () => {
     if (!usernameInput.trim()) return;
     setSavingUsername(true);
@@ -193,12 +273,18 @@ export default function Campus() {
 
       <div className="px-5 pb-6">
         <Tabs value={tab} onValueChange={setTab} className="w-full">
-          <TabsList className="w-full grid grid-cols-2 bg-card border-2 border-foreground rounded-md p-1 font-mono text-xs">
+          <TabsList className="w-full grid grid-cols-4 bg-card border-2 border-foreground rounded-md p-1 font-mono text-[10px]">
             <TabsTrigger value="amis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
-              Mes amis
+              Amis
+            </TabsTrigger>
+            <TabsTrigger value="duels" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
+              Duels ⚔️
+            </TabsTrigger>
+            <TabsTrigger value="salles" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
+              Salles 📚
             </TabsTrigger>
             <TabsTrigger value="classement" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
-              Classement 🏆
+              Top 🏆
             </TabsTrigger>
           </TabsList>
 
@@ -385,6 +471,84 @@ export default function Campus() {
 
           {/* ==================== CLASSEMENT ==================== */}
           <TabsContent value="classement" className="mt-5 space-y-4">
+          </TabsContent>
+
+          {/* ==================== DUELS ==================== */}
+          <TabsContent value="duels" className="mt-5 space-y-4">
+            <Button onClick={() => setCreateDuelOpen(true)} className="w-full rounded-md gradient-primary border-2 border-foreground font-bold">
+              <Swords className="h-4 w-4 mr-2" /> Lancer un duel
+            </Button>
+            {duels.length === 0 ? (
+              <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
+                <p className="text-4xl mb-2">⚔️</p>
+                <p className="font-display text-base">Aucun duel</p>
+                <p className="text-xs text-muted-foreground mt-2">Défie un ami sur un de tes cours.</p>
+              </div>
+            ) : duels.map(d => {
+              const isChall = d.challenger_id === user?.id;
+              const otherId = isChall ? d.opponent_id : d.challenger_id;
+              const p = profilesMap[otherId];
+              const incoming = !isChall && d.status === "pending";
+              const myTurn = d.status === "accepted";
+              const won = d.status === "completed" && d.winner_id === user?.id;
+              const lost = d.status === "completed" && d.winner_id && d.winner_id !== user?.id;
+              return (
+                <div key={d.id} className={`p-3 rounded-md border-2 border-foreground shadow-brutal-sm ${won ? "bg-success/20" : lost ? "bg-destructive/10" : "bg-card"}`}>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10 border-2 border-foreground">
+                      {p?.avatar_url && <AvatarImage src={p.avatar_url} />}
+                      <AvatarFallback className="text-xs font-bold">{initialsOf(p?.display_name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold truncate">{isChall ? "Tu défies " : ""}{p?.display_name ?? "..."}</p>
+                      <p className="text-[10px] font-mono text-muted-foreground">{d.subject ?? "—"} · {d.num_questions}Q · {d.seconds_per_question}s</p>
+                      {d.status === "completed" && (
+                        <p className="text-[11px] font-bold mt-0.5">
+                          {won ? "🏆 Victoire" : lost ? "Défaite" : "Égalité"} — {d.challenger_score ?? "?"} vs {d.opponent_score ?? "?"}
+                        </p>
+                      )}
+                    </div>
+                    {incoming && <Button size="sm" onClick={() => acceptDuel(d.id)} className="rounded-md gradient-primary border-2 border-foreground text-xs h-8 font-bold">Accepter</Button>}
+                    {myTurn && <Button size="sm" onClick={() => nav(`/app/duel/${d.id}`)} className="rounded-md gradient-primary border-2 border-foreground text-xs h-8 font-bold">Jouer</Button>}
+                    {d.status === "pending" && isChall && <span className="text-[10px] font-bold text-muted-foreground">En attente</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </TabsContent>
+
+          {/* ==================== SALLES ==================== */}
+          <TabsContent value="salles" className="mt-5 space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              <Button onClick={() => setCreateRoomOpen(true)} className="rounded-md gradient-primary border-2 border-foreground font-bold text-xs h-9">
+                <Plus className="h-3 w-3 mr-1" /> Créer
+              </Button>
+              <Button onClick={() => setJoinCodeOpen(true)} variant="outline" className="rounded-md border-2 border-foreground font-bold text-xs h-9">
+                <LogIn className="h-3 w-3 mr-1" /> Code
+              </Button>
+            </div>
+            {rooms.length === 0 ? (
+              <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
+                <p className="text-4xl mb-2">📚</p>
+                <p className="font-display text-base">Aucune salle active</p>
+                <p className="text-xs text-muted-foreground mt-2">Crée une salle pour réviser ensemble.</p>
+              </div>
+            ) : rooms.map(r => (
+              <div key={r.id} className="bg-card p-3 rounded-md border-2 border-foreground shadow-brutal-sm flex items-center gap-3">
+                <BookOpen className="h-8 w-8 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-hand text-lg truncate">{r.name}</p>
+                  <p className="text-[10px] font-mono text-muted-foreground">
+                    {r.timer_phase === "focus" ? "🍅 Focus en cours" : r.timer_phase === "pause" ? "☕ Pause" : "⏸ Idle"} · code {r.invite_code}
+                  </p>
+                </div>
+                <Button size="sm" onClick={() => nav(`/app/room/${r.id}`)} className="rounded-md gradient-primary border-2 border-foreground text-xs h-8 font-bold">Rejoindre</Button>
+              </div>
+            ))}
+          </TabsContent>
+
+          {/* (placeholder pour fermer la duplication ouverte plus haut) */}
+          <TabsContent value="__hidden__" className="hidden">
             <div className="text-center">
               <p className="font-hand text-2xl">Tableau d'honneur</p>
               <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Cette semaine · entre amis</p>
@@ -478,6 +642,70 @@ export default function Campus() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* DUELS et SALLES rendus hors Tabs ? Non, on les a omis. Les modals : */}
+      <Dialog open={createDuelOpen} onOpenChange={setCreateDuelOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Lancer un duel ⚔️</DialogTitle><DialogDescription>Choisis un cours, un ami et la durée.</DialogDescription></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-[10px] font-bold uppercase">Adversaire</label>
+              <select value={duelOpponent} onChange={(e) => setDuelOpponent(e.target.value)} className="w-full h-10 rounded-md border-2 border-foreground bg-card px-3 text-sm">
+                <option value="">— choisir —</option>
+                {acceptedFriends.map((p: any) => <option key={p.id} value={p.id}>{p.display_name ?? p.username ?? p.student_code}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase">Cours (avec QCM)</label>
+              <select value={duelCourse} onChange={(e) => setDuelCourse(e.target.value)} className="w-full h-10 rounded-md border-2 border-foreground bg-card px-3 text-sm">
+                <option value="">— choisir —</option>
+                {myCourses.map((c: any) => <option key={c.id} value={c.id}>{c.emoji} {c.title}</option>)}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] font-bold uppercase">Questions</label>
+                <div className="flex gap-1">{[5,10,20].map(n => <button key={n} onClick={() => setDuelNum(n)} className={`flex-1 h-9 rounded-md border-2 border-foreground font-bold text-xs ${duelNum===n?"bg-primary text-primary-foreground":"bg-card"}`}>{n}</button>)}</div>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase">Sec/Q</label>
+                <div className="flex gap-1">{[20,30,45].map(n => <button key={n} onClick={() => setDuelSecs(n)} className={`flex-1 h-9 rounded-md border-2 border-foreground font-bold text-xs ${duelSecs===n?"bg-primary text-primary-foreground":"bg-card"}`}>{n}s</button>)}</div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter><Button onClick={submitCreateDuel} className="rounded-md gradient-primary border-2 border-foreground font-bold w-full">Envoyer le défi ⚔️</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={createRoomOpen} onOpenChange={setCreateRoomOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Créer une salle 📚</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <Input value={roomName} onChange={(e) => setRoomName(e.target.value)} placeholder="Ex: Révisions BTS Marketing 🔥" />
+            <div>
+              <label className="text-[10px] font-bold uppercase">Timer</label>
+              <div className="flex gap-1">
+                {[{k:"pomodoro_25_5",l:"Pomodoro 25/5"},{k:"deep_50_10",l:"Deep 50/10"},{k:"sprint_15_3",l:"Sprint 15/3"}].map(p => (
+                  <button key={p.k} onClick={() => setRoomPreset(p.k)} className={`flex-1 h-9 rounded-md border-2 border-foreground font-bold text-[10px] ${roomPreset===p.k?"bg-primary text-primary-foreground":"bg-card"}`}>{p.l}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase">Max membres : {roomMax}</label>
+              <input type="range" min={2} max={6} value={roomMax} onChange={(e) => setRoomMax(parseInt(e.target.value))} className="w-full" />
+            </div>
+          </div>
+          <DialogFooter><Button onClick={submitCreateRoom} className="rounded-md gradient-primary border-2 border-foreground font-bold w-full">Créer la salle 📚</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={joinCodeOpen} onOpenChange={setJoinCodeOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Rejoindre une salle</DialogTitle><DialogDescription>Entre le code de la salle (6 caractères).</DialogDescription></DialogHeader>
+          <Input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={6} className="font-mono text-center text-lg" />
+          <DialogFooter><Button onClick={submitJoinCode} className="rounded-md gradient-primary border-2 border-foreground font-bold w-full">Rejoindre</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
