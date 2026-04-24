@@ -76,6 +76,7 @@ export default function StudyRoom() {
   const [openCourseId, setOpenCourseId] = useState<string | null>(null);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [myCourses, setMyCourses] = useState<MyCourse[]>([]);
+  const [allFichesOpen, setAllFichesOpen] = useState(false);
 
   // Coach IA sur sélection
   const [selection, setSelection] = useState("");
@@ -334,6 +335,20 @@ export default function StudyRoom() {
           <Copy className="h-3 w-3" /> Code : {room.invite_code}
         </button>
 
+        {/* Bouton Fiches partagées (accès rapide) */}
+        <Button
+          onClick={() => setAllFichesOpen(true)}
+          variant="outline"
+          className="w-full border-2 border-foreground font-bold flex items-center justify-between"
+        >
+          <span className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4" /> Fiches partagées
+          </span>
+          <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-[10px] font-black">
+            {sharedCourses.length}
+          </span>
+        </Button>
+
         {/* Pomodoro */}
         <div className="bg-card border-2 border-foreground rounded-md p-5 shadow-brutal text-center">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
@@ -555,6 +570,80 @@ export default function StudyRoom() {
           </div>
         </div>
       </div>
+
+      {/* Dialog : choisir une fiche à partager */}
+      {/* Dialog : toutes les fiches partagées avec résumés */}
+      <Dialog open={allFichesOpen} onOpenChange={setAllFichesOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BookOpen className="h-5 w-5" /> Fiches partagées dans la salle
+            </DialogTitle>
+          </DialogHeader>
+          <div className="flex-1 overflow-y-auto space-y-4 pr-1">
+            {sharedCourses.length === 0 && (
+              <div className="text-center py-8">
+                <p className="text-sm text-muted-foreground italic mb-3">Aucune fiche partagée pour l'instant.</p>
+                <Button onClick={() => { setAllFichesOpen(false); openShareDialog(); }} size="sm" className="gradient-primary">
+                  <Plus className="h-4 w-4 mr-1" /> Partager une fiche
+                </Button>
+              </div>
+            )}
+            {sharedCourses.map((sc) => {
+              const c = courseInfos[sc.course_id];
+              if (!c) return null;
+              const sharedByMe = sc.shared_by === user?.id;
+              const sharer = profiles[sc.shared_by];
+              const summaryText = summaryToText(c.summary);
+              return (
+                <div key={sc.id} className="border-2 border-foreground rounded-md bg-card overflow-hidden">
+                  <div className="flex items-center gap-2 p-3 bg-muted/40 border-b border-foreground/10">
+                    <span className="text-2xl">{c.emoji ?? "📘"}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold truncate">{c.title}</p>
+                      <p className="text-[10px] text-muted-foreground">
+                        Partagé par {sharedByMe ? "toi" : sharer?.display_name?.split(" ")[0] ?? "un membre"}
+                        {c.subject && ` · ${c.subject}`}
+                      </p>
+                    </div>
+                    {!sharedByMe ? (
+                      <Button onClick={() => saveCourseToMine(c.id)} size="sm" variant="outline" className="text-[10px] h-8">
+                        <Download className="h-3 w-3 mr-1" /> Sauvegarder
+                      </Button>
+                    ) : (
+                      <Button onClick={() => unshareCourse(sc.id)} size="sm" variant="ghost" className="text-destructive text-[10px] h-8">
+                        <X className="h-3 w-3 mr-1" /> Retirer
+                      </Button>
+                    )}
+                  </div>
+                  <div className="p-3 max-h-60 overflow-y-auto bg-muted/10">
+                    {summaryText ? (
+                      <pre className="text-xs whitespace-pre-wrap font-sans leading-relaxed">{summaryText}</pre>
+                    ) : (
+                      <p className="text-xs text-muted-foreground italic">Pas de résumé pour cette fiche.</p>
+                    )}
+                  </div>
+                  <div className="p-2 border-t border-foreground/10 flex justify-end">
+                    <Button
+                      onClick={() => { setAllFichesOpen(false); setOpenCourseId(c.id); setSelection(""); }}
+                      size="sm" variant="ghost" className="text-[10px] h-7"
+                    >
+                      <Sparkles className="h-3 w-3 mr-1" /> Approfondir avec l'IA
+                    </Button>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+          {sharedCourses.length > 0 && (
+            <div className="border-t pt-3 flex justify-end">
+              <Button onClick={() => { setAllFichesOpen(false); openShareDialog(); }} size="sm" variant="outline">
+                <Plus className="h-4 w-4 mr-1" /> Partager une autre fiche
+              </Button>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
 
       {/* Dialog : choisir une fiche à partager */}
       <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
