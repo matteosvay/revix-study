@@ -1,275 +1,366 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Instrument+Serif:ital@0;1&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&family=DM+Sans:wght@400;500;700&family=JetBrains+Mono:wght@400;700&family=Architects+Daughter&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&family=JetBrains+Mono:wght@400;500;700&family=Architects+Daughter&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Revix design system — Notion-hybrid + Revix purple
-   Palette: warm beige paper, charcoal ink, electric purple accent
-   Typography: Inter (UI) + Instrument Serif (titles, Notion-vibe) */
+/* ============================================================
+   REVIX — NEO-BRUTALIST STUDY
+   Palette : papier crème jaune (#fef9c3) / encre noire pure
+             violet électrique #7c3aed / orange vif #f97316
+   Forme   : bordures noires 2-3px, ombres dures offset 4px 4px 0 #000
+             border-radius réduit (4-12px), pas de blur
+   Typo    : Archivo Black titres / Space Grotesk + Inter UI / Caveat annotations
+   ============================================================ */
 
 @layer base {
   :root {
-    /* Cahier d'étudiant : papier crème chaud */
-    --background: 38 36% 95%;
-    --foreground: 25 22% 16%;
+    /* Papier crème jaune brut */
+    --background: 54 96% 88%;        /* #fef9c3 */
+    --foreground: 0 0% 4%;           /* encre noire */
 
-    --card: 40 42% 97%;
-    --card-foreground: 25 22% 16%;
+    --card: 0 0% 100%;               /* blanc franc — contraste maximal */
+    --card-foreground: 0 0% 4%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 28 12% 14%;
+    --popover-foreground: 0 0% 4%;
 
-    /* Electric purple #6C3FC4 */
-    --primary: 263 53% 51%;
+    /* Violet électrique #7c3aed */
+    --primary: 262 83% 58%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 258 90% 76%;
+    --primary-glow: 262 90% 72%;
 
-    --secondary: 38 28% 90%;
-    --secondary-foreground: 25 22% 16%;
+    /* Crème jaune un ton plus sombre */
+    --secondary: 51 94% 78%;
+    --secondary-foreground: 0 0% 4%;
 
-    --muted: 38 30% 92%;
-    --muted-foreground: 25 14% 40%;
+    --muted: 50 90% 92%;
+    --muted-foreground: 0 0% 32%;
 
-    /* Soft violet #A78BFA */
-    --accent: 258 90% 76%;
-    --accent-foreground: 28 12% 14%;
+    /* Orange vif #f97316 — accent énergique */
+    --accent: 24 95% 53%;
+    --accent-foreground: 0 0% 100%;
 
-    --success: 142 71% 45%;
+    /* Vert bloc */
+    --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
 
-    --destructive: 0 84% 60%;
+    /* Rouge bloc */
+    --destructive: 358 86% 53%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 35 22% 84%;
-    --input: 35 22% 84%;
-    --ring: 263 53% 51%;
+    /* Bordure noire pure — la signature brutaliste */
+    --border: 0 0% 4%;
+    --input: 0 0% 4%;
+    --ring: 262 83% 58%;
 
-    /* Univers académique */
-    --paper: 38 36% 95%;
-    --paper-line: 210 60% 70%;
-    --ink: 230 50% 25%;
-    --highlight-yellow: 48 100% 80%;
-    --highlight-pink: 340 90% 88%;
-    --highlight-green: 130 70% 80%;
-    --tape: 48 80% 78%;
-    --tape-pink: 340 70% 82%;
-    --tape-mint: 160 50% 78%;
-    --postit: 50 95% 78%;
-    --postit-pink: 340 90% 86%;
+    /* Univers académique réinterprété */
+    --paper: 54 96% 88%;
+    --paper-line: 0 0% 4%;
+    --ink: 0 0% 4%;
+    --highlight-yellow: 51 100% 60%;
+    --highlight-pink: 340 100% 70%;
+    --highlight-green: 142 76% 60%;
+    --tape: 51 100% 60%;             /* jaune vif */
+    --tape-pink: 340 100% 70%;       /* rose flashy */
+    --tape-mint: 162 73% 60%;        /* mint vif */
+    --postit: 51 100% 70%;           /* jaune fluo */
+    --postit-pink: 340 100% 80%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;                /* moins arrondi */
 
-    --gradient-primary: linear-gradient(135deg, hsl(263 53% 51%), hsl(258 90% 76%));
-    --gradient-hero: linear-gradient(135deg, hsl(263 53% 51%) 0%, hsl(280 70% 60%) 50%, hsl(258 90% 76%) 100%);
-    --gradient-dark: linear-gradient(135deg, hsl(28 15% 18%) 0%, hsl(263 30% 25%) 100%);
-    --gradient-gold: linear-gradient(135deg, hsl(42 90% 60%), hsl(38 90% 50%));
-    --shadow-soft: 0 2px 8px -2px hsl(28 15% 20% / 0.08);
-    --shadow-glow: 0 10px 40px -10px hsl(263 53% 51% / 0.4);
-    --shadow-card: 0 1px 3px hsl(28 15% 20% / 0.04), 0 1px 2px hsl(28 15% 20% / 0.03);
-    --shadow-phone: 0 30px 60px -20px hsl(28 15% 20% / 0.25), 0 20px 40px -25px hsl(263 53% 51% / 0.2);
-    --shadow-paper: 0 1px 0 hsl(28 15% 20% / 0.04), 0 2px 6px -2px hsl(28 15% 20% / 0.08);
+    /* Plus de gradients mous : on garde "gradient-primary" comme alias bloc violet */
+    --gradient-primary: hsl(262 83% 58%);
+    --gradient-hero: hsl(262 83% 58%);
+    --gradient-dark: hsl(0 0% 4%);
+    --gradient-gold: hsl(51 100% 60%);
 
-    --font-serif: 'Instrument Serif', ui-serif, Georgia, serif;
+    /* OMBRES DURES — la signature néo-brutaliste */
+    --shadow-brutal: 4px 4px 0 0 hsl(0 0% 4%);
+    --shadow-brutal-sm: 2px 2px 0 0 hsl(0 0% 4%);
+    --shadow-brutal-lg: 6px 6px 0 0 hsl(0 0% 4%);
+    --shadow-brutal-xl: 8px 8px 0 0 hsl(0 0% 4%);
+    --shadow-brutal-primary: 4px 4px 0 0 hsl(262 83% 58%);
+    --shadow-brutal-accent: 4px 4px 0 0 hsl(24 95% 53%);
+
+    /* Aliases (compat) */
+    --shadow-soft: var(--shadow-brutal-sm);
+    --shadow-glow: var(--shadow-brutal);
+    --shadow-card: var(--shadow-brutal-sm);
+    --shadow-phone: 8px 8px 0 0 hsl(0 0% 4%);
+    --shadow-paper: var(--shadow-brutal-sm);
+
+    --font-serif: 'Archivo Black', 'Space Grotesk', sans-serif;
     --font-hand: 'Caveat', 'Kalam', cursive;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
     --font-marker: 'Architects Daughter', 'Caveat', cursive;
+    --font-display: 'Archivo Black', sans-serif;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 263 53% 51%;
+    --sidebar-foreground: 0 0% 4%;
+    --sidebar-primary: 262 83% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 96%;
-    --sidebar-accent-foreground: 263 53% 51%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 263 53% 51%;
+    --sidebar-accent: 51 100% 70%;
+    --sidebar-accent-foreground: 0 0% 4%;
+    --sidebar-border: 0 0% 4%;
+    --sidebar-ring: 262 83% 58%;
   }
 
   .dark {
-    --background: 222 47% 7%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 11%;
-    --card-foreground: 210 40% 98%;
-    --popover: 222 47% 11%;
-    --popover-foreground: 210 40% 98%;
-    --primary: 258 90% 70%;
-    --primary-foreground: 222 47% 11%;
-    --primary-glow: 258 90% 76%;
-    --secondary: 217 32% 17%;
-    --secondary-foreground: 210 40% 98%;
-    --muted: 217 32% 17%;
-    --muted-foreground: 215 20% 65%;
-    --accent: 263 53% 51%;
-    --accent-foreground: 0 0% 100%;
-    --destructive: 0 62% 50%;
-    --destructive-foreground: 210 40% 98%;
-    --border: 217 32% 20%;
-    --input: 217 32% 20%;
-    --ring: 258 90% 70%;
-    --sidebar-background: 222 47% 9%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 258 90% 70%;
-    --sidebar-primary-foreground: 222 47% 11%;
-    --sidebar-accent: 217 32% 17%;
-    --sidebar-accent-foreground: 258 90% 76%;
-    --sidebar-border: 217 32% 20%;
-    --sidebar-ring: 258 90% 70%;
+    --background: 0 0% 8%;
+    --foreground: 51 100% 92%;
+    --card: 0 0% 12%;
+    --card-foreground: 51 100% 92%;
+    --popover: 0 0% 12%;
+    --popover-foreground: 51 100% 92%;
+    --primary: 262 90% 72%;
+    --primary-foreground: 0 0% 4%;
+    --primary-glow: 262 90% 80%;
+    --secondary: 0 0% 18%;
+    --secondary-foreground: 51 100% 92%;
+    --muted: 0 0% 18%;
+    --muted-foreground: 0 0% 65%;
+    --accent: 24 95% 60%;
+    --accent-foreground: 0 0% 4%;
+    --destructive: 358 86% 60%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 51 100% 92%;
+    --input: 51 100% 92%;
+    --ring: 262 90% 72%;
+    --shadow-brutal: 4px 4px 0 0 hsl(51 100% 92%);
+    --shadow-brutal-sm: 2px 2px 0 0 hsl(51 100% 92%);
+    --shadow-brutal-lg: 6px 6px 0 0 hsl(51 100% 92%);
   }
 }
 
 @layer base {
-  * {
-    @apply border-border;
-  }
+  * { @apply border-border; }
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
     font-feature-settings: 'cv11', 'ss01';
   }
-  h1, h2, h3, .font-serif { font-family: var(--font-serif); font-weight: 400; letter-spacing: -0.01em; }
+
+  h1, h2, h3, .font-serif {
+    font-family: var(--font-display);
+    font-weight: 900;
+    letter-spacing: -0.02em;
+    line-height: 0.95;
+    text-transform: none;
+  }
 }
 
 @layer utilities {
-  .gradient-primary { background: var(--gradient-primary); }
-  .gradient-hero { background: var(--gradient-hero); }
-  .gradient-dark { background: var(--gradient-dark); }
-  .gradient-text {
-    background: var(--gradient-primary);
-    -webkit-background-clip: text;
-    background-clip: text;
-    color: transparent;
+  /* ===== Aliases gradient (devenus blocs unis brutalistes) ===== */
+  .gradient-primary { background-color: hsl(var(--primary)); }
+  .gradient-hero {
+    background-color: hsl(var(--primary));
+    background-image:
+      repeating-linear-gradient(
+        45deg,
+        transparent 0,
+        transparent 12px,
+        hsl(0 0% 100% / 0.08) 12px,
+        hsl(0 0% 100% / 0.08) 24px
+      );
   }
-  .shadow-soft { box-shadow: var(--shadow-soft); }
-  .shadow-glow { box-shadow: var(--shadow-glow); }
-  .shadow-card { box-shadow: var(--shadow-card); }
+  .gradient-dark { background-color: hsl(var(--foreground)); }
+  .gradient-text {
+    color: hsl(var(--primary));
+    -webkit-text-stroke: 0;
+  }
+
+  /* ===== OMBRES DURES — la signature ===== */
+  .shadow-brutal { box-shadow: var(--shadow-brutal); }
+  .shadow-brutal-sm { box-shadow: var(--shadow-brutal-sm); }
+  .shadow-brutal-lg { box-shadow: var(--shadow-brutal-lg); }
+  .shadow-brutal-xl { box-shadow: var(--shadow-brutal-xl); }
+  .shadow-brutal-primary { box-shadow: var(--shadow-brutal-primary); }
+  .shadow-brutal-accent { box-shadow: var(--shadow-brutal-accent); }
+
+  /* Compat aliases — toutes les pages existantes utilisent ces noms */
+  .shadow-soft { box-shadow: var(--shadow-brutal-sm); }
+  .shadow-glow { box-shadow: var(--shadow-brutal); }
+  .shadow-card { box-shadow: var(--shadow-brutal-sm); }
   .shadow-phone { box-shadow: var(--shadow-phone); }
 
-  /* Notion-style hover row */
-  .notion-row { @apply transition-colors hover:bg-muted/60 rounded-md; }
+  /* Effet "press" : la carte/bouton se colle au sol au hover */
+  .brutal-press {
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .brutal-press:hover {
+    transform: translate(2px, 2px);
+    box-shadow: var(--shadow-brutal-sm);
+  }
+  .brutal-press:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0 0 0 0 hsl(var(--foreground));
+  }
 
-  /* Glassmorphism — subtle, premium */
+  /* Notion-style hover row → brutaliste */
+  .notion-row {
+    @apply transition-all rounded-md;
+    border: 2px solid transparent;
+  }
+  .notion-row:hover {
+    border-color: hsl(var(--foreground));
+    background: hsl(var(--secondary));
+    transform: translate(-1px, -1px);
+    box-shadow: 3px 3px 0 0 hsl(var(--foreground));
+  }
+
+  /* ===== "Glass" → bloc franc avec bordure noire ===== */
   .glass {
-    background: hsl(var(--card) / 0.65);
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid hsl(var(--border) / 0.6);
+    background: hsl(var(--card));
+    border: 2px solid hsl(var(--foreground));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-brutal-sm);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
   .glass-strong {
-    background: hsl(var(--card) / 0.85);
-    backdrop-filter: blur(24px) saturate(200%);
-    -webkit-backdrop-filter: blur(24px) saturate(200%);
-    border: 1px solid hsl(var(--border) / 0.7);
+    background: hsl(var(--card));
+    border: 2.5px solid hsl(var(--foreground));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-brutal);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
   .glass-tab {
-    background: hsl(var(--background) / 0.75);
-    backdrop-filter: blur(28px) saturate(200%);
-    -webkit-backdrop-filter: blur(28px) saturate(200%);
+    background: hsl(var(--card));
+    border-top: 3px solid hsl(var(--foreground));
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
   }
 
-  /* ===== Univers académique ===== */
+  /* ===== Univers académique réinterprété brutaliste ===== */
   .font-hand { font-family: var(--font-hand); }
+  .font-mono-tag { font-family: var(--font-mono); }
+  .font-marker { font-family: var(--font-marker); }
+  .font-display { font-family: var(--font-display); letter-spacing: -0.02em; }
 
-  /* Papier crème + lignes Seyes très subtiles */
+  /* Papier crème + grille "cahier" subtile */
   .paper {
     background-color: hsl(var(--paper));
-    background-image:
-      linear-gradient(hsl(var(--paper-line) / 0.10) 1px, transparent 1px);
+    background-image: linear-gradient(hsl(var(--foreground) / 0.06) 1px, transparent 1px);
     background-size: 100% 28px;
   }
   .paper-grain {
-    background-color: hsl(var(--card));
+    background-color: hsl(var(--background));
     background-image:
-      radial-gradient(hsl(28 15% 20% / 0.025) 1px, transparent 1px),
-      radial-gradient(hsl(28 15% 20% / 0.02) 1px, transparent 1px);
-    background-size: 14px 14px, 22px 22px;
-    background-position: 0 0, 7px 11px;
+      radial-gradient(hsl(0 0% 4% / 0.04) 1px, transparent 1.5px),
+      radial-gradient(hsl(0 0% 4% / 0.03) 1px, transparent 1.5px);
+    background-size: 16px 16px, 24px 24px;
+    background-position: 0 0, 8px 12px;
   }
 
-  /* Scotch / washi tape — petit morceau collé en haut */
+  /* Scotch / washi tape — bloc opaque noir-bordé, très saturé */
   .tape {
     position: absolute;
-    top: -10px;
+    top: -8px;
     left: 50%;
     transform: translateX(-50%) rotate(-3deg);
-    width: 70px;
+    width: 72px;
     height: 22px;
-    background: hsl(var(--tape) / 0.75);
-    border-left: 1px dashed hsl(28 15% 20% / 0.15);
-    border-right: 1px dashed hsl(28 15% 20% / 0.15);
-    box-shadow: 0 1px 3px hsl(28 15% 20% / 0.12);
+    background: hsl(var(--tape));
+    border: 2px solid hsl(var(--foreground));
+    box-shadow: 2px 2px 0 0 hsl(var(--foreground));
     z-index: 2;
   }
   .tape-left { left: 14px; transform: rotate(-8deg); }
   .tape-right { left: auto; right: 14px; transform: rotate(6deg); }
-  .tape-pink { background: hsl(var(--tape-pink) / 0.8); }
-  .tape-mint { background: hsl(var(--tape-mint) / 0.8); }
+  .tape-pink { background: hsl(var(--tape-pink)); }
+  .tape-mint { background: hsl(var(--tape-mint)); }
+  .tape-violet { background: hsl(var(--primary)); }
+  .tape-orange { background: hsl(var(--accent)); }
 
-  /* Post-it */
+  /* Post-it brutaliste : bord noir net + ombre dure */
   .postit {
     background: hsl(var(--postit));
-    box-shadow:
-      0 1px 1px hsl(28 15% 20% / 0.1),
-      0 8px 18px -10px hsl(28 15% 20% / 0.3);
+    border: 2px solid hsl(var(--foreground));
+    box-shadow: 4px 4px 0 0 hsl(var(--foreground));
     transform: rotate(-1.5deg);
     font-family: var(--font-hand);
+    border-radius: 2px;
   }
   .postit-pink { background: hsl(var(--postit-pink)); transform: rotate(1.5deg); }
 
-  /* Punaise */
+  /* Punaise — bloc plein bordé noir */
   .pin {
-    width: 14px; height: 14px; border-radius: 9999px;
-    background: radial-gradient(circle at 35% 30%, hsl(0 90% 70%), hsl(0 75% 45%));
-    box-shadow: 0 2px 4px hsl(28 15% 20% / 0.3), inset -2px -2px 3px hsl(0 0% 0% / 0.2);
+    width: 16px; height: 16px;
+    border-radius: 9999px;
+    background: hsl(var(--destructive));
+    border: 2px solid hsl(var(--foreground));
+    box-shadow: 1px 1px 0 0 hsl(var(--foreground));
   }
-  .pin-blue { background: radial-gradient(circle at 35% 30%, hsl(220 90% 70%), hsl(220 75% 45%)); }
-  .pin-purple { background: radial-gradient(circle at 35% 30%, hsl(263 80% 70%), hsl(263 60% 45%)); }
+  .pin-blue { background: hsl(220 90% 60%); }
+  .pin-purple { background: hsl(var(--primary)); }
+  .pin-orange { background: hsl(var(--accent)); }
+  .pin-green { background: hsl(var(--success)); }
 
-  /* Surligneur (highlight marker) */
+  /* Surligneur — bloc plein, fluo */
   .marker-yellow {
-    background: linear-gradient(180deg, transparent 50%, hsl(var(--highlight-yellow) / 0.85) 50%);
-    padding: 0 2px;
+    background: linear-gradient(180deg, transparent 50%, hsl(var(--highlight-yellow)) 50%);
+    padding: 0 4px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
   }
   .marker-pink {
-    background: linear-gradient(180deg, transparent 50%, hsl(var(--highlight-pink) / 0.8) 50%);
-    padding: 0 2px;
+    background: linear-gradient(180deg, transparent 50%, hsl(var(--highlight-pink)) 50%);
+    padding: 0 4px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+  .marker-orange {
+    background: linear-gradient(180deg, transparent 50%, hsl(var(--accent) / 0.85) 50%);
+    padding: 0 4px;
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
   }
 
-  /* Soulignement crayon (squiggly) */
+  /* Soulignement crayon ondulé violet */
   .underline-pencil {
-    text-decoration: underline wavy hsl(263 53% 51% / 0.5);
-    text-underline-offset: 4px;
+    text-decoration: underline wavy hsl(var(--primary));
+    text-decoration-thickness: 2px;
+    text-underline-offset: 6px;
   }
 
-  /* Card "fiche bristol" : crème, ombre douce, coin légèrement penché possible */
+  /* Card "fiche bristol" → blanc franc, bord noir, ombre dure */
   .card-paper {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    box-shadow: var(--shadow-paper);
+    border: 2.5px solid hsl(var(--foreground));
+    box-shadow: var(--shadow-brutal);
     border-radius: var(--radius);
     position: relative;
   }
-  .tilt-l { transform: rotate(-0.6deg); }
-  .tilt-r { transform: rotate(0.6deg); }
+  .tilt-l { transform: rotate(-1deg); }
+  .tilt-r { transform: rotate(1deg); }
 
-  /* Bouton "stamp" */
+  /* "Stamp" — tag rotatif noir-bordé */
   .stamp {
-    font-family: var(--font-hand);
-    color: hsl(var(--primary));
-    border: 2px solid hsl(var(--primary) / 0.6);
-    padding: 2px 10px;
-    border-radius: 6px;
-    transform: rotate(-4deg);
-    letter-spacing: 0.04em;
+    font-family: var(--font-mono);
+    color: hsl(var(--foreground));
+    background: hsl(var(--accent));
+    border: 2px solid hsl(var(--foreground));
+    padding: 3px 10px;
+    border-radius: 4px;
+    transform: rotate(-3deg);
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     font-size: 0.7rem;
     font-weight: 700;
+    box-shadow: 2px 2px 0 0 hsl(var(--foreground));
   }
 
   /* Animations */
-  .float-slow { animation: float 4.5s ease-in-out infinite; }
+  .float-slow { animation: float-soft 4.5s ease-in-out infinite; }
   .wiggle { animation: wiggle 2.4s ease-in-out infinite; }
+  @keyframes float-soft {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
   @keyframes wiggle {
     0%, 100% { transform: rotate(-1.5deg); }
     50% { transform: rotate(1.5deg); }
@@ -289,11 +380,7 @@
   }
   .xp-pill { animation: xp-rise 1.6s ease-out forwards; }
 
-  /* ===== Plus d'académique ===== */
-  .font-mono-tag { font-family: var(--font-mono); }
-  .font-marker { font-family: var(--font-marker); }
-
-  /* Étiquette adhésive (label tape) */
+  /* Étiquette adhésive brutaliste */
   .label-tape {
     display: inline-flex;
     align-items: center;
@@ -301,142 +388,125 @@
     font-family: var(--font-mono);
     font-size: 0.65rem;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.1em;
     text-transform: uppercase;
-    padding: 2px 8px;
-    background: hsl(var(--tape) / 0.7);
-    color: hsl(var(--ink));
-    border-radius: 2px;
-    box-shadow: 0 1px 2px hsl(28 15% 20% / 0.12);
+    padding: 3px 8px;
+    background: hsl(var(--tape));
+    color: hsl(var(--foreground));
+    border: 2px solid hsl(var(--foreground));
+    border-radius: 3px;
+    box-shadow: 2px 2px 0 0 hsl(var(--foreground));
     transform: rotate(-1deg);
   }
-  .label-tape-pink { background: hsl(var(--tape-pink) / 0.75); }
-  .label-tape-mint { background: hsl(var(--tape-mint) / 0.75); }
-  .label-tape-blue { background: hsl(210 70% 80% / 0.8); }
+  .label-tape-pink { background: hsl(var(--tape-pink)); color: hsl(var(--foreground)); }
+  .label-tape-mint { background: hsl(var(--tape-mint)); color: hsl(var(--foreground)); }
+  .label-tape-blue { background: hsl(220 90% 75%); color: hsl(var(--foreground)); }
+  .label-tape-violet { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+  .label-tape-orange { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
 
-  /* Carte cahier : marge rouge gauche + lignes Seyes très subtiles */
+  /* Carte cahier brutaliste : marge violette gauche + bord noir */
   .notebook-card {
     background: hsl(var(--card));
-    border: 1px solid hsl(var(--border));
-    border-left: 4px solid hsl(0 75% 62%);
-    border-radius: 8px;
-    box-shadow: var(--shadow-paper);
+    border: 2.5px solid hsl(var(--foreground));
+    border-left: 8px solid hsl(var(--primary));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-brutal);
     background-image: repeating-linear-gradient(
       to bottom,
       transparent 0,
       transparent 27px,
-      hsl(var(--paper-line) / 0.10) 27px,
-      hsl(var(--paper-line) / 0.10) 28px
+      hsl(var(--foreground) / 0.05) 27px,
+      hsl(var(--foreground) / 0.05) 28px
     );
     position: relative;
   }
-  .notebook-card::before {
-    /* spirale gauche : petits trous */
-    content: "";
-    position: absolute;
-    left: -2px;
-    top: 8px;
-    bottom: 8px;
-    width: 4px;
-    background-image: radial-gradient(circle, hsl(var(--background)) 1.5px, transparent 1.6px);
-    background-size: 4px 14px;
-    background-repeat: repeat-y;
-  }
 
-  /* Coin corné (dog-ear) en bas à droite */
+  /* Coin corné en bas à droite */
   .dog-ear {
     position: relative;
   }
   .dog-ear::after {
     content: "";
     position: absolute;
-    right: 0; bottom: 0;
-    width: 18px; height: 18px;
+    right: -1px; bottom: -1px;
+    width: 20px; height: 20px;
     background: linear-gradient(
       135deg,
       transparent 50%,
-      hsl(28 15% 80%) 50%,
-      hsl(var(--background)) 70%
+      hsl(var(--accent)) 50%,
+      hsl(var(--accent)) 100%
     );
-    box-shadow: -1px -1px 2px hsl(28 15% 20% / 0.08) inset;
-    border-bottom-right-radius: 6px;
+    border-right: 2.5px solid hsl(var(--foreground));
+    border-bottom: 2.5px solid hsl(var(--foreground));
+    border-bottom-right-radius: var(--radius);
   }
 
-  /* Tampon (rubber stamp) circulaire */
+  /* Tampon (rubber stamp) — encre orange/violette nette */
   .rubber-stamp {
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    font-family: var(--font-marker);
+    font-family: var(--font-mono);
     font-weight: 700;
-    color: hsl(0 70% 50%);
-    border: 2px solid hsl(0 70% 50% / 0.7);
-    padding: 6px 12px;
-    border-radius: 999px;
-    transform: rotate(-6deg);
-    letter-spacing: 0.1em;
+    color: hsl(var(--accent));
+    border: 3px solid hsl(var(--accent));
+    padding: 6px 14px;
+    border-radius: 4px;
+    transform: rotate(-4deg);
+    letter-spacing: 0.12em;
     text-transform: uppercase;
-    font-size: 0.75rem;
-    background: hsl(0 70% 50% / 0.06);
-    box-shadow: inset 0 0 0 1px hsl(0 70% 50% / 0.3);
-    text-shadow: 0 0 1px hsl(0 70% 50% / 0.2);
+    font-size: 0.72rem;
+    background: hsl(var(--card));
+    box-shadow: inset 0 0 0 1.5px hsl(var(--accent) / 0.4);
   }
   .rubber-stamp-blue {
-    color: hsl(220 70% 45%);
-    border-color: hsl(220 70% 45% / 0.7);
-    background: hsl(220 70% 45% / 0.06);
-    box-shadow: inset 0 0 0 1px hsl(220 70% 45% / 0.3);
+    color: hsl(220 80% 50%);
+    border-color: hsl(220 80% 50%);
+    box-shadow: inset 0 0 0 1.5px hsl(220 80% 50% / 0.4);
   }
   .rubber-stamp-purple {
-    color: hsl(263 60% 45%);
-    border-color: hsl(263 60% 45% / 0.7);
-    background: hsl(263 60% 45% / 0.06);
-    box-shadow: inset 0 0 0 1px hsl(263 60% 45% / 0.3);
+    color: hsl(var(--primary));
+    border-color: hsl(var(--primary));
+    box-shadow: inset 0 0 0 1.5px hsl(var(--primary) / 0.4);
+  }
+  .rubber-stamp-green {
+    color: hsl(var(--success));
+    border-color: hsl(var(--success));
+    box-shadow: inset 0 0 0 1.5px hsl(var(--success) / 0.4);
   }
 
-  /* Règle (ruler) : barre de progression XP */
+  /* Règle (ruler) : barre de progression brutaliste */
   .ruler-bar {
     position: relative;
     height: 14px;
-    border-radius: 4px;
-    background: hsl(40 50% 92%);
-    border: 1px solid hsl(35 30% 70%);
+    border-radius: 3px;
+    background: hsl(var(--card));
+    border: 2px solid hsl(var(--foreground));
     overflow: hidden;
-    background-image:
-      repeating-linear-gradient(
-        to right,
-        transparent 0,
-        transparent 9px,
-        hsl(28 15% 30% / 0.35) 9px,
-        hsl(28 15% 30% / 0.35) 10px
-      ),
-      repeating-linear-gradient(
-        to right,
-        transparent 0,
-        transparent 49px,
-        hsl(28 15% 30% / 0.6) 49px,
-        hsl(28 15% 30% / 0.6) 50px
-      );
-    background-size: 10px 6px, 50px 10px;
-    background-position: 0 100%, 0 100%;
-    background-repeat: repeat-x;
+    box-shadow: 2px 2px 0 0 hsl(var(--foreground));
   }
   .ruler-fill {
     position: absolute;
     inset: 0;
-    background: linear-gradient(180deg, hsl(var(--highlight-yellow) / 0.95) 0%, hsl(48 95% 70%) 100%);
-    mix-blend-mode: multiply;
+    background: hsl(var(--accent));
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent 0,
+      transparent 6px,
+      hsl(var(--foreground) / 0.18) 6px,
+      hsl(var(--foreground) / 0.18) 8px
+    );
     transition: width 0.7s ease;
   }
 
-  /* Tally marks (bâtons de comptage) */
+  /* Tally marks — bâtons noirs nets */
   .tally-mark {
     display: inline-block;
-    width: 3px;
-    height: 22px;
-    background: hsl(var(--ink));
+    width: 4px;
+    height: 24px;
+    background: hsl(var(--foreground));
     border-radius: 1px;
-    margin: 0 1.5px;
+    margin: 0 2px;
     transform: rotate(-4deg);
   }
   .tally-strike {
@@ -445,38 +515,39 @@
   .tally-strike::after {
     content: "";
     position: absolute;
-    top: 50%; left: -22px; right: -2px;
-    height: 3px;
-    background: hsl(var(--ink));
+    top: 50%; left: -24px; right: -2px;
+    height: 4px;
+    background: hsl(var(--foreground));
     transform: translateY(-50%) rotate(-18deg);
     border-radius: 2px;
   }
 
-  /* Cork board (panneau de liège) pour quêtes */
+  /* Cork board → bloc tramé brutaliste */
   .corkboard {
-    background-color: hsl(28 35% 60%);
+    background-color: hsl(var(--accent));
     background-image:
-      radial-gradient(hsl(28 30% 45% / 0.5) 1px, transparent 1.5px),
-      radial-gradient(hsl(28 25% 50% / 0.4) 1px, transparent 1.5px),
-      radial-gradient(hsl(28 40% 70% / 0.3) 2px, transparent 2.5px);
-    background-size: 9px 9px, 13px 13px, 22px 22px;
-    background-position: 0 0, 4px 4px, 11px 7px;
-    box-shadow: inset 0 0 30px hsl(28 30% 35% / 0.4);
-    border-radius: 14px;
-    border: 4px solid hsl(28 35% 30%);
+      repeating-linear-gradient(
+        45deg,
+        transparent 0,
+        transparent 14px,
+        hsl(var(--foreground) / 0.12) 14px,
+        hsl(var(--foreground) / 0.12) 28px
+      );
+    border-radius: var(--radius);
+    border: 3px solid hsl(var(--foreground));
+    box-shadow: var(--shadow-brutal-lg);
   }
 
   /* Bordure tableau d'honneur */
   .honor-board {
-    border: 3px double hsl(var(--primary) / 0.5);
-    border-radius: 6px;
+    border: 3px solid hsl(var(--foreground));
+    border-radius: var(--radius);
     padding: 16px;
-    background:
-      linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
-      repeating-linear-gradient(45deg, hsl(var(--primary) / 0.15) 0 8px, transparent 8px 16px) border-box;
+    background: hsl(var(--card));
+    box-shadow: var(--shadow-brutal);
   }
 
-  /* Trombone (paperclip) divider */
+  /* Trombone divider */
   .clip-divider {
     display: flex;
     align-items: center;
@@ -487,8 +558,8 @@
   .clip-divider::after {
     content: "";
     flex: 1;
-    height: 1px;
-    background: hsl(var(--border));
+    height: 2px;
+    background: hsl(var(--foreground));
   }
 
   /* Animations académiques */
@@ -527,155 +598,140 @@
   }
   .hand-wave { animation: hand-wave 1.6s ease-in-out infinite; }
 
-  /* Active nav item : post-it jaune derrière l'icône */
-  .nav-postit-active {
-    position: relative;
-  }
+  /* Active nav item brutaliste — bloc jaune vif bordé noir */
+  .nav-postit-active { position: relative; }
   .nav-postit-active.is-active::before {
     content: "";
     position: absolute;
-    top: -2px;
+    top: 0;
     left: 50%;
-    transform: translateX(-50%) rotate(-4deg);
-    width: 38px;
-    height: 38px;
-    background: hsl(var(--postit) / 0.95);
-    box-shadow: 0 2px 6px hsl(28 15% 20% / 0.18);
-    border-radius: 3px;
+    transform: translateX(-50%) rotate(-3deg);
+    width: 44px;
+    height: 44px;
+    background: hsl(var(--accent));
+    border: 2px solid hsl(var(--foreground));
+    box-shadow: 2px 2px 0 0 hsl(var(--foreground));
+    border-radius: 4px;
     z-index: 0;
   }
   .nav-postit-active > * { position: relative; z-index: 1; }
+  .nav-postit-active.is-active { color: hsl(var(--foreground)) !important; font-weight: 700; }
 
-  /* Pleine page cahier (résultats quizz) */
+  /* Pleine page cahier brutaliste */
   .notebook-page {
     background: hsl(var(--card));
     background-image:
-      linear-gradient(to right, hsl(0 75% 62% / 0.5) 0, hsl(0 75% 62% / 0.5) 1px, transparent 1px),
+      linear-gradient(to right, hsl(var(--destructive)) 0, hsl(var(--destructive)) 2px, transparent 2px),
       repeating-linear-gradient(
         to bottom,
         transparent 0,
         transparent 27px,
-        hsl(var(--paper-line) / 0.18) 27px,
-        hsl(var(--paper-line) / 0.18) 28px
+        hsl(var(--foreground) / 0.12) 27px,
+        hsl(var(--foreground) / 0.12) 28px
       );
-    background-position: 32px 0, 0 0;
+    background-position: 36px 0, 0 0;
     background-size: auto, 100% 28px;
-    border: 1px solid hsl(var(--border));
-    border-radius: 8px;
-    padding-left: 44px !important;
+    border: 2.5px solid hsl(var(--foreground));
+    border-radius: var(--radius);
+    padding-left: 48px !important;
     padding-right: 16px;
     padding-top: 16px;
     padding-bottom: 16px;
-    box-shadow: var(--shadow-paper);
+    box-shadow: var(--shadow-brutal);
     position: relative;
   }
 
-  /* Bouton type "stylo écrit" */
+  /* Bouton "stylo écrit" → brutaliste */
   .pen-btn {
-    font-family: var(--font-hand);
-    font-size: 1.1rem;
+    font-family: var(--font-mono);
+    font-size: 0.85rem;
     font-weight: 700;
-    padding: 8px 18px;
-    border-radius: 999px;
-    border: 2px solid currentColor;
-    background: transparent;
-    transition: all 0.18s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    padding: 10px 20px;
+    border-radius: 4px;
+    border: 2.5px solid hsl(var(--foreground));
+    background: hsl(var(--card));
+    color: hsl(var(--foreground));
+    box-shadow: 3px 3px 0 0 hsl(var(--foreground));
+    transition: all 0.12s ease;
     cursor: pointer;
   }
-  .pen-btn:hover { background: currentColor; color: hsl(var(--card)); }
-  .pen-btn-green { color: hsl(142 60% 35%); }
-  .pen-btn-red { color: hsl(0 65% 50%); }
-  .pen-btn-blue { color: hsl(220 70% 45%); }
+  .pen-btn:hover { transform: translate(2px, 2px); box-shadow: 1px 1px 0 0 hsl(var(--foreground)); }
+  .pen-btn-green { background: hsl(var(--success)); color: hsl(var(--success-foreground)); }
+  .pen-btn-red { background: hsl(var(--destructive)); color: hsl(var(--destructive-foreground)); }
+  .pen-btn-blue { background: hsl(220 80% 60%); color: hsl(0 0% 100%); }
 
-  /* Choix réponse en post-it */
+  /* Choix réponse brutaliste */
   .answer-postit {
-    background: hsl(var(--postit) / 0.95);
-    border: 1px solid hsl(48 60% 70%);
+    background: hsl(var(--postit));
+    border: 2.5px solid hsl(var(--foreground));
     border-radius: 4px;
     padding: 14px 16px;
-    box-shadow: 0 2px 6px hsl(28 15% 20% / 0.15);
-    transition: transform 0.18s ease, box-shadow 0.18s ease;
+    box-shadow: 4px 4px 0 0 hsl(var(--foreground));
+    transition: all 0.12s ease;
     cursor: pointer;
     text-align: left;
     font-family: var(--font-hand);
-    font-size: 1.05rem;
+    font-size: 1.1rem;
     line-height: 1.3;
     width: 100%;
-    color: hsl(var(--ink));
+    color: hsl(var(--foreground));
     position: relative;
+    font-weight: 600;
   }
   .answer-postit:hover:not(:disabled) {
-    transform: translateY(-3px) rotate(-0.5deg);
-    box-shadow: 0 6px 14px hsl(28 15% 20% / 0.22);
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 0 hsl(var(--foreground));
   }
   .answer-postit:disabled { cursor: not-allowed; }
-  .answer-postit-pink { background: hsl(var(--postit-pink) / 0.95); border-color: hsl(340 60% 75%); }
-  .answer-postit-blue { background: hsl(210 90% 88% / 0.95); border-color: hsl(210 60% 75%); }
-  .answer-postit-mint { background: hsl(140 70% 88% / 0.95); border-color: hsl(140 50% 70%); }
+  .answer-postit-pink { background: hsl(var(--postit-pink)); }
+  .answer-postit-blue { background: hsl(210 90% 80%); }
+  .answer-postit-mint { background: hsl(var(--tape-mint)); }
   .answer-postit.is-correct {
-    background: hsl(140 70% 80%);
-    border-color: hsl(140 60% 50%);
-    box-shadow: 0 0 0 3px hsl(140 60% 50% / 0.3), 0 4px 10px hsl(28 15% 20% / 0.15);
+    background: hsl(var(--success));
+    color: hsl(var(--success-foreground));
+    box-shadow: 4px 4px 0 0 hsl(var(--foreground));
   }
   .answer-postit.is-wrong {
-    background: hsl(0 75% 85%);
-    border-color: hsl(0 70% 55%);
-    box-shadow: 0 0 0 3px hsl(0 70% 55% / 0.3), 0 4px 10px hsl(28 15% 20% / 0.15);
+    background: hsl(var(--destructive));
+    color: hsl(var(--destructive-foreground));
+    box-shadow: 4px 4px 0 0 hsl(var(--foreground));
   }
   .answer-postit.is-faded { opacity: 0.45; }
 
-  /* Étoiles dessinées (note) */
+  /* Étoiles dessinées */
   .sketchy-star {
-    fill: hsl(48 95% 55%);
-    stroke: hsl(28 50% 25%);
-    stroke-width: 1;
-    filter: drop-shadow(1px 1px 0 hsl(28 30% 30% / 0.2));
+    fill: hsl(var(--accent));
+    stroke: hsl(var(--foreground));
+    stroke-width: 2;
   }
 
-  /* Toast post-it (sonner) */
+  /* Toast post-it brutaliste */
   [data-sonner-toaster] [data-sonner-toast] {
     border-radius: 4px !important;
-    border: 1px solid hsl(48 60% 70%) !important;
+    border: 2.5px solid hsl(var(--foreground)) !important;
     background: hsl(var(--postit)) !important;
-    color: hsl(var(--ink)) !important;
+    color: hsl(var(--foreground)) !important;
     font-family: var(--font-hand) !important;
     font-size: 1.05rem !important;
-    box-shadow: 0 6px 18px hsl(28 15% 20% / 0.2), 0 2px 4px hsl(28 15% 20% / 0.1) !important;
+    font-weight: 600 !important;
+    box-shadow: 4px 4px 0 0 hsl(var(--foreground)) !important;
     transform: rotate(-1deg);
   }
   [data-sonner-toaster] [data-sonner-toast][data-type="success"] {
-    background: hsl(140 70% 84%) !important;
-    border-color: hsl(140 50% 65%) !important;
+    background: hsl(var(--success)) !important;
+    color: hsl(var(--success-foreground)) !important;
   }
   [data-sonner-toaster] [data-sonner-toast][data-type="error"] {
-    background: hsl(var(--postit-pink)) !important;
-    border-color: hsl(340 60% 70%) !important;
+    background: hsl(var(--destructive)) !important;
+    color: hsl(var(--destructive-foreground)) !important;
   }
 
-  /* Decorative ambient blobs */
-  .ambient-glow::before {
-    content: "";
-    position: absolute;
-    top: -20%;
-    right: -10%;
-    width: 60%;
-    height: 50%;
-    background: radial-gradient(circle, hsl(var(--primary) / 0.18) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
-  .ambient-glow::after {
-    content: "";
-    position: absolute;
-    bottom: -10%;
-    left: -10%;
-    width: 50%;
-    height: 40%;
-    background: radial-gradient(circle, hsl(var(--accent) / 0.15) 0%, transparent 70%);
-    pointer-events: none;
-    z-index: 0;
-  }
+  /* Décor ambiant — désactivé en brutaliste (pas de glow flou) */
+  .ambient-glow::before, .ambient-glow::after { content: none; }
 
+  /* Flip card */
   .flip-card { perspective: 1000px; }
   .flip-inner {
     position: relative;
@@ -690,4 +746,79 @@
     -webkit-backface-visibility: hidden;
   }
   .flip-back { transform: rotateY(180deg); }
+
+  /* ===== Nouvelles utilitaires brutalistes ===== */
+
+  /* Bloc franc avec bordure noire + ombre dure (réutilisable) */
+  .brutal-card {
+    background: hsl(var(--card));
+    border: 2.5px solid hsl(var(--foreground));
+    border-radius: var(--radius);
+    box-shadow: var(--shadow-brutal);
   }
+  .brutal-card-sm {
+    background: hsl(var(--card));
+    border: 2px solid hsl(var(--foreground));
+    border-radius: 6px;
+    box-shadow: var(--shadow-brutal-sm);
+  }
+
+  /* Tag mono brut — pour labels [LUNDI], [QUIZZ], etc. */
+  .brutal-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    background: hsl(var(--foreground));
+    color: hsl(var(--background));
+    border-radius: 3px;
+  }
+  .brutal-tag-violet { background: hsl(var(--primary)); color: hsl(var(--primary-foreground)); }
+  .brutal-tag-orange { background: hsl(var(--accent)); color: hsl(var(--accent-foreground)); }
+  .brutal-tag-yellow { background: hsl(var(--postit)); color: hsl(var(--foreground)); border: 2px solid hsl(var(--foreground)); }
+  .brutal-tag-pink { background: hsl(var(--tape-pink)); color: hsl(var(--foreground)); }
+  .brutal-tag-mint { background: hsl(var(--tape-mint)); color: hsl(var(--foreground)); }
+
+  /* Trame rayée diagonale (background décoratif) */
+  .stripes-diag {
+    background-image: repeating-linear-gradient(
+      45deg,
+      hsl(var(--foreground) / 0.08) 0,
+      hsl(var(--foreground) / 0.08) 8px,
+      transparent 8px,
+      transparent 16px
+    );
+  }
+  .stripes-violet {
+    background-image: repeating-linear-gradient(
+      45deg,
+      hsl(var(--primary)) 0,
+      hsl(var(--primary)) 8px,
+      hsl(var(--primary-glow)) 8px,
+      hsl(var(--primary-glow)) 16px
+    );
+  }
+
+  /* Trame pointillée (papier brut accentué) */
+  .dots-bg {
+    background-image: radial-gradient(hsl(var(--foreground) / 0.18) 1.5px, transparent 1.5px);
+    background-size: 18px 18px;
+  }
+
+  /* Annotations manuscrites — à utiliser avec <Scribble /> */
+  @keyframes draw-stroke {
+    from { stroke-dashoffset: var(--scribble-length, 300); }
+    to { stroke-dashoffset: 0; }
+  }
+  .scribble-draw path,
+  .scribble-draw line,
+  .scribble-draw polyline {
+    stroke-dasharray: var(--scribble-length, 300);
+    animation: draw-stroke 0.9s ease-out forwards;
+  }
+}
