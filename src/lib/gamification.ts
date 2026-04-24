@@ -54,7 +54,9 @@ export const WEEKLY_QUEST_POOL = [
   { key: "w_5_quizzes", title: "Semaine de feu", description: "Termine 5 quizzes cette semaine", emoji: "🏆", target: 5, xp: 200 },
   { key: "w_4_uploads", title: "Bibliothécaire", description: "Upload 4 cours cette semaine", emoji: "📖", target: 4, xp: 200 },
   { key: "w_3_high_scores", title: "Major", description: "3 scores au-dessus de 80%", emoji: "🎓", target: 3, xp: 250 },
-  { key: "w_7_streak", title: "Consistance", description: "Connecte-toi 7 jours d'affilée", emoji: "🌟", target: 7, xp: 300 },
+  { key: "w_7_streak", title: "Consistance", description: "Valide 7 jours de streak sur la semaine", emoji: "🌟", target: 7, xp: 300 },
+  { key: "w_5_planning_tasks", title: "Agenda blindé", description: "Ajoute 5 sessions au planning cette semaine", emoji: "🗂️", target: 5, xp: 220 },
+  { key: "w_25_flashcards", title: "Machine à fiches", description: "Révise 25 flashcards cette semaine", emoji: "📝", target: 25, xp: 220 },
 ] as const;
 
 export function pickDailyQuests(seed: string, n = 3) {

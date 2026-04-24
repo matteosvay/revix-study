@@ -1,4 +1,4 @@
-import { ReactNode } from "react";
+import { forwardRef, ReactNode } from "react";
 import { cn } from "@/lib/utils";
 
 /** A small piece of washi tape stuck on top of a card. */
@@ -13,10 +13,10 @@ export function Tape({ variant = "yellow", position = "top", className }: {
 }
 
 /** A pushpin (épingle). */
-export function Pin({ color = "red", className }: { color?: "red" | "blue" | "purple"; className?: string }) {
+export const Pin = forwardRef<HTMLSpanElement, { color?: "red" | "blue" | "purple"; className?: string }>(function Pin({ color = "red", className }, ref) {
   const cls = color === "blue" ? "pin-blue" : color === "purple" ? "pin-purple" : "";
-  return <span className={cn("pin", cls, className)} aria-hidden />;
-}
+  return <span ref={ref} className={cn("pin", cls, className)} aria-hidden />;
+});
 
 /** A post-it note. */
 export function Postit({ children, variant = "yellow", className }: {
@@ -32,9 +32,10 @@ export function Postit({ children, variant = "yellow", className }: {
 }
 
 /** Hand-drawn underline beneath a heading. */
-export function ScribbleUnderline({ className }: { className?: string }) {
+export const ScribbleUnderline = forwardRef<SVGSVGElement, { className?: string }>(function ScribbleUnderline({ className }, ref) {
   return (
     <svg
+      ref={ref}
       viewBox="0 0 200 12"
       preserveAspectRatio="none"
       className={cn("scribble block w-full h-2 -mt-1", className)}
@@ -49,7 +50,7 @@ export function ScribbleUnderline({ className }: { className?: string }) {
       />
     </svg>
   );
-}
+});
 
 /** A small "stamp" rotated tag. */
 export function Stamp({ children, className }: { children: ReactNode; className?: string }) {
