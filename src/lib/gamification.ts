@@ -45,7 +45,6 @@ export const DAILY_QUEST_POOL = [
   { key: "streak_kept", title: "Chaud devant", description: "Garde ta streak aujourd'hui", emoji: "🔥", target: 1, xp: 60 },
   { key: "questions_answered", title: "Sprint", description: "Réponds à 20 questions", emoji: "⚡", target: 20, xp: 60 },
   { key: "high_score", title: "Précision", description: "Score 80%+ à un quiz", emoji: "🎯", target: 1, xp: 80 },
-  { key: "flashcards_reviewed", title: "Lecteur", description: "Révise 15 flashcards", emoji: "📚", target: 15, xp: 60 },
   { key: "task_added", title: "Planificateur", description: "Ajoute une session au planning", emoji: "🗓️", target: 1, xp: 50 },
   { key: "perfect_quiz", title: "Sans faute", description: "Termine un quiz sans erreur", emoji: "💪", target: 1, xp: 100 },
   { key: "coach_question", title: "Consulte ton coach", description: "Pose 1 question au coach IA", emoji: "🧠", target: 1, xp: 60 },
@@ -57,7 +56,6 @@ export const WEEKLY_QUEST_POOL = [
   { key: "w_3_high_scores", title: "Major", description: "3 scores au-dessus de 80%", emoji: "🎓", target: 3, xp: 250 },
   { key: "w_7_streak", title: "Consistance", description: "Valide 7 jours de streak sur la semaine", emoji: "🌟", target: 7, xp: 300 },
   { key: "w_5_planning_tasks", title: "Agenda blindé", description: "Ajoute 5 sessions au planning cette semaine", emoji: "🗂️", target: 5, xp: 220 },
-  { key: "w_25_flashcards", title: "Machine à fiches", description: "Révise 25 flashcards cette semaine", emoji: "📝", target: 25, xp: 220 },
 ] as const;
 
 export function pickDailyQuests(seed: string, n = 3) {
@@ -101,7 +99,6 @@ export function weekEnd(weekStart: string) {
 /** XP rewards table for actions. */
 export const XP_REWARDS = {
   upload: 50,
-  flashcard_session: 30,
   quiz_finish: 40,
   quiz_high_score: 20,
   quiz_perfect: 50,
