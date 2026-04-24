@@ -1,11 +1,26 @@
 // Edge function: Revix Coach IA — chat + génération de plans
 // Modèle: google/gemini-2.5-flash via Lovable AI Gateway
 
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers":
     "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
 };
+
+async function requireAuth(req: Request): Promise<Response | null> {
+  const authHeader = req.headers.get("Authorization");
+  if (!authHeader?.startsWith("Bearer ")) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+  const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!);
+  const { data, error } = await sb.auth.getUser(authHeader.replace("Bearer ", ""));
+  if (error || !data?.user) {
+    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+  return null;
+}
 
 const SYSTEM_PROMPT = `Tu es Revix Coach, un assistant de révision bienveillant et direct pour étudiants français.
 Tu parles en "tu", ton style est chaleureux, encourageant, jamais condescendant.
@@ -67,6 +82,8 @@ Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
+    const unauthorized = await requireAuth(req);
+    if (unauthorized) return unauthorized;
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
       return new Response(JSON.stringify({ error: "LOVABLE_API_KEY non configuré" }), {
