@@ -48,7 +48,7 @@ Génère les fiches.`;
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "openai/gpt-5-mini",
         messages: [{ role: "system", content: system }, { role: "user", content: userPrompt }],
         tools: [{
           type: "function",
