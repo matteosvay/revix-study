@@ -564,6 +564,70 @@ export default function Campus() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* DUELS et SALLES rendus hors Tabs ? Non, on les a omis. Les modals : */}
+      <Dialog open={createDuelOpen} onOpenChange={setCreateDuelOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Lancer un duel ⚔️</DialogTitle><DialogDescription>Choisis un cours, un ami et la durée.</DialogDescription></DialogHeader>
+          <div className="space-y-3">
+            <div>
+              <label className="text-[10px] font-bold uppercase">Adversaire</label>
+              <select value={duelOpponent} onChange={(e) => setDuelOpponent(e.target.value)} className="w-full h-10 rounded-md border-2 border-foreground bg-card px-3 text-sm">
+                <option value="">— choisir —</option>
+                {acceptedFriends.map((p: any) => <option key={p.id} value={p.id}>{p.display_name ?? p.username ?? p.student_code}</option>)}
+              </select>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase">Cours (avec QCM)</label>
+              <select value={duelCourse} onChange={(e) => setDuelCourse(e.target.value)} className="w-full h-10 rounded-md border-2 border-foreground bg-card px-3 text-sm">
+                <option value="">— choisir —</option>
+                {myCourses.map((c: any) => <option key={c.id} value={c.id}>{c.emoji} {c.title}</option>)}
+              </select>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div>
+                <label className="text-[10px] font-bold uppercase">Questions</label>
+                <div className="flex gap-1">{[5,10,20].map(n => <button key={n} onClick={() => setDuelNum(n)} className={`flex-1 h-9 rounded-md border-2 border-foreground font-bold text-xs ${duelNum===n?"bg-primary text-primary-foreground":"bg-card"}`}>{n}</button>)}</div>
+              </div>
+              <div>
+                <label className="text-[10px] font-bold uppercase">Sec/Q</label>
+                <div className="flex gap-1">{[20,30,45].map(n => <button key={n} onClick={() => setDuelSecs(n)} className={`flex-1 h-9 rounded-md border-2 border-foreground font-bold text-xs ${duelSecs===n?"bg-primary text-primary-foreground":"bg-card"}`}>{n}s</button>)}</div>
+              </div>
+            </div>
+          </div>
+          <DialogFooter><Button onClick={submitCreateDuel} className="rounded-md gradient-primary border-2 border-foreground font-bold w-full">Envoyer le défi ⚔️</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={createRoomOpen} onOpenChange={setCreateRoomOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Créer une salle 📚</DialogTitle></DialogHeader>
+          <div className="space-y-3">
+            <Input value={roomName} onChange={(e) => setRoomName(e.target.value)} placeholder="Ex: Révisions BTS Marketing 🔥" />
+            <div>
+              <label className="text-[10px] font-bold uppercase">Timer</label>
+              <div className="flex gap-1">
+                {[{k:"pomodoro_25_5",l:"Pomodoro 25/5"},{k:"deep_50_10",l:"Deep 50/10"},{k:"sprint_15_3",l:"Sprint 15/3"}].map(p => (
+                  <button key={p.k} onClick={() => setRoomPreset(p.k)} className={`flex-1 h-9 rounded-md border-2 border-foreground font-bold text-[10px] ${roomPreset===p.k?"bg-primary text-primary-foreground":"bg-card"}`}>{p.l}</button>
+                ))}
+              </div>
+            </div>
+            <div>
+              <label className="text-[10px] font-bold uppercase">Max membres : {roomMax}</label>
+              <input type="range" min={2} max={6} value={roomMax} onChange={(e) => setRoomMax(parseInt(e.target.value))} className="w-full" />
+            </div>
+          </div>
+          <DialogFooter><Button onClick={submitCreateRoom} className="rounded-md gradient-primary border-2 border-foreground font-bold w-full">Créer la salle 📚</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={joinCodeOpen} onOpenChange={setJoinCodeOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Rejoindre une salle</DialogTitle><DialogDescription>Entre le code de la salle (6 caractères).</DialogDescription></DialogHeader>
+          <Input value={joinCode} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} placeholder="ABC123" maxLength={6} className="font-mono text-center text-lg" />
+          <DialogFooter><Button onClick={submitJoinCode} className="rounded-md gradient-primary border-2 border-foreground font-bold w-full">Rejoindre</Button></DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
