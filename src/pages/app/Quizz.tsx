@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { XP_REWARDS } from "@/lib/gamification";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
+import { localDateKey } from "@/lib/date";
 
 type QType = "qcm" | "vrai_faux" | "ouvert" | "trous";
 type Q = {
@@ -85,6 +86,9 @@ export default function Quizz() {
             score: nextScore, total: questions.length,
             wrong_indices: nextWrong,
           });
+          const { data: profileState } = await supabase.from("profiles").select("last_active_date").eq("id", user.id).maybeSingle();
+          const todayKey = localDateKey(new Date());
+          const isFirstActivityToday = profileState?.last_active_date !== todayKey;
           await supabase.rpc("bump_streak", { p_user_id: user.id });
           // Incrémente le compteur quiz et octroie un jeton tous les 10 quiz
           const { data: tokenRes } = await supabase.rpc("increment_quiz_count", { p_user_id: user.id });
@@ -106,8 +110,10 @@ export default function Quizz() {
             await bumpQuest(user.id, "w_3_high_scores", 1);
           }
           if (pct === 100) await bumpQuest(user.id, "perfect_quiz", 1);
-          await bumpQuest(user.id, "streak_kept", 1);
-          await bumpQuest(user.id, "w_7_streak", 1);
+          if (isFirstActivityToday) {
+            await bumpQuest(user.id, "streak_kept", 1);
+            await bumpQuest(user.id, "w_7_streak", 1);
+          }
         }
       } else {
         setQIdx(qIdx + 1); setPicked(null); setTextAnswer(""); setOpenResult(null);
@@ -231,8 +237,8 @@ export default function Quizz() {
                         {q.type === "vrai_faux" ? (i === 0 ? "V" : "F") : String.fromCharCode(65 + i)}
                       </span>
                       <span className="flex-1">{a}</span>
-                      {picked !== null && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-700" />}
-                      {picked !== null && isPicked && !isCorrect && <XCircle className="h-5 w-5 text-red-700" />}
+                      {picked !== null && isCorrect && <CheckCircle2 className="h-5 w-5 text-success" />}
+                      {picked !== null && isPicked && !isCorrect && <XCircle className="h-5 w-5 text-destructive" />}
                     </button>
                   );
                 })}
@@ -255,7 +261,7 @@ export default function Quizz() {
                 {openResult && (
                   <div className={`answer-postit ${openResult.correct ? "is-correct" : "is-wrong"} !cursor-default`}>
                     <div className="flex items-center gap-2 font-mono-tag text-xs uppercase">
-                      {openResult.correct ? <CheckCircle2 className="h-4 w-4 text-green-700" /> : <XCircle className="h-4 w-4 text-red-700" />}
+                      {openResult.correct ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
                       <span>{openResult.correct ? "Bonne réponse" : "À revoir"}</span>
                     </div>
                     <p className="font-hand text-base mt-1.5">{openResult.feedback}</p>
@@ -265,7 +271,7 @@ export default function Quizz() {
             )}
 
             {((isChoice && picked !== null) || (!isChoice && openResult !== null)) && q.explanation && (
-              <div className="mt-4 p-3 rounded-md bg-yellow-100/80 border-l-4 border-yellow-400 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
+              <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
                 💡 {q.explanation}
               </div>
             )}

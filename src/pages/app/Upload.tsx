@@ -13,6 +13,7 @@ import { extractPdfText, fileToBase64 } from "@/lib/pdf";
 import { toast } from "sonner";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { XP_REWARDS } from "@/lib/gamification";
+import { localDateKey } from "@/lib/date";
 
 const STEPS = [
   "Fichier reçu",
@@ -88,15 +89,19 @@ export default function Upload() {
       const { error: fErr } = await supabase.from("flashcards").insert(rows);
       if (fErr) throw fErr;
 
-      // Bump streak
+      const { data: profileState } = await supabase.from("profiles").select("last_active_date").eq("id", user.id).maybeSingle();
+      const todayKey = localDateKey(new Date());
+      const isFirstActivityToday = profileState?.last_active_date !== todayKey;
       await supabase.rpc("bump_streak", { p_user_id: user.id });
 
       // XP : +50 pour un upload
       await awardXp(user.id, XP_REWARDS.upload, "course_upload");
       await bumpQuest(user.id, "course_uploaded", 1);
-      await bumpQuest(user.id, "streak_kept", 1);
+      if (isFirstActivityToday) {
+        await bumpQuest(user.id, "streak_kept", 1);
+        await bumpQuest(user.id, "w_7_streak", 1);
+      }
       await bumpQuest(user.id, "w_4_uploads", 1);
-      await bumpQuest(user.id, "w_7_streak", 1);
 
       toast.success(`${fiches.length} fiches créées ✨`);
       nav(`/app/fiches/${course.id}`);
