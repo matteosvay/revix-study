@@ -5,6 +5,101 @@ const corsHeaders = {
 
 const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
+// Découpe le cours en morceaux d'environ ~14k caractères, en respectant les
+// frontières naturelles (paragraphes) pour ne couper aucune notion en deux.
+function chunkContent(raw: string, maxChars = 14000): string[] {
+  const text = raw.trim();
+  if (text.length <= maxChars) return [text];
+
+  // Sépare d'abord par double saut de ligne (paragraphes / sections)
+  const paragraphs = text.split(/\n\s*\n/);
+  const chunks: string[] = [];
+  let current = "";
+
+  for (const p of paragraphs) {
+    // Paragraphe géant → on le coupe sur les phrases
+    if (p.length > maxChars) {
+      if (current) { chunks.push(current); current = ""; }
+      const sentences = p.split(/(?<=[.!?])\s+/);
+      for (const s of sentences) {
+        if ((current + " " + s).length > maxChars && current) {
+          chunks.push(current);
+          current = s;
+        } else {
+          current = current ? current + " " + s : s;
+        }
+      }
+      continue;
+    }
+    if ((current + "\n\n" + p).length > maxChars && current) {
+      chunks.push(current);
+      current = p;
+    } else {
+      current = current ? current + "\n\n" + p : p;
+    }
+  }
+  if (current) chunks.push(current);
+  return chunks;
+}
+
+const SUMMARY_TOOL = {
+  type: "function" as const,
+  function: {
+    name: "save_course",
+    description: "Enregistre la fiche de cours structurée et exhaustive",
+    parameters: {
+      type: "object",
+      properties: {
+        summary: {
+          type: "object",
+          properties: {
+            intro: { type: "string", description: "1 à 2 phrases d'introduction" },
+            sections: {
+              type: "array",
+              items: {
+                type: "object",
+                properties: {
+                  title: { type: "string" },
+                  blocks: {
+                    type: "array",
+                    items: {
+                      type: "object",
+                      properties: {
+                        kind: { type: "string", enum: ["paragraph", "definition", "key_point", "example", "tip", "list"] },
+                        text: { type: "string" },
+                        term: { type: "string" },
+                        items: { type: "array", items: { type: "string" } },
+                      },
+                      required: ["kind"],
+                    },
+                  },
+                },
+                required: ["title", "blocks"],
+              },
+            },
+          },
+          required: ["sections"],
+        },
+      },
+      required: ["summary"],
+    },
+  },
+};
+
+async function callAI(apiKey: string, system: string, userPrompt: string) {
+  const resp = await fetch(LOVABLE_AI_URL, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "google/gemini-2.5-pro",
+      messages: [{ role: "system", content: system }, { role: "user", content: userPrompt }],
+      tools: [SUMMARY_TOOL],
+      tool_choice: { type: "function", function: { name: "save_course" } },
+    }),
+  });
+  return resp;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
@@ -38,82 +133,57 @@ VOLUME ATTENDU : autant de sections que nécessaire pour couvrir TOUT le cours (
 
 Tu utilises "tu" et un ton clair, motivant, jamais condescendant. Pas d'emoji dans le texte.`;
 
-    const userPrompt = `Matière : ${subject ?? "non précisée"}
-Titre : ${title ?? "Cours"}
+    // Découpe le cours pour qu'AUCUN morceau ne soit ignoré
+    const chunks = chunkContent(content);
+    console.log(`[generate-fiches] ${content.length} chars → ${chunks.length} chunk(s)`);
 
-Cours :
+    const allSections: any[] = [];
+    let intro: string | undefined;
+
+    for (let i = 0; i < chunks.length; i++) {
+      const isMulti = chunks.length > 1;
+      const partInfo = isMulti
+        ? `\n\nIMPORTANT : ce cours est volumineux et a été découpé en ${chunks.length} parties. Tu traites ici la PARTIE ${i + 1}/${chunks.length}. Couvre EXHAUSTIVEMENT cette partie (toutes les notions qu'elle contient), sans résumer en survol. ${i === 0 ? "Commence par une courte intro situant le sujet global." : "N'écris PAS d'intro (déjà faite dans la partie 1), commence directement par les sections."}`
+        : "";
+
+      const userPrompt = `Matière : ${subject ?? "non précisée"}
+Titre : ${title ?? "Cours"}${partInfo}
+
+Cours${isMulti ? ` (partie ${i + 1}/${chunks.length})` : ""} :
 """
-${content.slice(0, 12000)}
+${chunks[i]}
 """
 
-Produis la fiche de cours complète.`;
+Produis la fiche de cours complète et exhaustive pour ${isMulti ? "cette partie" : "ce cours"}.`;
 
-    const resp = await fetch(LOVABLE_AI_URL, {
-      method: "POST",
-      headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model: "google/gemini-2.5-pro",
-        messages: [{ role: "system", content: system }, { role: "user", content: userPrompt }],
-        tools: [{
-          type: "function",
-          function: {
-            name: "save_course",
-            description: "Enregistre la fiche de cours structurée et exhaustive",
-            parameters: {
-              type: "object",
-              properties: {
-                summary: {
-                  type: "object",
-                  properties: {
-                    intro: { type: "string", description: "1 à 2 phrases d'introduction motivante" },
-                    sections: {
-                      type: "array",
-                      items: {
-                        type: "object",
-                        properties: {
-                          title: { type: "string" },
-                          blocks: {
-                            type: "array",
-                            items: {
-                              type: "object",
-                              properties: {
-                                kind: { type: "string", enum: ["paragraph", "definition", "key_point", "example", "tip", "list"] },
-                                text: { type: "string" },
-                                term: { type: "string" },
-                                items: { type: "array", items: { type: "string" } },
-                              },
-                              required: ["kind"],
-                            },
-                          },
-                        },
-                        required: ["title", "blocks"],
-                      },
-                    },
-                  },
-                  required: ["sections"],
-                },
-              },
-              required: ["summary"],
-            },
-          },
-        }],
-        tool_choice: { type: "function", function: { name: "save_course" } },
-      }),
-    });
+      const resp = await callAI(apiKey, system, userPrompt);
 
-    if (resp.status === 429) return new Response(JSON.stringify({ error: "Trop de requêtes, réessaie dans un instant." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if (resp.status === 402) return new Response(JSON.stringify({ error: "Crédits IA épuisés. Recharge ton workspace Lovable." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if (!resp.ok) {
-      const t = await resp.text();
-      console.error("AI error:", resp.status, t);
-      return new Response(JSON.stringify({ error: "Erreur IA" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (resp.status === 429) return new Response(JSON.stringify({ error: "Trop de requêtes, réessaie dans un instant." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (resp.status === 402) return new Response(JSON.stringify({ error: "Crédits IA épuisés. Recharge ton workspace Lovable." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (!resp.ok) {
+        const t = await resp.text();
+        console.error(`[generate-fiches] AI error chunk ${i + 1}:`, resp.status, t);
+        return new Response(JSON.stringify({ error: "Erreur IA" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      }
+
+      const data = await resp.json();
+      const args = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
+      const parsed = typeof args === "string" ? JSON.parse(args) : args;
+      const partSummary = parsed?.summary;
+      if (!partSummary?.sections?.length) {
+        console.error(`[generate-fiches] no sections returned for chunk ${i + 1}`);
+        continue;
+      }
+      if (i === 0 && partSummary.intro) intro = partSummary.intro;
+      for (const s of partSummary.sections) allSections.push(s);
     }
 
-    const data = await resp.json();
-    const args = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
-    const parsed = typeof args === "string" ? JSON.parse(args) : args;
+    if (!allSections.length) {
+      return new Response(JSON.stringify({ error: "L'IA n'a pas pu générer la fiche." }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
     return new Response(JSON.stringify({
-      summary: parsed?.summary ?? null,
+      summary: { intro, sections: allSections },
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     console.error(e);
