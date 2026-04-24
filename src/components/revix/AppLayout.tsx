@@ -63,7 +63,7 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
                 activeClassName="is-active"
               >
                 <n.icon className="h-[20px] w-[20px]" strokeWidth={2.5} />
-                {n.label}
+                <span className="nav-label">{n.label}</span>
               </NavLink>
             ))}
           </div>

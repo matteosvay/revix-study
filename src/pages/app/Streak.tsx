@@ -181,14 +181,16 @@ export default function Streak() {
                       <div
                         key={d.key}
                         title={`${d.date.toLocaleDateString("fr-FR")}${d.active ? " · actif" : d.future ? "" : " · inactif"}`}
-                        className={`aspect-square w-full rounded-[3px] transition-all hover:scale-110 ${
+                        className={`aspect-square w-full rounded-[3px] transition-all hover:scale-110 flex items-center justify-center font-mono-tag text-[9px] leading-none ${
                           d.future
-                            ? "bg-muted/25 border border-dashed border-muted-foreground/15"
+                            ? "bg-muted/25 border border-dashed border-muted-foreground/15 text-muted-foreground/40"
                             : d.active
-                            ? "gradient-primary shadow-sm"
-                            : "bg-muted/55"
+                            ? "gradient-primary shadow-sm text-primary-foreground"
+                            : "bg-muted/55 text-muted-foreground/60"
                         } ${d.today ? "ring-2 ring-primary ring-offset-1 ring-offset-card" : ""}`}
-                      />
+                      >
+                        {d.date.getDate()}
+                      </div>
                     ))}
                   </div>
                 ))}
