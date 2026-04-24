@@ -4,7 +4,7 @@ import { Tape, Postit, Pin, ScribbleUnderline, Stamp } from "@/components/revix/
 import { Flame, Sparkles, Trophy, Target, Zap, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { levelInfo, xpForLevel } from "@/lib/gamification";
+import { levelInfo, xpForLevel, LEVEL_NAMES } from "@/lib/gamification";
 
 export default function Aventure() {
   const { profile, dailyQuests, weeklyQuest, xp, levelTier, loading } = useGamification();
