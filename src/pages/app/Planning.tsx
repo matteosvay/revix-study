@@ -58,7 +58,7 @@ export default function Planning() {
     const endIso = `${end}T23:59:59.999Z`;
     const [{ data: t }, { count: fc }, { count: qc }, { data: att }] = await Promise.all([
       supabase.from("planning_tasks").select("*").eq("user_id", user.id).gte("task_date", start).lte("task_date", end).order("task_date").order("start_time"),
-      supabase.from("flashcards").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", startIso).lte("created_at", endIso),
+      supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", startIso).lte("created_at", endIso),
       supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", startIso).lte("created_at", endIso),
       supabase.from("quiz_attempts").select("id").eq("user_id", user.id).gte("created_at", startIso).lte("created_at", endIso),
     ]);
