@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -31,8 +31,35 @@ export default function Upload() {
   const [subject, setSubject] = useState("");
   const [examDate, setExamDate] = useState("");
   const [step, setStep] = useState<number>(-1); // -1 idle
+  const [dragOver, setDragOver] = useState(false);
+
+  // Empêche le navigateur d'ouvrir le fichier si l'utilisateur rate la zone de drop
+  useEffect(() => {
+    const prevent = (e: DragEvent) => { e.preventDefault(); };
+    window.addEventListener("dragover", prevent);
+    window.addEventListener("drop", prevent);
+    return () => {
+      window.removeEventListener("dragover", prevent);
+      window.removeEventListener("drop", prevent);
+    };
+  }, []);
 
   const onFile = (f: File | null) => { if (!f) return; setFile(f); if (!title) setTitle(f.name.replace(/\.[^.]+$/, "")); };
+
+  const isAcceptedFile = (f: File) => f.type === "application/pdf" || f.type.startsWith("image/");
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+    const dropped = e.dataTransfer?.files?.[0];
+    if (!dropped) return;
+    if (!isAcceptedFile(dropped)) {
+      toast.error("Format non supporté. Glisse un PDF ou une image.");
+      return;
+    }
+    onFile(dropped);
+  };
 
   const generate = async () => {
     if (!user) return;
@@ -162,7 +189,13 @@ export default function Upload() {
       <PageHeader emoji="📥" title="Nouveau cours" subtitle="Upload un PDF ou une photo, l'IA s'occupe du reste." />
 
       <div className="px-5 space-y-5 pb-6">
-        <label className="block notebook-card dog-ear tilt-l p-6 text-center cursor-pointer hover:shadow-glow transition-all">
+        <label
+          className={`block notebook-card dog-ear tilt-l p-6 text-center cursor-pointer transition-all ${dragOver ? "ring-2 ring-primary shadow-glow scale-[1.02]" : "hover:shadow-glow"}`}
+          onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); if (!dragOver) setDragOver(true); }}
+          onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(true); }}
+          onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(false); }}
+          onDrop={handleDrop}
+        >
           <input type="file" className="hidden" accept="application/pdf,image/*" onChange={(e) => onFile(e.target.files?.[0] ?? null)} />
           {file ? (
             <>
