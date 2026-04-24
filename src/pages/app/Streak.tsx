@@ -123,15 +123,13 @@ export default function Streak() {
         <button
           type="button"
           onClick={() => setOpenPrestige(true)}
-          className="relative overflow-hidden rounded-3xl gradient-hero p-6 text-primary-foreground shadow-glow w-full text-left hover:shadow-brutal-lg transition-shadow"
+          className="relative overflow-hidden rounded-md border-[2.5px] border-foreground gradient-hero p-6 text-primary-foreground shadow-brutal-lg w-full text-left hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal transition-all"
         >
           <Pin color="red" className="absolute top-3 right-3 z-10" />
           <ChevronRight className="absolute bottom-3 right-3 h-4 w-4 opacity-70" />
-          <div className="absolute -top-10 -right-10 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
-          <div className="absolute -bottom-12 -left-12 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
           <div className="relative">
             <div className="flex items-center gap-3">
-              <div className="h-14 w-14 rounded-2xl bg-white/20 backdrop-blur-md flex items-center justify-center">
+              <div className="h-14 w-14 rounded-md bg-card text-foreground border-[2.5px] border-foreground flex items-center justify-center shadow-[2px_2px_0_0_hsl(var(--foreground))]">
                 <Flame className="h-8 w-8 wiggle" />
               </div>
               <div>
@@ -141,7 +139,7 @@ export default function Streak() {
               </div>
             </div>
             {prestige.current && (
-              <div className="mt-4 inline-flex items-center gap-2 text-xs bg-white/20 backdrop-blur-sm rounded-full px-3 py-1.5 font-semibold">
+              <div className="mt-4 inline-flex items-center gap-2 text-xs bg-card text-foreground border-[2px] border-foreground rounded-sm px-3 py-1.5 font-bold uppercase tracking-wider shadow-[2px_2px_0_0_hsl(var(--foreground))]">
                 <span>{prestige.current.emoji}</span>
                 <span>Prestige · {prestige.current.name}</span>
               </div>
@@ -152,7 +150,7 @@ export default function Streak() {
               </p>
             )}
             {!todayActive && (
-              <div className="mt-4 flex items-center gap-2 text-xs bg-white/15 backdrop-blur-sm rounded-full px-3 py-2">
+              <div className="mt-4 flex items-center gap-2 text-xs bg-foreground/20 border-[2px] border-foreground/40 rounded-sm px-3 py-2 font-semibold">
                 <Zap className="h-3.5 w-3.5" />
                 <span>Fais un quiz aujourd'hui pour conserver ta série</span>
               </div>
