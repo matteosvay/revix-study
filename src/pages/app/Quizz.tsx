@@ -326,7 +326,7 @@ export default function Quizz() {
                 {wrong.map(i => (
                   <div key={i} className="text-sm">
                     <p className="font-medium">{questions[i].question}</p>
-                    <p className="font-hand text-base text-green-700 mt-0.5">
+                    <p className="font-hand text-base text-success mt-0.5">
                       → {questions[i].answers && typeof questions[i].correct_index === "number"
                           ? questions[i].answers![questions[i].correct_index!]
                           : questions[i].accepted_answers?.[0] ?? questions[i].explanation}
