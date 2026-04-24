@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { Copy, Check, X, UserPlus, Search, Trophy, Flame, Sparkles, AtSign, Loader2 } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
+import { Copy, Check, X, UserPlus, Search, Trophy, Flame, Sparkles, AtSign, Loader2, Swords, BookOpen, Plus, LogIn } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -71,19 +72,42 @@ export default function Campus() {
   // Leaderboard
   const [leaderboard, setLeaderboard] = useState<LeaderboardRow[]>([]);
 
+  // Duels & Salles
+  const nav = useNavigate();
+  const [duels, setDuels] = useState<any[]>([]);
+  const [rooms, setRooms] = useState<any[]>([]);
+  const [createDuelOpen, setCreateDuelOpen] = useState(false);
+  const [createRoomOpen, setCreateRoomOpen] = useState(false);
+  const [joinCodeOpen, setJoinCodeOpen] = useState(false);
+  const [myCourses, setMyCourses] = useState<any[]>([]);
+  const [duelOpponent, setDuelOpponent] = useState("");
+  const [duelCourse, setDuelCourse] = useState("");
+  const [duelNum, setDuelNum] = useState(10);
+  const [duelSecs, setDuelSecs] = useState(30);
+  const [roomName, setRoomName] = useState("");
+  const [roomPreset, setRoomPreset] = useState("pomodoro_25_5");
+  const [roomMax, setRoomMax] = useState(4);
+  const [joinCode, setJoinCode] = useState("");
+
   const loadAll = async () => {
     if (!user) return;
     setLoadingFriends(true);
-    const [{ data: prof }, { data: fs }, { data: lb }] = await Promise.all([
+    const [{ data: prof }, { data: fs }, { data: lb }, { data: ds }, { data: rs }, { data: cs }] = await Promise.all([
       supabase.from("profiles").select("student_code, username").eq("id", user.id).maybeSingle(),
       supabase.from("friendships").select("*"),
       supabase.rpc("get_friends_leaderboard"),
+      supabase.from("duels").select("*").order("created_at", { ascending: false }).limit(20),
+      supabase.from("study_rooms").select("*").eq("status", "active").order("created_at", { ascending: false }).limit(10),
+      supabase.from("courses").select("id, title, subject, emoji").eq("user_id", user.id),
     ]);
     setMe(prof as any);
     setUsernameInput((prof as any)?.username ?? "");
     const rows = (fs ?? []) as FriendshipRow[];
     setFriendships(rows);
     setLeaderboard((lb ?? []) as LeaderboardRow[]);
+    setDuels(ds ?? []);
+    setRooms(rs ?? []);
+    setMyCourses(cs ?? []);
 
     // Récupérer les profils des autres utilisateurs liés
     const otherIds = Array.from(new Set(
@@ -169,6 +193,62 @@ export default function Campus() {
     if (error) toast.error(error.message); else loadAll();
   };
 
+  const submitCreateDuel = async () => {
+    if (!duelOpponent || !duelCourse) { toast.error("Choisis un ami et un cours"); return; }
+    const { data, error } = await supabase.rpc("create_duel", {
+      p_opponent_id: duelOpponent, p_course_id: duelCourse,
+      p_num_questions: duelNum, p_seconds_per_question: duelSecs,
+    });
+    if (error) {
+      const msg = error.message.includes("not_enough_questions") ? "Pas assez de QCM dans ce cours (mini 3). Génère un quiz d'abord."
+        : error.message.includes("not_friends") ? "Tu dois être ami avec cette personne"
+        : error.message;
+      toast.error(msg);
+      return;
+    }
+    toast.success("Défi envoyé ⚔️");
+    setCreateDuelOpen(false);
+    loadAll();
+  };
+
+  const acceptDuel = async (duelId: string) => {
+    const { error } = await supabase.rpc("accept_duel", { p_duel_id: duelId });
+    if (error) { toast.error(error.message); return; }
+    nav(`/app/duel/${duelId}`);
+  };
+
+  const submitCreateRoom = async () => {
+    if (!roomName.trim() || !user) return;
+    const { data, error } = await supabase.from("study_rooms").insert({
+      host_id: user.id, name: roomName.trim(), invite_code: "",
+      timer_preset: roomPreset, max_members: roomMax, privacy: "open",
+    }).select().single();
+    if (error) { toast.error(error.message); return; }
+    toast.success("Salle créée 📚");
+    setCreateRoomOpen(false);
+    setRoomName("");
+    nav(`/app/room/${data.id}`);
+  };
+
+  const submitJoinCode = async () => {
+    if (!joinCode.trim()) return;
+    const { data, error } = await supabase.rpc("join_room_by_code", { p_code: joinCode.trim().toUpperCase() });
+    if (error) {
+      const msg = error.message.includes("room_not_found") ? "Salle introuvable"
+        : error.message.includes("room_full") ? "Salle pleine" : error.message;
+      toast.error(msg);
+      return;
+    }
+    setJoinCodeOpen(false);
+    setJoinCode("");
+    nav(`/app/room/${data}`);
+  };
+
+  const acceptedFriends = accepted.map(f => {
+    const otherId = f.requester_id === user?.id ? f.addressee_id : f.requester_id;
+    return profilesMap[otherId];
+  }).filter(Boolean);
+
   const saveUsername = async () => {
     if (!usernameInput.trim()) return;
     setSavingUsername(true);
@@ -193,12 +273,18 @@ export default function Campus() {
 
       <div className="px-5 pb-6">
         <Tabs value={tab} onValueChange={setTab} className="w-full">
-          <TabsList className="w-full grid grid-cols-2 bg-card border-2 border-foreground rounded-md p-1 font-mono text-xs">
+          <TabsList className="w-full grid grid-cols-4 bg-card border-2 border-foreground rounded-md p-1 font-mono text-[10px]">
             <TabsTrigger value="amis" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
-              Mes amis
+              Amis
+            </TabsTrigger>
+            <TabsTrigger value="duels" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
+              Duels ⚔️
+            </TabsTrigger>
+            <TabsTrigger value="salles" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
+              Salles 📚
             </TabsTrigger>
             <TabsTrigger value="classement" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
-              Classement 🏆
+              Top 🏆
             </TabsTrigger>
           </TabsList>
 
