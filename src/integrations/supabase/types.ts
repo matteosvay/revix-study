@@ -113,6 +113,33 @@ export type Database = {
         }
         Relationships: []
       }
+      friendships: {
+        Row: {
+          addressee_id: string
+          created_at: string
+          id: string
+          requester_id: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          addressee_id: string
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          addressee_id?: string
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       oral_sessions: {
         Row: {
           course_id: string | null
@@ -220,8 +247,10 @@ export type Database = {
           streak_days: number
           streak_record: number
           streak_tokens: number
+          student_code: string | null
           subjects: Json | null
           updated_at: string
+          username: string | null
           week_started_at: string | null
           xp_total: number
           xp_week: number
@@ -244,8 +273,10 @@ export type Database = {
           streak_days?: number
           streak_record?: number
           streak_tokens?: number
+          student_code?: string | null
           subjects?: Json | null
           updated_at?: string
+          username?: string | null
           week_started_at?: string | null
           xp_total?: number
           xp_week?: number
@@ -268,8 +299,10 @@ export type Database = {
           streak_days?: number
           streak_record?: number
           streak_tokens?: number
+          student_code?: string | null
           subjects?: Json | null
           updated_at?: string
+          username?: string | null
           week_started_at?: string | null
           xp_total?: number
           xp_week?: number
@@ -533,8 +566,60 @@ export type Database = {
         Returns: Json
       }
       bump_streak: { Args: { p_user_id: string }; Returns: undefined }
+      generate_student_code: { Args: never; Returns: string }
+      get_friend_ids: {
+        Args: { p_user_id: string }
+        Returns: {
+          friend_id: string
+        }[]
+      }
+      get_friends_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          display_name: string
+          id: string
+          is_me: boolean
+          level: number
+          streak_days: number
+          username: string
+          xp_total: number
+          xp_week: number
+        }[]
+      }
+      get_public_profile: {
+        Args: { p_user_id: string }
+        Returns: {
+          avatar_url: string
+          bio: string
+          cursus: string
+          display_name: string
+          formation: string
+          id: string
+          level: number
+          streak_days: number
+          streak_record: number
+          student_code: string
+          username: string
+          xp_total: number
+          xp_week: number
+        }[]
+      }
       increment_quiz_count: { Args: { p_user_id: string }; Returns: Json }
       restore_streak: { Args: { p_user_id: string }; Returns: Json }
+      search_users_public: {
+        Args: { p_query: string }
+        Returns: {
+          avatar_url: string
+          cursus: string
+          display_name: string
+          id: string
+          level: number
+          student_code: string
+          username: string
+        }[]
+      }
+      set_username: { Args: { p_username: string }; Returns: Json }
       xp_for_level: { Args: { p_level: number }; Returns: number }
     }
     Enums: {
