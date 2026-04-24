@@ -12,6 +12,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import { bumpQuest } from "@/hooks/useGamification";
 import { localDateKey } from "@/lib/date";
+import { CoachPanel, useCoachContext } from "@/components/revix/coach/CoachPanel";
+import { SmartAlertBanner } from "@/components/revix/coach/SmartAlertBanner";
 
 type Task = { id: string; task_date: string; start_time: string | null; end_time: string | null; subject: string; title: string | null; done: boolean };
 
@@ -41,6 +43,7 @@ export default function Planning() {
   const [weekOffset, setWeekOffset] = useState(0);
   const [addOpen, setAddOpen] = useState(false);
   const [weekStats, setWeekStats] = useState({ fiches: 0, quizzes: 0, attempts: 0 });
+  const coachCtx = useCoachContext();
 
   const baseDate = new Date();
   baseDate.setDate(baseDate.getDate() + weekOffset * 7);
@@ -179,6 +182,14 @@ export default function Planning() {
       />
 
       <div className="px-5">
+        <SmartAlertBanner
+          ctx={coachCtx}
+          weekTaskCount={tasks.length}
+          onAction={(a) => { if (a === "generate_plan") setOpen(true); }}
+        />
+
+        <div className="lg:grid lg:grid-cols-[1fr_minmax(320px,30%)] lg:gap-6">
+          <div>
         {/* Sélecteur de semaine */}
         <div className="flex items-center justify-between glass rounded-2xl px-3 py-2 mb-4">
           <button onClick={() => setWeekOffset(w => w - 1)} className="h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center">
@@ -315,6 +326,20 @@ export default function Planning() {
             </div>
           </TabsContent>
         </Tabs>
+          </div>
+
+          {/* Coach panel — sidebar desktop / bottom sheet mobile */}
+          <aside className="hidden lg:block">
+            <div className="sticky top-4">
+              <CoachPanel inline />
+            </div>
+          </aside>
+        </div>
+
+        {/* Floating coach trigger on mobile */}
+        <div className="lg:hidden">
+          <CoachPanel />
+        </div>
       </div>
     </AppLayout>
   );
