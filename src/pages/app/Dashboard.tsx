@@ -85,7 +85,24 @@ export default function Dashboard() {
                 <p className="font-serif text-3xl leading-none">{profile?.streak_days ?? 0}</p>
                 <p className="text-sm opacity-90">jours d'affilée</p>
               </div>
-              <p className="text-xs opacity-80 mt-1">Record : {profile?.streak_record ?? 0}j · {profile?.streak_tokens ?? 0} jeton{(profile?.streak_tokens ?? 0) > 1 ? "s" : ""} ❄️</p>
+              <p className="text-xs opacity-80 mt-1 flex items-center gap-1.5">
+                <span>Record : {profile?.streak_record ?? 0}j</span>
+                <span className="opacity-60">·</span>
+                <span className="inline-flex items-center gap-0.5">
+                  {[0, 1, 2].map(i => (
+                    <span
+                      key={i}
+                      className="inline-block w-3 h-2 rounded-[1px]"
+                      style={{
+                        background: i < (profile?.streak_tokens ?? 0) ? "hsl(var(--tape-pink) / 0.95)" : "transparent",
+                        border: i < (profile?.streak_tokens ?? 0) ? "none" : "1px dashed rgba(255,255,255,0.45)",
+                        transform: `rotate(${i % 2 === 0 ? -6 : 5}deg)`,
+                      }}
+                    />
+                  ))}
+                  <span className="ml-1 font-mono-tag uppercase tracking-wider text-[9px] opacity-90">scotch</span>
+                </span>
+              </p>
             </div>
             <ChevronRight className="h-5 w-5 opacity-80 group-hover:translate-x-0.5 transition-transform" />
           </div>
