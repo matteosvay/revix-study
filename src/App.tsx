@@ -17,6 +17,7 @@ import Profil from "./pages/app/Profil";
 import Streak from "./pages/app/Streak";
 import CourseDetail from "./pages/app/CourseDetail";
 import Aventure from "./pages/app/Aventure";
+import Campus from "./pages/app/Campus";
 import { AuthProvider } from "./hooks/useAuth";
 import { RequireAuth } from "./components/revix/RequireAuth";
 import { XpOverlay } from "./components/revix/XpOverlay";
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/app/planning" element={<RequireAuth><Planning /></RequireAuth>} />
             <Route path="/app/streak" element={<RequireAuth><Streak /></RequireAuth>} />
             <Route path="/app/aventure" element={<RequireAuth><Aventure /></RequireAuth>} />
+            <Route path="/app/campus" element={<RequireAuth><Campus /></RequireAuth>} />
             <Route path="/app/profil" element={<RequireAuth><Profil /></RequireAuth>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
