@@ -99,10 +99,15 @@ export default function Quizz() {
           await awardXp(user.id, total, "quiz_finish");
           // Bump quêtes
           await bumpQuest(user.id, "quiz_done", 1);
+          await bumpQuest(user.id, "w_5_quizzes", 1);
           await bumpQuest(user.id, "questions_answered", questions.length);
-          if (pct >= 80) await bumpQuest(user.id, "high_score", 1);
+          if (pct >= 80) {
+            await bumpQuest(user.id, "high_score", 1);
+            await bumpQuest(user.id, "w_3_high_scores", 1);
+          }
           if (pct === 100) await bumpQuest(user.id, "perfect_quiz", 1);
           await bumpQuest(user.id, "streak_kept", 1);
+          await bumpQuest(user.id, "w_7_streak", 1);
         }
       } else {
         setQIdx(qIdx + 1); setPicked(null); setTextAnswer(""); setOpenResult(null);

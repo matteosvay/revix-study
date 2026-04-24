@@ -95,6 +95,8 @@ export default function Upload() {
       await awardXp(user.id, XP_REWARDS.upload, "course_upload");
       await bumpQuest(user.id, "course_uploaded", 1);
       await bumpQuest(user.id, "streak_kept", 1);
+      await bumpQuest(user.id, "w_4_uploads", 1);
+      await bumpQuest(user.id, "w_7_streak", 1);
 
       toast.success(`${fiches.length} fiches créées ✨`);
       nav(`/app/fiches/${course.id}`);
