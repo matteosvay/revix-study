@@ -113,6 +113,135 @@ export type Database = {
         }
         Relationships: []
       }
+      duel_attempts: {
+        Row: {
+          answers: Json
+          completed_at: string
+          duel_id: string
+          id: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          answers: Json
+          completed_at?: string
+          duel_id: string
+          id?: string
+          score: number
+          user_id: string
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string
+          duel_id?: string
+          id?: string
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duel_attempts_duel_id_fkey"
+            columns: ["duel_id"]
+            isOneToOne: false
+            referencedRelation: "duels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      duel_questions: {
+        Row: {
+          answers: Json
+          correct_index: number
+          duel_id: string
+          explanation: string | null
+          id: string
+          position: number
+          question: string
+        }
+        Insert: {
+          answers: Json
+          correct_index: number
+          duel_id: string
+          explanation?: string | null
+          id?: string
+          position: number
+          question: string
+        }
+        Update: {
+          answers?: Json
+          correct_index?: number
+          duel_id?: string
+          explanation?: string | null
+          id?: string
+          position?: number
+          question?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duel_questions_duel_id_fkey"
+            columns: ["duel_id"]
+            isOneToOne: false
+            referencedRelation: "duels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      duels: {
+        Row: {
+          challenger_id: string
+          challenger_score: number | null
+          course_id: string | null
+          created_at: string
+          id: string
+          num_questions: number
+          opponent_id: string
+          opponent_score: number | null
+          seconds_per_question: number
+          status: string
+          subject: string | null
+          updated_at: string
+          winner_id: string | null
+        }
+        Insert: {
+          challenger_id: string
+          challenger_score?: number | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          num_questions?: number
+          opponent_id: string
+          opponent_score?: number | null
+          seconds_per_question?: number
+          status?: string
+          subject?: string | null
+          updated_at?: string
+          winner_id?: string | null
+        }
+        Update: {
+          challenger_id?: string
+          challenger_score?: number | null
+          course_id?: string | null
+          created_at?: string
+          id?: string
+          num_questions?: number
+          opponent_id?: string
+          opponent_score?: number | null
+          seconds_per_question?: number
+          status?: string
+          subject?: string | null
+          updated_at?: string
+          winner_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "duels_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friendships: {
         Row: {
           addressee_id: string
@@ -429,6 +558,159 @@ export type Database = {
           },
         ]
       }
+      room_goals: {
+        Row: {
+          content: string
+          created_at: string
+          done: boolean
+          id: string
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          done?: boolean
+          id?: string
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          done?: boolean
+          id?: string
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_goals_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "study_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_members: {
+        Row: {
+          id: string
+          joined_at: string
+          last_seen: string
+          room_id: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          joined_at?: string
+          last_seen?: string
+          room_id: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          id?: string
+          joined_at?: string
+          last_seen?: string
+          room_id?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_members_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "study_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          is_system: boolean
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          is_system?: boolean
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          is_system?: boolean
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "study_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      study_rooms: {
+        Row: {
+          created_at: string
+          ended_at: string | null
+          host_id: string
+          id: string
+          invite_code: string
+          max_members: number
+          name: string
+          privacy: string
+          status: string
+          subjects: Json | null
+          timer_phase: string | null
+          timer_preset: string
+          timer_started_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          ended_at?: string | null
+          host_id: string
+          id?: string
+          invite_code: string
+          max_members?: number
+          name: string
+          privacy?: string
+          status?: string
+          subjects?: Json | null
+          timer_phase?: string | null
+          timer_preset?: string
+          timer_started_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          ended_at?: string | null
+          host_id?: string
+          id?: string
+          invite_code?: string
+          max_members?: number
+          name?: string
+          privacy?: string
+          status?: string
+          subjects?: Json | null
+          timer_phase?: string | null
+          timer_preset?: string
+          timer_started_at?: string | null
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_key: string
@@ -557,6 +839,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_duel: { Args: { p_duel_id: string }; Returns: undefined }
       award_xp: {
         Args: { p_amount: number; p_reason: string; p_user_id: string }
         Returns: Json
@@ -566,6 +849,16 @@ export type Database = {
         Returns: Json
       }
       bump_streak: { Args: { p_user_id: string }; Returns: undefined }
+      create_duel: {
+        Args: {
+          p_course_id: string
+          p_num_questions: number
+          p_opponent_id: string
+          p_seconds_per_question: number
+        }
+        Returns: string
+      }
+      generate_room_code: { Args: never; Returns: string }
       generate_student_code: { Args: never; Returns: string }
       get_friend_ids: {
         Args: { p_user_id: string }
@@ -606,6 +899,15 @@ export type Database = {
         }[]
       }
       increment_quiz_count: { Args: { p_user_id: string }; Returns: Json }
+      is_room_member: {
+        Args: { p_room_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      is_room_visible: {
+        Args: { p_room_id: string; p_user_id: string }
+        Returns: boolean
+      }
+      join_room_by_code: { Args: { p_code: string }; Returns: string }
       restore_streak: { Args: { p_user_id: string }; Returns: Json }
       search_users_public: {
         Args: { p_query: string }
@@ -620,6 +922,10 @@ export type Database = {
         }[]
       }
       set_username: { Args: { p_username: string }; Returns: Json }
+      submit_duel_attempt: {
+        Args: { p_answers: Json; p_duel_id: string; p_score: number }
+        Returns: Json
+      }
       xp_for_level: { Args: { p_level: number }; Returns: number }
     }
     Enums: {
