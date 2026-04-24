@@ -702,6 +702,80 @@ export type Database = {
           },
         ]
       }
+      room_shared_courses: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          room_id: string
+          shared_by: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          room_id: string
+          shared_by: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          room_id?: string
+          shared_by?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_shared_courses_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "room_shared_courses_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "study_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      room_whiteboard: {
+        Row: {
+          color: string
+          content: string
+          created_at: string
+          id: string
+          room_id: string
+          user_id: string
+        }
+        Insert: {
+          color?: string
+          content: string
+          created_at?: string
+          id?: string
+          room_id: string
+          user_id: string
+        }
+        Update: {
+          color?: string
+          content?: string
+          created_at?: string
+          id?: string
+          room_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "room_whiteboard_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "study_rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       study_rooms: {
         Row: {
           created_at: string
