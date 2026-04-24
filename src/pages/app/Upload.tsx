@@ -5,7 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { UploadCloud, Sparkles, Loader2, FileText, Image as ImageIcon, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -14,6 +13,8 @@ import { toast } from "sonner";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { XP_REWARDS } from "@/lib/gamification";
 import { localDateKey } from "@/lib/date";
+import { SearchableCombobox } from "@/components/revix/SearchableCombobox";
+import { SUBJECTS } from "@/data/subjects";
 
 const STEPS = [
   "Fichier reçu",
@@ -32,6 +33,17 @@ export default function Upload() {
   const [examDate, setExamDate] = useState("");
   const [step, setStep] = useState<number>(-1); // -1 idle
   const [dragOver, setDragOver] = useState(false);
+  const [userSubjects, setUserSubjects] = useState<string[]>([]);
+
+  // Récupère les matières ajoutées dans le profil pour les afficher en haut
+  useEffect(() => {
+    if (!user) return;
+    (async () => {
+      const { data } = await supabase.from("profiles").select("subjects").eq("id", user.id).maybeSingle();
+      const subs = (data?.subjects as string[] | null) ?? [];
+      setUserSubjects(Array.isArray(subs) ? subs : []);
+    })();
+  }, [user]);
 
   // Empêche le navigateur d'ouvrir le fichier si l'utilisateur rate la zone de drop
   useEffect(() => {
@@ -251,14 +263,29 @@ export default function Upload() {
         <div className="grid grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">Matière</Label>
-            <Select value={subject} onValueChange={setSubject}>
-              <SelectTrigger><SelectValue placeholder="Choisir" /></SelectTrigger>
-              <SelectContent>
-                {["Maths", "Histoire", "Droit", "Marketing", "Lettres", "Économie", "Philo", "Anglais", "Bio", "Physique", "Autre"].map(s => (
-                  <SelectItem key={s} value={s}>{s}</SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <SearchableCombobox
+              items={(() => {
+                const seen = new Set<string>();
+                const items: { value: string; label: string; group?: string; emoji?: string }[] = [];
+                // 1) Matières du profil en premier
+                for (const name of userSubjects) {
+                  if (seen.has(name)) continue;
+                  seen.add(name);
+                  const match = SUBJECTS.find(s => s.name === name);
+                  items.push({ value: name, label: name, group: "Mes matières", emoji: match?.emoji });
+                }
+                // 2) Toute la base curée
+                for (const s of SUBJECTS) {
+                  if (seen.has(s.name)) continue;
+                  seen.add(s.name);
+                  items.push({ value: s.name, label: s.name, group: s.category, emoji: s.emoji });
+                }
+                return items;
+              })()}
+              value={subject}
+              onChange={setSubject}
+              placeholder="Choisir une matière"
+            />
           </div>
           <div className="space-y-1.5">
             <Label className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">Examen</Label>
