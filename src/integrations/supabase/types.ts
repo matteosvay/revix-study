@@ -203,6 +203,8 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
+          bio: string | null
           created_at: string
           cursus: string | null
           display_name: string | null
@@ -225,6 +227,8 @@ export type Database = {
           xp_week: number
         }
         Insert: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           cursus?: string | null
           display_name?: string | null
@@ -247,6 +251,8 @@ export type Database = {
           xp_week?: number
         }
         Update: {
+          avatar_url?: string | null
+          bio?: string | null
           created_at?: string
           cursus?: string | null
           display_name?: string | null
