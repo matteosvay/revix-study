@@ -18,8 +18,8 @@ import { localDateKey } from "@/lib/date";
 const STEPS = [
   "Fichier reçu",
   "Analyse du contenu...",
-  "Extraction des concepts clés...",
-  "Génération des fiches...",
+  "Lecture et compréhension en profondeur...",
+  "Rédaction de ta fiche de cours...",
 ];
 
 export default function Upload() {
@@ -102,22 +102,18 @@ export default function Upload() {
       }).select().single();
       if (cErr) throw cErr;
 
-      // Generate flashcards
+      // Génère la fiche de cours (résumé exhaustif)
       const { data: gen, error: gErr } = await supabase.functions.invoke("generate-fiches", {
         body: { content, subject, title },
       });
       if (gErr) throw gErr;
-      const fiches: { front: string; back: string }[] = gen?.flashcards ?? [];
-      if (fiches.length === 0) throw new Error("L'IA n'a pas pu générer de fiches. Réessaie.");
+      if (!gen?.summary?.sections?.length) {
+        throw new Error("L'IA n'a pas pu générer la fiche. Réessaie.");
+      }
 
       setStep(3);
-      // Save rich summary on the course
-      if (gen?.summary) {
-        await supabase.from("courses").update({ summary: gen.summary }).eq("id", course.id);
-      }
-      const rows = fiches.map((f, i) => ({ course_id: course.id, user_id: user.id, front: f.front, back: f.back, position: i }));
-      const { error: fErr } = await supabase.from("flashcards").insert(rows);
-      if (fErr) throw fErr;
+      // Sauvegarde le résumé riche sur le cours
+      await supabase.from("courses").update({ summary: gen.summary }).eq("id", course.id);
 
       const { data: profileState } = await supabase.from("profiles").select("last_active_date").eq("id", user.id).maybeSingle();
       const todayKey = localDateKey(new Date());
@@ -133,7 +129,7 @@ export default function Upload() {
       }
       await bumpQuest(user.id, "w_4_uploads", 1);
 
-      toast.success(`${fiches.length} fiches créées ✨`);
+      toast.success("Ta fiche de cours est prête ✨");
       nav(`/app/fiches/${course.id}`);
     } catch (e: any) {
       console.error(e);

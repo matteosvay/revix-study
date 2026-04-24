@@ -58,7 +58,7 @@ export default function Planning() {
     const endIso = `${end}T23:59:59.999Z`;
     const [{ data: t }, { count: fc }, { count: qc }, { data: att }] = await Promise.all([
       supabase.from("planning_tasks").select("*").eq("user_id", user.id).gte("task_date", start).lte("task_date", end).order("task_date").order("start_time"),
-      supabase.from("flashcards").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", startIso).lte("created_at", endIso),
+      supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", startIso).lte("created_at", endIso),
       supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id).gte("created_at", startIso).lte("created_at", endIso),
       supabase.from("quiz_attempts").select("id").eq("user_id", user.id).gte("created_at", startIso).lte("created_at", endIso),
     ]);
@@ -288,7 +288,7 @@ export default function Planning() {
             <p className="text-xs text-muted-foreground">Tes objectifs de la semaine, mis à jour en temps réel.</p>
 
             {[
-              { icon: BookOpen, label: "Fiches créées", value: weekStats.fiches, goal: goalFiches, color: "from-violet-500 to-purple-500" },
+              { icon: BookOpen, label: "Cours créés", value: weekStats.fiches, goal: goalFiches, color: "from-violet-500 to-purple-500" },
               { icon: Brain, label: "Quizz générés", value: weekStats.quizzes, goal: goalQuizzes, color: "from-pink-500 to-rose-500" },
               { icon: Target, label: "Quizz complétés", value: weekStats.attempts, goal: goalAttempts, color: "from-amber-500 to-orange-500" },
               { icon: Sparkles, label: "Tâches accomplies", value: done, goal: total || 1, color: "from-emerald-500 to-teal-500" },

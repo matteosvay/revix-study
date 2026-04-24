@@ -2,18 +2,15 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { AppLayout } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, ChevronLeft, ChevronRight, Brain, Trash2, Loader2, FileText, Layers } from "lucide-react";
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { ArrowLeft, Brain, Trash2, Loader2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CourseSummary, type CourseSummaryData } from "@/components/revix/CourseSummary";
-import { bumpQuest } from "@/hooks/useGamification";
 
 type Course = { id: string; title: string; subject: string | null; emoji: string | null; source_content: string | null; summary: CourseSummaryData | null };
-type Card = { id: string; front: string; back: string };
 
 const QUIZ_TYPES = [
   { value: "qcm", label: "QCM", desc: "Choix multiple, 4 réponses possibles" },
@@ -27,9 +24,6 @@ export default function CourseDetail() {
   const { id } = useParams();
   const nav = useNavigate();
   const [course, setCourse] = useState<Course | null>(null);
-  const [cards, setCards] = useState<Card[]>([]);
-  const [idx, setIdx] = useState(0);
-  const [flipped, setFlipped] = useState(false);
   const [creatingQuiz, setCreatingQuiz] = useState(false);
   const [quizSheetOpen, setQuizSheetOpen] = useState(false);
   const [quizType, setQuizType] = useState<string>("qcm");
@@ -37,12 +31,12 @@ export default function CourseDetail() {
 
   useEffect(() => {
     (async () => {
-      const [{ data: c }, { data: f }] = await Promise.all([
-        supabase.from("courses").select("id,title,subject,emoji,source_content,summary").eq("id", id!).single(),
-        supabase.from("flashcards").select("id,front,back").eq("course_id", id!).order("position"),
-      ]);
+      const { data: c } = await supabase
+        .from("courses")
+        .select("id,title,subject,emoji,source_content,summary")
+        .eq("id", id!)
+        .single();
       setCourse(c as any);
-      setCards((f as any) ?? []);
     })();
   }, [id]);
 
@@ -78,7 +72,7 @@ export default function CourseDetail() {
   };
 
   const remove = async () => {
-    if (!confirm("Supprimer ce cours et ses fiches ?")) return;
+    if (!confirm("Supprimer ce cours ?")) return;
     await supabase.from("courses").delete().eq("id", id!);
     nav("/app/fiches");
   };
@@ -100,66 +94,15 @@ export default function CourseDetail() {
       <div className="px-5 pt-2 pb-4">
         <div className="text-4xl">{course.emoji ?? "📘"}</div>
         <h1 className="font-serif text-3xl mt-2">{course.title}</h1>
-        <p className="text-sm text-muted-foreground mt-1">{course.subject ?? "—"} · {cards.length} fiches</p>
+        <p className="text-sm text-muted-foreground mt-1">{course.subject ?? "—"}</p>
       </div>
 
       <div className="px-5 pb-32">
-        <Tabs defaultValue={course.summary ? "summary" : "cards"}>
-          <TabsList className="grid w-full grid-cols-2 rounded-full bg-muted/60">
-            <TabsTrigger value="summary" className="rounded-full data-[state=active]:gradient-primary data-[state=active]:text-primary-foreground">
-              <FileText className="h-3.5 w-3.5 mr-1.5" /> Résumé
-            </TabsTrigger>
-            <TabsTrigger value="cards" className="rounded-full data-[state=active]:gradient-primary data-[state=active]:text-primary-foreground">
-              <Layers className="h-3.5 w-3.5 mr-1.5" /> Flashcards
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="summary" className="mt-5">
-            {course.summary ? (
-              <CourseSummary data={course.summary} />
-            ) : (
-              <p className="text-sm text-muted-foreground">Aucun résumé pour ce cours (généré automatiquement pour les nouveaux cours).</p>
-            )}
-          </TabsContent>
-
-          <TabsContent value="cards" className="mt-5">
-            {cards.length === 0 ? (
-              <p className="text-sm text-muted-foreground">Aucune fiche.</p>
-            ) : (
-              <div>
-                <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground mb-2 text-center">Fiche {idx + 1} / {cards.length}</p>
-                <div className={`flip-card ${flipped ? "flipped" : ""} h-80 cursor-pointer`} onClick={() => setFlipped(f => !f)}>
-                  <div className="flip-inner h-full w-full">
-                    <div className="flip-face notebook-card dog-ear !pl-12 p-6 flex flex-col items-center justify-center text-center">
-                      {course.subject && <span className="label-tape mb-3">{course.subject}</span>}
-                      <p className="font-serif text-xl leading-snug">{cards[idx].front}</p>
-                      <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-4">tap pour retourner</p>
-                    </div>
-                    <div className="flip-face flip-back postit p-6 flex items-center justify-center text-center !rotate-[1.5deg]">
-                      <p className="font-hand text-xl leading-snug text-foreground/85">{cards[idx].back}</p>
-                    </div>
-                  </div>
-                </div>
-                <p className="text-center font-hand text-base text-muted-foreground mt-3">↻ Touche la carte pour la retourner</p>
-                <div className="mt-4 flex items-center justify-between">
-                  <Button variant="outline" size="icon" onClick={() => { setFlipped(false); setIdx(i => Math.max(0, i - 1)); }} disabled={idx === 0} className="rounded-full">
-                    <ChevronLeft className="h-4 w-4" />
-                  </Button>
-                  <div className="flex-1 mx-3 h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div className="h-full gradient-primary transition-all" style={{ width: `${((idx + 1) / cards.length) * 100}%` }} />
-                  </div>
-                  <Button variant="outline" size="icon" onClick={() => { setFlipped(false); setIdx(i => Math.min(cards.length - 1, i + 1)); }} disabled={idx === cards.length - 1} className="rounded-full">
-                    <ChevronRight className="h-4 w-4" />
-                  </Button>
-                </div>
-                <div className="mt-5 flex gap-3 justify-center">
-                  <button onClick={async () => { if (course?.id) { const { data: { user } } = await supabase.auth.getUser(); if (user) { await bumpQuest(user.id, "flashcards_reviewed", 1); await bumpQuest(user.id, "w_25_flashcards", 1); } } setFlipped(false); setIdx(i => Math.min(cards.length - 1, i + 1)); }} className="pen-btn pen-btn-red">À revoir 👎</button>
-                  <button onClick={async () => { if (course?.id) { const { data: { user } } = await supabase.auth.getUser(); if (user) { await bumpQuest(user.id, "flashcards_reviewed", 1); await bumpQuest(user.id, "w_25_flashcards", 1); } } setFlipped(false); setIdx(i => Math.min(cards.length - 1, i + 1)); }} className="pen-btn pen-btn-green">Je savais 👍</button>
-                </div>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+        {course.summary ? (
+          <CourseSummary data={course.summary} />
+        ) : (
+          <p className="text-sm text-muted-foreground">Aucun résumé pour ce cours.</p>
+        )}
 
         <Sheet open={quizSheetOpen} onOpenChange={setQuizSheetOpen}>
           <SheetTrigger asChild>

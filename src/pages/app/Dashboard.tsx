@@ -13,16 +13,15 @@ type Profile = { display_name: string | null; streak_days: number; streak_record
 export default function Dashboard() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [stats, setStats] = useState({ courses: 0, fiches: 0, quizzes: 0, avg: 0 });
+  const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
   const { profile: gam, levelTier, xp } = useGamification();
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: p }, { count: cc }, { count: fc }, { count: qc }, { data: attempts }] = await Promise.all([
+      const [{ data: p }, { count: cc }, { count: qc }, { data: attempts }] = await Promise.all([
         supabase.from("profiles").select("display_name, streak_days, streak_record, streak_tokens").eq("id", user.id).single(),
         supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("flashcards").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quiz_attempts").select("score, total").eq("user_id", user.id),
       ]);
@@ -30,7 +29,7 @@ export default function Dashboard() {
       const avg = attempts && attempts.length
         ? Math.round(attempts.reduce((s, a) => s + (a.score / a.total) * 100, 0) / attempts.length)
         : 0;
-      setStats({ courses: cc ?? 0, fiches: fc ?? 0, quizzes: qc ?? 0, avg });
+      setStats({ courses: cc ?? 0, quizzes: qc ?? 0, avg });
     })();
   }, [user]);
 
@@ -38,7 +37,7 @@ export default function Dashboard() {
 
   const tiles = [
     { to: "/app/upload", icon: Plus, label: "Nouveau cours", desc: "Upload un PDF ou photo", accent: true },
-    { to: "/app/fiches", icon: BookOpen, label: "Mes fiches", desc: `${stats.fiches} fiches` },
+    { to: "/app/fiches", icon: BookOpen, label: "Mes cours", desc: `${stats.courses} cours` },
     { to: "/app/quizz", icon: Brain, label: "Quizz", desc: `Score moyen ${stats.avg}%` },
     { to: "/app/aventure", icon: Sparkles, label: "Aventure", desc: levelTier ? `${levelTier.emoji} ${levelTier.name}` : "Quêtes & XP" },
     { to: "/app/planning", icon: Calendar, label: "Planning", desc: "Organise tes révisions" },
@@ -112,8 +111,8 @@ export default function Dashboard() {
         <div className="grid grid-cols-3 gap-2">
           {[
             { v: stats.courses, l: "Cours" },
-            { v: stats.fiches, l: "Fiches" },
             { v: stats.quizzes, l: "Quizz" },
+            { v: `${stats.avg}%`, l: "Moyenne" },
           ].map((s) => (
             <div key={s.l} className="rounded-xl glass p-3 text-center hover:shadow-soft transition-shadow">
               <p className="text-2xl font-serif">{s.v}</p>

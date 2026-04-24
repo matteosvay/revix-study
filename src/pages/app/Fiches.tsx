@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 
-type CourseRow = { id: string; title: string; subject: string | null; emoji: string | null; created_at: string; flashcard_count: number };
+type CourseRow = { id: string; title: string; subject: string | null; emoji: string | null; created_at: string };
 
 export default function Fiches() {
   const { user } = useAuth();
@@ -21,10 +21,10 @@ export default function Fiches() {
     (async () => {
       const { data } = await supabase
         .from("courses")
-        .select("id, title, subject, emoji, created_at, flashcards(count)")
+        .select("id, title, subject, emoji, created_at")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
-      setCourses((data ?? []).map((c: any) => ({ ...c, flashcard_count: c.flashcards?.[0]?.count ?? 0 })));
+      setCourses((data ?? []) as CourseRow[]);
       setLoading(false);
     })();
   }, [user]);
@@ -82,7 +82,9 @@ export default function Fiches() {
                     <p className="font-serif text-lg leading-tight truncate">{c.title}</p>
                     <div className="flex items-center gap-2 mt-1">
                       {c.subject && <span className="label-tape">{c.subject}</span>}
-                      <span className="font-mono-tag text-[10px] uppercase text-muted-foreground">{c.flashcard_count} fiches</span>
+                      <span className="font-mono-tag text-[10px] uppercase text-muted-foreground">
+                        {new Date(c.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                      </span>
                     </div>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
