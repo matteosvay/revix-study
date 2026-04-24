@@ -113,47 +113,6 @@ export type Database = {
         }
         Relationships: []
       }
-      flashcards: {
-        Row: {
-          back: string
-          course_id: string
-          created_at: string
-          front: string
-          id: string
-          position: number
-          reviewed_count: number
-          user_id: string
-        }
-        Insert: {
-          back: string
-          course_id: string
-          created_at?: string
-          front: string
-          id?: string
-          position?: number
-          reviewed_count?: number
-          user_id: string
-        }
-        Update: {
-          back?: string
-          course_id?: string
-          created_at?: string
-          front?: string
-          id?: string
-          position?: number
-          reviewed_count?: number
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "flashcards_course_id_fkey"
-            columns: ["course_id"]
-            isOneToOne: false
-            referencedRelation: "courses"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       oral_sessions: {
         Row: {
           course_id: string | null
