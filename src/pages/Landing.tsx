@@ -73,7 +73,7 @@ export default function Landing() {
               <a href="#features">Voir comment ça marche</a>
             </Button>
           </div>
-          <p className="mt-6 font-mono-tag text-[11px] uppercase tracking-wider text-muted-foreground">Pas de CB · RGPD 🇫🇷 · 12 000+ étudiants</p>
+          <p className="mt-6 font-mono-tag text-[11px] uppercase tracking-wider text-muted-foreground">Pas de CB · RGPD 🇫🇷 · Fait en France</p>
         </div>
 
         {/* Hero preview : 3 cartes notebook inclinées */}
@@ -106,7 +106,7 @@ export default function Landing() {
             <h2 className="font-serif text-3xl md:text-5xl tracking-tight">
               Tout ce qu'il te faut pour <span className="marker-yellow">cartonner</span>
             </h2>
-            <p className="mt-4 text-lg text-muted-foreground">Quatre outils pensés par des étudiants, pour des étudiants.</p>
+            <p className="mt-4 text-lg text-muted-foreground">Quatre outils pensés par un étudiant, pour les étudiants.</p>
           </div>
           <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
             {features.map((f, i) => (
