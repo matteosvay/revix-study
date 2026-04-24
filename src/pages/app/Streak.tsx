@@ -186,8 +186,7 @@ export default function Streak() {
                             ? "bg-muted/25 border border-dashed border-muted-foreground/15 text-muted-foreground/40"
                             : d.active
                             ? "gradient-primary shadow-sm text-primary-foreground"
-                            : "bg-muted/55"
-                            + " text-muted-foreground/60"
+                            : "bg-muted/55 text-muted-foreground/60"
                         } ${d.today ? "ring-2 ring-primary ring-offset-1 ring-offset-card" : ""}`}
                       >
                         {d.date.getDate()}
