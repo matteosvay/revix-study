@@ -73,6 +73,10 @@ export default function Upload() {
       let storagePath: string | null = null;
 
       if (file) {
+        // Garde-fou : refuse les fichiers trop lourds (timeout extraction / upload)
+        if (file.size > 25 * 1024 * 1024) {
+          throw new Error("Fichier trop lourd (max 25 Mo). Compresse-le ou découpe-le.");
+        }
         // upload to storage
         const path = `${user.id}/${Date.now()}_${file.name}`;
         const { error: upErr } = await supabase.storage.from("course-uploads").upload(path, file);
@@ -81,7 +85,16 @@ export default function Upload() {
 
         setStep(1);
         if (file.type === "application/pdf") {
-          content = await extractPdfText(file);
+          try {
+            content = await extractPdfText(file);
+          } catch (err) {
+            console.error("[upload] extractPdfText", err);
+            throw new Error("Impossible de lire ce PDF. S'il est scanné, exporte-le en image ou en .docx.");
+          }
+          // PDF scanné / sans couche texte → propose une alternative
+          if (content.trim().length < 20) {
+            throw new Error("Ce PDF ne contient pas de texte lisible (probablement scanné). Exporte-le en image ou en .docx.");
+          }
         } else if (isDocx(file)) {
           content = await extractDocxText(file);
         } else if (file.type.startsWith("image/")) {

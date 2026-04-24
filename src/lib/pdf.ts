@@ -6,12 +6,24 @@ pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
 
 export async function extractPdfText(file: File): Promise<string> {
   const buf = await file.arrayBuffer();
-  const pdf = await pdfjs.getDocument({ data: buf }).promise;
+  const pdf = await pdfjs.getDocument({
+    data: buf,
+    // Tolère les PDFs un peu cassés / avec structures complexes (onglets, signets, formulaires)
+    isEvalSupported: false,
+    disableFontFace: true,
+  }).promise;
   let text = "";
   for (let i = 1; i <= pdf.numPages; i++) {
-    const page = await pdf.getPage(i);
-    const content = await page.getTextContent();
-    text += content.items.map((it: any) => it.str).join(" ") + "\n\n";
+    try {
+      const page = await pdf.getPage(i);
+      const content = await page.getTextContent();
+      const pageText = content.items
+        .map((it: any) => (typeof it.str === "string" ? it.str : ""))
+        .join(" ");
+      if (pageText.trim()) text += pageText + "\n\n";
+    } catch (err) {
+      console.warn(`[pdf] page ${i} illisible`, err);
+    }
   }
   return text.trim();
 }
