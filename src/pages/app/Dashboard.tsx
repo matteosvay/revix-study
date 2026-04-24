@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
 import { Tape, Pin } from "@/components/revix/AcademicDecor";
+import { NotificationBell } from "@/components/revix/NotificationBell";
 
 type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
 
@@ -46,7 +47,12 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
-      <PageHeader emoji="✨" title={`Salut ${name}`} subtitle="Reprends là où tu t'es arrêté." />
+      <PageHeader
+        emoji="✨"
+        title={`Salut ${name}`}
+        subtitle="Reprends là où tu t'es arrêté."
+        action={<NotificationBell />}
+      />
 
       <div className="px-5">
         {/* XP / niveau bandeau */}
