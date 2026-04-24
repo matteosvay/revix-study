@@ -126,18 +126,20 @@ export default function CourseDetail() {
               <p className="text-sm text-muted-foreground">Aucune fiche.</p>
             ) : (
               <div>
-                <p className="text-xs text-muted-foreground mb-2 text-center">Fiche {idx + 1} / {cards.length}</p>
-                <div className={`flip-card ${flipped ? "flipped" : ""} h-72 cursor-pointer`} onClick={() => setFlipped(f => !f)}>
+                <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground mb-2 text-center">Fiche {idx + 1} / {cards.length}</p>
+                <div className={`flip-card ${flipped ? "flipped" : ""} h-80 cursor-pointer`} onClick={() => setFlipped(f => !f)}>
                   <div className="flip-inner h-full w-full">
-                    <div className="flip-face rounded-2xl border-2 p-6 flex items-center justify-center text-center bg-card shadow-card">
-                      <p className="text-lg font-serif">{cards[idx].front}</p>
+                    <div className="flip-face notebook-card dog-ear !pl-12 p-6 flex flex-col items-center justify-center text-center">
+                      {course.subject && <span className="label-tape mb-3">{course.subject}</span>}
+                      <p className="font-serif text-xl leading-snug">{cards[idx].front}</p>
+                      <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-4">tap pour retourner</p>
                     </div>
-                    <div className="flip-face flip-back rounded-2xl border-0 p-6 flex items-center justify-center text-center gradient-primary text-primary-foreground shadow-glow">
-                      <p className="text-base leading-relaxed">{cards[idx].back}</p>
+                    <div className="flip-face flip-back postit p-6 flex items-center justify-center text-center !rotate-[1.5deg]">
+                      <p className="font-hand text-xl leading-snug text-foreground/85">{cards[idx].back}</p>
                     </div>
                   </div>
                 </div>
-                <p className="text-center text-xs text-muted-foreground mt-2">Touche la carte pour la retourner</p>
+                <p className="text-center font-hand text-base text-muted-foreground mt-3">↻ Touche la carte pour la retourner</p>
                 <div className="mt-4 flex items-center justify-between">
                   <Button variant="outline" size="icon" onClick={() => { setFlipped(false); setIdx(i => Math.max(0, i - 1)); }} disabled={idx === 0} className="rounded-full">
                     <ChevronLeft className="h-4 w-4" />
@@ -148,6 +150,10 @@ export default function CourseDetail() {
                   <Button variant="outline" size="icon" onClick={() => { setFlipped(false); setIdx(i => Math.min(cards.length - 1, i + 1)); }} disabled={idx === cards.length - 1} className="rounded-full">
                     <ChevronRight className="h-4 w-4" />
                   </Button>
+                </div>
+                <div className="mt-5 flex gap-3 justify-center">
+                  <button onClick={() => { setFlipped(false); setIdx(i => Math.min(cards.length - 1, i + 1)); }} className="pen-btn pen-btn-red">À revoir 👎</button>
+                  <button onClick={() => { setFlipped(false); setIdx(i => Math.min(cards.length - 1, i + 1)); }} className="pen-btn pen-btn-green">Je savais 👍</button>
                 </div>
               </div>
             )}

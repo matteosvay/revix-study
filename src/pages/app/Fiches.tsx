@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Search, Plus, ChevronRight, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 
 type CourseRow = { id: string; title: string; subject: string | null; emoji: string | null; created_at: string; flashcard_count: number };
 
@@ -54,27 +55,41 @@ export default function Fiches() {
         <div className="px-5 text-sm text-muted-foreground">Chargement...</div>
       ) : filtered.length === 0 ? (
         <div className="px-5 mt-10 text-center">
-          <BookOpen className="h-10 w-10 mx-auto text-muted-foreground/50" />
-          <p className="font-serif text-xl mt-3">Pas encore de cours</p>
-          <p className="text-sm text-muted-foreground mt-1">Crée ton premier cours pour commencer.</p>
-          <Button asChild className="mt-5 rounded-full gradient-primary border-0">
-            <Link to="/app/upload"><Plus className="h-4 w-4 mr-1" /> Nouveau cours</Link>
-          </Button>
+          <div className="notebook-card dog-ear p-6 max-w-xs mx-auto">
+            <BookOpen className="h-10 w-10 mx-auto text-muted-foreground/50" />
+            <p className="font-hand text-2xl mt-2">Cahier vide</p>
+            <p className="text-sm text-muted-foreground mt-1">Crée ton premier cours pour commencer.</p>
+            <Button asChild className="mt-4 rounded-full gradient-primary border-0">
+              <Link to="/app/upload"><Plus className="h-4 w-4 mr-1" /> Nouveau cours</Link>
+            </Button>
+          </div>
         </div>
       ) : (
-        <div className="px-2">
-          {filtered.map(c => (
-            <Link key={c.id} to={`/app/fiches/${c.id}`} className="flex items-center gap-3 px-3 py-2.5 rounded-lg notion-row">
-              <span className="text-2xl shrink-0">{c.emoji ?? "📘"}</span>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium truncate">{c.title}</p>
-                <p className="text-xs text-muted-foreground truncate">
-                  {c.subject ?? "—"} · {c.flashcard_count} fiches
-                </p>
-              </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-            </Link>
-          ))}
+        <div className="px-4 space-y-3 pb-4">
+          {filtered.map((c, i) => {
+            const tape = i % 3 === 0 ? "yellow" : i % 3 === 1 ? "pink" : "mint";
+            const tilt = i % 2 === 0 ? "tilt-l" : "tilt-r";
+            return (
+              <Link
+                key={c.id}
+                to={`/app/fiches/${c.id}`}
+                className={`block notebook-card dog-ear ${tilt} relative p-4 hover:shadow-glow transition-shadow`}
+              >
+                <Tape variant={tape as any} position={i % 2 === 0 ? "top-left" : "top-right"} />
+                <div className="flex items-center gap-3">
+                  <span className="text-3xl shrink-0">{c.emoji ?? "📘"}</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-serif text-lg leading-tight truncate">{c.title}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      {c.subject && <span className="label-tape">{c.subject}</span>}
+                      <span className="font-mono-tag text-[10px] uppercase text-muted-foreground">{c.flashcard_count} fiches</span>
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </div>
+              </Link>
+            );
+          })}
         </div>
       )}
     </AppLayout>

@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { XP_REWARDS } from "@/lib/gamification";
+import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 
 type QType = "qcm" | "vrai_faux" | "ouvert" | "trous";
 type Q = {
@@ -152,20 +153,27 @@ export default function Quizz() {
         <PageHeader emoji="🧠" title="Quizz" subtitle="Choisis un quizz pour t'entraîner." />
         {quizzes.length === 0 ? (
           <div className="px-5 mt-6 text-center">
-            <Brain className="h-10 w-10 mx-auto text-muted-foreground/50" />
-            <p className="font-serif text-xl mt-3">Aucun quizz</p>
-            <p className="text-sm text-muted-foreground mt-1 mb-4">Génère un quizz depuis un cours.</p>
+            <div className="inline-block notebook-card dog-ear p-6 max-w-xs mx-auto">
+              <Brain className="h-10 w-10 mx-auto text-muted-foreground/50" />
+              <p className="font-hand text-2xl mt-2">Pas encore de quizz</p>
+              <p className="text-sm text-muted-foreground mt-1">Génère un quizz depuis un cours.</p>
+            </div>
           </div>
         ) : (
-          <div className="px-2">
-            {quizzes.map(q => (
-              <button key={q.id} onClick={() => startQuiz(q)} className="w-full flex items-center gap-3 px-3 py-3 rounded-lg notion-row text-left">
-                <div className="h-9 w-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                  <Brain className="h-4 w-4" />
+          <div className="px-4 space-y-3">
+            {quizzes.map((q, i) => (
+              <button
+                key={q.id}
+                onClick={() => startQuiz(q)}
+                className={`relative notebook-card w-full flex items-center gap-3 p-4 text-left hover:shadow-glow transition-all ${i % 2 === 0 ? "tilt-l" : "tilt-r"}`}
+              >
+                <Tape variant={i % 3 === 0 ? "yellow" : i % 3 === 1 ? "pink" : "mint"} position="top-right" />
+                <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                  <Brain className="h-5 w-5" />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">{q.title}</p>
-                  <p className="text-[11px] text-muted-foreground">{TYPE_LABELS[(q.quiz_type as QType) ?? "qcm"] ?? "QCM"}</p>
+                  <p className="font-serif text-base truncate">{q.title}</p>
+                  <span className="label-tape mt-1">{TYPE_LABELS[(q.quiz_type as QType) ?? "qcm"] ?? "QCM"}</span>
                 </div>
                 <ChevronRight className="h-4 w-4 text-muted-foreground" />
               </button>
@@ -180,41 +188,46 @@ export default function Quizz() {
     const q = questions[qIdx];
     const isChoice = q.type === "qcm" || q.type === "vrai_faux";
     const choices = q.type === "vrai_faux" ? (q.answers ?? ["Vrai", "Faux"]) : (q.answers ?? []);
+    const postitVariants = ["", "answer-postit-pink", "answer-postit-blue", "answer-postit-mint"];
     return (
       <AppLayout>
         <div className="px-5 pt-5">
-          <div className="flex items-center justify-between text-xs font-medium text-muted-foreground mb-2">
+          <div className="flex items-center justify-between font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
             <span>Question {qIdx + 1} / {questions.length}</span>
-            <span>Score : {score}</span>
+            <span>Score · {score}</span>
           </div>
-          <Progress value={(qIdx / questions.length) * 100} className="h-1.5" />
+          <div className="ruler-bar !h-2.5">
+            <div className="ruler-fill" style={{ width: `${(qIdx / questions.length) * 100}%` }} />
+          </div>
 
-          <div className="mt-6 animate-fade-in" key={qIdx}>
-            <span className="inline-block text-[10px] uppercase tracking-wider font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-full mb-3">
-              {TYPE_LABELS[q.type]}
-            </span>
-            <p className="font-serif text-xl leading-snug">{q.question}</p>
+          <div className="mt-6 animate-scale-in" key={qIdx}>
+            <div className="notebook-card p-5 relative">
+              <span className="label-tape absolute -top-2 left-4">{TYPE_LABELS[q.type]}</span>
+              <p className="font-serif text-xl leading-snug mt-2">{q.question}</p>
+            </div>
 
             {isChoice ? (
-              <div className="mt-5 space-y-2">
+              <div className="mt-5 grid grid-cols-1 gap-3">
                 {choices.map((a, i) => {
                   const isCorrect = i === q.correct_index;
                   const isPicked = picked === i;
-                  let cls = "border bg-card hover:border-primary";
+                  const variant = postitVariants[i % postitVariants.length];
+                  const tilt = i % 2 === 0 ? "tilt-l" : "tilt-r";
+                  let stateCls = "";
                   if (picked !== null) {
-                    if (isCorrect) cls = "border-2 border-success bg-success/10 text-success";
-                    else if (isPicked) cls = "border-2 border-destructive bg-destructive/10 text-destructive";
-                    else cls = "border opacity-50";
+                    if (isCorrect) stateCls = "is-correct";
+                    else if (isPicked) stateCls = "is-wrong";
+                    else stateCls = "is-faded";
                   }
                   return (
                     <button key={i} onClick={() => pick(i)} disabled={picked !== null}
-                      className={`w-full flex items-center gap-3 p-3.5 rounded-xl text-left transition ${cls}`}>
-                      <span className="h-7 w-7 rounded-md bg-muted flex items-center justify-center font-semibold text-xs shrink-0">
+                      className={`answer-postit ${variant} ${tilt} ${stateCls} flex items-center gap-3`}>
+                      <span className="h-7 w-7 rounded-md bg-foreground/15 flex items-center justify-center font-mono-tag font-bold text-xs shrink-0">
                         {q.type === "vrai_faux" ? (i === 0 ? "V" : "F") : String.fromCharCode(65 + i)}
                       </span>
-                      <span className="flex-1 text-sm">{a}</span>
-                      {picked !== null && isCorrect && <CheckCircle2 className="h-4 w-4" />}
-                      {picked !== null && isPicked && !isCorrect && <XCircle className="h-4 w-4" />}
+                      <span className="flex-1">{a}</span>
+                      {picked !== null && isCorrect && <CheckCircle2 className="h-5 w-5 text-green-700" />}
+                      {picked !== null && isPicked && !isCorrect && <XCircle className="h-5 w-5 text-red-700" />}
                     </button>
                   );
                 })}
@@ -227,7 +240,7 @@ export default function Quizz() {
                   disabled={openResult !== null || grading}
                   rows={q.type === "trous" ? 2 : 4}
                   placeholder={q.type === "trous" ? "Mot ou expression..." : "Rédige ta réponse en quelques phrases..."}
-                  className="resize-none"
+                  className="resize-none notebook-card !pl-12 font-hand !text-lg"
                 />
                 {openResult === null && (
                   <Button onClick={submitText} disabled={grading || !textAnswer.trim()} className="w-full rounded-full gradient-primary border-0">
@@ -235,21 +248,19 @@ export default function Quizz() {
                   </Button>
                 )}
                 {openResult && (
-                  <div className={`p-3.5 rounded-xl border-2 ${openResult.correct ? "border-success bg-success/10" : "border-destructive bg-destructive/10"}`}>
-                    <div className="flex items-center gap-2 text-sm font-semibold">
-                      {openResult.correct ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
-                      <span className={openResult.correct ? "text-success" : "text-destructive"}>
-                        {openResult.correct ? "Bonne réponse" : "À revoir"}
-                      </span>
+                  <div className={`answer-postit ${openResult.correct ? "is-correct" : "is-wrong"} !cursor-default`}>
+                    <div className="flex items-center gap-2 font-mono-tag text-xs uppercase">
+                      {openResult.correct ? <CheckCircle2 className="h-4 w-4 text-green-700" /> : <XCircle className="h-4 w-4 text-red-700" />}
+                      <span>{openResult.correct ? "Bonne réponse" : "À revoir"}</span>
                     </div>
-                    <p className="text-xs mt-1.5">{openResult.feedback}</p>
+                    <p className="font-hand text-base mt-1.5">{openResult.feedback}</p>
                   </div>
                 )}
               </div>
             )}
 
             {((isChoice && picked !== null) || (!isChoice && openResult !== null)) && q.explanation && (
-              <div className="mt-4 p-3 rounded-xl bg-muted/60 text-xs text-muted-foreground animate-fade-in">
+              <div className="mt-4 p-3 rounded-md bg-yellow-100/80 border-l-4 border-yellow-400 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
                 💡 {q.explanation}
               </div>
             )}
@@ -262,49 +273,65 @@ export default function Quizz() {
   // end
   const pct = Math.round((score / questions.length) * 100);
   const predicted = Math.round((pct / 100) * 20);
+  const stars = Math.max(1, Math.round((pct / 100) * 5));
   return (
     <AppLayout>
-      <div className="px-5 pt-10 text-center animate-scale-in">
-        <div className="inline-flex h-16 w-16 rounded-full gradient-primary items-center justify-center shadow-glow mx-auto">
-          <Trophy className="h-8 w-8 text-primary-foreground" />
-        </div>
-        <h1 className="font-serif text-3xl mt-4">Bien joué !</h1>
-        <p className="text-sm text-muted-foreground mt-1">{score} / {questions.length} bonnes réponses</p>
+      <div className="px-5 pt-8 pb-6 animate-scale-in">
+        <div className="notebook-page relative">
+          <span className="rubber-stamp stamp-pop absolute top-3 right-4">{pct >= 80 ? "Très bien" : pct >= 50 ? "Bien" : "À revoir"}</span>
 
-        <div className="mt-6 grid grid-cols-2 gap-3 text-left">
-          <div className="rounded-xl border p-4">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground">Score</p>
-            <p className="font-serif text-3xl mt-1 gradient-text">{pct}%</p>
-          </div>
-          <div className="rounded-xl border p-4">
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1"><Target className="h-3 w-3" /> Pré-exam</p>
-            <p className="font-serif text-3xl mt-1">~{predicted}/20</p>
-          </div>
-        </div>
+          <p className="font-mono-tag text-[10px] uppercase tracking-widest text-muted-foreground">Résultats</p>
+          <h1 className="font-hand text-5xl text-primary mt-1 leading-none">{score} / {questions.length}</h1>
+          <p className="font-serif text-base text-muted-foreground mt-1">soit <strong className="marker-yellow">{pct}%</strong></p>
 
-        {wrong.length > 0 && (
-          <div className="mt-6 text-left">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">À retravailler</p>
-            <div className="space-y-2">
-              {wrong.map(i => (
-                <div key={i} className="rounded-lg border p-3 text-xs">
-                  <p className="font-medium">{questions[i].question}</p>
-                  <p className="text-success mt-1">
-                    ✓ {questions[i].answers && typeof questions[i].correct_index === "number"
-                        ? questions[i].answers![questions[i].correct_index!]
-                        : questions[i].accepted_answers?.[0] ?? questions[i].explanation}
-                  </p>
-                </div>
-              ))}
+          {/* étoiles dessinées */}
+          <div className="flex gap-1 mt-3">
+            {Array.from({ length: 5 }).map((_, i) => (
+              <svg key={i} viewBox="0 0 24 24" className={`h-7 w-7 ${i < stars ? "" : "opacity-25"}`} aria-hidden>
+                <path className="sketchy-star" d="M12 2 L14.4 8.6 L21.5 9 L16 13.6 L17.8 20.5 L12 16.7 L6.2 20.5 L8 13.6 L2.5 9 L9.6 8.6 Z" />
+              </svg>
+            ))}
+          </div>
+
+          <div className="clip-divider my-5">
+            <span className="font-mono-tag text-[10px] uppercase">Bilan</span>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="postit p-3 -rotate-2">
+              <p className="font-mono-tag text-[10px] uppercase opacity-70">Score</p>
+              <p className="font-hand text-3xl mt-1">{pct}%</p>
+            </div>
+            <div className="postit postit-pink p-3 rotate-2">
+              <p className="font-mono-tag text-[10px] uppercase opacity-70 flex items-center gap-1"><Target className="h-3 w-3" /> Pré-exam</p>
+              <p className="font-hand text-3xl mt-1">~{predicted}/20</p>
             </div>
           </div>
-        )}
 
-        <div className="mt-6 space-y-2">
-          <Button onClick={() => activeQuiz && startQuiz(activeQuiz)} className="w-full rounded-full gradient-primary border-0">
-            <RefreshCw className="h-4 w-4 mr-2" /> Refaire
-          </Button>
-          <Button onClick={() => setPhase("select")} variant="outline" className="w-full rounded-full">Autre quizz</Button>
+          {wrong.length > 0 && (
+            <div className="mt-5">
+              <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground mb-2">À retravailler</p>
+              <div className="space-y-2">
+                {wrong.map(i => (
+                  <div key={i} className="text-sm">
+                    <p className="font-medium">{questions[i].question}</p>
+                    <p className="font-hand text-base text-green-700 mt-0.5">
+                      → {questions[i].answers && typeof questions[i].correct_index === "number"
+                          ? questions[i].answers![questions[i].correct_index!]
+                          : questions[i].accepted_answers?.[0] ?? questions[i].explanation}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="mt-5 flex gap-3 justify-center">
+          <button onClick={() => activeQuiz && startQuiz(activeQuiz)} className="pen-btn pen-btn-blue">
+            <RefreshCw className="h-4 w-4 inline mr-1" /> Refaire
+          </button>
+          <button onClick={() => setPhase("select")} className="pen-btn pen-btn-green">Autre quizz</button>
         </div>
       </div>
     </AppLayout>
