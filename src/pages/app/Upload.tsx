@@ -31,8 +31,24 @@ export default function Upload() {
   const [subject, setSubject] = useState("");
   const [examDate, setExamDate] = useState("");
   const [step, setStep] = useState<number>(-1); // -1 idle
+  const [dragOver, setDragOver] = useState(false);
 
   const onFile = (f: File | null) => { if (!f) return; setFile(f); if (!title) setTitle(f.name.replace(/\.[^.]+$/, "")); };
+
+  const isAcceptedFile = (f: File) => f.type === "application/pdf" || f.type.startsWith("image/");
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragOver(false);
+    const dropped = e.dataTransfer?.files?.[0];
+    if (!dropped) return;
+    if (!isAcceptedFile(dropped)) {
+      toast.error("Format non supporté. Glisse un PDF ou une image.");
+      return;
+    }
+    onFile(dropped);
+  };
 
   const generate = async () => {
     if (!user) return;
