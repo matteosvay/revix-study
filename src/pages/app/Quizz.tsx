@@ -279,6 +279,16 @@ export default function Quizz() {
                 💡 {q.explanation}
               </div>
             )}
+
+            {((isChoice && picked !== null) || (!isChoice && openResult !== null)) && (
+              <Button
+                onClick={goNext}
+                className="mt-5 w-full rounded-md gradient-primary border-2 border-foreground font-bold animate-fade-in"
+              >
+                {qIdx + 1 >= questions.length ? "Voir les résultats" : "Question suivante"}
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
+            )}
           </div>
         </div>
       </AppLayout>
