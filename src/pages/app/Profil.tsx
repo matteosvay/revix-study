@@ -15,6 +15,7 @@ import { CURSUS_OPTIONS } from "@/data/cursus";
 import { SearchableCombobox, SearchableMultiCombobox } from "@/components/revix/SearchableCombobox";
 import { FORMATIONS } from "@/data/formations";
 import { SUBJECTS } from "@/data/subjects";
+import { AvatarCropper } from "@/components/revix/AvatarCropper";
 
 export default function Profil() {
   const { user } = useAuth();
@@ -22,6 +23,8 @@ export default function Profil() {
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
   const [uploading, setUploading] = useState(false);
+  const [pendingFile, setPendingFile] = useState<File | null>(null);
+  const [cropOpen, setCropOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -56,11 +59,17 @@ export default function Profil() {
     if (!file || !user) return;
     if (!file.type.startsWith("image/")) { toast.error("Sélectionne une image"); return; }
     if (file.size > 5 * 1024 * 1024) { toast.error("Image trop lourde (max 5 Mo)"); return; }
+    setPendingFile(file);
+    setCropOpen(true);
+    e.target.value = "";
+  };
+
+  const uploadCropped = async (blob: Blob) => {
+    if (!user) return;
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
-      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
-      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+      const path = `${user.id}/avatar-${Date.now()}.jpg`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, blob, { upsert: true, contentType: "image/jpeg" });
       if (upErr) throw upErr;
       const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
       const url = `${pub.publicUrl}?t=${Date.now()}`;
@@ -72,7 +81,6 @@ export default function Profil() {
       toast.error(err.message ?? "Échec de l'upload");
     } finally {
       setUploading(false);
-      e.target.value = "";
     }
   };
 
@@ -93,11 +101,18 @@ export default function Profil() {
     <AppLayout>
       <PageHeader emoji="👤" title="Profil" />
 
+      <AvatarCropper
+        file={pendingFile}
+        open={cropOpen}
+        onClose={() => { setCropOpen(false); setPendingFile(null); }}
+        onCropped={uploadCropped}
+      />
+
       <div className="px-5 space-y-5">
         <div className="flex items-center gap-3">
           <label className="relative cursor-pointer group">
             <Avatar className="h-16 w-16 border-2 border-primary/20">
-              {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.display_name ?? "Avatar"} />}
+              {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.display_name ?? "Avatar"} className="object-cover" />}
               <AvatarFallback className="gradient-primary text-primary-foreground text-xl font-bold">{initials}</AvatarFallback>
             </Avatar>
             <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
