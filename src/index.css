@@ -289,6 +289,263 @@
   }
   .xp-pill { animation: xp-rise 1.6s ease-out forwards; }
 
+  /* ===== Plus d'académique ===== */
+  .font-mono-tag { font-family: var(--font-mono); }
+  .font-marker { font-family: var(--font-marker); }
+
+  /* Étiquette adhésive (label tape) */
+  .label-tape {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.25rem;
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    background: hsl(var(--tape) / 0.7);
+    color: hsl(var(--ink));
+    border-radius: 2px;
+    box-shadow: 0 1px 2px hsl(28 15% 20% / 0.12);
+    transform: rotate(-1deg);
+  }
+  .label-tape-pink { background: hsl(var(--tape-pink) / 0.75); }
+  .label-tape-mint { background: hsl(var(--tape-mint) / 0.75); }
+  .label-tape-blue { background: hsl(210 70% 80% / 0.8); }
+
+  /* Carte cahier : marge rouge gauche + lignes Seyes très subtiles */
+  .notebook-card {
+    background: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    border-left: 4px solid hsl(0 75% 62%);
+    border-radius: 8px;
+    box-shadow: var(--shadow-paper);
+    background-image: repeating-linear-gradient(
+      to bottom,
+      transparent 0,
+      transparent 27px,
+      hsl(var(--paper-line) / 0.10) 27px,
+      hsl(var(--paper-line) / 0.10) 28px
+    );
+    position: relative;
+  }
+  .notebook-card::before {
+    /* spirale gauche : petits trous */
+    content: "";
+    position: absolute;
+    left: -2px;
+    top: 8px;
+    bottom: 8px;
+    width: 4px;
+    background-image: radial-gradient(circle, hsl(var(--background)) 1.5px, transparent 1.6px);
+    background-size: 4px 14px;
+    background-repeat: repeat-y;
+  }
+
+  /* Coin corné (dog-ear) en bas à droite */
+  .dog-ear {
+    position: relative;
+  }
+  .dog-ear::after {
+    content: "";
+    position: absolute;
+    right: 0; bottom: 0;
+    width: 18px; height: 18px;
+    background: linear-gradient(
+      135deg,
+      transparent 50%,
+      hsl(28 15% 80%) 50%,
+      hsl(var(--background)) 70%
+    );
+    box-shadow: -1px -1px 2px hsl(28 15% 20% / 0.08) inset;
+    border-bottom-right-radius: 6px;
+  }
+
+  /* Tampon (rubber stamp) circulaire */
+  .rubber-stamp {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--font-marker);
+    font-weight: 700;
+    color: hsl(0 70% 50%);
+    border: 2px solid hsl(0 70% 50% / 0.7);
+    padding: 6px 12px;
+    border-radius: 999px;
+    transform: rotate(-6deg);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.75rem;
+    background: hsl(0 70% 50% / 0.06);
+    box-shadow: inset 0 0 0 1px hsl(0 70% 50% / 0.3);
+    text-shadow: 0 0 1px hsl(0 70% 50% / 0.2);
+  }
+  .rubber-stamp-blue {
+    color: hsl(220 70% 45%);
+    border-color: hsl(220 70% 45% / 0.7);
+    background: hsl(220 70% 45% / 0.06);
+    box-shadow: inset 0 0 0 1px hsl(220 70% 45% / 0.3);
+  }
+  .rubber-stamp-purple {
+    color: hsl(263 60% 45%);
+    border-color: hsl(263 60% 45% / 0.7);
+    background: hsl(263 60% 45% / 0.06);
+    box-shadow: inset 0 0 0 1px hsl(263 60% 45% / 0.3);
+  }
+
+  /* Règle (ruler) : barre de progression XP */
+  .ruler-bar {
+    position: relative;
+    height: 14px;
+    border-radius: 4px;
+    background: hsl(40 50% 92%);
+    border: 1px solid hsl(35 30% 70%);
+    overflow: hidden;
+    background-image:
+      repeating-linear-gradient(
+        to right,
+        transparent 0,
+        transparent 9px,
+        hsl(28 15% 30% / 0.35) 9px,
+        hsl(28 15% 30% / 0.35) 10px
+      ),
+      repeating-linear-gradient(
+        to right,
+        transparent 0,
+        transparent 49px,
+        hsl(28 15% 30% / 0.6) 49px,
+        hsl(28 15% 30% / 0.6) 50px
+      );
+    background-size: 10px 6px, 50px 10px;
+    background-position: 0 100%, 0 100%;
+    background-repeat: repeat-x;
+  }
+  .ruler-fill {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, hsl(var(--highlight-yellow) / 0.95) 0%, hsl(48 95% 70%) 100%);
+    mix-blend-mode: multiply;
+    transition: width 0.7s ease;
+  }
+
+  /* Tally marks (bâtons de comptage) */
+  .tally-mark {
+    display: inline-block;
+    width: 3px;
+    height: 22px;
+    background: hsl(var(--ink));
+    border-radius: 1px;
+    margin: 0 1.5px;
+    transform: rotate(-4deg);
+  }
+  .tally-strike {
+    position: relative;
+  }
+  .tally-strike::after {
+    content: "";
+    position: absolute;
+    top: 50%; left: -22px; right: -2px;
+    height: 3px;
+    background: hsl(var(--ink));
+    transform: translateY(-50%) rotate(-18deg);
+    border-radius: 2px;
+  }
+
+  /* Cork board (panneau de liège) pour quêtes */
+  .corkboard {
+    background-color: hsl(28 35% 60%);
+    background-image:
+      radial-gradient(hsl(28 30% 45% / 0.5) 1px, transparent 1.5px),
+      radial-gradient(hsl(28 25% 50% / 0.4) 1px, transparent 1.5px),
+      radial-gradient(hsl(28 40% 70% / 0.3) 2px, transparent 2.5px);
+    background-size: 9px 9px, 13px 13px, 22px 22px;
+    background-position: 0 0, 4px 4px, 11px 7px;
+    box-shadow: inset 0 0 30px hsl(28 30% 35% / 0.4);
+    border-radius: 14px;
+    border: 4px solid hsl(28 35% 30%);
+  }
+
+  /* Bordure tableau d'honneur */
+  .honor-board {
+    border: 3px double hsl(var(--primary) / 0.5);
+    border-radius: 6px;
+    padding: 16px;
+    background:
+      linear-gradient(hsl(var(--card)), hsl(var(--card))) padding-box,
+      repeating-linear-gradient(45deg, hsl(var(--primary) / 0.15) 0 8px, transparent 8px 16px) border-box;
+  }
+
+  /* Trombone (paperclip) divider */
+  .clip-divider {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: hsl(var(--muted-foreground));
+  }
+  .clip-divider::before,
+  .clip-divider::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: hsl(var(--border));
+  }
+
+  /* Animations académiques */
+  @keyframes paper-float {
+    0% { transform: translate(0, 100vh) rotate(0deg); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translate(20px, -10vh) rotate(360deg); opacity: 0; }
+  }
+  .paper-float { animation: paper-float 6s linear infinite; }
+
+  @keyframes pencil-draw {
+    0% { stroke-dashoffset: 100; }
+    100% { stroke-dashoffset: 0; }
+  }
+  .pencil-draw path { stroke-dasharray: 100; animation: pencil-draw 1.5s ease-out forwards; }
+
+  @keyframes drift {
+    0%, 100% { transform: translate(0, 0) rotate(-2deg); }
+    50% { transform: translate(4px, -6px) rotate(2deg); }
+  }
+  .drift-slow { animation: drift 5s ease-in-out infinite; }
+
+  @keyframes stamp-pop {
+    0% { transform: scale(0.4) rotate(-25deg); opacity: 0; }
+    60% { transform: scale(1.15) rotate(-3deg); opacity: 1; }
+    100% { transform: scale(1) rotate(-6deg); opacity: 1; }
+  }
+  .stamp-pop { animation: stamp-pop 0.5s cubic-bezier(.34,1.56,.64,1) forwards; }
+
+  @keyframes hand-wave {
+    0%, 100% { transform: rotate(-3deg); }
+    25% { transform: rotate(3deg); }
+    50% { transform: rotate(-2deg); }
+    75% { transform: rotate(2deg); }
+  }
+  .hand-wave { animation: hand-wave 1.6s ease-in-out infinite; }
+
+  /* Active nav item : post-it jaune derrière l'icône */
+  .nav-postit-active {
+    position: relative;
+  }
+  .nav-postit-active.is-active::before {
+    content: "";
+    position: absolute;
+    top: -2px;
+    left: 50%;
+    transform: translateX(-50%) rotate(-4deg);
+    width: 38px;
+    height: 38px;
+    background: hsl(var(--postit) / 0.95);
+    box-shadow: 0 2px 6px hsl(28 15% 20% / 0.18);
+    border-radius: 3px;
+    z-index: 0;
+  }
+  .nav-postit-active > * { position: relative; z-index: 1; }
+
   /* Decorative ambient blobs */
   .ambient-glow::before {
     content: "";
