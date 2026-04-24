@@ -51,11 +51,11 @@ export function CoachPanel({ inline = false }: { inline?: boolean }) {
       <Sheet open={open} onOpenChange={setOpen}>
         <SheetTrigger asChild>
           <button
-            className="fixed bottom-20 right-4 z-40 gradient-primary text-white rounded-full shadow-glow px-4 py-3 text-sm font-medium flex items-center gap-2 hover:scale-105 transition"
+            className="fixed bottom-24 right-4 z-40 gradient-primary text-primary-foreground rounded-md border-[2.5px] border-foreground shadow-brutal px-4 py-2.5 text-xs font-bold uppercase tracking-wider flex items-center gap-2 hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-brutal-sm transition-all"
             aria-label="Ouvrir ton coach"
           >
             <MessageCircle className="h-4 w-4" />
-            Demande à ton coach 💬
+            Coach 💬
           </button>
         </SheetTrigger>
         <SheetContent side="bottom" className="h-[88vh] overflow-y-auto rounded-t-3xl px-4 pt-6 paper-grain">

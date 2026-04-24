@@ -166,13 +166,13 @@ export default function Aventure() {
           </div>
         </div>
 
-        {/* Ligues / boutique teaser */}
+        {/* Teaser prochaines features */}
         <Postit variant="yellow" className="text-base">
           <div className="flex items-start gap-2">
-            <Lock className="h-4 w-4 mt-1 shrink-0" />
+            <Sparkles className="h-4 w-4 mt-1 shrink-0" />
             <div>
               <p className="font-bold">Bientôt</p>
-              <p className="text-sm">Ligues hebdo, badges, boutique XP & cadres avatar arrivent dans la prochaine màj 📬</p>
+              <p className="text-sm">Badges, boutique XP & cadres avatar arrivent dans la prochaine màj 📬</p>
             </div>
           </div>
         </Postit>
