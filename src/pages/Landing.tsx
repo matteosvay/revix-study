@@ -73,7 +73,7 @@ export default function Landing() {
               <a href="#features">Voir comment ça marche</a>
             </Button>
           </div>
-          <p className="mt-6 font-mono-tag text-[11px] uppercase tracking-wider text-muted-foreground">Pas de CB · RGPD 🇫🇷 · 12 000+ étudiants</p>
+          <p className="mt-6 font-mono-tag text-[11px] uppercase tracking-wider text-muted-foreground">Pas de CB · RGPD 🇫🇷 · Fait en France</p>
         </div>
 
         {/* Hero preview : 3 cartes notebook inclinées */}
