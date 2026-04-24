@@ -76,6 +76,7 @@ export default function StudyRoom() {
   const [openCourseId, setOpenCourseId] = useState<string | null>(null);
   const [shareDialogOpen, setShareDialogOpen] = useState(false);
   const [myCourses, setMyCourses] = useState<MyCourse[]>([]);
+  const [allFichesOpen, setAllFichesOpen] = useState(false);
 
   // Coach IA sur sélection
   const [selection, setSelection] = useState("");
@@ -333,6 +334,20 @@ export default function StudyRoom() {
         <button onClick={copyCode} className="w-full bg-muted border-2 border-dashed border-foreground rounded-md p-2 text-center font-mono text-sm font-bold flex items-center justify-center gap-2">
           <Copy className="h-3 w-3" /> Code : {room.invite_code}
         </button>
+
+        {/* Bouton Fiches partagées (accès rapide) */}
+        <Button
+          onClick={() => setAllFichesOpen(true)}
+          variant="outline"
+          className="w-full border-2 border-foreground font-bold flex items-center justify-between"
+        >
+          <span className="flex items-center gap-2">
+            <BookOpen className="h-4 w-4" /> Fiches partagées
+          </span>
+          <span className="bg-primary text-primary-foreground rounded-full px-2 py-0.5 text-[10px] font-black">
+            {sharedCourses.length}
+          </span>
+        </Button>
 
         {/* Pomodoro */}
         <div className="bg-card border-2 border-foreground rounded-md p-5 shadow-brutal text-center">
