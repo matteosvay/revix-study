@@ -83,6 +83,20 @@ export default function StudyRoom() {
 
   useEffect(() => { msgEndRef.current?.scrollIntoView({ behavior: "smooth" }); }, [messages.length]);
 
+  // Heartbeat de présence : met à jour last_seen toutes les 20s pour signaler qu'on est toujours là
+  useEffect(() => {
+    if (!id || !user) return;
+    const beat = async () => {
+      await supabase.from("room_members")
+        .update({ last_seen: new Date().toISOString() })
+        .eq("room_id", id)
+        .eq("user_id", user.id);
+    };
+    beat();
+    const t = setInterval(beat, 20000);
+    return () => clearInterval(t);
+  }, [id, user]);
+
   if (!room) return <AppLayout><div className="p-5 text-sm">Chargement de la salle...</div></AppLayout>;
 
   const isHost = room.host_id === user?.id;
