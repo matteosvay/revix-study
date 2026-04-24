@@ -19,6 +19,7 @@ type Profile = {
 
 function ymd(d: Date) { return d.toISOString().slice(0, 10); }
 const WEEK_LABELS = ["L", "M", "M", "J", "V", "S", "D"];
+const MONTHS_FR = ["Jan", "Fév", "Mar", "Avr", "Mai", "Juin", "Juil", "Aoû", "Sep", "Oct", "Nov", "Déc"];
 
 export default function Streak() {
   const { user } = useAuth();
@@ -68,29 +69,42 @@ export default function Streak() {
 
   if (!profile) return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement...</div></AppLayout>;
 
-  // Grille hebdo : 8 semaines, alignée lundi → dimanche, dernière colonne contient aujourd'hui
+  // Grille hebdo : 8 semaines de lundi à dimanche, today dans la dernière semaine
   const today = new Date(); today.setHours(0, 0, 0, 0);
-  const todayDow = (today.getDay() + 6) % 7; // monday = 0
+  const todayDow = (today.getDay() + 6) % 7; // lundi = 0
   const weeksToShow = 8;
-  const totalCells = weeksToShow * 7;
-  // We want last column to end on today: produce cells from oldest -> newest, monday-first per column
-  const cells: { date: Date; key: string; active: boolean; today: boolean; future: boolean }[] = [];
-  // start = today - (weeksToShow-1)*7 days, but adjusted so column starts on Monday
-  const start = new Date(today);
-  start.setDate(today.getDate() - ((weeksToShow - 1) * 7 + todayDow));
-  for (let i = 0; i < totalCells; i++) {
-    const d = new Date(start);
-    d.setDate(start.getDate() + i);
-    const key = ymd(d);
-    const future = d > today;
-    cells.push({
-      date: d,
-      key,
-      active: activeDates.has(key),
-      today: key === ymd(today),
-      future,
-    });
+  // Trouver le lundi de la semaine d'aujourd'hui
+  const currentMonday = new Date(today);
+  currentMonday.setDate(today.getDate() - todayDow);
+  // Premier lundi affiché
+  const firstMonday = new Date(currentMonday);
+  firstMonday.setDate(currentMonday.getDate() - (weeksToShow - 1) * 7);
+
+  type Cell = { date: Date; key: string; active: boolean; today: boolean; future: boolean };
+  const weekColumns: Cell[][] = [];
+  for (let w = 0; w < weeksToShow; w++) {
+    const col: Cell[] = [];
+    for (let d = 0; d < 7; d++) {
+      const dt = new Date(firstMonday);
+      dt.setDate(firstMonday.getDate() + w * 7 + d);
+      const key = ymd(dt);
+      col.push({
+        date: dt,
+        key,
+        active: activeDates.has(key),
+        today: key === ymd(today),
+        future: dt > today,
+      });
+    }
+    weekColumns.push(col);
   }
+  // Mois pour l'en-tête : afficher le mois quand il change
+  const monthHeaders = weekColumns.map((col, i) => {
+    const m = col[0].date.getMonth();
+    if (i === 0) return MONTHS_FR[m];
+    const prev = weekColumns[i - 1][0].date.getMonth();
+    return m !== prev ? MONTHS_FR[m] : "";
+  });
 
   const todayActive = activeDates.has(ymd(today));
   const yest = new Date(today); yest.setDate(today.getDate() - 1);
@@ -146,41 +160,52 @@ export default function Streak() {
         </div>
 
         {/* Calendrier hebdomadaire */}
-        <div className="card-paper p-4 relative">
+        <div className="card-paper p-4 relative paper-grain">
           <Tape variant="yellow" position="top-left" />
           <div className="mb-3">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Activité — 8 dernières semaines</p>
             <ScribbleUnderline className="w-28" />
           </div>
-          <div className="flex gap-2">
-            <div className="flex flex-col gap-[5px] pt-[2px] pr-1">
+          <div className="flex gap-1.5">
+            <div className="flex flex-col gap-1 pt-[18px] pr-1 shrink-0">
               {WEEK_LABELS.map((l, i) => (
-                <span key={i} className="text-[9px] text-muted-foreground/70 h-5 leading-5 text-right w-3">{l}</span>
+                <span key={i} className="font-mono-tag text-[9px] text-muted-foreground/70 h-[18px] leading-[18px] text-right w-3">{l}</span>
               ))}
             </div>
-            <div className="grid grid-flow-col grid-rows-7 auto-cols-fr gap-[5px] flex-1">
-              {cells.map((d) => (
-                <div
-                  key={d.key}
-                  title={`${d.date.toLocaleDateString("fr-FR")}${d.active ? " · actif" : ""}`}
-                  className={`h-5 rounded-[4px] transition-all ${
-                    d.future
-                      ? "bg-muted/30"
-                      : d.active
-                      ? "gradient-primary shadow-sm"
-                      : "bg-muted/60"
-                  } ${d.today ? "ring-2 ring-primary ring-offset-1 ring-offset-card" : ""}`}
-                />
-              ))}
+            <div className="flex-1 overflow-hidden">
+              <div className="flex gap-1 mb-1">
+                {monthHeaders.map((m, i) => (
+                  <div key={i} className="flex-1 font-mono-tag text-[9px] text-muted-foreground/70 leading-[14px] text-left">{m}</div>
+                ))}
+              </div>
+              <div className="flex gap-1">
+                {weekColumns.map((col, ci) => (
+                  <div key={ci} className="flex-1 flex flex-col gap-1">
+                    {col.map((d) => (
+                      <div
+                        key={d.key}
+                        title={`${d.date.toLocaleDateString("fr-FR")}${d.active ? " · actif" : d.future ? "" : " · inactif"}`}
+                        className={`aspect-square w-full rounded-[3px] transition-all hover:scale-110 ${
+                          d.future
+                            ? "bg-muted/25 border border-dashed border-muted-foreground/15"
+                            : d.active
+                            ? "gradient-primary shadow-sm"
+                            : "bg-muted/55"
+                        } ${d.today ? "ring-2 ring-primary ring-offset-1 ring-offset-card" : ""}`}
+                      />
+                    ))}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
           <div className="flex items-center justify-end gap-1.5 mt-3 text-[10px] text-muted-foreground">
-            <span>Moins</span>
+            <span className="font-mono-tag uppercase">Moins</span>
             <span className="h-2.5 w-2.5 rounded-sm bg-muted/60" />
             <span className="h-2.5 w-2.5 rounded-sm bg-primary/40" />
             <span className="h-2.5 w-2.5 rounded-sm bg-primary/70" />
             <span className="h-2.5 w-2.5 rounded-sm gradient-primary" />
-            <span>Plus</span>
+            <span className="font-mono-tag uppercase">Plus</span>
           </div>
         </div>
 
