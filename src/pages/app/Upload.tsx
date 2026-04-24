@@ -178,7 +178,13 @@ export default function Upload() {
       <PageHeader emoji="📥" title="Nouveau cours" subtitle="Upload un PDF ou une photo, l'IA s'occupe du reste." />
 
       <div className="px-5 space-y-5 pb-6">
-        <label className="block notebook-card dog-ear tilt-l p-6 text-center cursor-pointer hover:shadow-glow transition-all">
+        <label
+          className={`block notebook-card dog-ear tilt-l p-6 text-center cursor-pointer transition-all ${dragOver ? "ring-2 ring-primary shadow-glow scale-[1.02]" : "hover:shadow-glow"}`}
+          onDragOver={(e) => { e.preventDefault(); e.stopPropagation(); if (!dragOver) setDragOver(true); }}
+          onDragEnter={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(true); }}
+          onDragLeave={(e) => { e.preventDefault(); e.stopPropagation(); setDragOver(false); }}
+          onDrop={handleDrop}
+        >
           <input type="file" className="hidden" accept="application/pdf,image/*" onChange={(e) => onFile(e.target.files?.[0] ?? null)} />
           {file ? (
             <>
