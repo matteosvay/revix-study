@@ -2,12 +2,16 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Loader2, Swords } from "lucide-react";
+import { Loader2, Swords, Trophy } from "lucide-react";
 
 type Q = { id: string; position: number; question: string; answers: string[]; correct_index: number; explanation: string | null };
+type Profile = { id: string; display_name: string | null; avatar_url: string | null };
+
+const initials = (n?: string | null) => (n ?? "?").split(" ").map(s => s[0]).join("").slice(0, 2).toUpperCase();
 
 export default function DuelPlay() {
   const { id } = useParams<{ id: string }>();
@@ -21,33 +25,55 @@ export default function DuelPlay() {
   const [timeLeft, setTimeLeft] = useState(30);
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
+  const [profiles, setProfiles] = useState<Record<string, Profile>>({});
+  const [waitingAccept, setWaitingAccept] = useState(false);
 
+  const loadDuel = async () => {
+    if (!id || !user) return;
+    const [{ data: d }, { data: qs }, { data: mine }] = await Promise.all([
+      supabase.from("duels").select("*").eq("id", id).maybeSingle(),
+      supabase.rpc("get_duel_questions", { p_duel_id: id }),
+      supabase.from("duel_attempts").select("*").eq("duel_id", id).eq("user_id", user.id).maybeSingle(),
+    ]);
+    setDuel(d);
+    const mapped = (qs ?? []).map((r: any) => ({
+      id: r.q_id, position: r.q_position, question: r.q_question,
+      answers: r.q_answers, correct_index: -1, explanation: null,
+    }));
+    setQuestions(mapped as any);
+    if (d && questions.length === 0) setTimeLeft(d.seconds_per_question ?? 30);
+    if (mine) setDone(true);
+    setWaitingAccept(d?.status === "pending");
+    // Charger les profils des deux joueurs
+    if (d) {
+      const ids = [d.challenger_id, d.opponent_id];
+      const profs = await Promise.all(ids.map((uid) =>
+        supabase.rpc("get_public_profile", { p_user_id: uid }).then((r) => r.data?.[0])
+      ));
+      const map: Record<string, Profile> = {};
+      profs.filter(Boolean).forEach((p: any) => { map[p.id] = p; });
+      setProfiles(map);
+    }
+  };
+
+  useEffect(() => { loadDuel(); }, [id, user]);
+
+  // Realtime : suivre le statut du duel et l'arrivée du score adverse
   useEffect(() => {
     if (!id) return;
-    (async () => {
-      const [{ data: d }, { data: qs }, { data: mine }] = await Promise.all([
-        supabase.from("duels").select("*").eq("id", id).maybeSingle(),
-        supabase.rpc("get_duel_questions", { p_duel_id: id }),
-        supabase.from("duel_attempts").select("*").eq("duel_id", id).eq("user_id", user!.id).maybeSingle(),
-      ]);
-      setDuel(d);
-      // Map RPC field names (q_*) to expected shape; correct_index is no longer exposed mid-duel
-      const mapped = (qs ?? []).map((r: any) => ({
-        id: r.q_id, position: r.q_position, question: r.q_question,
-        answers: r.q_answers, correct_index: -1, explanation: null,
-      }));
-      setQuestions(mapped as any);
-      setTimeLeft(d?.seconds_per_question ?? 30);
-      if (mine) setDone(true);
-    })();
-  }, [id, user]);
+    const ch = supabase.channel(`duel:${id}`)
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "duels", filter: `id=eq.${id}` }, () => loadDuel())
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "duel_attempts", filter: `duel_id=eq.${id}` }, () => loadDuel())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [id]);
 
   useEffect(() => {
-    if (done || !duel || selected !== null) return;
+    if (done || !duel || selected !== null || waitingAccept) return;
     if (timeLeft <= 0) { handleConfirm(-1); return; }
     const t = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
     return () => clearTimeout(t);
-  }, [timeLeft, selected, done, duel]);
+  }, [timeLeft, selected, done, duel, waitingAccept]);
 
   const handleConfirm = async (chosen: number) => {
     setSelected(chosen);
@@ -73,29 +99,109 @@ export default function DuelPlay() {
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
     setDone(true);
-    const res = data as any;
-    if (res?.completed) {
-      if (res.winner_id === user?.id) toast.success("VICTOIRE 🏆 +100 XP !");
-      else if (res.winner_id === null) toast.success("Égalité ! +60 XP");
-      else toast.info("Perdu cette fois, +40 XP. Revanche ?");
-    } else {
-      toast.success("Score envoyé ! En attente de l'adversaire...");
-    }
-    setTimeout(() => nav("/app/campus"), 2500);
+    await loadDuel();
   };
 
-  if (!duel || questions.length === 0) {
+  if (!duel) {
     return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement du duel...</div></AppLayout>;
   }
 
+  // Lobby : duel encore "pending" — l'opposant n'a pas accepté
+  if (waitingAccept && !done) {
+    const opponent = profiles[duel.opponent_id];
+    const challenger = profiles[duel.challenger_id];
+    const isChall = duel.challenger_id === user?.id;
+    const other = isChall ? opponent : challenger;
+    return (
+      <AppLayout>
+        <PageHeader emoji="⚔️" title="Salle d'attente" />
+        <div className="px-5 pt-8 pb-6 text-center space-y-4">
+          <Loader2 className="h-10 w-10 mx-auto animate-spin text-primary" />
+          <p className="font-display text-lg">
+            En attente de <strong>{other?.display_name ?? "l'adversaire"}</strong>...
+          </p>
+          <p className="text-xs text-muted-foreground">
+            {isChall ? "Le duel se lancera dès qu'il/elle aura accepté." : "Tu vas être redirigé(e) au démarrage."}
+          </p>
+          <Button variant="outline" onClick={() => nav("/app/campus")} className="rounded-md border-2 border-foreground">Retour Campus</Button>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  // Écran terminé — score perso + score adverse synchronisés en temps réel
   if (done) {
+    const isChall = duel.challenger_id === user?.id;
+    const myScore = isChall ? duel.challenger_score : duel.opponent_score;
+    const otherScore = isChall ? duel.opponent_score : duel.challenger_score;
+    const otherId = isChall ? duel.opponent_id : duel.challenger_id;
+    const me = profiles[user!.id];
+    const other = profiles[otherId];
+    const isCompleted = duel.status === "completed";
+    const won = isCompleted && duel.winner_id === user?.id;
+    const tie = isCompleted && duel.winner_id === null;
+    const lost = isCompleted && duel.winner_id && duel.winner_id !== user?.id;
+    return (
+      <AppLayout>
+        <PageHeader emoji="⚔️" title="Duel terminé" />
+        <div className="px-5 pt-6 pb-6 space-y-5">
+          <div className="text-center">
+            {isCompleted ? (
+              <>
+                <p className="text-5xl mb-2">{won ? "🏆" : tie ? "🤝" : "💔"}</p>
+                <p className="font-display text-2xl">
+                  {won ? "Victoire !" : tie ? "Égalité" : "Défaite"}
+                </p>
+              </>
+            ) : (
+              <>
+                <Loader2 className="h-8 w-8 mx-auto animate-spin text-primary mb-2" />
+                <p className="font-display text-lg">En attente de l'adversaire...</p>
+                <p className="text-xs text-muted-foreground">Tes réponses sont enregistrées.</p>
+              </>
+            )}
+          </div>
+
+          {/* Tableau de scores côte-à-côte */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className={`p-4 rounded-md border-2 border-foreground shadow-brutal-sm text-center ${won ? "bg-success/20" : tie ? "bg-card" : "bg-card"}`}>
+              <Avatar className="h-14 w-14 mx-auto border-2 border-foreground">
+                {me?.avatar_url && <AvatarImage src={me.avatar_url} className="object-cover" />}
+                <AvatarFallback className="bg-primary text-primary-foreground font-bold">{initials(me?.display_name)}</AvatarFallback>
+              </Avatar>
+              <p className="text-xs font-bold mt-2">Toi</p>
+              <p className="font-mono text-3xl font-bold mt-1">{myScore ?? "?"}</p>
+              <p className="text-[10px] text-muted-foreground">/ {duel.num_questions}</p>
+            </div>
+            <div className={`p-4 rounded-md border-2 border-foreground shadow-brutal-sm text-center ${lost ? "bg-destructive/10" : "bg-card"}`}>
+              <Avatar className="h-14 w-14 mx-auto border-2 border-foreground">
+                {other?.avatar_url && <AvatarImage src={other.avatar_url} className="object-cover" />}
+                <AvatarFallback className="bg-secondary text-foreground font-bold">{initials(other?.display_name)}</AvatarFallback>
+              </Avatar>
+              <p className="text-xs font-bold mt-2 truncate">{other?.display_name ?? "Adversaire"}</p>
+              <p className="font-mono text-3xl font-bold mt-1">{otherScore ?? "—"}</p>
+              <p className="text-[10px] text-muted-foreground">{otherScore == null ? "en cours..." : `/ ${duel.num_questions}`}</p>
+            </div>
+          </div>
+
+          {isCompleted && (
+            <div className="text-center text-xs text-muted-foreground">
+              <Trophy className="h-3 w-3 inline mr-1" />
+              {won ? "+100 XP" : tie ? "+60 XP chacun" : "+40 XP de consolation"}
+            </div>
+          )}
+
+          <Button onClick={() => nav("/app/campus")} className="w-full rounded-md gradient-primary border-2 border-foreground font-bold">
+            Retour au Campus
+          </Button>
+        </div>
+      </AppLayout>
+    );
+  }
+
+  if (questions.length === 0) {
     return <AppLayout>
-      <PageHeader emoji="⚔️" title="Duel terminé" />
-      <div className="px-5 text-center pt-8">
-        <p className="text-5xl mb-3">🎯</p>
-        <p className="font-display text-xl">Tes réponses sont enregistrées</p>
-        <p className="text-sm text-muted-foreground mt-2">Retour au Campus...</p>
-      </div>
+      <div className="p-5 text-sm text-muted-foreground">Chargement des questions...</div>
     </AppLayout>;
   }
 
