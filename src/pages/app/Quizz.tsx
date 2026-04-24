@@ -73,18 +73,23 @@ export default function Quizz() {
     setPhase("play");
   };
 
-  const advance = async (ok: boolean) => {
-    const nextScore = ok ? score + 1 : score;
-    const nextWrong = ok ? wrong : [...wrong, qIdx];
-    if (ok) setScore(nextScore); else setWrong(nextWrong);
-    setTimeout(async () => {
-      if (qIdx + 1 >= questions.length) {
-        setPhase("end");
-        if (user && activeQuiz) {
+  // Enregistre la réponse mais NE passe PAS à la question suivante (l'utilisateur clique sur "Suivant")
+  const advance = (ok: boolean) => {
+    if (ok) setScore(s => s + 1);
+    else setWrong(w => [...w, qIdx]);
+  };
+
+  const goNext = async () => {
+    if (qIdx + 1 >= questions.length) {
+      setPhase("end");
+      if (user && activeQuiz) {
+        // Recalcule depuis l'état actuel (score est à jour grâce aux setters fonctionnels)
+        const finalScore = score;
+        const finalWrong = wrong;
           await supabase.from("quiz_attempts").insert({
             user_id: user.id, quiz_id: activeQuiz.id,
-            score: nextScore, total: questions.length,
-            wrong_indices: nextWrong,
+            score: finalScore, total: questions.length,
+            wrong_indices: finalWrong,
           });
           const { data: profileState } = await supabase.from("profiles").select("last_active_date").eq("id", user.id).maybeSingle();
           const todayKey = localDateKey(new Date());
@@ -96,7 +101,7 @@ export default function Quizz() {
             toast.success("📎 Pass de restauration gagné !", { description: "Colle-le sur une streak perdue." });
           }
           // XP : finir un quiz + bonus score
-          const pct = (nextScore / questions.length) * 100;
+          const pct = (finalScore / questions.length) * 100;
           let total = XP_REWARDS.quiz_finish;
           if (pct >= 80) total += XP_REWARDS.quiz_high_score;
           if (pct === 100) total += XP_REWARDS.quiz_perfect;
@@ -114,11 +119,10 @@ export default function Quizz() {
             await bumpQuest(user.id, "streak_kept", 1);
             await bumpQuest(user.id, "w_7_streak", 1);
           }
-        }
-      } else {
-        setQIdx(qIdx + 1); setPicked(null); setTextAnswer(""); setOpenResult(null);
       }
-    }, 1500);
+    } else {
+      setQIdx(qIdx + 1); setPicked(null); setTextAnswer(""); setOpenResult(null);
+    }
   };
 
   const pick = (i: number) => {
@@ -274,6 +278,16 @@ export default function Quizz() {
               <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
                 💡 {q.explanation}
               </div>
+            )}
+
+            {((isChoice && picked !== null) || (!isChoice && openResult !== null)) && (
+              <Button
+                onClick={goNext}
+                className="mt-5 w-full rounded-md gradient-primary border-2 border-foreground font-bold animate-fade-in"
+              >
+                {qIdx + 1 >= questions.length ? "Voir les résultats" : "Question suivante"}
+                <ChevronRight className="h-4 w-4 ml-1" />
+              </Button>
             )}
           </div>
         </div>
