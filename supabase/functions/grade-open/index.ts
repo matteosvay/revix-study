@@ -48,7 +48,7 @@ Réponse de l'étudiant : """${userAnswer}"""
       method: "POST",
       headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "google/gemini-2.5-flash-lite",
         messages: [{ role: "system", content: system }, { role: "user", content: userPrompt }],
         tools: [{
           type: "function",
