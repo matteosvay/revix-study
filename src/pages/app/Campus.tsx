@@ -471,6 +471,84 @@ export default function Campus() {
 
           {/* ==================== CLASSEMENT ==================== */}
           <TabsContent value="classement" className="mt-5 space-y-4">
+          </TabsContent>
+
+          {/* ==================== DUELS ==================== */}
+          <TabsContent value="duels" className="mt-5 space-y-4">
+            <Button onClick={() => setCreateDuelOpen(true)} className="w-full rounded-md gradient-primary border-2 border-foreground font-bold">
+              <Swords className="h-4 w-4 mr-2" /> Lancer un duel
+            </Button>
+            {duels.length === 0 ? (
+              <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
+                <p className="text-4xl mb-2">⚔️</p>
+                <p className="font-display text-base">Aucun duel</p>
+                <p className="text-xs text-muted-foreground mt-2">Défie un ami sur un de tes cours.</p>
+              </div>
+            ) : duels.map(d => {
+              const isChall = d.challenger_id === user?.id;
+              const otherId = isChall ? d.opponent_id : d.challenger_id;
+              const p = profilesMap[otherId];
+              const incoming = !isChall && d.status === "pending";
+              const myTurn = d.status === "accepted";
+              const won = d.status === "completed" && d.winner_id === user?.id;
+              const lost = d.status === "completed" && d.winner_id && d.winner_id !== user?.id;
+              return (
+                <div key={d.id} className={`p-3 rounded-md border-2 border-foreground shadow-brutal-sm ${won ? "bg-success/20" : lost ? "bg-destructive/10" : "bg-card"}`}>
+                  <div className="flex items-center gap-3">
+                    <Avatar className="h-10 w-10 border-2 border-foreground">
+                      {p?.avatar_url && <AvatarImage src={p.avatar_url} />}
+                      <AvatarFallback className="text-xs font-bold">{initialsOf(p?.display_name)}</AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-bold truncate">{isChall ? "Tu défies " : ""}{p?.display_name ?? "..."}</p>
+                      <p className="text-[10px] font-mono text-muted-foreground">{d.subject ?? "—"} · {d.num_questions}Q · {d.seconds_per_question}s</p>
+                      {d.status === "completed" && (
+                        <p className="text-[11px] font-bold mt-0.5">
+                          {won ? "🏆 Victoire" : lost ? "Défaite" : "Égalité"} — {d.challenger_score ?? "?"} vs {d.opponent_score ?? "?"}
+                        </p>
+                      )}
+                    </div>
+                    {incoming && <Button size="sm" onClick={() => acceptDuel(d.id)} className="rounded-md gradient-primary border-2 border-foreground text-xs h-8 font-bold">Accepter</Button>}
+                    {myTurn && <Button size="sm" onClick={() => nav(`/app/duel/${d.id}`)} className="rounded-md gradient-primary border-2 border-foreground text-xs h-8 font-bold">Jouer</Button>}
+                    {d.status === "pending" && isChall && <span className="text-[10px] font-bold text-muted-foreground">En attente</span>}
+                  </div>
+                </div>
+              );
+            })}
+          </TabsContent>
+
+          {/* ==================== SALLES ==================== */}
+          <TabsContent value="salles" className="mt-5 space-y-4">
+            <div className="grid grid-cols-2 gap-2">
+              <Button onClick={() => setCreateRoomOpen(true)} className="rounded-md gradient-primary border-2 border-foreground font-bold text-xs h-9">
+                <Plus className="h-3 w-3 mr-1" /> Créer
+              </Button>
+              <Button onClick={() => setJoinCodeOpen(true)} variant="outline" className="rounded-md border-2 border-foreground font-bold text-xs h-9">
+                <LogIn className="h-3 w-3 mr-1" /> Code
+              </Button>
+            </div>
+            {rooms.length === 0 ? (
+              <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
+                <p className="text-4xl mb-2">📚</p>
+                <p className="font-display text-base">Aucune salle active</p>
+                <p className="text-xs text-muted-foreground mt-2">Crée une salle pour réviser ensemble.</p>
+              </div>
+            ) : rooms.map(r => (
+              <div key={r.id} className="bg-card p-3 rounded-md border-2 border-foreground shadow-brutal-sm flex items-center gap-3">
+                <BookOpen className="h-8 w-8 text-primary shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="font-hand text-lg truncate">{r.name}</p>
+                  <p className="text-[10px] font-mono text-muted-foreground">
+                    {r.timer_phase === "focus" ? "🍅 Focus en cours" : r.timer_phase === "pause" ? "☕ Pause" : "⏸ Idle"} · code {r.invite_code}
+                  </p>
+                </div>
+                <Button size="sm" onClick={() => nav(`/app/room/${r.id}`)} className="rounded-md gradient-primary border-2 border-foreground text-xs h-8 font-bold">Rejoindre</Button>
+              </div>
+            ))}
+          </TabsContent>
+
+          {/* (placeholder pour fermer la duplication ouverte plus haut) */}
+          <TabsContent value="__hidden__" className="hidden">
             <div className="text-center">
               <p className="font-hand text-2xl">Tableau d'honneur</p>
               <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Cette semaine · entre amis</p>
