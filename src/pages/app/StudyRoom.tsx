@@ -130,7 +130,7 @@ export default function StudyRoom() {
       const myGoals = goals.filter(x => x.user_id === user?.id);
       const allDone = myGoals.every(x => x.id === g.id ? true : x.done);
       if (allDone && myGoals.length > 0) {
-        await supabase.rpc("award_xp" as any, { p_user_id: user!.id, p_amount: 50, p_reason: "room_all_goals" }).catch(() => {});
+        try { await supabase.rpc("award_xp", { p_user_id: user!.id, p_amount: 50, p_reason: "room_all_goals" }); } catch {}
         toast.success("Tous tes objectifs ✓ +50 XP !");
       }
     }
