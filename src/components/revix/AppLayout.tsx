@@ -47,8 +47,8 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
                 key={n.to}
                 to={n.to}
                 end={n.end}
-                className="flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-lg text-[9px] font-medium text-muted-foreground transition-colors"
-                activeClassName="!text-primary"
+                className="nav-postit-active flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-lg text-[9px] font-medium text-muted-foreground transition-colors"
+                activeClassName="is-active !text-foreground"
               >
                 <n.icon className="h-[20px] w-[20px]" strokeWidth={2} />
                 {n.label}

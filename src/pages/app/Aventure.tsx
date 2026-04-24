@@ -21,27 +21,32 @@ export default function Aventure() {
 
       <div className="px-5 space-y-5 pb-6">
         {/* Niveau hero */}
-        <div className="card-paper p-5 relative overflow-hidden">
+        <div className="card-paper p-5 relative overflow-hidden paper-grain">
           <Tape variant="yellow" position="top-left" />
           <Pin color="purple" className="absolute top-2 right-3" />
           <div className="flex items-center gap-4">
-            <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center text-3xl shadow-glow">
-              {levelTier.emoji}
+            <div className="relative">
+              <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center text-3xl shadow-glow">
+                {levelTier.emoji}
+              </div>
+              <span className="rubber-stamp-purple rubber-stamp absolute -bottom-2 -right-3 text-[8px] !px-1.5 !py-0.5 stamp-pop">
+                Lv {profile.level}
+              </span>
             </div>
             <div className="flex-1 min-w-0">
-              <p className="text-[10px] uppercase tracking-widest text-muted-foreground">Niveau {profile.level}</p>
+              <p className="font-mono-tag text-[10px] uppercase tracking-widest text-muted-foreground">Niveau {profile.level}</p>
               <p className="font-serif text-2xl leading-tight">{levelTier.name}</p>
-              <p className="font-hand text-lg text-primary mt-0.5">{profile.xp_total} XP</p>
+              <p className="font-hand text-lg text-primary mt-0.5">{profile.xp_total} XP total</p>
             </div>
           </div>
 
           <div className="mt-4">
             <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
-              <span>Vers niveau {profile.level + 1}</span>
-              <span>{xp.into} / {xp.span} XP</span>
+              <span className="font-mono-tag uppercase tracking-wider">Vers niveau {profile.level + 1}</span>
+              <span className="font-mono-tag">{xp.into} / {xp.span} XP</span>
             </div>
-            <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-              <div className="h-full gradient-primary transition-all duration-700" style={{ width: `${xp.pct}%` }} />
+            <div className="ruler-bar">
+              <div className="ruler-fill" style={{ width: `${xp.pct}%` }} />
             </div>
           </div>
         </div>
@@ -102,20 +107,22 @@ export default function Aventure() {
         )}
 
         {/* Quêtes journalières */}
-        <div>
+        <div className="corkboard p-4 relative">
+          <Pin color="red" className="absolute -top-1.5 left-6" />
+          <Pin color="blue" className="absolute -top-1.5 right-6" />
           <div className="flex items-end justify-between mb-2 px-1">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Quêtes du jour</p>
-              <ScribbleUnderline className="w-20" />
+              <p className="font-mono-tag text-xs font-bold uppercase tracking-wider text-white/95 drop-shadow-sm">Quêtes du jour</p>
             </div>
-            {allDailyDone && <span className="font-hand text-primary text-base">tout fait ! 🎉</span>}
+            {allDailyDone && <span className="font-hand text-white text-lg drop-shadow">tout fait ! 🎉</span>}
           </div>
 
           <div className="space-y-2.5">
             {dailyQuests.map((q, i) => {
               const pct = Math.min(100, (q.progress / q.target) * 100);
               return (
-                <div key={q.id} className={`card-paper p-3.5 relative ${i % 2 === 0 ? "tilt-l" : "tilt-r"}`}>
+                <div key={q.id} className={`card-paper p-3.5 relative ${i % 2 === 0 ? "tilt-l" : "tilt-r"} hover:shadow-glow transition-shadow`}>
+                  <Pin color={i % 3 === 0 ? "red" : i % 3 === 1 ? "blue" : "purple"} className="absolute -top-1 left-1/2 -translate-x-1/2" />
                   <div className="flex items-start gap-3">
                     <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-lg shrink-0">
                       {q.emoji}
@@ -123,14 +130,14 @@ export default function Aventure() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-sm font-semibold truncate">{q.title}</p>
-                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-primary text-primary-foreground shrink-0">
+                        <span className="label-tape shrink-0">
                           +{q.xp_reward} XP
                         </span>
                       </div>
                       <p className="text-[11px] text-muted-foreground">{q.description}</p>
                       <div className="mt-2">
                         <div className="flex items-center justify-between text-[10px] mb-1">
-                          <span className="text-muted-foreground">{q.progress} / {q.target}</span>
+                          <span className="font-mono-tag text-muted-foreground">{q.progress} / {q.target}</span>
                           {q.completed && <span className="font-hand text-primary">fait ✓</span>}
                         </div>
                         <div className="h-1.5 rounded-full bg-muted overflow-hidden">
