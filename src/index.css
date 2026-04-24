@@ -616,6 +616,7 @@
   }
   .nav-postit-active > * { position: relative; z-index: 1; }
   .nav-postit-active.is-active { color: hsl(var(--foreground)) !important; font-weight: 700; }
+  .nav-postit-active.is-active .nav-label { display: none; }
 
   /* Pleine page cahier brutaliste */
   .notebook-page {
