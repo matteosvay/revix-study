@@ -1,74 +1,94 @@
 import { forwardRef, ReactNode } from "react";
 import { cn } from "@/lib/utils";
+export {
+  ScribbleUnderline,
+  ScribbleArrow,
+  ScribbleCircle,
+  ScribbleStar,
+  ScribbleStamp,
+  ScribbleCheck,
+  ScribbleEmphasis,
+} from "./Scribble";
 
-/** A small piece of washi tape stuck on top of a card. */
-export function Tape({ variant = "yellow", position = "top", className }: {
-  variant?: "yellow" | "pink" | "mint";
+/** Washi tape brutaliste — bloc plein bordé noir collé sur une carte. */
+export function Tape({
+  variant = "yellow",
+  position = "top",
+  className,
+}: {
+  variant?: "yellow" | "pink" | "mint" | "violet" | "orange";
   position?: "top" | "top-left" | "top-right";
   className?: string;
 }) {
-  const variantCls = variant === "pink" ? "tape-pink" : variant === "mint" ? "tape-mint" : "";
+  const variantCls =
+    variant === "pink" ? "tape-pink"
+    : variant === "mint" ? "tape-mint"
+    : variant === "violet" ? "tape-violet"
+    : variant === "orange" ? "tape-orange"
+    : "";
   const posCls = position === "top-left" ? "tape-left" : position === "top-right" ? "tape-right" : "";
   return <span className={cn("tape", variantCls, posCls, className)} aria-hidden />;
 }
 
-/** A pushpin (épingle). */
-export const Pin = forwardRef<HTMLSpanElement, { color?: "red" | "blue" | "purple"; className?: string }>(function Pin({ color = "red", className }, ref) {
-  const cls = color === "blue" ? "pin-blue" : color === "purple" ? "pin-purple" : "";
-  return <span ref={ref} className={cn("pin", cls, className)} aria-hidden />;
-});
+/** Punaise brutaliste — disque coloré bordé noir. */
+export const Pin = forwardRef<HTMLSpanElement, { color?: "red" | "blue" | "purple" | "orange" | "green"; className?: string }>(
+  function Pin({ color = "red", className }, ref) {
+    const cls =
+      color === "blue" ? "pin-blue"
+      : color === "purple" ? "pin-purple"
+      : color === "orange" ? "pin-orange"
+      : color === "green" ? "pin-green"
+      : "";
+    return <span ref={ref} className={cn("pin", cls, className)} aria-hidden />;
+  }
+);
 
-/** A post-it note. */
-export function Postit({ children, variant = "yellow", className }: {
+/** Post-it brutaliste — bord noir net, ombre dure, écriture Caveat. */
+export function Postit({
+  children,
+  variant = "yellow",
+  className,
+}: {
   children: ReactNode;
   variant?: "yellow" | "pink";
   className?: string;
 }) {
   return (
-    <div className={cn("postit p-3 text-foreground/80 rounded-sm relative", variant === "pink" && "postit-pink", className)}>
+    <div
+      className={cn(
+        "postit p-3 text-foreground rounded-sm relative",
+        variant === "pink" && "postit-pink",
+        className
+      )}
+    >
       {children}
     </div>
   );
 }
 
-/** Hand-drawn underline beneath a heading. */
-export const ScribbleUnderline = forwardRef<SVGSVGElement, { className?: string }>(function ScribbleUnderline({ className }, ref) {
-  return (
-    <svg
-      ref={ref}
-      viewBox="0 0 200 12"
-      preserveAspectRatio="none"
-      className={cn("scribble block w-full h-2 -mt-1", className)}
-      aria-hidden
-    >
-      <path
-        d="M2 7 Q 30 2, 60 6 T 120 6 T 198 5"
-        fill="none"
-        stroke="hsl(263 53% 51%)"
-        strokeWidth="2"
-        strokeLinecap="round"
-      />
-    </svg>
-  );
-});
-
-/** A small "stamp" rotated tag. */
+/** Stamp tag brutaliste (legacy compat — utilise plutôt ScribbleStamp). */
 export function Stamp({ children, className }: { children: ReactNode; className?: string }) {
   return <span className={cn("stamp inline-block", className)}>{children}</span>;
 }
 
-/** Hand-drawn arrow doodle. */
+/** Doodle flèche (legacy compat — utilise plutôt ScribbleArrow). */
 export function ArrowDoodle({ className }: { className?: string }) {
   return (
     <svg viewBox="0 0 60 30" className={cn("scribble", className)} aria-hidden>
       <path
         d="M2 24 Q 20 4, 50 14"
         fill="none"
-        stroke="hsl(263 53% 51%)"
-        strokeWidth="2"
+        stroke="hsl(var(--accent))"
+        strokeWidth="2.5"
         strokeLinecap="round"
       />
-      <path d="M50 14 L 42 8 M50 14 L 44 22" fill="none" stroke="hsl(263 53% 51%)" strokeWidth="2" strokeLinecap="round" />
+      <path
+        d="M50 14 L 42 8 M50 14 L 44 22"
+        fill="none"
+        stroke="hsl(var(--accent))"
+        strokeWidth="2.5"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
