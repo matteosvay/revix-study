@@ -62,8 +62,12 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
                 className="nav-postit-active flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider text-muted-foreground transition-colors"
                 activeClassName="is-active"
               >
-                <n.icon className="h-[20px] w-[20px]" strokeWidth={2.5} />
-                {n.label}
+                {({ isActive }: { isActive: boolean }) => (
+                  <>
+                    <n.icon className="h-[20px] w-[20px]" strokeWidth={2.5} />
+                    {!isActive && <span>{n.label}</span>}
+                  </>
+                )}
               </NavLink>
             ))}
           </div>

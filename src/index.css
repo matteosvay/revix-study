@@ -16,8 +16,8 @@
 
 @layer base {
   :root {
-    /* Papier crème jaune brut */
-    --background: 54 96% 88%;        /* #fef9c3 */
+    /* Papier crème doux */
+    --background: 45 50% 94%;        /* crème chaud */
     --foreground: 0 0% 4%;           /* encre noire */
 
     --card: 0 0% 100%;               /* blanc franc — contraste maximal */
@@ -56,7 +56,7 @@
     --ring: 262 83% 58%;
 
     /* Univers académique réinterprété */
-    --paper: 54 96% 88%;
+    --paper: 45 50% 94%;
     --paper-line: 0 0% 4%;
     --ink: 0 0% 4%;
     --highlight-yellow: 51 100% 60%;
