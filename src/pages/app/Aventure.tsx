@@ -1,19 +1,24 @@
+import { useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { useGamification } from "@/hooks/useGamification";
 import { Tape, Postit, Pin, ScribbleUnderline, Stamp } from "@/components/revix/AcademicDecor";
-import { Flame, Sparkles, Trophy, Target, Zap, Lock } from "lucide-react";
+import { Flame, Sparkles, Trophy, Target, Zap, Lock, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { levelInfo, xpForLevel, LEVEL_NAMES } from "@/lib/gamification";
+import { levelInfo, xpForLevel, LEVEL_NAMES, LEAGUES, leagueInfo } from "@/lib/gamification";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 
 export default function Aventure() {
   const { profile, dailyQuests, weeklyQuest, xp, levelTier, loading } = useGamification();
+  const [openLevels, setOpenLevels] = useState(false);
+  const [openLeagues, setOpenLeagues] = useState(false);
 
   if (loading || !profile || !xp || !levelTier) {
     return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement de ton aventure…</div></AppLayout>;
   }
 
   const allDailyDone = dailyQuests.length > 0 && dailyQuests.every((q) => q.completed);
+  const league = leagueInfo(profile.xp_week);
 
   return (
     <AppLayout>
@@ -21,9 +26,14 @@ export default function Aventure() {
 
       <div className="px-5 space-y-5 pb-6">
         {/* Niveau hero */}
-        <div className="card-paper p-5 relative overflow-hidden paper-grain">
+        <button
+          type="button"
+          onClick={() => setOpenLevels(true)}
+          className="card-paper p-5 relative overflow-hidden paper-grain w-full text-left hover:shadow-glow transition-shadow"
+        >
           <Tape variant="yellow" position="top-left" />
           <Pin color="purple" className="absolute top-2 right-3" />
+          <ChevronRight className="absolute bottom-3 right-3 h-4 w-4 text-muted-foreground" />
           <div className="flex items-center gap-4">
             <div className="relative">
               <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center text-3xl shadow-glow">
@@ -49,66 +59,7 @@ export default function Aventure() {
               <div className="ruler-fill" style={{ width: `${xp.pct}%` }} />
             </div>
           </div>
-        </div>
-
-        {/* Chemin des niveaux — tous les titres */}
-        <div className="card-paper p-4 relative paper-grain">
-          <Tape variant="mint" position="top-left" />
-          <div className="mb-3">
-            <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">Chemin des titres</p>
-            <p className="font-serif text-lg leading-tight">Ton parcours Revix</p>
-            <ScribbleUnderline className="w-32" />
-          </div>
-          <ol className="relative space-y-2 pl-1">
-            {LEVEL_NAMES.map((tier, i) => {
-              const reached = profile.level >= tier.min;
-              const current = profile.level >= tier.min && profile.level <= tier.max;
-              const xpToReach = xpForLevel(tier.min);
-              return (
-                <li
-                  key={tier.name}
-                  className={`relative flex items-center gap-3 rounded-xl border-2 p-2.5 transition-all ${
-                    current
-                      ? "border-primary bg-primary/10 shadow-brutal"
-                      : reached
-                      ? "border-foreground/80 bg-card"
-                      : "border-dashed border-muted-foreground/30 bg-muted/30 opacity-70"
-                  }`}
-                >
-                  <div
-                    className={`h-10 w-10 shrink-0 rounded-lg flex items-center justify-center text-xl border-2 ${
-                      current
-                        ? "border-foreground bg-card"
-                        : reached
-                        ? "border-foreground/80 bg-secondary"
-                        : "border-muted-foreground/30 bg-muted"
-                    }`}
-                  >
-                    {reached ? tier.emoji : <Lock className="h-4 w-4 text-muted-foreground" />}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className={`font-serif text-base leading-tight truncate ${!reached ? "text-muted-foreground" : ""}`}>
-                        {tier.name}
-                      </p>
-                      {current && (
-                        <span className="rubber-stamp-purple rubber-stamp text-[8px] !px-1.5 !py-0.5">
-                          ici
-                        </span>
-                      )}
-                    </div>
-                    <p className="font-mono-tag text-[9px] uppercase tracking-wider text-muted-foreground">
-                      Niv. {tier.min}–{tier.max} · {xpToReach} XP
-                    </p>
-                  </div>
-                  {reached && !current && (
-                    <span className="font-hand text-success text-sm shrink-0">✓</span>
-                  )}
-                </li>
-              );
-            })}
-          </ol>
-        </div>
+        </button>
 
         {/* Mini stats : streak + ligue (placeholder) */}
         <div className="grid grid-cols-2 gap-3">
@@ -122,16 +73,20 @@ export default function Aventure() {
               </div>
             </div>
           </Link>
-          <div className="card-paper p-4 relative tilt-r">
+          <button
+            type="button"
+            onClick={() => setOpenLeagues(true)}
+            className="card-paper p-4 relative tilt-r text-left hover:shadow-glow transition-shadow"
+          >
             <Tape variant="mint" position="top" />
             <div className="flex items-center gap-2.5 mt-1">
-              <Trophy className="h-6 w-6 text-primary" />
+              <span className="text-2xl leading-none">{league.current.emoji}</span>
               <div>
-                <p className="font-serif text-2xl leading-none capitalize">{profile.league}</p>
+                <p className="font-serif text-2xl leading-none">{league.current.name}</p>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">Ligue · {profile.xp_week} XP</p>
               </div>
             </div>
-          </div>
+          </button>
         </div>
 
         {/* Quête hebdo */}
@@ -222,6 +177,107 @@ export default function Aventure() {
           </div>
         </Postit>
       </div>
+
+      {/* Modale : chemin des titres */}
+      <Dialog open={openLevels} onOpenChange={setOpenLevels}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Chemin des titres 🎓</DialogTitle>
+            <DialogDescription>Tous les paliers de Bizuth à Légende Revix.</DialogDescription>
+          </DialogHeader>
+          <ol className="space-y-2">
+            {LEVEL_NAMES.map((tier) => {
+              const reached = profile.level >= tier.min;
+              const current = profile.level >= tier.min && profile.level <= tier.max;
+              const xpToReach = xpForLevel(tier.min);
+              return (
+                <li
+                  key={tier.name}
+                  className={`relative flex items-center gap-3 rounded-xl border-2 p-2.5 transition-all ${
+                    current
+                      ? "border-primary bg-primary/10 shadow-brutal"
+                      : reached
+                      ? "border-foreground/80 bg-card"
+                      : "border-dashed border-muted-foreground/30 bg-muted/30 opacity-70"
+                  }`}
+                >
+                  <div
+                    className={`h-10 w-10 shrink-0 rounded-lg flex items-center justify-center text-xl border-2 ${
+                      current
+                        ? "border-foreground bg-card"
+                        : reached
+                        ? "border-foreground/80 bg-secondary"
+                        : "border-muted-foreground/30 bg-muted"
+                    }`}
+                  >
+                    {reached ? tier.emoji : <Lock className="h-4 w-4 text-muted-foreground" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className={`font-serif text-base leading-tight truncate ${!reached ? "text-muted-foreground" : ""}`}>
+                        {tier.name}
+                      </p>
+                      {current && (
+                        <span className="rubber-stamp-purple rubber-stamp text-[8px] !px-1.5 !py-0.5">ici</span>
+                      )}
+                    </div>
+                    <p className="font-mono-tag text-[9px] uppercase tracking-wider text-muted-foreground">
+                      Niv. {tier.min}–{tier.max} · {xpToReach} XP
+                    </p>
+                  </div>
+                  {reached && !current && <span className="font-hand text-success text-sm shrink-0">✓</span>}
+                </li>
+              );
+            })}
+          </ol>
+        </DialogContent>
+      </Dialog>
+
+      {/* Modale : ligues */}
+      <Dialog open={openLeagues} onOpenChange={setOpenLeagues}>
+        <DialogContent className="max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Ligues hebdo 🏆</DialogTitle>
+            <DialogDescription>
+              Tu es <strong>{league.current.name}</strong> avec {profile.xp_week} XP cette semaine.
+              {league.next && ` Encore ${league.next.minWeekXp - profile.xp_week} XP pour passer ${league.next.name}.`}
+            </DialogDescription>
+          </DialogHeader>
+          <ol className="space-y-2">
+            {LEAGUES.map((l) => {
+              const reached = profile.xp_week >= l.minWeekXp;
+              const current = l.key === league.current.key;
+              return (
+                <li
+                  key={l.key}
+                  className={`flex items-center gap-3 rounded-xl border-2 p-2.5 ${
+                    current
+                      ? "border-primary bg-primary/10 shadow-brutal"
+                      : reached
+                      ? "border-foreground/80 bg-card"
+                      : "border-dashed border-muted-foreground/30 bg-muted/30 opacity-70"
+                  }`}
+                >
+                  <div className="h-10 w-10 shrink-0 rounded-lg flex items-center justify-center text-xl border-2 border-foreground/80 bg-secondary">
+                    {reached ? l.emoji : <Lock className="h-4 w-4 text-muted-foreground" />}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="font-serif text-base leading-tight">{l.name}</p>
+                      {current && (
+                        <span className="rubber-stamp-purple rubber-stamp text-[8px] !px-1.5 !py-0.5">ici</span>
+                      )}
+                    </div>
+                    <p className="font-mono-tag text-[9px] uppercase tracking-wider text-muted-foreground">
+                      {l.minWeekXp} XP / semaine
+                    </p>
+                  </div>
+                </li>
+              );
+            })}
+          </ol>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }
