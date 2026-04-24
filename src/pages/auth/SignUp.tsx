@@ -49,7 +49,7 @@ export default function SignUp() {
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="space-y-2">
           <Label htmlFor="name">Prénom</Label>
-          <Input id="name" name="name" required placeholder="Léa" />
+          <Input id="name" name="name" required placeholder="Ton prénom" />
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
