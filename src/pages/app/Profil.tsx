@@ -18,21 +18,20 @@ export default function Profil() {
   const { user } = useAuth();
   const nav = useNavigate();
   const [profile, setProfile] = useState<any>(null);
-  const [stats, setStats] = useState({ courses: 0, fiches: 0, quizzes: 0, avg: 0 });
+  const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: p }, { count: cc }, { count: fc }, { count: qc }, { data: attempts }] = await Promise.all([
+      const [{ data: p }, { count: cc }, { count: qc }, { data: attempts }] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).single(),
         supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("flashcards").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quiz_attempts").select("score, total").eq("user_id", user.id),
       ]);
       setProfile(p);
       const avg = attempts && attempts.length ? Math.round(attempts.reduce((s, a) => s + (a.score / a.total) * 100, 0) / attempts.length) : 0;
-      setStats({ courses: cc ?? 0, fiches: fc ?? 0, quizzes: qc ?? 0, avg });
+      setStats({ courses: cc ?? 0, quizzes: qc ?? 0, avg });
     })();
   }, [user]);
 
@@ -80,7 +79,6 @@ export default function Profil() {
         <div className="grid grid-cols-2 gap-2">
           {[
             { v: stats.courses, l: "Cours" },
-            { v: stats.fiches, l: "Fiches" },
             { v: stats.quizzes, l: "Quizz" },
             { v: `${stats.avg}%`, l: "Moyenne" },
             { v: `${profile.streak_days ?? 0}j`, l: "Streak" },
