@@ -469,10 +469,6 @@ export default function Campus() {
             )}
           </TabsContent>
 
-          {/* ==================== CLASSEMENT ==================== */}
-          <TabsContent value="classement" className="mt-5 space-y-4">
-          </TabsContent>
-
           {/* ==================== DUELS ==================== */}
           <TabsContent value="duels" className="mt-5 space-y-4">
             <Button onClick={() => setCreateDuelOpen(true)} className="w-full rounded-md gradient-primary border-2 border-foreground font-bold">
@@ -547,8 +543,8 @@ export default function Campus() {
             ))}
           </TabsContent>
 
-          {/* (placeholder pour fermer la duplication ouverte plus haut) */}
-          <TabsContent value="__hidden__" className="hidden">
+          {/* ==================== CLASSEMENT ==================== */}
+          <TabsContent value="classement" className="mt-5 space-y-4">
             <div className="text-center">
               <p className="font-hand text-2xl">Tableau d'honneur</p>
               <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Cette semaine · entre amis</p>
