@@ -839,6 +839,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _award_xp_internal: {
+        Args: { p_amount: number; p_reason: string; p_user_id: string }
+        Returns: Json
+      }
       accept_duel: { Args: { p_duel_id: string }; Returns: undefined }
       award_xp: {
         Args: { p_amount: number; p_reason: string; p_user_id: string }
@@ -860,6 +864,15 @@ export type Database = {
       }
       generate_room_code: { Args: never; Returns: string }
       generate_student_code: { Args: never; Returns: string }
+      get_duel_questions: {
+        Args: { p_duel_id: string }
+        Returns: {
+          q_answers: Json
+          q_id: string
+          q_position: number
+          q_question: string
+        }[]
+      }
       get_friend_ids: {
         Args: { p_user_id: string }
         Returns: {
