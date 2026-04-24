@@ -572,10 +572,6 @@ export default function StudyRoom() {
       </div>
 
       {/* Dialog : choisir une fiche à partager */}
-      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
-
-      </Dialog>
-
       {/* Dialog : toutes les fiches partagées avec résumés */}
       <Dialog open={allFichesOpen} onOpenChange={setAllFichesOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
@@ -649,7 +645,8 @@ export default function StudyRoom() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={false}>
+      {/* Dialog : choisir une fiche à partager */}
+      <Dialog open={shareDialogOpen} onOpenChange={setShareDialogOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle>Partager une fiche</DialogTitle>
