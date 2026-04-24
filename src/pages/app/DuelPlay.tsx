@@ -27,11 +27,16 @@ export default function DuelPlay() {
     (async () => {
       const [{ data: d }, { data: qs }, { data: mine }] = await Promise.all([
         supabase.from("duels").select("*").eq("id", id).maybeSingle(),
-        supabase.from("duel_questions").select("*").eq("duel_id", id).order("position"),
+        supabase.rpc("get_duel_questions", { p_duel_id: id }),
         supabase.from("duel_attempts").select("*").eq("duel_id", id).eq("user_id", user!.id).maybeSingle(),
       ]);
       setDuel(d);
-      setQuestions((qs ?? []) as any);
+      // Map RPC field names (q_*) to expected shape; correct_index is no longer exposed mid-duel
+      const mapped = (qs ?? []).map((r: any) => ({
+        id: r.q_id, position: r.q_position, question: r.q_question,
+        answers: r.q_answers, correct_index: -1, explanation: null,
+      }));
+      setQuestions(mapped as any);
       setTimeLeft(d?.seconds_per_question ?? 30);
       if (mine) setDone(true);
     })();
@@ -61,9 +66,9 @@ export default function DuelPlay() {
 
   const submit = async (finalAnswers: number[]) => {
     setSubmitting(true);
-    const score = finalAnswers.reduce((s, a, i) => s + (a === questions[i].correct_index ? 1 : 0), 0);
+    // Score is recomputed server-side from stored correct answers; client value is ignored.
     const { data, error } = await supabase.rpc("submit_duel_attempt", {
-      p_duel_id: id, p_answers: finalAnswers, p_score: score,
+      p_duel_id: id, p_answers: finalAnswers, p_score: 0,
     });
     setSubmitting(false);
     if (error) { toast.error(error.message); return; }
