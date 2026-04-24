@@ -128,6 +128,31 @@ export default function Campus() {
 
   useEffect(() => { loadAll(); }, [user]);
 
+  // Realtime : duels (auto-redirect quand un duel passe à "accepted") + salles
+  useEffect(() => {
+    if (!user) return;
+    const ch = supabase.channel(`campus:${user.id}`)
+      .on("postgres_changes", { event: "*", schema: "public", table: "duels" }, (payload: any) => {
+        loadAll();
+        const row = payload.new ?? payload.old;
+        if (!row) return;
+        // Si je suis le challenger et que l'opposant vient d'accepter, j'entre dans le duel
+        if (
+          payload.eventType === "UPDATE" &&
+          row.status === "accepted" &&
+          row.challenger_id === user.id &&
+          payload.old?.status === "pending"
+        ) {
+          toast.success("Ton adversaire a accepté ⚔️ Le duel commence !");
+          nav(`/app/duel/${row.id}`);
+        }
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "study_rooms" }, () => loadAll())
+      .on("postgres_changes", { event: "*", schema: "public", table: "friendships" }, () => loadAll())
+      .subscribe();
+    return () => { supabase.removeChannel(ch); };
+  }, [user, nav]);
+
   // Recherche debounce
   useEffect(() => {
     if (query.trim().length < 2) { setResults([]); return; }
