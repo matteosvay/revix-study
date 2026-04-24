@@ -179,7 +179,7 @@ export default function StudyRoom() {
         {/* Pomodoro */}
         <div className="bg-card border-2 border-foreground rounded-md p-5 shadow-brutal text-center">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-            {room.timer_phase === "focus" ? "🍅 Focus" : room.timer_phase === "pause" ? "☕ Pause" : "⏸ Pause"}
+            {room.timer_phase === "focus" ? "🍅 Focus" : room.timer_phase === "pause" ? "☕ Pause" : "⏸ En attente"}
           </p>
           <p className="font-hand text-6xl leading-none">{mm}:{ss}</p>
           {isHost && (
