@@ -5,7 +5,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { LogOut, Trash2, Sparkles } from "lucide-react";
+import { AvatarImage } from "@/components/ui/avatar";
+import { Textarea } from "@/components/ui/textarea";
+import { LogOut, Trash2, Sparkles, Camera, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -19,6 +21,7 @@ export default function Profil() {
   const nav = useNavigate();
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -43,8 +46,34 @@ export default function Profil() {
       cursus: profile.cursus,
       formation: profile.formation,
       subjects: profile.subjects ?? [],
+      bio: profile.bio ?? null,
     }).eq("id", user.id);
     if (error) toast.error(error.message); else toast.success("Profil enregistré");
+  };
+
+  const onAvatarChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !user) return;
+    if (!file.type.startsWith("image/")) { toast.error("Sélectionne une image"); return; }
+    if (file.size > 5 * 1024 * 1024) { toast.error("Image trop lourde (max 5 Mo)"); return; }
+    setUploading(true);
+    try {
+      const ext = file.name.split(".").pop()?.toLowerCase() || "jpg";
+      const path = `${user.id}/avatar-${Date.now()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from("avatars").upload(path, file, { upsert: true, contentType: file.type });
+      if (upErr) throw upErr;
+      const { data: pub } = supabase.storage.from("avatars").getPublicUrl(path);
+      const url = `${pub.publicUrl}?t=${Date.now()}`;
+      const { error: updErr } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
+      if (updErr) throw updErr;
+      setProfile({ ...profile, avatar_url: url });
+      toast.success("Photo mise à jour ✨");
+    } catch (err: any) {
+      toast.error(err.message ?? "Échec de l'upload");
+    } finally {
+      setUploading(false);
+      e.target.value = "";
+    }
   };
 
   const logout = async () => { await supabase.auth.signOut(); nav("/"); };
@@ -66,9 +95,16 @@ export default function Profil() {
 
       <div className="px-5 space-y-5">
         <div className="flex items-center gap-3">
-          <Avatar className="h-16 w-16 border-2 border-primary/20">
-            <AvatarFallback className="gradient-primary text-primary-foreground text-xl font-bold">{initials}</AvatarFallback>
-          </Avatar>
+          <label className="relative cursor-pointer group">
+            <Avatar className="h-16 w-16 border-2 border-primary/20">
+              {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.display_name ?? "Avatar"} />}
+              <AvatarFallback className="gradient-primary text-primary-foreground text-xl font-bold">{initials}</AvatarFallback>
+            </Avatar>
+            <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+              {uploading ? <Loader2 className="h-5 w-5 text-white animate-spin" /> : <Camera className="h-5 w-5 text-white" />}
+            </div>
+            <input type="file" accept="image/*" className="sr-only" onChange={onAvatarChange} disabled={uploading} />
+          </label>
           <div className="flex-1 min-w-0">
             <p className="font-serif text-xl truncate">{profile.display_name ?? "Sans nom"}</p>
             <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
@@ -103,6 +139,19 @@ export default function Profil() {
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Informations</p>
           <div className="space-y-1.5"><Label>Prénom</Label><Input value={profile.display_name ?? ""} onChange={(e) => setProfile({ ...profile, display_name: e.target.value })} /></div>
           <div className="space-y-1.5"><Label>École</Label><Input value={profile.school ?? ""} onChange={(e) => setProfile({ ...profile, school: e.target.value })} /></div>
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <Label>Bio</Label>
+              <span className="text-[10px] text-muted-foreground">{(profile.bio ?? "").length}/200</span>
+            </div>
+            <Textarea
+              value={profile.bio ?? ""}
+              onChange={(e) => setProfile({ ...profile, bio: e.target.value.slice(0, 200) })}
+              placeholder="Parle un peu de toi, tes objectifs, ta passion..."
+              rows={3}
+              maxLength={200}
+            />
+          </div>
           <div className="space-y-1.5"><Label>Cursus</Label>
             <select value={profile.cursus ?? ""} onChange={(e) => setProfile({ ...profile, cursus: e.target.value })} className="w-full h-10 rounded-md border bg-background px-3 text-sm">
               <option value="">—</option>
