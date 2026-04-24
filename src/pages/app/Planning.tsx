@@ -10,6 +10,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
+import { bumpQuest } from "@/hooks/useGamification";
+import { localDateKey } from "@/lib/date";
 
 type Task = { id: string; task_date: string; start_time: string | null; end_time: string | null; subject: string; title: string | null; done: boolean };
 
@@ -22,7 +24,7 @@ function startOfWeek(d: Date) {
   x.setHours(0, 0, 0, 0);
   return x;
 }
-function fmtDate(d: Date) { return d.toISOString().slice(0, 10); }
+function fmtDate(d: Date) { return localDateKey(d); }
 function isoWeek(d: Date) {
   const t = new Date(d);
   t.setHours(0, 0, 0, 0);
@@ -87,6 +89,8 @@ export default function Planning() {
     };
     const { error } = await supabase.from("planning_tasks").insert(row);
     if (error) { toast.error(error.message); return; }
+    await bumpQuest(user.id, "task_added", 1);
+    await bumpQuest(user.id, "w_5_planning_tasks", 1);
     toast.success("Tâche ajoutée");
     setAddOpen(false);
     load();
@@ -111,6 +115,8 @@ export default function Planning() {
       if (!tasksGen.length) throw new Error("Aucune tâche générée");
       const rows = tasksGen.map((t: any) => ({ ...t, user_id: user.id }));
       await supabase.from("planning_tasks").insert(rows);
+      await bumpQuest(user.id, "task_added", rows.length);
+      await bumpQuest(user.id, "w_5_planning_tasks", rows.length);
       toast.success("Planning généré ✨");
       setOpen(false);
       load();
