@@ -6,6 +6,10 @@ import galaxyImg from "@/assets/cosmetics/sticker_galaxy.webp";
 import meteorImg from "@/assets/cosmetics/sticker_meteor.webp";
 import infinityImg from "@/assets/cosmetics/sticker_infinity.webp";
 import cosmicEyeImg from "@/assets/cosmetics/sticker_cosmic_eye.webp";
+import lionImg from "@/assets/cosmetics/sticker_lion.webp";
+import thirdEyeImg from "@/assets/cosmetics/sticker_third_eye.webp";
+import wizardHatImg from "@/assets/cosmetics/sticker_wizard_hat.webp";
+import fireHeartImg from "@/assets/cosmetics/sticker_fire_heart.webp";
 
 /** Photoreal PNG/webp stickers (premium legendary) — keyed by item_key. */
 const PNG_STICKERS: Record<string, { src: string; glow: string }> = {
@@ -17,6 +21,10 @@ const PNG_STICKERS: Record<string, { src: string; glow: string }> = {
   sticker_meteor:      { src: meteorImg,     glow: "drop-shadow(0 0 6px hsl(25 100% 55% / 0.95)) drop-shadow(0 0 14px hsl(45 100% 60% / 0.6))" },
   sticker_infinity:    { src: infinityImg,   glow: "drop-shadow(0 0 6px hsl(180 100% 60% / 0.85)) drop-shadow(0 0 14px hsl(320 100% 65% / 0.55))" },
   sticker_cosmic_eye:  { src: cosmicEyeImg,  glow: "drop-shadow(0 0 6px hsl(280 100% 65% / 0.9)) drop-shadow(0 0 14px hsl(45 100% 55% / 0.5))" },
+  sticker_lion:        { src: lionImg,       glow: "drop-shadow(0 0 6px hsl(35 100% 55% / 0.95)) drop-shadow(0 0 14px hsl(20 100% 50% / 0.6))" },
+  sticker_third_eye:   { src: thirdEyeImg,   glow: "drop-shadow(0 0 6px hsl(220 100% 70% / 0.9)) drop-shadow(0 0 14px hsl(280 100% 65% / 0.55))" },
+  sticker_wizard_hat:  { src: wizardHatImg,  glow: "drop-shadow(0 0 6px hsl(280 100% 60% / 0.9)) drop-shadow(0 0 14px hsl(45 100% 55% / 0.5))" },
+  sticker_fire_heart:  { src: fireHeartImg,  glow: "drop-shadow(0 0 6px hsl(15 100% 55% / 0.95)) drop-shadow(0 0 14px hsl(35 100% 55% / 0.65))" },
 };
 
 /** SVG-only custom stickers (still drawn inline) */

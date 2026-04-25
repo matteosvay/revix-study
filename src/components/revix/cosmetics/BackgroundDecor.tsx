@@ -704,6 +704,151 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
         </svg>
       );
 
+    /* ===================== PHASE 2 — New rich backgrounds ===================== */
+    case "bg_enchanted_forest":
+      return (
+        <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
+          {/* Tree silhouettes */}
+          {[10, 35, 60, 90, 120, 150, 180].map((x, i) => (
+            <path key={i} d={`M ${x} 100 L ${x} 60 M ${x - 6} 70 L ${x} 60 L ${x + 6} 70 M ${x - 4} 55 L ${x} 45 L ${x + 4} 55`} stroke="#022c22" strokeWidth="1.5" fill="none" opacity="0.7" />
+          ))}
+          {/* Fireflies */}
+          {Array.from({ length: 18 }).map((_, i) => {
+            const cx = 10 + i * 11;
+            const cy = 20 + (i % 5) * 15;
+            return (
+              <circle key={i} cx={cx} cy={cy} r="0.8" fill="#fde047" style={{ filter: "drop-shadow(0 0 3px #fbbf24)" }}>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur={`${1.6 + (i % 4) * 0.4}s`} begin={`${i * 0.15}s`} repeatCount="indefinite" />
+                <animate attributeName="cy" values={`${cy};${cy - 4};${cy}`} dur={`${3 + (i % 3)}s`} repeatCount="indefinite" />
+              </circle>
+            );
+          })}
+        </svg>
+      );
+
+    case "bg_deep_sea":
+      return (
+        <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
+          {/* Light rays from top */}
+          <defs>
+            <linearGradient id="ds-ray" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#7dd3fc" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#7dd3fc" stopOpacity="0" />
+            </linearGradient>
+          </defs>
+          {[20, 60, 110, 160].map((x, i) => (
+            <polygon key={i} points={`${x},0 ${x + 10},0 ${x + 30},100 ${x - 10},100`} fill="url(#ds-ray)">
+              <animate attributeName="opacity" values="0.3;0.7;0.3" dur={`${4 + i}s`} repeatCount="indefinite" />
+            </polygon>
+          ))}
+          {/* Bubbles */}
+          {Array.from({ length: 14 }).map((_, i) => {
+            const cx = 15 + i * 14;
+            return (
+              <circle key={i} cx={cx} cy={90} r={1 + (i % 3) * 0.5} fill="none" stroke="#bae6fd" strokeWidth="0.4" opacity="0.7">
+                <animate attributeName="cy" values="95;-5" dur={`${5 + (i % 4)}s`} begin={`${i * 0.4}s`} repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0;0.7;0" dur={`${5 + (i % 4)}s`} begin={`${i * 0.4}s`} repeatCount="indefinite" />
+              </circle>
+            );
+          })}
+        </svg>
+      );
+
+    case "bg_violet_crystal":
+      return (
+        <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
+          {/* Floor crystals */}
+          {[20, 50, 85, 120, 155, 185].map((x, i) => {
+            const h = 18 + (i % 3) * 10;
+            return (
+              <g key={i}>
+                <polygon points={`${x},100 ${x - 6},${100 - h * 0.6} ${x},${100 - h} ${x + 6},${100 - h * 0.6}`} fill="#a78bfa" stroke="#581c87" strokeWidth="0.6" opacity="0.85" />
+                <polygon points={`${x},${100 - h} ${x - 6},${100 - h * 0.6} ${x},${100 - h * 0.4}`} fill="#ddd6fe" opacity="0.6" />
+              </g>
+            );
+          })}
+          {/* Ceiling crystals (inverted) */}
+          {[35, 70, 105, 140, 170].map((x, i) => {
+            const h = 14 + (i % 3) * 8;
+            return (
+              <polygon key={`c${i}`} points={`${x},0 ${x - 4},${h * 0.6} ${x},${h} ${x + 4},${h * 0.6}`} fill="#c4b5fd" stroke="#4c1d95" strokeWidth="0.5" opacity="0.7" />
+            );
+          })}
+          {/* Sparkles */}
+          {Array.from({ length: 12 }).map((_, i) => {
+            const cx = 10 + i * 16;
+            const cy = 30 + (i % 4) * 12;
+            return (
+              <circle key={i} cx={cx} cy={cy} r="0.6" fill="#fff">
+                <animate attributeName="opacity" values="0;1;0" dur="2s" begin={`${i * 0.2}s`} repeatCount="indefinite" />
+              </circle>
+            );
+          })}
+        </svg>
+      );
+
+    case "bg_thunderstorm":
+      return (
+        <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
+          {/* Rain */}
+          {Array.from({ length: 30 }).map((_, i) => {
+            const x = (i * 7) % 200;
+            return (
+              <line key={i} x1={x} y1="0" x2={x - 3} y2="100" stroke="#94a3b8" strokeWidth="0.4" opacity="0.5">
+                <animate attributeName="opacity" values="0.2;0.6;0.2" dur="0.8s" begin={`${i * 0.05}s`} repeatCount="indefinite" />
+              </line>
+            );
+          })}
+          {/* Lightning bolts */}
+          {[60, 130].map((x, i) => (
+            <path key={i} d={`M ${x} 5 L ${x - 4} 30 L ${x + 2} 32 L ${x - 6} 60 L ${x + 4} 50 L ${x - 2} 80`} stroke="#fde047" strokeWidth="1.2" fill="none" strokeLinejoin="round" style={{ filter: "drop-shadow(0 0 4px #fde047)" }}>
+              <animate attributeName="opacity" values="0;0;1;0;0" dur="3.5s" begin={`${i * 1.3}s`} repeatCount="indefinite" />
+            </path>
+          ))}
+          {/* Cloud silhouettes */}
+          <ellipse cx="50" cy="15" rx="35" ry="10" fill="#1e293b" opacity="0.9" />
+          <ellipse cx="140" cy="12" rx="40" ry="11" fill="#1e293b" opacity="0.9" />
+        </svg>
+      );
+
+    case "bg_golden_desert":
+      return (
+        <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
+          {/* Sun */}
+          <circle cx="160" cy="30" r="14" fill="#fef9c3" style={{ filter: "drop-shadow(0 0 8px #fbbf24)" }}>
+            <animate attributeName="opacity" values="0.85;1;0.85" dur="3s" repeatCount="indefinite" />
+          </circle>
+          {/* Dunes */}
+          <path d="M 0 70 Q 40 55 80 65 Q 120 75 160 60 Q 180 55 200 65 L 200 100 L 0 100 Z" fill="#d97706" opacity="0.85" />
+          <path d="M 0 80 Q 50 70 100 78 Q 150 86 200 75 L 200 100 L 0 100 Z" fill="#92400e" opacity="0.9" />
+          {/* Heat shimmer */}
+          {Array.from({ length: 8 }).map((_, i) => (
+            <line key={i} x1={20 + i * 22} y1="68" x2={30 + i * 22} y2="68" stroke="#fef3c7" strokeWidth="0.5" opacity="0.5">
+              <animate attributeName="opacity" values="0.2;0.7;0.2" dur="2s" begin={`${i * 0.2}s`} repeatCount="indefinite" />
+            </line>
+          ))}
+        </svg>
+      );
+
+    case "bg_tropical_sunset":
+      return (
+        <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
+          <circle cx="100" cy="55" r="18" fill="#fef3c7" style={{ filter: "drop-shadow(0 0 12px #fb923c)" }} />
+          {/* Palm tree silhouettes */}
+          <g fill="#1e1b4b" opacity="0.9">
+            <path d="M 25 100 L 25 70 Q 22 60 18 55 M 25 70 Q 28 60 33 56 M 25 70 Q 32 65 38 68 M 25 70 Q 18 65 12 68" stroke="#1e1b4b" strokeWidth="1.2" fill="none" />
+            <path d="M 175 100 L 175 70 Q 172 60 168 55 M 175 70 Q 178 60 183 56 M 175 70 Q 182 65 188 68 M 175 70 Q 168 65 162 68" stroke="#1e1b4b" strokeWidth="1.2" fill="none" />
+          </g>
+          {/* Reflection */}
+          <path d="M 0 80 L 200 80 L 200 100 L 0 100 Z" fill="hsl(280 80% 30% / 0.4)" />
+          {Array.from({ length: 6 }).map((_, i) => (
+            <line key={i} x1={70 + i * 12} y1="85" x2={120 + i * 12} y2="85" stroke="#fbbf24" strokeWidth="0.4" opacity="0.6">
+              <animate attributeName="opacity" values="0.3;0.8;0.3" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+            </line>
+          ))}
+        </svg>
+      );
+
     default:
       return null;
   }
