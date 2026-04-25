@@ -225,6 +225,62 @@ export function FrameDecor({
   }
 
   switch (itemKey) {
+    /* ===================== QUEEN (Léna) ===================== */
+    case "frame_reine":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <radialGradient id="reine-aura" cx="50%" cy="50%" r="50%">
+                <stop offset="55%" stopColor="#f9a8d4" stopOpacity="0" />
+                <stop offset="100%" stopColor="#ec4899" stopOpacity="0.55" />
+              </radialGradient>
+              <linearGradient id="reine-ring-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#fbcfe8" />
+                <stop offset="50%" stopColor="#fde68a" />
+                <stop offset="100%" stopColor="#f472b6" />
+              </linearGradient>
+            </defs>
+            {/* Aura rose dégradée pulsante */}
+            <circle cx="50" cy="50" r="48" fill="url(#reine-aura)">
+              <animate attributeName="r" values="46;52;46" dur="3s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />
+            </circle>
+            {/* Anneau rose+or tournant */}
+            <circle cx="50" cy="50" r="48" fill="none" stroke="url(#reine-ring-grad)" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.85">
+              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="14s" repeatCount="indefinite" />
+            </circle>
+            {/* Pétales de rose qui tournent */}
+            {Array.from({ length: 8 }).map((_, i) => {
+              const a = (i * 45 * Math.PI) / 180;
+              const r = 47;
+              const cx = 50 + Math.cos(a) * r;
+              const cy = 50 + Math.sin(a) * r;
+              return (
+                <text key={i} x={cx} y={cy} fontSize="5" textAnchor="middle" dominantBaseline="middle" opacity="0.95">
+                  🌹
+                  <animate attributeName="opacity" values="0.5;1;0.5" dur="2.4s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
+                  <animateTransform attributeName="transform" type="rotate" from={`0 ${cx} ${cy}`} to={`360 ${cx} ${cy}`} dur="9s" repeatCount="indefinite" />
+                </text>
+              );
+            })}
+            {/* Étincelles dorées */}
+            {Array.from({ length: 10 }).map((_, i) => {
+              const a = ((i * 36 + 18) * Math.PI) / 180;
+              const r = 50;
+              const cx = 50 + Math.cos(a) * r;
+              const cy = 50 + Math.sin(a) * r;
+              return (
+                <circle key={i} cx={cx} cy={cy} r="0.9" fill="#fde68a" style={{ filter: "drop-shadow(0 0 3px #fbbf24)" }}>
+                  <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" begin={`${i * 0.15}s`} repeatCount="indefinite" />
+                  <animate attributeName="r" values="0.5;1.5;0.5" dur="2s" begin={`${i * 0.15}s`} repeatCount="indefinite" />
+                </circle>
+              );
+            })}
+          </svg>
+        </div>
+      );
+
     /* ===================== LEGENDARY ===================== */
     case "frame_phoenix":
       return (
