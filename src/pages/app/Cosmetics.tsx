@@ -130,22 +130,27 @@ export default function Cosmetics() {
 
       <div className="px-5">
         {/* Live preview */}
-        <div className="rounded-md border-[2.5px] border-foreground overflow-hidden mb-4 shadow-brutal-sm">
-          <div className="h-24 relative overflow-hidden" style={backgroundStyle(profile?.equipped_background)}>
+        <div className="relative rounded-md border-[2.5px] border-foreground overflow-hidden mb-4 shadow-brutal-sm h-44">
+          {/* Fond plein cadre */}
+          <div className="absolute inset-0" style={backgroundStyle(profile?.equipped_background)}>
             <BackgroundDecor itemKey={profile?.equipped_background} />
-            <div className="absolute -bottom-10 left-4 z-10">
-              <CosmeticAvatar
-                fallback={initials}
-                avatarUrl={profile?.avatar_url}
-                frame={profile?.equipped_frame}
-                sticker={stickerEmoji}
-                stickerKey={profile?.equipped_sticker}
-                size="lg"
-              />
-            </div>
           </div>
-          <div className="bg-card pt-12 pb-3 px-4">
-            <p className="font-serif text-lg leading-tight">{profile?.display_name ?? "Toi"}</p>
+          {/* Voile en bas pour lisibilité du nom + titre */}
+          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background/95 via-background/80 to-transparent pointer-events-none" />
+          {/* Avatar */}
+          <div className="absolute bottom-3 left-4 z-10">
+            <CosmeticAvatar
+              fallback={initials}
+              avatarUrl={profile?.avatar_url}
+              frame={profile?.equipped_frame}
+              sticker={stickerEmoji}
+              stickerKey={profile?.equipped_sticker}
+              size="lg"
+            />
+          </div>
+          {/* Nom + titre */}
+          <div className="absolute bottom-3 left-28 right-4 z-10">
+            <p className="font-serif text-lg leading-tight text-foreground drop-shadow-[0_1px_0_hsl(var(--background))]">{profile?.display_name ?? "Toi"}</p>
             {titleItem && (
               <div className="mt-0.5">
                 <TitleBadge
