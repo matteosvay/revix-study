@@ -675,70 +675,13 @@ export function FrameDecor({
                 <stop offset="60%" stopColor="#ffd166" stopOpacity="0" />
                 <stop offset="100%" stopColor="#ffaa00" stopOpacity="0.55" />
               </radialGradient>
-              <linearGradient id="orig-gold" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#fff7c2" />
-                <stop offset="50%" stopColor="#ffd166" />
-                <stop offset="100%" stopColor="#a26800" />
-              </linearGradient>
-              <filter id="orig-blur" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="0.6" />
-              </filter>
             </defs>
-
-            {/* Aura */}
+            {/* Soft pulsing golden halo only — the actual ornate ring & crown
+                are rendered by the photoreal PNG in the ABOVE layer. */}
             <circle cx="50" cy="50" r="48" fill="url(#orig-aura)">
-              <animate attributeName="r" values="46;52;46" dur="3s" repeatCount="indefinite" />
-              <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite" />
+              <animate attributeName="r" values="46;54;46" dur="3.2s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="3.2s" repeatCount="indefinite" />
             </circle>
-
-            {/* Inner shimmering gold ring */}
-            <circle cx="50" cy="50" r="47" fill="none" stroke="url(#orig-gold)" strokeWidth="2" opacity="0.95">
-              <animate attributeName="stroke-width" values="1.6;2.4;1.6" dur="2.6s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="50" cy="50" r="47" fill="none" stroke="#fff7c2" strokeWidth="0.5" opacity="0.7" filter="url(#orig-blur)" />
-
-            {/* Liquid gold dashed ring rotating */}
-            <circle cx="50" cy="50" r="49" fill="none" stroke="url(#orig-gold)" strokeWidth="1" strokeDasharray="1 6" opacity="0.9">
-              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="22s" repeatCount="indefinite" />
-            </circle>
-
-            {/* Crown spikes (8 around top arc) */}
-            {[210, 240, 270, 300, 330, 0, 30, 60].map((deg, i) => {
-              const a = (deg * Math.PI) / 180;
-              const r = 46;
-              const cx = 50 + Math.cos(a) * r;
-              const cy = 50 + Math.sin(a) * r;
-              const big = i === 3 || i === 4; // tallest in front
-              return (
-                <g key={i} transform={`translate(${cx} ${cy}) rotate(${deg + 90})`}>
-                  <path d={big ? "M0,0 L-2.6,-9 L0,-12 L2.6,-9 Z" : "M0,0 L-2,-6 L0,-8 L2,-6 Z"} fill="url(#orig-gold)" stroke="#7a4a00" strokeWidth="0.4">
-                    <animate attributeName="opacity" values="0.7;1;0.7" dur="2.6s" begin={`${i * 0.12}s`} repeatCount="indefinite" />
-                  </path>
-                  <circle cx="0" cy={big ? -12 : -8} r="0.9" fill="#fff7c2">
-                    <animate attributeName="opacity" values="0.4;1;0.4" dur="1.6s" begin={`${i * 0.12}s`} repeatCount="indefinite" />
-                  </circle>
-                </g>
-              );
-            })}
-
-            {/* Engraved M monogram at top */}
-            <g transform="translate(50 8)" fill="url(#orig-gold)" stroke="#7a4a00" strokeWidth="0.3">
-              <text textAnchor="middle" dominantBaseline="middle" fontSize="6" fontFamily="serif" fontWeight="700">M</text>
-            </g>
-
-            {/* Drifting gold motes */}
-            {Array.from({ length: 10 }).map((_, i) => {
-              const a = (i * 36 * Math.PI) / 180;
-              const r = 50;
-              const cx = 50 + Math.cos(a) * r;
-              const cy = 50 + Math.sin(a) * r;
-              return (
-                <circle key={i} cx={cx} cy={cy} r="0.7" fill="#fff7c2" style={{ filter: "drop-shadow(0 0 2px #ffd166)" }}>
-                  <animate attributeName="opacity" values="0.2;1;0.2" dur="2.4s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
-                  <animate attributeName="r" values="0.4;1.1;0.4" dur="2.4s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
-                </circle>
-              );
-            })}
           </svg>
         </div>
       );
