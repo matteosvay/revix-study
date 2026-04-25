@@ -1,3 +1,16 @@
+const CUSTOM_STICKERS = new Set([
+  "sticker_phoenix", "sticker_dragon", "sticker_crown_royal", "sticker_diamond",
+  "sticker_galaxy", "sticker_meteor", "sticker_infinity", "sticker_cosmic_eye",
+  "sticker_crown", "sticker_crown_simple", "sticker_unicorn", "sticker_wizard",
+  "sticker_ninja", "sticker_alien", "sticker_trophy_gold",
+  "sticker_lightning", "sticker_rocket", "sticker_medal", "sticker_trophy_bronze",
+  "sticker_trophy_silver", "sticker_sparkles",
+]);
+
+export function hasCustomSticker(itemKey?: string | null) {
+  return !!itemKey && CUSTOM_STICKERS.has(itemKey);
+}
+
 /**
  * Custom SVG sticker rendered as a self-contained inline element (uses currentSize via wrapper).
  * For epic+ stickers, we replace the plain emoji with a richly drawn animated SVG.

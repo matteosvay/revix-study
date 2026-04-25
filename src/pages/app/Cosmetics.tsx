@@ -11,7 +11,7 @@ import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
 import { backgroundStyle, RARITY_LABEL, RARITY_RING, RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
 import { TitleBadge } from "@/components/revix/TitleBadge";
 import { BackgroundDecor } from "@/components/revix/cosmetics/BackgroundDecor";
-import { StickerDecor } from "@/components/revix/cosmetics/StickerDecor";
+import { StickerDecor, hasCustomSticker } from "@/components/revix/cosmetics/StickerDecor";
 import { cn } from "@/lib/utils";
 
 type Item = {
@@ -84,10 +84,9 @@ export default function Cosmetics() {
                 <CosmeticAvatar fallback={initials} avatarUrl={profile?.avatar_url} frame={item.item_key} size="md" />
               )}
               {cat === "sticker" && (
-                (() => {
-                  const custom = <StickerDecor itemKey={item.item_key} className="block w-12 h-12" />;
-                  return custom.props.itemKey ? (custom as any) : <span className="text-5xl">{item.emoji}</span>;
-                })()
+                hasCustomSticker(item.item_key)
+                  ? <StickerDecor itemKey={item.item_key} className="block w-12 h-12" />
+                  : <span className="text-5xl">{item.emoji}</span>
               )}
               {cat === "title" && (
                 <div className="text-center px-2 z-10">

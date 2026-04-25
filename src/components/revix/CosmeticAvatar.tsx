@@ -2,7 +2,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { frameStyle } from "@/lib/cosmetics";
 import { cn } from "@/lib/utils";
 import { FrameDecor } from "@/components/revix/cosmetics/FrameDecor";
-import { StickerDecor } from "@/components/revix/cosmetics/StickerDecor";
+import { StickerDecor, hasCustomSticker } from "@/components/revix/cosmetics/StickerDecor";
 
 type Size = "sm" | "md" | "lg" | "xl";
 const SIZE: Record<Size, string> = {
@@ -48,10 +48,9 @@ export function CosmeticAvatar({
       <FrameDecor itemKey={frame} size={size} />
       {sticker && (
         <span className={cn("absolute leading-none drop-shadow-md select-none z-10", STICKER_SIZE[size])} aria-hidden>
-          {(() => {
-            const custom = stickerKey ? <StickerDecor itemKey={stickerKey} className="block w-[1em] h-[1em]" /> : null;
-            return custom ?? sticker;
-          })()}
+          {hasCustomSticker(stickerKey)
+            ? <StickerDecor itemKey={stickerKey} className="block w-[1em] h-[1em]" />
+            : sticker}
         </span>
       )}
     </div>
