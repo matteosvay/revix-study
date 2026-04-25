@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
   try {
     const unauthorized = await requireAuth(req);
     if (unauthorized) return unauthorized;
-    const { content, subject, level, title, count = 10, quizType = "qcm" } = await req.json();
+    const { content, subject, level, title, count = 10, quizType = "qcm", chapter = null, chapters = [] } = await req.json();
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
     if (!content || content.trim().length < 20) {
@@ -48,9 +48,20 @@ Renseigne "type":"trous", "accepted_answers" (toutes les variantes valides du mo
 Ne renseigne PAS answers ni correct_index.`,
     };
 
+    const chapterList = Array.isArray(chapters) && chapters.length
+      ? chapters
+      : (chapter ? [chapter] : []);
+    const chapterInstruction = chapterList.length
+      ? `\n\nIMPORTANT — Pour CHAQUE question, renseigne le champ "chapter" en choisissant EXACTEMENT un libellé parmi cette liste :\n${chapterList.map((c: string) => `- ${c}`).join("\n")}\nN'invente pas de nouveau chapitre, choisis le plus pertinent.`
+      : `\n\nPour chaque question, renseigne "chapter" avec un titre court (3-6 mots) qui résume la sous-thématique abordée.`;
+
+    const scopeInstruction = chapter
+      ? `\n\nLe quiz doit porter EXCLUSIVEMENT sur le chapitre "${chapter}". Ignore les autres parties du cours.`
+      : "";
+
     const system = `Tu es un examinateur français pour étudiants ${level ?? ""}.
 Tu crées des questions rigoureuses en français, basées sur le cours fourni.
-Niveau de difficulté progressif (facile -> difficile). Pas de question piège ridicule. Utilise "tu".
+Niveau de difficulté progressif (facile -> difficile). Pas de question piège ridicule. Utilise "tu".${scopeInstruction}${chapterInstruction}
 
 Format demandé : ${typeInstructions[type]}`;
 
@@ -86,6 +97,7 @@ ${content.slice(0, 12000)}
                       correct_index: { type: "integer", minimum: 0 },
                       accepted_answers: { type: "array", items: { type: "string" } },
                       explanation: { type: "string" },
+                      chapter: { type: "string" },
                     },
                     required: ["question", "type", "explanation"],
                   },
