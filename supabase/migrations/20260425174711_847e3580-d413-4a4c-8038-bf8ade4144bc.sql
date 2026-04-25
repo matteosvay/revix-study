@@ -1,0 +1,2 @@
+DELETE FROM public.daily_loot_box WHERE user_id = '77aebf92-3adb-4517-a823-d7f76f181a99' AND open_date = CURRENT_DATE;
+UPDATE public.profiles SET last_loot_box_at = NULL WHERE id = '77aebf92-3adb-4517-a823-d7f76f181a99';
