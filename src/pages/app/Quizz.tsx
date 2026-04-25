@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight } from "lucide-react";
+import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -22,8 +22,20 @@ type Q = {
   correct_index: number | null;
   accepted_answers: string[] | null;
   explanation: string;
+  chapter?: string | null;
 };
-type Quiz = { id: string; title: string; quiz_type?: string };
+type Quiz = { id: string; title: string; quiz_type?: string; course_id?: string | null };
+
+type CourseGap = {
+  course_id: string;
+  course_title: string;
+  course_emoji: string | null;
+  source_content: string | null;
+  subject: string | null;
+  chapters: string[]; // tous les chapitres du cours
+  covered: Set<string>; // chapitres déjà couverts par un quizz
+  missing: string[];
+};
 
 const TYPE_LABELS: Record<QType, string> = {
   qcm: "QCM",
@@ -39,6 +51,7 @@ function normalize(s: string) {
 export default function Quizz() {
   const { user } = useAuth();
   const [params] = useSearchParams();
+  const nav = useNavigate();
   const presetId = params.get("id");
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
@@ -51,14 +64,63 @@ export default function Quizz() {
   const [grading, setGrading] = useState(false);
   const [score, setScore] = useState(0);
   const [wrong, setWrong] = useState<number[]>([]);
+  const [gaps, setGaps] = useState<CourseGap[]>([]);
+  const [generatingChapter, setGeneratingChapter] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase.from("quizzes").select("id,title,quiz_type").eq("user_id", user.id).order("created_at", { ascending: false });
-      setQuizzes((data as any) ?? []);
-      if (presetId && data?.find(q => q.id === presetId)) {
-        const q = data.find(x => x.id === presetId)!;
+      const { data: qzs } = await supabase
+        .from("quizzes")
+        .select("id,title,quiz_type,course_id")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      setQuizzes((qzs as any) ?? []);
+
+      // Calcule les chapitres non encore couverts par cours
+      const { data: courses } = await supabase
+        .from("courses")
+        .select("id,title,emoji,subject,source_content,summary")
+        .eq("user_id", user.id);
+
+      const { data: allQuestions } = await supabase
+        .from("quiz_questions")
+        .select("quiz_id,chapter")
+        .eq("user_id", user.id);
+
+      const coveredByCourse = new Map<string, Set<string>>();
+      for (const qz of (qzs ?? []) as any[]) {
+        if (!qz.course_id) continue;
+        const chapsForQuiz = (allQuestions ?? [])
+          .filter((q: any) => q.quiz_id === qz.id && q.chapter)
+          .map((q: any) => q.chapter as string);
+        if (!coveredByCourse.has(qz.course_id)) coveredByCourse.set(qz.course_id, new Set());
+        chapsForQuiz.forEach((c) => coveredByCourse.get(qz.course_id)!.add(c));
+      }
+
+      const computedGaps: CourseGap[] = [];
+      for (const c of (courses ?? []) as any[]) {
+        const sections: string[] = (c.summary?.sections ?? []).map((s: any) => s.title).filter(Boolean);
+        if (!sections.length) continue;
+        const covered = coveredByCourse.get(c.id) ?? new Set<string>();
+        const missing = sections.filter((s) => !covered.has(s));
+        if (missing.length) {
+          computedGaps.push({
+            course_id: c.id,
+            course_title: c.title,
+            course_emoji: c.emoji,
+            source_content: c.source_content,
+            subject: c.subject,
+            chapters: sections,
+            covered,
+            missing,
+          });
+        }
+      }
+      setGaps(computedGaps);
+
+      if (presetId && qzs?.find((q: any) => q.id === presetId)) {
+        const q = qzs.find((x: any) => x.id === presetId)!;
         startQuiz(q as any);
       }
     })();
@@ -71,6 +133,48 @@ export default function Quizz() {
     setQuestions(data as any);
     setQIdx(0); setPicked(null); setTextAnswer(""); setOpenResult(null); setScore(0); setWrong([]);
     setPhase("play");
+  };
+
+  const generateForChapter = async (gap: CourseGap, chapter: string) => {
+    if (!user || !gap.source_content) { toast.error("Contenu source indisponible."); return; }
+    setGeneratingChapter(`${gap.course_id}::${chapter}`);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-quiz", {
+        body: {
+          content: gap.source_content,
+          subject: gap.subject,
+          title: gap.course_title,
+          count: 10,
+          quizType: "qcm",
+          chapters: gap.chapters,
+          chapter,
+        },
+      });
+      if (error) throw error;
+      const qs = data?.questions ?? [];
+      if (!qs.length) throw new Error("Aucune question générée.");
+      const { data: quiz, error: qErr } = await supabase.from("quizzes").insert({
+        user_id: user.id, course_id: gap.course_id,
+        title: `Quizz · ${gap.course_title} · ${chapter}`, quiz_type: "qcm",
+      }).select().single();
+      if (qErr) throw qErr;
+      const rows = qs.map((q: any, i: number) => ({
+        quiz_id: quiz.id, user_id: user.id, question: q.question,
+        type: q.type ?? "qcm",
+        answers: q.answers ?? null,
+        correct_index: typeof q.correct_index === "number" ? q.correct_index : null,
+        accepted_answers: q.accepted_answers ?? null,
+        explanation: q.explanation, position: i,
+        chapter: q.chapter ?? chapter,
+      }));
+      await supabase.from("quiz_questions").insert(rows);
+      toast.success("Quizz prêt ✨");
+      nav(`/app/quizz?id=${quiz.id}`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erreur");
+    } finally {
+      setGeneratingChapter(null);
+    }
   };
 
   // Enregistre la réponse mais NE passe PAS à la question suivante (l'utilisateur clique sur "Suivant")
