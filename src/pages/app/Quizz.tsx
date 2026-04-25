@@ -250,6 +250,8 @@ export default function Quizz() {
           const comboBonus = Math.floor(maxCombo / 5) * 25;
           if (comboBonus > 0) total += comboBonus;
           await awardXp(user.id, total, "quiz_finish");
+          // Log group activity (streak partagée des groupes d'étude)
+          await supabase.rpc("log_group_activity", { p_xp: total });
           if (comboBonus > 0) {
             toast.success(`🔥 Combo x${Math.floor(maxCombo / 5) + 1} ! +${comboBonus} XP bonus`);
           }
