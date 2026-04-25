@@ -11,6 +11,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { LeaderboardTabs } from "@/components/revix/leaderboard/LeaderboardTabs";
+import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
+import { RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
+import { cn } from "@/lib/utils";
 
 type SearchResult = {
   id: string;
@@ -20,6 +23,12 @@ type SearchResult = {
   avatar_url: string | null;
   level: number | null;
   cursus: string | null;
+  equipped_frame?: string | null;
+  equipped_sticker?: string | null;
+  sticker_emoji?: string | null;
+  title_name?: string | null;
+  title_emoji?: string | null;
+  title_rarity?: Rarity | null;
 };
 
 type Friend = SearchResult & {
@@ -27,6 +36,8 @@ type Friend = SearchResult & {
   streak_days?: number | null;
   xp_total?: number | null;
   xp_week?: number | null;
+  equipped_background?: string | null;
+  equipped_title?: string | null;
 };
 
 type FriendshipRow = {
@@ -373,13 +384,21 @@ export default function Campus() {
                     return (
                       <div key={r.id} className="flex items-center gap-3 p-3 bg-card rounded-md border-2 border-foreground shadow-brutal-sm">
                         <Link to={`/app/u/${r.id}`} className="shrink-0">
-                        <Avatar className="h-10 w-10 border-2 border-foreground">
-                          {r.avatar_url && <AvatarImage src={r.avatar_url} />}
-                          <AvatarFallback className="bg-secondary text-foreground text-xs font-bold">{initialsOf(r.display_name)}</AvatarFallback>
-                        </Avatar>
+                          <CosmeticAvatar
+                            fallback={initialsOf(r.display_name)}
+                            avatarUrl={r.avatar_url}
+                            frame={r.equipped_frame}
+                            sticker={r.sticker_emoji}
+                            size="sm"
+                          />
                         </Link>
                         <Link to={`/app/u/${r.id}`} className="flex-1 min-w-0 hover:underline">
                           <p className="font-bold text-sm truncate">{r.display_name ?? "Sans nom"}</p>
+                          {r.title_name && (
+                            <p className={cn("text-[9px] font-mono uppercase tracking-wider truncate", RARITY_TEXT[r.title_rarity ?? "common"])}>
+                              {r.title_emoji} {r.title_name}
+                            </p>
+                          )}
                           <p className="text-[10px] font-mono text-muted-foreground truncate">
                             {r.username ? `@${r.username} · ` : ""}#{r.student_code}
                           </p>
@@ -408,10 +427,13 @@ export default function Campus() {
                   const p = profilesMap[req.requester_id];
                   return (
                     <div key={req.id} className="postit p-3 rounded-md border-2 border-foreground shadow-brutal-sm flex items-center gap-3">
-                      <Avatar className="h-10 w-10 border-2 border-foreground">
-                        {p?.avatar_url && <AvatarImage src={p.avatar_url} />}
-                        <AvatarFallback className="bg-card text-foreground text-xs font-bold">{initialsOf(p?.display_name)}</AvatarFallback>
-                      </Avatar>
+                      <CosmeticAvatar
+                        fallback={initialsOf(p?.display_name)}
+                        avatarUrl={p?.avatar_url}
+                        frame={p?.equipped_frame}
+                        sticker={p?.sticker_emoji}
+                        size="sm"
+                      />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-bold truncate">{p?.display_name ?? "..."}</p>
                         <p className="text-[10px]">veut t'ajouter</p>
@@ -450,16 +472,24 @@ export default function Campus() {
                   return (
                     <div key={f.id} className="bg-card p-3 rounded-md border-2 border-foreground shadow-brutal-sm flex items-center gap-3">
                       <Link to={`/app/u/${otherId}`} className="relative shrink-0">
-                        <Avatar className="h-12 w-12 border-2 border-foreground">
-                          {p.avatar_url && <AvatarImage src={p.avatar_url} />}
-                          <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">{initialsOf(p.display_name)}</AvatarFallback>
-                        </Avatar>
+                        <CosmeticAvatar
+                          fallback={initialsOf(p.display_name)}
+                          avatarUrl={p.avatar_url}
+                          frame={p.equipped_frame}
+                          sticker={p.sticker_emoji}
+                          size="md"
+                        />
                         <span className="absolute -bottom-1 -right-1 text-[9px] font-mono font-bold bg-accent text-accent-foreground border border-foreground rounded px-1">
                           N{p.level ?? 1}
                         </span>
                       </Link>
                       <Link to={`/app/u/${otherId}`} className="flex-1 min-w-0 hover:underline">
                         <p className="font-bold text-sm truncate">{p.display_name ?? "—"}</p>
+                        {p.title_name && (
+                          <p className={cn("text-[9px] font-mono uppercase tracking-wider truncate", RARITY_TEXT[p.title_rarity ?? "common"])}>
+                            {p.title_emoji} {p.title_name}
+                          </p>
+                        )}
                         <p className="text-[10px] font-mono text-muted-foreground truncate">
                           {p.username ? `@${p.username}` : `#${p.student_code}`}
                         </p>
@@ -484,10 +514,13 @@ export default function Campus() {
                   const p = profilesMap[req.addressee_id];
                   return (
                     <div key={req.id} className="bg-muted p-2 rounded-md border-2 border-dashed border-foreground flex items-center gap-2 text-xs">
-                      <Avatar className="h-7 w-7 border border-foreground">
-                        {p?.avatar_url && <AvatarImage src={p.avatar_url} />}
-                        <AvatarFallback className="text-[10px]">{initialsOf(p?.display_name)}</AvatarFallback>
-                      </Avatar>
+                      <CosmeticAvatar
+                        fallback={initialsOf(p?.display_name)}
+                        avatarUrl={p?.avatar_url}
+                        frame={p?.equipped_frame}
+                        sticker={p?.sticker_emoji}
+                        size="sm"
+                      />
                       <span className="flex-1 truncate">{p?.display_name ?? "..."} — en attente</span>
                       <button onClick={() => rejectRequest(req.id)} className="text-destructive font-bold text-[10px]">Annuler</button>
                     </div>
@@ -519,10 +552,13 @@ export default function Campus() {
               return (
                 <div key={d.id} className={`p-3 rounded-md border-2 border-foreground shadow-brutal-sm ${won ? "bg-success/20" : lost ? "bg-destructive/10" : "bg-card"}`}>
                   <div className="flex items-center gap-3">
-                    <Avatar className="h-10 w-10 border-2 border-foreground">
-                      {p?.avatar_url && <AvatarImage src={p.avatar_url} />}
-                      <AvatarFallback className="text-xs font-bold">{initialsOf(p?.display_name)}</AvatarFallback>
-                    </Avatar>
+                    <CosmeticAvatar
+                      fallback={initialsOf(p?.display_name)}
+                      avatarUrl={p?.avatar_url}
+                      frame={p?.equipped_frame}
+                      sticker={p?.sticker_emoji}
+                      size="sm"
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold truncate">{isChall ? "Tu défies " : ""}{p?.display_name ?? "..."}</p>
                       <p className="text-[10px] font-mono text-muted-foreground">{d.subject ?? "—"} · {d.num_questions}Q · {d.seconds_per_question}s</p>
