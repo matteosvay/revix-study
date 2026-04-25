@@ -270,6 +270,45 @@ export default function Quizz() {
     return (
       <AppLayout>
         <PageHeader emoji="🧠" title="Quizz" subtitle="Choisis un quizz pour t'entraîner." />
+        {gaps.length > 0 && (
+          <div className="px-4 mt-2 mb-4">
+            <div className="flex items-center gap-2 mb-3 px-1">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <p className="font-mono-tag text-[11px] uppercase tracking-wider text-muted-foreground">Chapitres à explorer</p>
+            </div>
+            <div className="space-y-3">
+              {gaps.map((gap) => (
+                <div key={gap.course_id} className="notebook-card p-3.5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xl">{gap.course_emoji ?? "📘"}</span>
+                    <p className="font-serif text-sm flex-1 truncate">{gap.course_title}</p>
+                    <span className="font-mono-tag text-[10px] text-muted-foreground">{gap.missing.length} restant{gap.missing.length > 1 ? "s" : ""}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {gap.missing.slice(0, 6).map((ch) => {
+                      const key = `${gap.course_id}::${ch}`;
+                      const loading = generatingChapter === key;
+                      return (
+                        <button
+                          key={ch}
+                          onClick={() => generateForChapter(gap, ch)}
+                          disabled={!!generatingChapter}
+                          className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-dashed border-primary/40 bg-primary/5 hover:bg-primary/15 hover:border-primary text-xs font-medium transition disabled:opacity-50"
+                        >
+                          {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 text-primary" />}
+                          <span className="max-w-[180px] truncate">{ch}</span>
+                        </button>
+                      );
+                    })}
+                    {gap.missing.length > 6 && (
+                      <span className="text-xs text-muted-foreground self-center">+{gap.missing.length - 6}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {quizzes.length === 0 ? (
           <div className="px-5 mt-6 text-center">
             <div className="inline-block notebook-card dog-ear p-6 max-w-xs mx-auto">
@@ -280,6 +319,7 @@ export default function Quizz() {
           </div>
         ) : (
           <div className="px-4 space-y-3">
+            <p className="font-mono-tag text-[11px] uppercase tracking-wider text-muted-foreground px-1">Tes quizz</p>
             {quizzes.map((q, i) => (
               <button
                 key={q.id}
