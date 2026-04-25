@@ -110,6 +110,44 @@ export type Database = {
         }
         Relationships: []
       }
+      course_shares: {
+        Row: {
+          course_id: string
+          created_at: string
+          id: string
+          recipient_id: string
+          responded_at: string | null
+          sender_id: string
+          status: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          id?: string
+          recipient_id: string
+          responded_at?: string | null
+          sender_id: string
+          status?: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          id?: string
+          recipient_id?: string
+          responded_at?: string | null
+          sender_id?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_shares_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       courses: {
         Row: {
           created_at: string
@@ -1607,6 +1645,10 @@ export type Database = {
       log_group_activity: { Args: { p_xp?: number }; Returns: Json }
       notify_groups_at_risk: { Args: never; Returns: Json }
       open_daily_loot_box: { Args: never; Returns: Json }
+      respond_course_share: {
+        Args: { p_accept: boolean; p_share_id: string }
+        Returns: Json
+      }
       restore_streak: { Args: { p_user_id: string }; Returns: Json }
       review_question: {
         Args: { p_correct: boolean; p_question_id: string }
@@ -1630,6 +1672,10 @@ export type Database = {
           title_rarity: string
           username: string
         }[]
+      }
+      send_course_to_friend: {
+        Args: { p_course_id: string; p_recipient_id: string }
+        Returns: Json
       }
       set_duel_presence: {
         Args: {
