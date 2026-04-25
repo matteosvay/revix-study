@@ -43,7 +43,7 @@ export function CosmeticAvatar({
           render behind the avatar so the user's photo is always fully visible. */}
       <FrameDecor itemKey={frame} size={size} layer="below" />
       <FrameDecor itemKey={frame} size={size} layer="above" />
-      <Avatar className={cn(SIZE[size], "border-2 border-background relative z-10")}>
+      <Avatar className={cn(SIZE[size], "relative z-10")}>
         {avatarUrl && <AvatarImage src={avatarUrl} alt={fallback} className="object-cover" />}
         <AvatarFallback className="gradient-primary text-primary-foreground font-bold">
           {fallback}
