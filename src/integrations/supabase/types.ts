@@ -1389,10 +1389,17 @@ export type Database = {
           avatar_url: string
           cursus: string
           display_name: string
+          equipped_frame: string
+          equipped_sticker: string
+          equipped_title: string
           id: string
           is_me: boolean
           level: number
+          sticker_emoji: string
           streak_days: number
+          title_emoji: string
+          title_name: string
+          title_rarity: string
           xp_total: number
           xp_week: number
         }[]
@@ -1435,10 +1442,17 @@ export type Database = {
         Returns: {
           avatar_url: string
           display_name: string
+          equipped_frame: string
+          equipped_sticker: string
+          equipped_title: string
           id: string
           is_me: boolean
           level: number
+          sticker_emoji: string
           streak_days: number
+          title_emoji: string
+          title_name: string
+          title_rarity: string
           username: string
           xp_total: number
           xp_week: number
@@ -1463,10 +1477,17 @@ export type Database = {
         Returns: {
           avatar_url: string
           display_name: string
+          equipped_frame: string
+          equipped_sticker: string
+          equipped_title: string
           id: string
           is_me: boolean
           level: number
+          sticker_emoji: string
           streak_days: number
+          title_emoji: string
+          title_name: string
+          title_rarity: string
           xp_total: number
           xp_week: number
         }[]
@@ -1477,8 +1498,15 @@ export type Database = {
           avatar_url: string
           contributed_today: boolean
           display_name: string
+          equipped_frame: string
+          equipped_sticker: string
+          equipped_title: string
           level: number
           role: string
+          sticker_emoji: string
+          title_emoji: string
+          title_name: string
+          title_rarity: string
           user_id: string
           xp_today: number
         }[]
@@ -1544,11 +1572,18 @@ export type Database = {
         Returns: {
           avatar_url: string
           display_name: string
+          equipped_frame: string
+          equipped_sticker: string
+          equipped_title: string
           id: string
           is_me: boolean
           level: number
           school: string
+          sticker_emoji: string
           streak_days: number
+          title_emoji: string
+          title_name: string
+          title_rarity: string
           xp_total: number
           xp_week: number
         }[]
@@ -1583,9 +1618,16 @@ export type Database = {
           avatar_url: string
           cursus: string
           display_name: string
+          equipped_frame: string
+          equipped_sticker: string
+          equipped_title: string
           id: string
           level: number
+          sticker_emoji: string
           student_code: string
+          title_emoji: string
+          title_name: string
+          title_rarity: string
           username: string
         }[]
       }
