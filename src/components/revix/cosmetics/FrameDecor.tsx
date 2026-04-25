@@ -35,18 +35,20 @@ export function FrameDecor({
   if (layer === "above") {
     if (itemKey === "frame_origine") {
       // Photoreal liquid-gold crown + ring overlay (ABOVE the avatar).
-      // The PNG includes both the dripping gold ring AND the baroque crown on top,
-      // so it visually surrounds the avatar AND rises above the head as a real crown.
-      // Scale extends UP and slightly OUT so the crown towers over the photo.
+      // The PNG includes both the dripping gold ring AND the baroque crown on top.
+      // It is rendered BEHIND the avatar (z-0) so the photo stays fully visible —
+      // only the crown peaks rise above the head and the dripping ring frames the avatar.
+      // Scale extends generously OUTWARD so the gold circle is wider than the avatar
+      // and the crown towers higher above it.
       const WRAP: Record<string, string> = {
-        sm: "-top-3 -left-1.5 -right-1.5 -bottom-2",
-        md: "-top-5 -left-2 -right-2 -bottom-3",
-        lg: "-top-8 -left-3 -right-3 -bottom-4",
-        xl: "-top-12 -left-4 -right-4 -bottom-5",
+        sm: "-top-5 -left-3 -right-3 -bottom-3",
+        md: "-top-8 -left-4 -right-4 -bottom-4",
+        lg: "-top-12 -left-6 -right-6 -bottom-6",
+        xl: "-top-16 -left-8 -right-8 -bottom-8",
       };
       const SPARK_COUNT = 14;
       return (
-        <div className={`absolute ${WRAP[size]} pointer-events-none z-30`}>
+        <div className={`absolute ${WRAP[size]} pointer-events-none z-0`}>
           <img
             src={origineRing}
             alt=""
