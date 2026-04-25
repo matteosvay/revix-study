@@ -68,6 +68,48 @@ export type Database = {
         }
         Relationships: []
       }
+      cosmetic_items: {
+        Row: {
+          category: string
+          created_at: string
+          description: string | null
+          emoji: string | null
+          id: string
+          item_key: string
+          name: string
+          preview_data: Json | null
+          price_xp: number
+          rarity: string
+          unlockable_in_loot: boolean
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          item_key: string
+          name: string
+          preview_data?: Json | null
+          price_xp?: number
+          rarity?: string
+          unlockable_in_loot?: boolean
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string | null
+          emoji?: string | null
+          id?: string
+          item_key?: string
+          name?: string
+          preview_data?: Json | null
+          price_xp?: number
+          rarity?: string
+          unlockable_in_loot?: boolean
+        }
+        Relationships: []
+      }
       courses: {
         Row: {
           created_at: string
@@ -109,6 +151,30 @@ export type Database = {
           summary?: Json | null
           title?: string
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      daily_loot_box: {
+        Row: {
+          id: string
+          open_date: string
+          opened_at: string
+          rewards: Json
+          user_id: string
+        }
+        Insert: {
+          id?: string
+          open_date?: string
+          opened_at?: string
+          rewards: Json
+          user_id: string
+        }
+        Update: {
+          id?: string
+          open_date?: string
+          opened_at?: string
+          rewards?: Json
           user_id?: string
         }
         Relationships: []
@@ -404,12 +470,17 @@ export type Database = {
           cursus: string | null
           display_name: string | null
           email: string | null
+          equipped_background: string | null
+          equipped_frame: string | null
+          equipped_sticker: string | null
           formation: string | null
           id: string
           last_active_date: string | null
+          last_loot_box_at: string | null
           league: string
           level: number
           plan: string
+          push_enabled: boolean
           quiz_completed_count: number
           school: string | null
           streak_days: number
@@ -430,12 +501,17 @@ export type Database = {
           cursus?: string | null
           display_name?: string | null
           email?: string | null
+          equipped_background?: string | null
+          equipped_frame?: string | null
+          equipped_sticker?: string | null
           formation?: string | null
           id: string
           last_active_date?: string | null
+          last_loot_box_at?: string | null
           league?: string
           level?: number
           plan?: string
+          push_enabled?: boolean
           quiz_completed_count?: number
           school?: string | null
           streak_days?: number
@@ -456,12 +532,17 @@ export type Database = {
           cursus?: string | null
           display_name?: string | null
           email?: string | null
+          equipped_background?: string | null
+          equipped_frame?: string | null
+          equipped_sticker?: string | null
           formation?: string | null
           id?: string
           last_active_date?: string | null
+          last_loot_box_at?: string | null
           league?: string
           level?: number
           plan?: string
+          push_enabled?: boolean
           quiz_completed_count?: number
           school?: string | null
           streak_days?: number
@@ -477,10 +558,44 @@ export type Database = {
         }
         Relationships: []
       }
+      push_subscriptions: {
+        Row: {
+          auth_key: string
+          created_at: string
+          endpoint: string
+          id: string
+          last_used_at: string | null
+          p256dh: string
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          auth_key: string
+          created_at?: string
+          endpoint: string
+          id?: string
+          last_used_at?: string | null
+          p256dh: string
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          auth_key?: string
+          created_at?: string
+          endpoint?: string
+          id?: string
+          last_used_at?: string | null
+          p256dh?: string
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       quiz_attempts: {
         Row: {
           created_at: string
           id: string
+          max_combo: number
           quiz_id: string
           score: number
           total: number
@@ -490,6 +605,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          max_combo?: number
           quiz_id: string
           score: number
           total: number
@@ -499,6 +615,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          max_combo?: number
           quiz_id?: string
           score?: number
           total?: number
@@ -848,6 +965,30 @@ export type Database = {
         }
         Relationships: []
       }
+      user_cosmetics: {
+        Row: {
+          acquired_at: string
+          acquired_via: string
+          id: string
+          item_key: string
+          user_id: string
+        }
+        Insert: {
+          acquired_at?: string
+          acquired_via?: string
+          id?: string
+          item_key: string
+          user_id: string
+        }
+        Update: {
+          acquired_at?: string
+          acquired_via?: string
+          id?: string
+          item_key?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_inventory: {
         Row: {
           acquired_at: string
@@ -969,6 +1110,8 @@ export type Database = {
         Returns: Json
       }
       bump_streak: { Args: { p_user_id: string }; Returns: undefined }
+      buy_cosmetic: { Args: { p_item_key: string }; Returns: Json }
+      consume_powerup: { Args: { p_powerup_key: string }; Returns: Json }
       create_duel: {
         Args: {
           p_course_id: string
@@ -979,6 +1122,10 @@ export type Database = {
         Returns: string
       }
       ensure_today_quests: { Args: never; Returns: Json }
+      equip_cosmetic: {
+        Args: { p_category: string; p_item_key: string }
+        Returns: Json
+      }
       generate_room_code: { Args: never; Returns: string }
       generate_student_code: { Args: never; Returns: string }
       get_duel_questions: {
@@ -1038,6 +1185,7 @@ export type Database = {
         Returns: boolean
       }
       join_room_by_code: { Args: { p_code: string }; Returns: string }
+      open_daily_loot_box: { Args: never; Returns: Json }
       restore_streak: { Args: { p_user_id: string }; Returns: Json }
       search_users_public: {
         Args: { p_query: string }
