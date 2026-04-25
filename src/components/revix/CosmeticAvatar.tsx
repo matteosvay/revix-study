@@ -38,16 +38,17 @@ export function CosmeticAvatar({
   const f = frameStyle(frame);
   return (
     <div className={cn("relative inline-flex rounded-full", f.className, className)} style={f.style}>
-      {/* Animated SVG/PNG decor BEHIND the avatar so the photo stays in front */}
+      {/* Animated SVG/PNG decor BEHIND the avatar so the photo stays in front.
+          Both layers ("below" auras and "above" overlays like the creator crown)
+          render behind the avatar so the user's photo is always fully visible. */}
       <FrameDecor itemKey={frame} size={size} layer="below" />
+      <FrameDecor itemKey={frame} size={size} layer="above" />
       <Avatar className={cn(SIZE[size], "border-2 border-background relative z-10")}>
         {avatarUrl && <AvatarImage src={avatarUrl} alt={fallback} className="object-cover" />}
         <AvatarFallback className="gradient-primary text-primary-foreground font-bold">
           {fallback}
         </AvatarFallback>
       </Avatar>
-      {/* Decor rendered ON TOP of the avatar (e.g. real crown for the creator frame) */}
-      <FrameDecor itemKey={frame} size={size} layer="above" />
       {sticker && (
         <span className={cn("absolute leading-none drop-shadow-md select-none z-20", STICKER_SIZE[size])} aria-hidden>
           {hasCustomSticker(stickerKey)
