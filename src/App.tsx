@@ -22,6 +22,8 @@ import DuelPlay from "./pages/app/DuelPlay";
 import StudyRoom from "./pages/app/StudyRoom";
 import Revision from "./pages/app/Revision";
 import StudyGroups from "./pages/app/StudyGroups";
+import Cosmetics from "./pages/app/Cosmetics";
+import PublicProfile from "./pages/app/PublicProfile";
 import { AuthProvider } from "./hooks/useAuth";
 import { RequireAuth } from "./components/revix/RequireAuth";
 import { XpOverlay } from "./components/revix/XpOverlay";
@@ -52,6 +54,8 @@ const App = () => (
             <Route path="/app/aventure" element={<RequireAuth><Aventure /></RequireAuth>} />
             <Route path="/app/campus" element={<RequireAuth><Campus /></RequireAuth>} />
             <Route path="/app/groupes" element={<RequireAuth><StudyGroups /></RequireAuth>} />
+            <Route path="/app/cosmetics" element={<RequireAuth><Cosmetics /></RequireAuth>} />
+            <Route path="/app/u/:id" element={<RequireAuth><PublicProfile /></RequireAuth>} />
             <Route path="/app/duel/:id" element={<RequireAuth><DuelPlay /></RequireAuth>} />
             <Route path="/app/room/:id" element={<RequireAuth><StudyRoom /></RequireAuth>} />
             <Route path="/app/profil" element={<RequireAuth><Profil /></RequireAuth>} />
