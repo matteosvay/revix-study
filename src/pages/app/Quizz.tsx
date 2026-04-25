@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle } from "lucide-react";
+import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle, Scissors, SkipForward, Timer, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -53,6 +53,7 @@ export default function Quizz() {
   const [params] = useSearchParams();
   const nav = useNavigate();
   const presetId = params.get("id");
+  const isFlash = params.get("mode") === "flash";
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
   const [questions, setQuestions] = useState<Q[]>([]);
@@ -66,6 +67,31 @@ export default function Quizz() {
   const [wrong, setWrong] = useState<number[]>([]);
   const [gaps, setGaps] = useState<CourseGap[]>([]);
   const [generatingChapter, setGeneratingChapter] = useState<string | null>(null);
+  // Combo & power-ups
+  const [combo, setCombo] = useState(0);
+  const [maxCombo, setMaxCombo] = useState(0);
+  const [hidden, setHidden] = useState<number[]>([]); // 50/50 hidden indices
+  const [inventory, setInventory] = useState<Record<string, number>>({});
+
+  const loadInventory = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("user_inventory")
+      .select("item_key, quantity")
+      .eq("user_id", user.id)
+      .in("item_key", ["power_5050", "power_skip", "power_time"]);
+    const map: Record<string, number> = {};
+    (data ?? []).forEach((r: any) => { map[r.item_key] = r.quantity; });
+    setInventory(map);
+  };
+
+  useEffect(() => { loadInventory(); }, [user]);
+
+  const comboMultiplier = useMemo(() => {
+    if (combo >= 10) return 3;
+    if (combo >= 5) return 2;
+    return 1;
+  }, [combo]);
 
   useEffect(() => {
     if (!user) return;
@@ -132,6 +158,7 @@ export default function Quizz() {
     setActiveQuiz(q);
     setQuestions(data as any);
     setQIdx(0); setPicked(null); setTextAnswer(""); setOpenResult(null); setScore(0); setWrong([]);
+    setCombo(0); setMaxCombo(0); setHidden([]);
     setPhase("play");
   };
 
@@ -179,8 +206,17 @@ export default function Quizz() {
 
   // Enregistre la réponse mais NE passe PAS à la question suivante (l'utilisateur clique sur "Suivant")
   const advance = (ok: boolean) => {
-    if (ok) setScore(s => s + 1);
-    else setWrong(w => [...w, qIdx]);
+    if (ok) {
+      setScore(s => s + 1);
+      setCombo(c => {
+        const nc = c + 1;
+        setMaxCombo(m => Math.max(m, nc));
+        return nc;
+      });
+    } else {
+      setWrong(w => [...w, qIdx]);
+      setCombo(0);
+    }
   };
 
   const goNext = async () => {
@@ -194,6 +230,7 @@ export default function Quizz() {
             user_id: user.id, quiz_id: activeQuiz.id,
             score: finalScore, total: questions.length,
             wrong_indices: finalWrong,
+            max_combo: maxCombo,
           });
           const { data: profileState } = await supabase.from("profiles").select("last_active_date").eq("id", user.id).maybeSingle();
           const todayKey = localDateKey(new Date());
@@ -209,7 +246,13 @@ export default function Quizz() {
           let total = XP_REWARDS.quiz_finish;
           if (pct >= 80) total += XP_REWARDS.quiz_high_score;
           if (pct === 100) total += XP_REWARDS.quiz_perfect;
+          // Bonus combo : +5 XP par palier de 5 combos atteints (max combo)
+          const comboBonus = Math.floor(maxCombo / 5) * 25;
+          if (comboBonus > 0) total += comboBonus;
           await awardXp(user.id, total, "quiz_finish");
+          if (comboBonus > 0) {
+            toast.success(`🔥 Combo x${Math.floor(maxCombo / 5) + 1} ! +${comboBonus} XP bonus`);
+          }
           // Bump quêtes
           await bumpQuest(user.id, "quiz_done", 1);
           await bumpQuest(user.id, "w_5_quizzes", 1);
@@ -225,7 +268,7 @@ export default function Quizz() {
           }
       }
     } else {
-      setQIdx(qIdx + 1); setPicked(null); setTextAnswer(""); setOpenResult(null);
+      setQIdx(qIdx + 1); setPicked(null); setTextAnswer(""); setOpenResult(null); setHidden([]);
     }
   };
 
@@ -233,6 +276,35 @@ export default function Quizz() {
     if (picked !== null) return;
     setPicked(i);
     advance(questions[qIdx].correct_index === i);
+  };
+
+  const usePowerup = async (key: "power_5050" | "power_skip" | "power_time") => {
+    if ((inventory[key] ?? 0) < 1) { toast.error("Plus de power-up de ce type."); return; }
+    const { data, error } = await supabase.rpc("consume_powerup", { p_powerup_key: key });
+    if (error) { toast.error(error.message); return; }
+    const res = data as any;
+    if (!res?.success) { toast.error(res?.error ?? "Erreur"); return; }
+    setInventory(inv => ({ ...inv, [key]: res.remaining }));
+    const q = questions[qIdx];
+    if (key === "power_5050" && q.type === "qcm" && q.answers && q.correct_index != null) {
+      const wrongIdx = q.answers.map((_, i) => i).filter(i => i !== q.correct_index);
+      const toHide = wrongIdx.sort(() => Math.random() - 0.5).slice(0, Math.max(0, wrongIdx.length - 1));
+      setHidden(toHide);
+      toast.success("✂️ 50/50 activé");
+    } else if (key === "power_skip") {
+      toast.success("⏭️ Question passée");
+      // Skip = avance sans compter (ni juste ni faux), reset combo neutre
+      setCombo(0);
+      if (qIdx + 1 >= questions.length) {
+        // Ne triche pas : marque comme non répondue → comportement final identique à goNext
+        setPicked(-99 as any);
+      } else {
+        setQIdx(qIdx + 1);
+        setPicked(null); setTextAnswer(""); setOpenResult(null); setHidden([]);
+      }
+    } else if (key === "power_time") {
+      toast.success("⏱️ +30 sec");
+    }
   };
 
   const submitText = async () => {
@@ -353,11 +425,52 @@ export default function Quizz() {
         <div className="px-5 pt-5">
           <div className="flex items-center justify-between font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground mb-2">
             <span>Question {qIdx + 1} / {questions.length}</span>
-            <span>Score · {score}</span>
+            <span className="flex items-center gap-2">
+              <span>Score · {score}</span>
+              {combo >= 2 && (
+                <span key={combo} className="combo-pop inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground font-bold text-[10px]">
+                  <Zap className="h-2.5 w-2.5" /> x{comboMultiplier} · {combo}
+                </span>
+              )}
+            </span>
           </div>
           <div className="ruler-bar !h-2.5">
             <div className="ruler-fill" style={{ width: `${(qIdx / questions.length) * 100}%` }} />
           </div>
+
+          {/* Power-ups bar */}
+          {(inventory.power_5050 || inventory.power_skip || inventory.power_time) ? (
+            <div className="mt-3 flex items-center gap-2">
+              <span className="font-mono-tag text-[9px] uppercase text-muted-foreground">Power-ups</span>
+              {inventory.power_5050 > 0 && (
+                <button
+                  onClick={() => usePowerup("power_5050")}
+                  disabled={picked !== null || q.type !== "qcm" || hidden.length > 0}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md border-2 border-foreground bg-card text-[10px] font-bold uppercase shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition disabled:opacity-40"
+                >
+                  <Scissors className="h-3 w-3" /> 50/50 · {inventory.power_5050}
+                </button>
+              )}
+              {inventory.power_skip > 0 && (
+                <button
+                  onClick={() => usePowerup("power_skip")}
+                  disabled={picked !== null}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md border-2 border-foreground bg-card text-[10px] font-bold uppercase shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition disabled:opacity-40"
+                >
+                  <SkipForward className="h-3 w-3" /> Skip · {inventory.power_skip}
+                </button>
+              )}
+              {inventory.power_time > 0 && (
+                <button
+                  onClick={() => usePowerup("power_time")}
+                  disabled={picked !== null}
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-md border-2 border-foreground bg-card text-[10px] font-bold uppercase shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition disabled:opacity-40"
+                >
+                  <Timer className="h-3 w-3" /> +30s · {inventory.power_time}
+                </button>
+              )}
+            </div>
+          ) : null}
 
           <div className="mt-6 animate-scale-in" key={qIdx}>
             <div className="notebook-card p-5 relative">
@@ -368,6 +481,7 @@ export default function Quizz() {
             {isChoice ? (
               <div className="mt-5 grid grid-cols-1 gap-3">
                 {choices.map((a, i) => {
+                  if (hidden.includes(i)) return null;
                   const isCorrect = i === q.correct_index;
                   const isPicked = picked === i;
                   const variant = postitVariants[i % postitVariants.length];
