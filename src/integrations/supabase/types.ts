@@ -1483,6 +1483,20 @@ export type Database = {
           xp_today: number
         }[]
       }
+      get_my_cosmetics_inventory: {
+        Args: never
+        Returns: {
+          acquired_at: string
+          acquired_via: string
+          category: string
+          description: string
+          emoji: string
+          equipped: boolean
+          item_key: string
+          name: string
+          rarity: string
+        }[]
+      }
       get_my_groups: {
         Args: never
         Returns: {
@@ -1505,12 +1519,21 @@ export type Database = {
           bio: string
           cursus: string
           display_name: string
+          equipped_background: string
+          equipped_frame: string
+          equipped_sticker: string
+          equipped_title: string
           formation: string
           id: string
           level: number
+          sticker_emoji: string
+          sticker_rarity: string
           streak_days: number
           streak_record: number
           student_code: string
+          title_emoji: string
+          title_name: string
+          title_rarity: string
           username: string
           xp_total: number
           xp_week: number
