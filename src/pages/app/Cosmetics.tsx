@@ -9,6 +9,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
 import { backgroundStyle, RARITY_LABEL, RARITY_RING, RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
+import { TitleBadge } from "@/components/revix/TitleBadge";
 import { cn } from "@/lib/utils";
 
 type Item = {
@@ -131,9 +132,14 @@ export default function Cosmetics() {
           <div className="bg-card pt-12 pb-3 px-4">
             <p className="font-serif text-lg leading-tight">{profile?.display_name ?? "Toi"}</p>
             {titleItem && (
-              <p className={cn("text-xs font-mono uppercase tracking-wider mt-0.5", RARITY_TEXT[titleItem.rarity])}>
-                {titleItem.emoji} {titleItem.name}
-              </p>
+              <div className="mt-0.5">
+                <TitleBadge
+                  itemKey={titleItem.item_key}
+                  name={titleItem.name}
+                  emoji={titleItem.emoji}
+                  rarity={titleItem.rarity}
+                />
+              </div>
             )}
           </div>
         </div>

@@ -5,7 +5,8 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Flame, Trophy, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
-import { backgroundStyle, RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
+import { backgroundStyle, type Rarity } from "@/lib/cosmetics";
+import { TitleBadge } from "@/components/revix/TitleBadge";
 import { cn } from "@/lib/utils";
 
 export default function PublicProfile() {
@@ -46,11 +47,14 @@ export default function PublicProfile() {
           <div className="bg-card pt-12 pb-4 px-4">
             <p className="font-serif text-2xl leading-tight">{p.display_name ?? "Sans nom"}</p>
             {p.username && <p className="text-xs text-muted-foreground">@{p.username}</p>}
-            {p.title_name && (
-              <p className={cn("text-xs font-mono uppercase tracking-wider mt-1", RARITY_TEXT[p.title_rarity as Rarity])}>
-                {p.title_emoji} {p.title_name}
-              </p>
-            )}
+            <div className="mt-1">
+              <TitleBadge
+                itemKey={p.equipped_title}
+                name={p.title_name}
+                emoji={p.title_emoji}
+                rarity={p.title_rarity as Rarity}
+              />
+            </div>
             {p.bio && <p className="text-sm mt-3 text-foreground/80">{p.bio}</p>}
             {(p.cursus || p.formation) && (
               <p className="text-xs text-muted-foreground mt-2">

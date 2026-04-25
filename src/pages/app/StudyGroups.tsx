@@ -9,7 +9,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Link } from "react-router-dom";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
-import { RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
+import { type Rarity } from "@/lib/cosmetics";
+import { TitleBadge } from "@/components/revix/TitleBadge";
 import { cn } from "@/lib/utils";
 
 type Group = {
@@ -35,6 +36,7 @@ type Member = {
   xp_today: number;
   equipped_frame?: string | null;
   equipped_sticker?: string | null;
+  equipped_title?: string | null;
   sticker_emoji?: string | null;
   title_name?: string | null;
   title_emoji?: string | null;
@@ -266,11 +268,13 @@ export default function StudyGroups() {
                         {m.display_name ?? "—"}
                         {m.role === "owner" && <Crown className="h-3 w-3 text-accent" />}
                       </p>
-                      {m.title_name && (
-                        <p className={cn("text-[9px] font-mono uppercase tracking-wider truncate", RARITY_TEXT[m.title_rarity ?? "common"])}>
-                          {m.title_emoji} {m.title_name}
-                        </p>
-                      )}
+                      <TitleBadge
+                        itemKey={m.equipped_title}
+                        name={m.title_name}
+                        emoji={m.title_emoji}
+                        rarity={m.title_rarity ?? "common"}
+                        size="text-[9px]"
+                      />
                       <p className="text-[9px] text-muted-foreground">N{m.level} · {m.xp_today} XP today</p>
                     </div>
                     {m.contributed_today ? (

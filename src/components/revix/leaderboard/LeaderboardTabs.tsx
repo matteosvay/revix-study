@@ -5,7 +5,8 @@ import { Flame, Trophy, Loader2, Users, GraduationCap, Globe } from "lucide-reac
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
-import { RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
+import { type Rarity } from "@/lib/cosmetics";
+import { TitleBadge } from "@/components/revix/TitleBadge";
 import { cn } from "@/lib/utils";
 
 type Row = {
@@ -54,11 +55,13 @@ function Podium({ rows }: { rows: Row[] }) {
               />
             </div>
             <p className="text-xs font-bold truncate max-w-full">{row.is_me ? "Toi" : row.display_name?.split(" ")[0] ?? "—"}</p>
-            {row.title_name && (
-              <p className={cn("text-[8px] font-mono uppercase tracking-wider truncate max-w-full", RARITY_TEXT[row.title_rarity ?? "common"])}>
-                {row.title_emoji} {row.title_name}
-              </p>
-            )}
+            <TitleBadge
+              itemKey={row.equipped_title}
+              name={row.title_name}
+              emoji={row.title_emoji}
+              rarity={row.title_rarity ?? "common"}
+              size="text-[8px]"
+            />
             <div className={`${heights[idx]} w-full bg-secondary border-2 border-foreground rounded-t-md mt-1 flex flex-col items-center justify-end p-1`}>
               <p className="text-2xl">{medals[idx]}</p>
               <p className="font-mono text-[10px] font-bold">{row.xp_week} XP</p>
@@ -107,11 +110,13 @@ function RowList({ rows, scopeLabel }: { rows: Row[]; scopeLabel: string }) {
                   <p className="text-xs font-bold truncate">{row.is_me ? "Toi" : row.display_name ?? "—"}</p>
                   <span className="text-[8px] font-mono bg-foreground text-background px-1 rounded">N{row.level}</span>
                 </div>
-                {row.title_name && (
-                  <p className={cn("text-[9px] font-mono uppercase tracking-wider truncate", RARITY_TEXT[row.title_rarity ?? "common"])}>
-                    {row.title_emoji} {row.title_name}
-                  </p>
-                )}
+                <TitleBadge
+                  itemKey={row.equipped_title}
+                  name={row.title_name}
+                  emoji={row.title_emoji}
+                  rarity={row.title_rarity ?? "common"}
+                  size="text-[9px]"
+                />
                 <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-0.5">
                   <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
                 </div>
