@@ -87,12 +87,13 @@ export function FrameDecor({
   }
 
   // ===== Below-avatar overlays (legacy behaviour) =====
-  // Outer scale so particles can extend beyond the avatar
+  // Outer scale so the frame ring extends generously beyond the avatar.
+  // Bumped wider so cadres are visible around the photo (not hidden behind it).
   const SCALE: Record<string, string> = {
-    sm: "-inset-1.5",
-    md: "-inset-2",
-    lg: "-inset-2.5",
-    xl: "-inset-3",
+    sm: "-inset-3",
+    md: "-inset-4",
+    lg: "-inset-5",
+    xl: "-inset-7",
   };
   const wrap: CSSProperties = { pointerEvents: "none" };
 
