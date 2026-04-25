@@ -1,0 +1,385 @@
+import { CSSProperties } from "react";
+
+/**
+ * Animated SVG overlay rendered ON TOP of the avatar (pointer-events:none).
+ * Adds particles, flames, sparkles depending on the equipped frame.
+ * Sized via container, the SVG fills 100% of the parent (which must be relative).
+ */
+export function FrameDecor({ itemKey, size = "md" }: { itemKey?: string | null; size?: "sm" | "md" | "lg" | "xl" }) {
+  if (!itemKey) return null;
+  // Outer scale so particles can extend beyond the avatar
+  const SCALE: Record<string, string> = {
+    sm: "-inset-2",
+    md: "-inset-3",
+    lg: "-inset-4",
+    xl: "-inset-5",
+  };
+  const wrap: CSSProperties = { pointerEvents: "none" };
+
+  switch (itemKey) {
+    /* ===================== LEGENDARY ===================== */
+    case "frame_phoenix":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <radialGradient id="phx-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#ffe066" stopOpacity="0" />
+                <stop offset="60%" stopColor="#ff7a00" stopOpacity="0.55" />
+                <stop offset="100%" stopColor="#7a0000" stopOpacity="0" />
+              </radialGradient>
+              <linearGradient id="phx-flame" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%" stopColor="#ffd166" />
+                <stop offset="50%" stopColor="#ff5b1f" />
+                <stop offset="100%" stopColor="#7a0000" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="48" fill="url(#phx-glow)">
+              <animate attributeName="r" values="46;52;46" dur="2.4s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="2.4s" repeatCount="indefinite" />
+            </circle>
+            {Array.from({ length: 10 }).map((_, i) => {
+              const a = (i * 36 * Math.PI) / 180;
+              const cx = 50 + Math.cos(a) * 46;
+              const cy = 50 + Math.sin(a) * 46;
+              return (
+                <g key={i} transform={`translate(${cx} ${cy}) rotate(${(i * 36) + 90} 0 0)`}>
+                  <path d="M0,-2 C-3,-7 -3,-12 0,-16 C3,-12 3,-7 0,-2 Z" fill="url(#phx-flame)" opacity="0.9">
+                    <animateTransform attributeName="transform" type="scale" values="0.7;1.25;0.7" dur="1.4s" begin={`${i * 0.12}s`} repeatCount="indefinite" additive="sum" />
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="1.4s" begin={`${i * 0.12}s`} repeatCount="indefinite" />
+                  </path>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      );
+
+    case "frame_dragon":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <radialGradient id="drg-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="50%" stopColor="#00ff88" stopOpacity="0" />
+                <stop offset="100%" stopColor="#00ff88" stopOpacity="0.45" />
+              </radialGradient>
+            </defs>
+            <circle cx="50" cy="50" r="48" fill="url(#drg-glow)" />
+            {Array.from({ length: 18 }).map((_, i) => {
+              const a = (i * 20 * Math.PI) / 180;
+              const r = 46;
+              const cx = 50 + Math.cos(a) * r;
+              const cy = 50 + Math.sin(a) * r;
+              return (
+                <path key={i} d={`M ${cx} ${cy} l -4 -2 l 0 4 z`} fill="#0fa958" stroke="#003a1a" strokeWidth="0.5" transform={`rotate(${(i * 20)} ${cx} ${cy})`}>
+                  <animate attributeName="opacity" values="0.6;1;0.6" dur="2s" begin={`${i * 0.05}s`} repeatCount="indefinite" />
+                </path>
+              );
+            })}
+            <circle cx="50" cy="50" r="46" fill="none" stroke="#0fa958" strokeWidth="1.2" strokeDasharray="3 4">
+              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="14s" repeatCount="indefinite" />
+            </circle>
+          </svg>
+        </div>
+      );
+
+    case "frame_cosmic":
+    case "frame_galaxy":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <radialGradient id="csm-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="60%" stopColor="#7c3aed" stopOpacity="0" />
+                <stop offset="100%" stopColor="#7c3aed" stopOpacity="0.55" />
+              </radialGradient>
+            </defs>
+            <circle cx="50" cy="50" r="48" fill="url(#csm-glow)" />
+            <g>
+              <ellipse cx="50" cy="50" rx="49" ry="14" fill="none" stroke="#a855f7" strokeWidth="0.8" opacity="0.9">
+                <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="8s" repeatCount="indefinite" />
+              </ellipse>
+              <ellipse cx="50" cy="50" rx="49" ry="14" fill="none" stroke="#22d3ee" strokeWidth="0.6" opacity="0.7" transform="rotate(60 50 50)">
+                <animateTransform attributeName="transform" type="rotate" from="60 50 50" to="420 50 50" dur="10s" repeatCount="indefinite" />
+              </ellipse>
+              <ellipse cx="50" cy="50" rx="49" ry="14" fill="none" stroke="#f472b6" strokeWidth="0.6" opacity="0.7" transform="rotate(120 50 50)">
+                <animateTransform attributeName="transform" type="rotate" from="120 50 50" to="480 50 50" dur="12s" repeatCount="indefinite" />
+              </ellipse>
+            </g>
+            {Array.from({ length: 12 }).map((_, i) => {
+              const a = (i * 30 * Math.PI) / 180;
+              const cx = 50 + Math.cos(a) * 47;
+              const cy = 50 + Math.sin(a) * 47;
+              return (
+                <circle key={i} cx={cx} cy={cy} r="0.8" fill="#fff">
+                  <animate attributeName="opacity" values="0.2;1;0.2" dur="1.8s" begin={`${i * 0.15}s`} repeatCount="indefinite" />
+                </circle>
+              );
+            })}
+          </svg>
+        </div>
+      );
+
+    case "frame_diamond":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <radialGradient id="dia-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="55%" stopColor="#7dd3fc" stopOpacity="0" />
+                <stop offset="100%" stopColor="#7dd3fc" stopOpacity="0.7" />
+              </radialGradient>
+            </defs>
+            <circle cx="50" cy="50" r="48" fill="url(#dia-glow)" />
+            {[0, 60, 120, 180, 240, 300].map((deg, i) => {
+              const a = (deg * Math.PI) / 180;
+              const cx = 50 + Math.cos(a) * 46;
+              const cy = 50 + Math.sin(a) * 46;
+              return (
+                <g key={i} transform={`translate(${cx} ${cy}) rotate(${deg + 45})`}>
+                  <rect x="-2.5" y="-2.5" width="5" height="5" fill="#bae6fd" stroke="#0369a1" strokeWidth="0.6">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
+                  </rect>
+                  <rect x="-1" y="-1" width="2" height="2" fill="#fff">
+                    <animate attributeName="opacity" values="0.2;1;0.2" dur="1.4s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
+                  </rect>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      );
+
+    case "frame_aurora":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <linearGradient id="aur-1" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#00ffd1" stopOpacity="0.9" />
+                <stop offset="50%" stopColor="#b388ff" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#ff80ab" stopOpacity="0.9" />
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="48" fill="none" stroke="url(#aur-1)" strokeWidth="3" opacity="0.85">
+              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="9s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="50" cy="50" r="46" fill="none" stroke="url(#aur-1)" strokeWidth="1.5" opacity="0.6" strokeDasharray="6 4">
+              <animateTransform attributeName="transform" type="rotate" from="360 50 50" to="0 50 50" dur="14s" repeatCount="indefinite" />
+            </circle>
+          </svg>
+        </div>
+      );
+
+    case "frame_celestial":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <radialGradient id="cel-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="55%" stopColor="#fde047" stopOpacity="0" />
+                <stop offset="100%" stopColor="#facc15" stopOpacity="0.7" />
+              </radialGradient>
+            </defs>
+            <circle cx="50" cy="50" r="48" fill="url(#cel-glow)" />
+            <g>
+              <circle cx="50" cy="50" r="49" fill="none" stroke="#facc15" strokeWidth="1.2" strokeDasharray="2 3">
+                <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="20s" repeatCount="indefinite" />
+              </circle>
+            </g>
+            {Array.from({ length: 8 }).map((_, i) => {
+              const a = (i * 45 * Math.PI) / 180;
+              const cx = 50 + Math.cos(a) * 49;
+              const cy = 50 + Math.sin(a) * 49;
+              return (
+                <g key={i} transform={`translate(${cx} ${cy})`}>
+                  <path d="M0 -3 L1 -1 L3 0 L1 1 L0 3 L-1 1 L-3 0 L-1 -1 Z" fill="#fef9c3" stroke="#facc15" strokeWidth="0.4">
+                    <animateTransform attributeName="transform" type="scale" values="0.7;1.3;0.7" dur="2.2s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
+                  </path>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      );
+
+    case "frame_holo":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <linearGradient id="holo-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#ff00cc" />
+                <stop offset="33%" stopColor="#00ffff" />
+                <stop offset="66%" stopColor="#ffff00" />
+                <stop offset="100%" stopColor="#00ffaa" />
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="48" fill="none" stroke="url(#holo-grad)" strokeWidth="3.5">
+              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="6s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="50" cy="50" r="46" fill="none" stroke="url(#holo-grad)" strokeWidth="1" strokeDasharray="2 3" opacity="0.7">
+              <animateTransform attributeName="transform" type="rotate" from="360 50 50" to="0 50 50" dur="9s" repeatCount="indefinite" />
+            </circle>
+          </svg>
+        </div>
+      );
+
+    /* ===================== EPIC ===================== */
+    case "frame_fire":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <linearGradient id="fr-flame" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%" stopColor="#ffd166" />
+                <stop offset="60%" stopColor="#ff5b1f" />
+                <stop offset="100%" stopColor="#7a0000" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+            {Array.from({ length: 8 }).map((_, i) => {
+              const a = (i * 45 * Math.PI) / 180;
+              const cx = 50 + Math.cos(a) * 47;
+              const cy = 50 + Math.sin(a) * 47;
+              return (
+                <g key={i} transform={`translate(${cx} ${cy}) rotate(${i * 45 + 90})`}>
+                  <path d="M0,-1 C-2,-5 -2,-9 0,-12 C2,-9 2,-5 0,-1 Z" fill="url(#fr-flame)">
+                    <animateTransform attributeName="transform" type="scale" values="0.7;1.2;0.7" dur="1.2s" begin={`${i * 0.1}s`} repeatCount="indefinite" additive="sum" />
+                  </path>
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      );
+
+    case "frame_ice":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            {Array.from({ length: 8 }).map((_, i) => {
+              const a = (i * 45 * Math.PI) / 180;
+              const cx = 50 + Math.cos(a) * 48;
+              const cy = 50 + Math.sin(a) * 48;
+              return (
+                <g key={i} transform={`translate(${cx} ${cy}) rotate(${i * 45})`}>
+                  <g stroke="#7dd3fc" strokeWidth="0.8" strokeLinecap="round">
+                    <line x1="-3" y1="0" x2="3" y2="0" />
+                    <line x1="0" y1="-3" x2="0" y2="3" />
+                    <line x1="-2" y1="-2" x2="2" y2="2" />
+                    <line x1="-2" y1="2" x2="2" y2="-2" />
+                  </g>
+                  <animate attributeName="opacity" values="0.4;1;0.4" dur="2.4s" begin={`${i * 0.2}s`} repeatCount="indefinite" />
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      );
+
+    case "frame_lightning":
+    case "frame_thunder":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            {[0, 90, 180, 270].map((deg, i) => {
+              const a = (deg * Math.PI) / 180;
+              const cx = 50 + Math.cos(a) * 48;
+              const cy = 50 + Math.sin(a) * 48;
+              return (
+                <path key={i} d={`M ${cx - 2} ${cy - 4} L ${cx + 1} ${cy - 1} L ${cx - 1} ${cy + 1} L ${cx + 2} ${cy + 4}`} stroke="#fde047" strokeWidth="1.2" fill="none" strokeLinecap="round">
+                  <animate attributeName="opacity" values="0;1;0" dur="0.8s" begin={`${i * 0.2}s`} repeatCount="indefinite" />
+                </path>
+              );
+            })}
+          </svg>
+        </div>
+      );
+
+    case "frame_gold":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <radialGradient id="gld-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="55%" stopColor="#fde047" stopOpacity="0" />
+                <stop offset="100%" stopColor="#facc15" stopOpacity="0.6" />
+              </radialGradient>
+            </defs>
+            <circle cx="50" cy="50" r="48" fill="url(#gld-glow)" />
+            <circle cx="50" cy="50" r="48" fill="none" stroke="#facc15" strokeWidth="2.5" />
+            <circle cx="50" cy="50" r="48" fill="none" stroke="#fff8b0" strokeWidth="0.6" strokeDasharray="3 6">
+              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="10s" repeatCount="indefinite" />
+            </circle>
+          </svg>
+        </div>
+      );
+
+    case "frame_rainbow":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <linearGradient id="rnb-grad" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stopColor="#ff0080" />
+                <stop offset="20%" stopColor="#ff8c00" />
+                <stop offset="40%" stopColor="#ffd000" />
+                <stop offset="60%" stopColor="#00d084" />
+                <stop offset="80%" stopColor="#00b8ff" />
+                <stop offset="100%" stopColor="#b400ff" />
+              </linearGradient>
+            </defs>
+            <circle cx="50" cy="50" r="48" fill="none" stroke="url(#rnb-grad)" strokeWidth="3">
+              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="5s" repeatCount="indefinite" />
+            </circle>
+          </svg>
+        </div>
+      );
+
+    case "frame_floral":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            {Array.from({ length: 6 }).map((_, i) => {
+              const a = (i * 60 * Math.PI) / 180;
+              const cx = 50 + Math.cos(a) * 48;
+              const cy = 50 + Math.sin(a) * 48;
+              return (
+                <g key={i} transform={`translate(${cx} ${cy})`}>
+                  {[0, 72, 144, 216, 288].map((d) => (
+                    <ellipse key={d} cx="0" cy="-2.5" rx="1.6" ry="2.6" fill="#fbcfe8" stroke="#ec4899" strokeWidth="0.4" transform={`rotate(${d})`} />
+                  ))}
+                  <circle cx="0" cy="0" r="1.2" fill="#fde047" />
+                  <animateTransform attributeName="transform" type="rotate" from={`0 0 0`} to="360 0 0" dur="8s" begin={`${i * 0.4}s`} repeatCount="indefinite" additive="sum" />
+                </g>
+              );
+            })}
+          </svg>
+        </div>
+      );
+
+    /* ===================== RARE — neon glow rings ===================== */
+    case "frame_neon":
+    case "frame_neon_blue":
+    case "frame_neon_green":
+    case "frame_neon_pink": {
+      const c =
+        itemKey === "frame_neon_blue" ? "#3b82f6" :
+        itemKey === "frame_neon_green" ? "#22c55e" :
+        itemKey === "frame_neon_pink" ? "#ec4899" : "#22d3ee";
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <circle cx="50" cy="50" r="48" fill="none" stroke={c} strokeWidth="2" style={{ filter: `drop-shadow(0 0 6px ${c}) drop-shadow(0 0 14px ${c})` }}>
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="1.6s" repeatCount="indefinite" />
+            </circle>
+          </svg>
+        </div>
+      );
+    }
+
+    default:
+      return null;
+  }
+}
