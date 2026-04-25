@@ -1,4 +1,17 @@
 import { CSSProperties } from "react";
+import phoenixRing from "@/assets/cosmetics/frame_phoenix_ring.webp";
+import dragonRing from "@/assets/cosmetics/frame_dragon_ring.webp";
+import diamondRing from "@/assets/cosmetics/frame_diamond_ring.webp";
+import cosmicRing from "@/assets/cosmetics/frame_cosmic_ring.webp";
+
+/** Photoreal PNG rings overlaid on top of the avatar for legendary frames. */
+const PNG_RINGS: Record<string, { src: string; glow: string }> = {
+  frame_phoenix: { src: phoenixRing, glow: "drop-shadow(0 0 8px hsl(20 100% 55% / 0.85)) drop-shadow(0 0 18px hsl(35 100% 55% / 0.55))" },
+  frame_dragon:  { src: dragonRing,  glow: "drop-shadow(0 0 8px hsl(140 100% 45% / 0.85)) drop-shadow(0 0 16px hsl(150 80% 40% / 0.5))" },
+  frame_diamond: { src: diamondRing, glow: "drop-shadow(0 0 6px hsl(200 100% 80% / 0.9)) drop-shadow(0 0 18px hsl(220 100% 70% / 0.55))" },
+  frame_cosmic:  { src: cosmicRing,  glow: "drop-shadow(0 0 8px hsl(280 100% 65% / 0.85)) drop-shadow(0 0 18px hsl(220 100% 60% / 0.5))" },
+  frame_galaxy:  { src: cosmicRing,  glow: "drop-shadow(0 0 8px hsl(280 100% 65% / 0.85)) drop-shadow(0 0 18px hsl(220 100% 60% / 0.5))" },
+};
 
 /**
  * Animated SVG overlay rendered ON TOP of the avatar (pointer-events:none).
@@ -15,6 +28,53 @@ export function FrameDecor({ itemKey, size = "md" }: { itemKey?: string | null; 
     xl: "-inset-5",
   };
   const wrap: CSSProperties = { pointerEvents: "none" };
+
+  // Photoreal PNG ring overlay for legendary frames (with subtle breathing & particles)
+  if (itemKey in PNG_RINGS) {
+    const { src, glow } = PNG_RINGS[itemKey];
+    // Sparks/particles layer for extra life
+    const SparkLayer = () => {
+      // Phoenix → embers, Dragon → green motes, Diamond → white sparkles, Cosmic → stars
+      const cfg = {
+        frame_phoenix: { color: "#ffd166", count: 8 },
+        frame_dragon:  { color: "#86efac", count: 6 },
+        frame_diamond: { color: "#ffffff", count: 10 },
+        frame_cosmic:  { color: "#ffffff", count: 12 },
+        frame_galaxy:  { color: "#ffffff", count: 12 },
+      }[itemKey as keyof typeof PNG_RINGS] ?? { color: "#fff", count: 8 };
+      return (
+        <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible pointer-events-none">
+          {Array.from({ length: cfg.count }).map((_, i) => {
+            const a = (i * (360 / cfg.count) * Math.PI) / 180;
+            const r = 48;
+            const cx = 50 + Math.cos(a) * r;
+            const cy = 50 + Math.sin(a) * r;
+            return (
+              <circle key={i} cx={cx} cy={cy} r="0.9" fill={cfg.color} style={{ filter: `drop-shadow(0 0 3px ${cfg.color})` }}>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
+                <animate attributeName="r" values="0.5;1.4;0.5" dur="2s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
+              </circle>
+            );
+          })}
+        </svg>
+      );
+    };
+    return (
+      <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          width={384}
+          height={384}
+          draggable={false}
+          className="block w-full h-full object-contain animate-cosmetic-breathe"
+          style={{ filter: glow }}
+        />
+        <SparkLayer />
+      </div>
+    );
+  }
 
   switch (itemKey) {
     /* ===================== LEGENDARY ===================== */
