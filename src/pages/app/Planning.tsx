@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Sparkles, Loader2, Plus, Target, Trash2, ChevronLeft, ChevronRight, BookOpen, Brain } from "lucide-react";
+import { Sparkles, Loader2, Plus, Target, Trash2, BookOpen, Brain } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -19,36 +19,21 @@ type Task = { id: string; task_date: string; start_time: string | null; end_time
 
 const dayLabels = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
 
-function startOfWeek(d: Date) {
-  const x = new Date(d);
-  const day = (x.getDay() + 6) % 7;
-  x.setDate(x.getDate() - day);
-  x.setHours(0, 0, 0, 0);
-  return x;
-}
 function fmtDate(d: Date) { return localDateKey(d); }
-function isoWeek(d: Date) {
-  const t = new Date(d);
-  t.setHours(0, 0, 0, 0);
-  t.setDate(t.getDate() + 4 - (t.getDay() || 7));
-  const yearStart = new Date(t.getFullYear(), 0, 1);
-  return Math.ceil(((+t - +yearStart) / 86400000 + 1) / 7);
-}
 
 export default function Planning() {
   const { user } = useAuth();
   const [tasks, setTasks] = useState<Task[]>([]);
   const [open, setOpen] = useState(false);
   const [generating, setGenerating] = useState(false);
-  const [weekOffset, setWeekOffset] = useState(0);
   const [addOpen, setAddOpen] = useState(false);
   const [weekStats, setWeekStats] = useState({ fiches: 0, quizzes: 0, attempts: 0 });
   const coachCtx = useCoachContext();
 
-  const baseDate = new Date();
-  baseDate.setDate(baseDate.getDate() + weekOffset * 7);
-  const week = startOfWeek(baseDate);
-  const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(week); d.setDate(week.getDate() + i); return d; });
+  // Always show the next 7 days starting from today (rolling window).
+  const today0 = new Date(); today0.setHours(0, 0, 0, 0);
+  const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(today0); d.setDate(today0.getDate() + i); return d; });
+  const week = days[0];
 
   const load = async () => {
     if (!user) return;
@@ -66,7 +51,7 @@ export default function Planning() {
     setWeekStats({ fiches: fc ?? 0, quizzes: qc ?? 0, attempts: att?.length ?? 0 });
   };
 
-  useEffect(() => { load(); }, [user, weekOffset]);
+  useEffect(() => { load(); }, [user]);
 
   const toggle = async (t: Task) => {
     setTasks(ts => ts.map(x => x.id === t.id ? { ...x, done: !x.done } : x));
@@ -138,7 +123,7 @@ export default function Planning() {
       <PageHeader
         emoji="🗓️"
         title="Planning"
-        subtitle={weekOffset === 0 ? "Cette semaine" : weekOffset === 1 ? "Semaine prochaine" : weekOffset === -1 ? "Semaine dernière" : `Semaine ${isoWeek(week)}`}
+        subtitle="Les 7 prochains jours"
         action={
           <div className="flex gap-1.5">
             <Dialog open={addOpen} onOpenChange={setAddOpen}>
@@ -190,20 +175,11 @@ export default function Planning() {
 
         <div className="lg:grid lg:grid-cols-[1fr_minmax(320px,30%)] lg:gap-6">
           <div>
-        {/* Sélecteur de semaine */}
-        <div className="flex items-center justify-between glass rounded-2xl px-3 py-2 mb-4">
-          <button onClick={() => setWeekOffset(w => w - 1)} className="h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center">
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-          <div className="text-center">
-            <p className="text-xs font-medium">{week.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} – {days[6].toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}</p>
-            {weekOffset !== 0 && (
-              <button onClick={() => setWeekOffset(0)} className="text-[10px] text-primary hover:underline">Aujourd'hui</button>
-            )}
-          </div>
-          <button onClick={() => setWeekOffset(w => w + 1)} className="h-8 w-8 rounded-lg hover:bg-muted flex items-center justify-center">
-            <ChevronRight className="h-4 w-4" />
-          </button>
+        {/* Bandeau plage de dates */}
+        <div className="glass rounded-2xl px-3 py-2 mb-4 text-center">
+          <p className="text-xs font-medium">
+            {week.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} – {days[6].toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+          </p>
         </div>
 
         <Tabs defaultValue="calendar" className="w-full">
@@ -225,14 +201,15 @@ export default function Planning() {
             )}
             {days.map((d, i) => {
               const dayTasks = tasks.filter(t => t.task_date === fmtDate(d));
-              const isToday = fmtDate(d) === todayKey;
+              const isToday = i === 0;
+              const dowIdx = (d.getDay() + 6) % 7; // Mon=0..Sun=6
               const dayDone = dayTasks.filter(t => t.done).length;
               return (
                 <div key={i} className={`rounded-2xl border ${isToday ? "border-primary/40 bg-primary/5" : "border-border/40"} p-3`}>
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className={`h-9 w-9 rounded-xl flex flex-col items-center justify-center shrink-0 ${isToday ? "gradient-primary text-primary-foreground" : "bg-muted text-foreground"}`}>
-                        <span className="text-[8px] font-bold uppercase leading-none">{dayLabels[i]}</span>
+                        <span className="text-[8px] font-bold uppercase leading-none">{dayLabels[dowIdx]}</span>
                         <span className="text-sm font-bold leading-none mt-0.5">{d.getDate()}</span>
                       </div>
                       <div>
