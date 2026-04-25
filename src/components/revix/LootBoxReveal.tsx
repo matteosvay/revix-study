@@ -3,7 +3,7 @@ import { X, ChevronRight } from "lucide-react";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
 import { BackgroundDecor } from "@/components/revix/cosmetics/BackgroundDecor";
 import { StickerDecor, hasCustomSticker } from "@/components/revix/cosmetics/StickerDecor";
-import { backgroundStyle, RARITY_LABEL, RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
+import { backgroundStyle, RARITY_LABEL, RARITY_ORDER, RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
 import { cn } from "@/lib/utils";
 
 const POWERUP_LABELS: Record<string, { name: string; emoji: string }> = {
@@ -80,7 +80,7 @@ function rewardToCards(r: Reward): Card[] {
 }
 
 function highestRarity(cards: Card[]): Rarity {
-  const order: Rarity[] = ["common", "rare", "epic", "legendary"];
+  const order = RARITY_ORDER;
   let best: Rarity = "common";
   for (const c of cards) {
     if (c.kind === "cosmetic" && order.indexOf(c.rarity) > order.indexOf(best)) best = c.rarity;
@@ -223,7 +223,7 @@ function CardReveal({ card }: { card: Card }) {
 export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: () => void }) {
   const cards = useMemo(() => rewardToCards(reward), [reward]);
   const peakRarity = useMemo(() => {
-    const order: Rarity[] = ["common", "rare", "epic", "legendary"];
+    const order = RARITY_ORDER;
     let best: Rarity = "common";
     for (const c of cards) {
       if (c.kind === "cosmetic" && order.indexOf(c.rarity) > order.indexOf(best)) best = c.rarity;
