@@ -232,6 +232,13 @@ export default function DuelPlay() {
           <span className="label-tape">Q{idx + 1}/{questions.length}</span>
           <span className="font-mono text-2xl font-bold">{timeLeft}s</span>
         </div>
+        {opponentPresence && (
+          <div className="flex items-center justify-center gap-2 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
+            <Wifi className="h-3 w-3 text-success" />
+            <span>Adversaire à la question {Math.min(opponentPresence.current_question + 1, questions.length)}</span>
+            {opponentPresence.current_question > idx && <span className="text-accent font-bold">⚡ il/elle te devance !</span>}
+          </div>
+        )}
         <div className="h-2 w-full bg-muted rounded-full overflow-hidden border-2 border-foreground">
           <div className="h-full bg-accent transition-all" style={{ width: `${(timeLeft / totalSecs) * 100}%` }} />
         </div>
