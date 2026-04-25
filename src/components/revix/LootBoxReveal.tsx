@@ -17,6 +17,8 @@ type Reward = {
   streak_token: boolean;
   powerup: string | null;
   cosmetic: { key: string; name: string; emoji: string | null; rarity: string; category: string } | null;
+  /** Optional additional cosmetics (e.g. queen lootbox grants both a frame AND a background). */
+  extras?: Array<{ key: string; name: string; emoji: string | null; rarity: string; category: string }>;
 };
 
 type Card =
@@ -81,6 +83,11 @@ function rewardToCards(r: Reward): Card[] {
   if (r.cosmetic) {
     cards.push({ kind: "cosmetic", key: r.cosmetic.key, name: r.cosmetic.name, emoji: r.cosmetic.emoji, rarity: (r.cosmetic.rarity as Rarity) ?? "common", category: r.cosmetic.category });
   }
+  if (Array.isArray(r.extras)) {
+    for (const e of r.extras) {
+      cards.push({ kind: "cosmetic", key: e.key, name: e.name, emoji: e.emoji, rarity: (e.rarity as Rarity) ?? "common", category: e.category });
+    }
+  }
   if (r.powerup) cards.push({ kind: "powerup", key: r.powerup });
   if (r.streak_token) cards.push({ kind: "token" });
   if (r.xp > 0) cards.push({ kind: "xp", xp: r.xp });
@@ -136,6 +143,8 @@ function Confetti({ rarity }: { rarity: Rarity }) {
 
 function Rays({ rarity }: { rarity: Rarity }) {
   const color =
+    rarity === "queen" ? "hsl(330 100% 70%)" :
+    rarity === "creator" ? "hsl(40 100% 60%)" :
     rarity === "legendary" ? "hsl(45 100% 60%)" :
     rarity === "epic" ? "hsl(280 90% 65%)" :
     rarity === "rare" ? "hsl(220 90% 60%)" :
@@ -261,6 +270,8 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
 
   // Background tint by rarity
   const bgTint =
+    peakRarity === "queen" ? "from-pink-900/95 via-rose-900/95 to-amber-950/98" :
+    peakRarity === "creator" ? "from-amber-900/95 via-yellow-900/95 to-rose-950/98" :
     peakRarity === "legendary" ? "from-amber-900/95 via-rose-900/95 to-purple-950/98" :
     peakRarity === "epic" ? "from-purple-950/95 via-fuchsia-900/95 to-indigo-950/98" :
     peakRarity === "rare" ? "from-blue-950/95 via-indigo-900/95 to-slate-950/98" :

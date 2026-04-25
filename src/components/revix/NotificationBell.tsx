@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Check, Trash2, X, Loader2 } from "lucide-react";
+import { Bell, Check, Trash2, X, Loader2, Crown } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
+import { LootBoxReveal } from "@/components/revix/LootBoxReveal";
 
 type Notification = {
   id: string;
@@ -28,6 +29,7 @@ const ICONS: Record<string, string> = {
   duel_completed: "🏁",
   course_share_received: "📨",
   course_share_response: "📬",
+  queen_lootbox: "👑",
 };
 
 export const NotificationBell = () => {
@@ -36,6 +38,8 @@ export const NotificationBell = () => {
   const [items, setItems] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
   const [responding, setResponding] = useState<string | null>(null);
+  const [claimingQueen, setClaimingQueen] = useState<string | null>(null);
+  const [queenReward, setQueenReward] = useState<any | null>(null);
 
   const unread = items.filter((n) => !n.read).length;
 
@@ -106,9 +110,29 @@ export const NotificationBell = () => {
     await load();
   };
 
+  const claimQueenLootbox = async (n: Notification, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setClaimingQueen(n.id);
+    const { data, error } = await supabase.rpc("claim_queen_lootbox" as any);
+    setClaimingQueen(null);
+    if (error) {
+      toast.error("Lootbox déjà ouverte ou indisponible");
+      return;
+    }
+    const payload = (data as any)?.rewards;
+    if (!payload) {
+      toast.error("Récompense introuvable");
+      return;
+    }
+    setQueenReward(payload);
+    setOpen(false);
+    await load();
+  };
+
   if (!user) return null;
 
   return (
+    <>
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
         <button
@@ -183,6 +207,22 @@ export const NotificationBell = () => {
                           </Button>
                         </div>
                       )}
+                      {n.type === "queen_lootbox" && (
+                        <div className="mt-2">
+                          <Button
+                            size="sm"
+                            onClick={(e) => claimQueenLootbox(n, e)}
+                            disabled={claimingQueen === n.id}
+                            className="h-8 px-3 text-[11px] bg-gradient-to-r from-pink-400 via-rose-400 to-amber-300 hover:from-pink-500 hover:via-rose-500 hover:to-amber-400 text-white border-2 border-foreground shadow-brutal-sm"
+                          >
+                            {claimingQueen === n.id ? (
+                              <Loader2 className="h-3 w-3 animate-spin" />
+                            ) : (
+                              <><Crown className="h-3.5 w-3.5" /> Ouvrir la lootbox royale</>
+                            )}
+                          </Button>
+                        </div>
+                      )}
                     </div>
                     <span
                       role="button"
@@ -201,5 +241,9 @@ export const NotificationBell = () => {
         </ScrollArea>
       </PopoverContent>
     </Popover>
+    {queenReward && (
+      <LootBoxReveal reward={queenReward} onClose={() => setQueenReward(null)} />
+    )}
+    </>
   );
 };
