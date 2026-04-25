@@ -849,6 +849,85 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
         </svg>
       );
 
+    /* ============== CREATOR (exclusive) ============== */
+    case "bg_origine":
+      return (
+        <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
+          <defs>
+            <linearGradient id="orig-bg-gold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#fff7c2" />
+              <stop offset="50%" stopColor="#ffd166" />
+              <stop offset="100%" stopColor="#7a4a00" />
+            </linearGradient>
+            <radialGradient id="orig-bg-vignette" cx="50%" cy="50%" r="70%">
+              <stop offset="60%" stopColor="#000" stopOpacity="0" />
+              <stop offset="100%" stopColor="#000" stopOpacity="0.55" />
+            </radialGradient>
+            <filter id="orig-bg-blur"><feGaussianBlur stdDeviation="0.8" /></filter>
+          </defs>
+
+          {/* Subtle parchment grain (warm noise via repeating tiny circles) */}
+          {Array.from({ length: 60 }).map((_, i) => {
+            const x = (i * 37) % 200;
+            const y = ((i * 53) % 100);
+            return <circle key={`g${i}`} cx={x} cy={y} r="0.5" fill="hsl(40 60% 35% / 0.08)" />;
+          })}
+
+          {/* Flowing gold streams (animated dashed bezier) */}
+          {[
+            { d: "M -10 30 C 40 10, 80 70, 130 40 S 220 50, 230 25", dur: 14, op: 0.85 },
+            { d: "M -10 70 C 50 90, 90 30, 140 65 S 220 80, 230 55", dur: 18, op: 0.7 },
+            { d: "M -10 50 C 60 35, 100 80, 150 50 S 220 30, 230 60", dur: 22, op: 0.6 },
+          ].map((p, i) => (
+            <g key={`s${i}`}>
+              <path d={p.d} stroke="url(#orig-bg-gold)" strokeWidth="1.4" fill="none" opacity={p.op} strokeDasharray="2 4">
+                <animate attributeName="stroke-dashoffset" from="0" to="120" dur={`${p.dur}s`} repeatCount="indefinite" />
+              </path>
+              <path d={p.d} stroke="#fff7c2" strokeWidth="0.4" fill="none" opacity={p.op * 0.6} filter="url(#orig-bg-blur)" />
+            </g>
+          ))}
+
+          {/* M constellation (5 stars forming an M) */}
+          {[
+            { x: 70, y: 35, r: 1.4 },
+            { x: 80, y: 55, r: 1.0 },
+            { x: 90, y: 40, r: 1.1 },
+            { x: 100, y: 55, r: 1.0 },
+            { x: 110, y: 35, r: 1.4 },
+          ].map((s, i) => (
+            <g key={`c${i}`}>
+              <circle cx={s.x} cy={s.y} r={s.r} fill="#fff7c2" style={{ filter: "drop-shadow(0 0 3px #ffd166)" }}>
+                <animate attributeName="opacity" values="0.5;1;0.5" dur={`${2 + i * 0.3}s`} repeatCount="indefinite" />
+              </circle>
+            </g>
+          ))}
+          {/* Constellation lines */}
+          <path d="M 70 35 L 80 55 L 90 40 L 100 55 L 110 35" stroke="#ffd166" strokeWidth="0.4" fill="none" opacity="0.55" strokeDasharray="1 2" />
+
+          {/* Drifting motes background-wide */}
+          {Array.from({ length: 18 }).map((_, i) => {
+            const x = (i * 31) % 200;
+            const y = ((i * 47) % 100);
+            return (
+              <circle key={`m${i}`} cx={x} cy={y} r="0.5" fill="#fff7c2" opacity="0.7">
+                <animate attributeName="opacity" values="0.1;0.9;0.1" dur={`${3 + (i % 5) * 0.6}s`} begin={`${i * 0.2}s`} repeatCount="indefinite" />
+                <animate attributeName="cy" values={`${y};${y - 4};${y}`} dur={`${5 + (i % 4)}s`} repeatCount="indefinite" />
+              </circle>
+            );
+          })}
+
+          {/* Wax-seal medallion bottom-right with M */}
+          <g transform="translate(178 82)">
+            <circle r="9" fill="#7a1f1f" stroke="#3b0a0a" strokeWidth="0.6" />
+            <circle r="7" fill="none" stroke="#ffd166" strokeWidth="0.5" strokeDasharray="1 1.5" />
+            <text textAnchor="middle" dominantBaseline="middle" fontSize="9" fontFamily="serif" fontWeight="700" fill="url(#orig-bg-gold)" stroke="#3b0a0a" strokeWidth="0.2">M</text>
+          </g>
+
+          {/* Vignette */}
+          <rect width="200" height="100" fill="url(#orig-bg-vignette)" />
+        </svg>
+      );
+
     default:
       return null;
   }
