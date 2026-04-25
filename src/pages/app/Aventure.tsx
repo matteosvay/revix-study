@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { useGamification } from "@/hooks/useGamification";
-import { Tape, Postit, Pin, ScribbleUnderline, Stamp } from "@/components/revix/AcademicDecor";
+import { Tape, Pin, ScribbleUnderline, Stamp } from "@/components/revix/AcademicDecor";
 import { Flame, Sparkles, Trophy, Target, Zap, Lock, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -166,16 +166,6 @@ export default function Aventure() {
           </div>
         </div>
 
-        {/* Teaser prochaines features */}
-        <Postit variant="yellow" className="text-base">
-          <div className="flex items-start gap-2">
-            <Sparkles className="h-4 w-4 mt-1 shrink-0" />
-            <div>
-              <p className="font-bold">Bientôt</p>
-              <p className="text-sm">Badges, boutique XP & cadres avatar arrivent dans la prochaine màj 📬</p>
-            </div>
-          </div>
-        </Postit>
       </div>
 
       {/* Modale : chemin des titres */}
