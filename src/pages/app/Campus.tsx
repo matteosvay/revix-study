@@ -12,7 +12,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { LeaderboardTabs } from "@/components/revix/leaderboard/LeaderboardTabs";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
-import { RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
+import { type Rarity } from "@/lib/cosmetics";
+import { TitleBadge } from "@/components/revix/TitleBadge";
 import { cn } from "@/lib/utils";
 
 type SearchResult = {
@@ -25,6 +26,7 @@ type SearchResult = {
   cursus: string | null;
   equipped_frame?: string | null;
   equipped_sticker?: string | null;
+  equipped_title?: string | null;
   sticker_emoji?: string | null;
   title_name?: string | null;
   title_emoji?: string | null;
@@ -394,11 +396,13 @@ export default function Campus() {
                         </Link>
                         <Link to={`/app/u/${r.id}`} className="flex-1 min-w-0 hover:underline">
                           <p className="font-bold text-sm truncate">{r.display_name ?? "Sans nom"}</p>
-                          {r.title_name && (
-                            <p className={cn("text-[9px] font-mono uppercase tracking-wider truncate", RARITY_TEXT[r.title_rarity ?? "common"])}>
-                              {r.title_emoji} {r.title_name}
-                            </p>
-                          )}
+                          <TitleBadge
+                            itemKey={r.equipped_title}
+                            name={r.title_name}
+                            emoji={r.title_emoji}
+                            rarity={r.title_rarity ?? "common"}
+                            size="text-[9px]"
+                          />
                           <p className="text-[10px] font-mono text-muted-foreground truncate">
                             {r.username ? `@${r.username} · ` : ""}#{r.student_code}
                           </p>
@@ -485,11 +489,13 @@ export default function Campus() {
                       </Link>
                       <Link to={`/app/u/${otherId}`} className="flex-1 min-w-0 hover:underline">
                         <p className="font-bold text-sm truncate">{p.display_name ?? "—"}</p>
-                        {p.title_name && (
-                          <p className={cn("text-[9px] font-mono uppercase tracking-wider truncate", RARITY_TEXT[p.title_rarity ?? "common"])}>
-                            {p.title_emoji} {p.title_name}
-                          </p>
-                        )}
+                        <TitleBadge
+                          itemKey={p.equipped_title}
+                          name={p.title_name}
+                          emoji={p.title_emoji}
+                          rarity={p.title_rarity ?? "common"}
+                          size="text-[9px]"
+                        />
                         <p className="text-[10px] font-mono text-muted-foreground truncate">
                           {p.username ? `@${p.username}` : `#${p.student_code}`}
                         </p>
