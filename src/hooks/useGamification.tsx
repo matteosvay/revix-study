@@ -63,41 +63,11 @@ export async function bumpQuest(userId: string, questKey: string, inc = 1) {
   return res;
 }
 
-/** Ensure today's daily quests + this week's weekly quest exist. */
-async function ensureQuests(userId: string) {
-  const day = todayKey();
-  const week = weekKey();
-  const wEnd = weekEnd(week);
-
-  // daily
-  const { data: existingDaily } = await supabase
-    .from("user_quests").select("id")
-    .eq("user_id", userId).eq("quest_type", "daily").eq("period_start", day);
-  if (!existingDaily || existingDaily.length === 0) {
-    const picks = pickDailyQuests(`${userId}-${day}`, 3);
-    await supabase.from("user_quests").insert(
-      picks.map((q) => ({
-        user_id: userId, quest_key: q.key, quest_type: "daily",
-        title: q.title, description: q.description, emoji: q.emoji,
-        target: q.target, xp_reward: q.xp,
-        period_start: day, period_end: day,
-      }))
-    );
-  }
-
-  // weekly
-  const { data: existingWeek } = await supabase
-    .from("user_quests").select("id")
-    .eq("user_id", userId).eq("quest_type", "weekly").eq("period_start", week);
-  if (!existingWeek || existingWeek.length === 0) {
-    const w = pickWeeklyQuest(`${userId}-${week}`);
-    await supabase.from("user_quests").insert({
-      user_id: userId, quest_key: w.key, quest_type: "weekly",
-      title: w.title, description: w.description, emoji: w.emoji,
-      target: w.target, xp_reward: w.xp,
-      period_start: week, period_end: wEnd,
-    });
-  }
+/** Ensure today's daily quests + this week's weekly quest exist (server-side, atomic). */
+async function ensureQuests(_userId: string) {
+  // Server-side RPC handles idempotent generation using server's CURRENT_DATE,
+  // so it works regardless of client clock/timezone and even if client logic broke.
+  await supabase.rpc("ensure_today_quests" as any);
 }
 
 export function useGamification() {
