@@ -214,6 +214,33 @@ export type Database = {
           },
         ]
       }
+      duel_presence: {
+        Row: {
+          current_question: number
+          duel_id: string
+          id: string
+          last_seen: string
+          ready: boolean
+          user_id: string
+        }
+        Insert: {
+          current_question?: number
+          duel_id: string
+          id?: string
+          last_seen?: string
+          ready?: boolean
+          user_id: string
+        }
+        Update: {
+          current_question?: number
+          duel_id?: string
+          id?: string
+          last_seen?: string
+          ready?: boolean
+          user_id?: string
+        }
+        Relationships: []
+      }
       duel_questions: {
         Row: {
           answers: Json
@@ -965,6 +992,106 @@ export type Database = {
           },
         ]
       }
+      study_group_activity: {
+        Row: {
+          activity_date: string
+          group_id: string
+          id: string
+          user_id: string
+          xp_contributed: number
+        }
+        Insert: {
+          activity_date?: string
+          group_id: string
+          id?: string
+          user_id: string
+          xp_contributed?: number
+        }
+        Update: {
+          activity_date?: string
+          group_id?: string
+          id?: string
+          user_id?: string
+          xp_contributed?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_group_activity_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "study_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      study_group_members: {
+        Row: {
+          group_id: string
+          id: string
+          joined_at: string
+          role: string
+          user_id: string
+        }
+        Insert: {
+          group_id: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id: string
+        }
+        Update: {
+          group_id?: string
+          id?: string
+          joined_at?: string
+          role?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "study_group_members_group_id_fkey"
+            columns: ["group_id"]
+            isOneToOne: false
+            referencedRelation: "study_groups"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      study_groups: {
+        Row: {
+          created_at: string
+          emoji: string | null
+          group_streak_days: number
+          group_streak_record: number
+          id: string
+          invite_code: string
+          last_active_date: string | null
+          name: string
+          owner_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji?: string | null
+          group_streak_days?: number
+          group_streak_record?: number
+          id?: string
+          invite_code: string
+          last_active_date?: string | null
+          name: string
+          owner_id: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string | null
+          group_streak_days?: number
+          group_streak_record?: number
+          id?: string
+          invite_code?: string
+          last_active_date?: string | null
+          name?: string
+          owner_id?: string
+        }
+        Relationships: []
+      }
       study_rooms: {
         Row: {
           created_at: string
@@ -1212,6 +1339,7 @@ export type Database = {
         Args: { p_amount: number; p_reason: string; p_user_id: string }
         Returns: Json
       }
+      bump_group_streak: { Args: { p_group_id: string }; Returns: undefined }
       bump_quest: {
         Args: { p_inc?: number; p_quest_key: string; p_user_id: string }
         Returns: Json
@@ -1228,11 +1356,16 @@ export type Database = {
         }
         Returns: string
       }
+      create_study_group: {
+        Args: { p_emoji?: string; p_name: string }
+        Returns: string
+      }
       ensure_today_quests: { Args: never; Returns: Json }
       equip_cosmetic: {
         Args: { p_category: string; p_item_key: string }
         Returns: Json
       }
+      generate_group_code: { Args: never; Returns: string }
       generate_room_code: { Args: never; Returns: string }
       generate_student_code: { Args: never; Returns: string }
       get_chapter_mastery: {
@@ -1245,6 +1378,20 @@ export type Database = {
           mastery_pct: number
           reviewed_questions: number
           total_questions: number
+        }[]
+      }
+      get_cursus_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          cursus: string
+          display_name: string
+          id: string
+          is_me: boolean
+          level: number
+          streak_days: number
+          xp_total: number
+          xp_week: number
         }[]
       }
       get_due_review_questions: {
@@ -1294,6 +1441,46 @@ export type Database = {
           xp_week: number
         }[]
       }
+      get_global_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          display_name: string
+          id: string
+          is_me: boolean
+          level: number
+          streak_days: number
+          xp_total: number
+          xp_week: number
+        }[]
+      }
+      get_group_members: {
+        Args: { p_group_id: string }
+        Returns: {
+          avatar_url: string
+          contributed_today: boolean
+          display_name: string
+          level: number
+          role: string
+          user_id: string
+          xp_today: number
+        }[]
+      }
+      get_my_groups: {
+        Args: never
+        Returns: {
+          all_contributed_today: boolean
+          contributed_today: number
+          emoji: string
+          group_streak_days: number
+          group_streak_record: number
+          id: string
+          invite_code: string
+          is_owner: boolean
+          member_count: number
+          name: string
+        }[]
+      }
       get_public_profile: {
         Args: { p_user_id: string }
         Returns: {
@@ -1312,7 +1499,25 @@ export type Database = {
           xp_week: number
         }[]
       }
+      get_school_leaderboard: {
+        Args: never
+        Returns: {
+          avatar_url: string
+          display_name: string
+          id: string
+          is_me: boolean
+          level: number
+          school: string
+          streak_days: number
+          xp_total: number
+          xp_week: number
+        }[]
+      }
       increment_quiz_count: { Args: { p_user_id: string }; Returns: Json }
+      is_group_member: {
+        Args: { p_group_id: string; p_user_id: string }
+        Returns: boolean
+      }
       is_room_member: {
         Args: { p_room_id: string; p_user_id: string }
         Returns: boolean
@@ -1321,7 +1526,10 @@ export type Database = {
         Args: { p_room_id: string; p_user_id: string }
         Returns: boolean
       }
+      join_group_by_code: { Args: { p_code: string }; Returns: string }
       join_room_by_code: { Args: { p_code: string }; Returns: string }
+      leave_study_group: { Args: { p_group_id: string }; Returns: undefined }
+      log_group_activity: { Args: { p_xp?: number }; Returns: Json }
       open_daily_loot_box: { Args: never; Returns: Json }
       restore_streak: { Args: { p_user_id: string }; Returns: Json }
       review_question: {
@@ -1339,6 +1547,14 @@ export type Database = {
           student_code: string
           username: string
         }[]
+      }
+      set_duel_presence: {
+        Args: {
+          p_current_question?: number
+          p_duel_id: string
+          p_ready: boolean
+        }
+        Returns: undefined
       }
       set_username: { Args: { p_username: string }; Returns: Json }
       submit_duel_attempt: {
