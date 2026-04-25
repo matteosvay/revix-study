@@ -25,7 +25,7 @@ Deno.serve(async (req) => {
   try {
     const unauthorized = await requireAuth(req);
     if (unauthorized) return unauthorized;
-    const { content, subject, level, title, count = 10, quizType = "qcm", chapter = null, chapters = [] } = await req.json();
+    const { content, subject, level, title, count = 10, quizType = "qcm", chapter = null, chapters = [], difficulty = "mixte", avoidQuestions = [] } = await req.json();
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
     if (!content || content.trim().length < 20) {
@@ -34,6 +34,16 @@ Deno.serve(async (req) => {
     const safeCount = Math.max(3, Math.min(50, Number(count) || 10));
     const allowedTypes = ["qcm", "qcm_multi", "vrai_faux", "ouvert", "trous", "ordre"];
     const type = allowedTypes.includes(quizType) ? quizType : "qcm";
+    const allowedDiff = ["facile", "moyen", "difficile", "expert", "mixte"];
+    const diff = allowedDiff.includes(difficulty) ? difficulty : "mixte";
+
+    const difficultyInstructions: Record<string, string> = {
+      facile: `Niveau FACILE uniquement : questions de mémorisation directe (définitions, dates, faits explicitement écrits dans le cours). Vocabulaire simple. Pas de piège.`,
+      moyen: `Niveau MOYEN uniquement : compréhension et application. L'étudiant doit avoir compris les concepts, pas juste mémorisé. Quelques reformulations.`,
+      difficile: `Niveau DIFFICILE uniquement : analyse, mise en relation entre plusieurs notions du cours, cas concrets, nuances. Distracteurs très plausibles qui forcent à bien lire.`,
+      expert: `Niveau EXPERT : synthèse, raisonnement multi-étapes, exceptions, cas limites, pièges subtils basés sur des nuances précises du cours. Niveau examen blanc exigeant.`,
+      mixte: `Difficulté PROGRESSIVE : commence facile (mémorisation), passe au moyen (compréhension), puis difficile (analyse) sur la fin. Répartition ~30% facile, 40% moyen, 30% difficile.`,
+    };
 
     const typeInstructions: Record<string, string> = {
       qcm: `Génère des QCM. Chaque question a EXACTEMENT 4 réponses (A/B/C/D), UNE SEULE correcte.
@@ -65,9 +75,33 @@ Ne renseigne PAS correct_index.`,
       ? `\n\nLe quiz doit porter EXCLUSIVEMENT sur le chapitre "${chapter}". Ignore les autres parties du cours.`
       : "";
 
+    const avoidList = Array.isArray(avoidQuestions) ? avoidQuestions.slice(0, 40) : [];
+    const avoidBlock = avoidList.length
+      ? `\n\nIMPORTANT — VARIÉTÉ : Voici des questions DÉJÀ posées à l'étudiant lors de quizz précédents. Tu dois ABSOLUMENT proposer des questions DIFFÉRENTES (autre angle, autre formulation, autre partie du cours, autre type de raisonnement). N'utilise PAS ces formulations :\n${avoidList.map((q: string, i: number) => `${i + 1}. ${String(q).slice(0, 180)}`).join("\n")}`
+      : "";
+
+    const seed = Math.floor(Math.random() * 1_000_000);
+    const angles = [
+      "définitions et vocabulaire clé",
+      "dates, chiffres, ordres de grandeur",
+      "causes et conséquences",
+      "comparaisons entre notions",
+      "exemples concrets et applications",
+      "exceptions et cas particuliers",
+      "schémas, processus, étapes",
+      "auteurs, sources, références",
+    ];
+    // shuffle deterministically per seed
+    const shuffled = [...angles].sort(() => (Math.sin(seed * angles.length) > 0 ? 1 : -1) * (Math.random() - 0.5));
+    const anglesBlock = `\n\nVARIE LES ANGLES — couvre plusieurs de ces dimensions à travers tes ${safeCount} questions, ne te focalise pas sur une seule :\n${shuffled.slice(0, 5).map(a => `• ${a}`).join("\n")}`;
+
     const system = `Tu es un examinateur français pour étudiants ${level ?? ""}.
 Tu crées des questions rigoureuses en français, basées sur le cours fourni.
-Niveau de difficulté progressif (facile -> difficile). Pas de question piège ridicule. Utilise "tu".${scopeInstruction}${chapterInstruction}
+${difficultyInstructions[diff]}
+Pas de question piège ridicule. Utilise "tu".${scopeInstruction}${chapterInstruction}${anglesBlock}${avoidBlock}
+
+Couvre tout le cours, pas seulement le début. Réparti tes questions sur l'ENSEMBLE du contenu fourni.
+Seed de variation : ${seed} (utilise-le mentalement pour explorer des angles différents à chaque génération).
 
 Format demandé : ${typeInstructions[type]}`;
 
