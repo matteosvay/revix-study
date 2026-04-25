@@ -10,6 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { LeaderboardTabs } from "@/components/revix/leaderboard/LeaderboardTabs";
 
 type SearchResult = {
   id: string;
@@ -572,94 +573,9 @@ export default function Campus() {
           <TabsContent value="classement" className="mt-5 space-y-4">
             <div className="text-center">
               <p className="font-hand text-2xl">Tableau d'honneur</p>
-              <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Cette semaine · entre amis</p>
+              <p className="text-[10px] font-mono uppercase tracking-widest text-muted-foreground">Cette semaine</p>
             </div>
-
-            {leaderboard.length <= 1 ? (
-              <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
-                <Trophy className="h-10 w-10 mx-auto text-muted-foreground" />
-                <p className="font-display text-base mt-2">Aucun ami à classer</p>
-                <p className="text-xs text-muted-foreground mt-1">Ajoute des amis pour comparer vos progrès.</p>
-              </div>
-            ) : (
-              <>
-                {/* Podium top 3 */}
-                <div className="grid grid-cols-3 gap-2">
-                  {[1, 0, 2].map(idx => {
-                    const row = leaderboard[idx];
-                    if (!row) return <div key={idx} />;
-                    const medals = ["🥇", "🥈", "🥉"];
-                    const stamps = ["MAJOR", "MENTION TB", "MENTION B"];
-                    const heights = ["h-32", "h-24", "h-20"];
-                    const realIdx = idx;
-                    return (
-                      <div key={row.id} className="flex flex-col items-center">
-                        <Avatar className={`${realIdx === 0 ? "h-14 w-14" : "h-10 w-10"} border-2 border-foreground mb-1`}>
-                          {row.avatar_url && <AvatarImage src={row.avatar_url} />}
-                          <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">{initialsOf(row.display_name)}</AvatarFallback>
-                        </Avatar>
-                        <p className="text-xs font-bold truncate max-w-full">{row.is_me ? "Toi" : row.display_name?.split(" ")[0] ?? "—"}</p>
-                        <div className={`${heights[realIdx]} w-full bg-secondary border-2 border-foreground rounded-t-md mt-1 flex flex-col items-center justify-end p-1`}>
-                          <p className="text-2xl">{medals[realIdx]}</p>
-                          <p className="font-mono text-[10px] font-bold">{row.xp_week} XP</p>
-                          <p className="text-[8px] font-bold uppercase tracking-wider mt-1">{stamps[realIdx]}</p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Liste complète */}
-                <div className="bg-card border-2 border-foreground rounded-md shadow-brutal-sm overflow-hidden">
-                  {leaderboard.map((row, i) => {
-                    const max = leaderboard[0]?.xp_week || 1;
-                    const pct = Math.max(2, Math.round((row.xp_week / max) * 100));
-                    return (
-                      <div key={row.id} className={`flex items-center gap-2 p-2 border-b border-foreground/20 last:border-0 ${row.is_me ? "bg-[hsl(var(--highlight-yellow))]/40" : ""}`}>
-                        <span className="font-mono font-bold text-sm w-6 text-center">{i + 1}</span>
-                        <Avatar className="h-8 w-8 border border-foreground">
-                          {row.avatar_url && <AvatarImage src={row.avatar_url} />}
-                          <AvatarFallback className="text-[10px] font-bold">{initialsOf(row.display_name)}</AvatarFallback>
-                        </Avatar>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-1">
-                            <p className="text-xs font-bold truncate">{row.is_me ? "Toi" : row.display_name ?? "—"}</p>
-                            <span className="text-[8px] font-mono bg-foreground text-background px-1 rounded">N{row.level}</span>
-                          </div>
-                          <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-0.5">
-                            <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-mono text-xs font-bold">{row.xp_week}</p>
-                          <p className="text-[9px] text-muted-foreground flex items-center gap-0.5 justify-end">
-                            <Flame className="h-2.5 w-2.5" />{row.streak_days}
-                          </p>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-
-                {/* Banner motiv */}
-                {(() => {
-                  const myIdx = leaderboard.findIndex(r => r.is_me);
-                  if (myIdx <= 0) return null;
-                  const above = leaderboard[myIdx - 1];
-                  const diff = above.xp_week - leaderboard[myIdx].xp_week;
-                  return (
-                    <div className="postit-pink p-3 rounded-md border-2 border-foreground shadow-brutal-sm">
-                      <p className="text-xs font-bold">
-                        T'es {myIdx + 1}{myIdx === 1 ? "ème" : "ème"} cette semaine !
-                      </p>
-                      <p className="text-[11px] mt-1">
-                        Plus que <span className="font-mono font-bold">{diff} XP</span> pour dépasser {above.display_name?.split(" ")[0] ?? "lui"}. <Sparkles className="inline h-3 w-3" />
-                      </p>
-                    </div>
-                  );
-                })()}
-              </>
-            )}
+            <LeaderboardTabs initialScope="amis" />
           </TabsContent>
         </Tabs>
       </div>
