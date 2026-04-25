@@ -928,6 +928,86 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
         </svg>
       );
 
+    /* ============== QUEEN (Léna — exclusive) ============== */
+    case "bg_reine":
+      return (
+        <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
+          <defs>
+            <linearGradient id="reine-bg-gold" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%" stopColor="#fff5d1" />
+              <stop offset="50%" stopColor="#f5c14e" />
+              <stop offset="100%" stopColor="#a86b1a" />
+            </linearGradient>
+            <radialGradient id="reine-bg-vignette" cx="50%" cy="50%" r="70%">
+              <stop offset="60%" stopColor="#000" stopOpacity="0" />
+              <stop offset="100%" stopColor="#7a1342" stopOpacity="0.35" />
+            </radialGradient>
+          </defs>
+
+          {/* Volutes dorées arabesques */}
+          {[
+            { d: "M -10 25 C 30 5, 70 55, 110 30 S 200 40, 220 18", dur: 16, op: 0.55 },
+            { d: "M -10 75 C 40 95, 90 35, 140 70 S 220 85, 230 55", dur: 22, op: 0.5 },
+          ].map((p, i) => (
+            <path key={`flo${i}`} d={p.d} stroke="url(#reine-bg-gold)" strokeWidth="0.9" fill="none" opacity={p.op} strokeDasharray="2 5">
+              <animate attributeName="stroke-dashoffset" from="0" to="120" dur={`${p.dur}s`} repeatCount="indefinite" />
+            </path>
+          ))}
+
+          {/* Pétales de rose qui tombent doucement */}
+          {Array.from({ length: 14 }).map((_, i) => {
+            const x = (i * 17) % 200;
+            const startY = -8 - (i * 7) % 30;
+            const dur = 9 + (i % 5);
+            const size = 3.4 + (i % 3) * 0.7;
+            return (
+              <text
+                key={`p${i}`}
+                x={x}
+                y={startY}
+                fontSize={size}
+                opacity="0.9"
+                style={{ filter: "drop-shadow(0 1px 1px hsl(330 50% 30% / 0.4))" }}
+              >
+                🌸
+                <animate attributeName="y" from={startY} to="110" dur={`${dur}s`} begin={`${i * 0.4}s`} repeatCount="indefinite" />
+                <animate attributeName="x" values={`${x};${x + 8};${x - 6};${x}`} dur={`${dur}s`} begin={`${i * 0.4}s`} repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0;1;1;0" dur={`${dur}s`} begin={`${i * 0.4}s`} repeatCount="indefinite" />
+              </text>
+            );
+          })}
+
+          {/* Scintillements dorés */}
+          {Array.from({ length: 22 }).map((_, i) => {
+            const x = (i * 29 + 13) % 200;
+            const y = (i * 41 + 7) % 100;
+            return (
+              <circle key={`s${i}`} cx={x} cy={y} r="0.6" fill="#fde68a" style={{ filter: "drop-shadow(0 0 3px #fbbf24)" }}>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur={`${2 + (i % 4) * 0.4}s`} begin={`${i * 0.18}s`} repeatCount="indefinite" />
+                <animate attributeName="r" values="0.4;1.2;0.4" dur={`${2 + (i % 4) * 0.4}s`} begin={`${i * 0.18}s`} repeatCount="indefinite" />
+              </circle>
+            );
+          })}
+
+          {/* Couronne dorée subtile en haut au centre */}
+          <g transform="translate(100 16) scale(0.5)" opacity="0.9">
+            <path d="M -22 12 L -14 -10 L -7 12 L 0 -16 L 7 12 L 14 -10 L 22 12 L 18 20 L -18 20 Z"
+              fill="url(#reine-bg-gold)" stroke="#7a4a00" strokeWidth="0.6" strokeLinejoin="round" />
+            <circle cx="0" cy="-16" r="3" fill="#ec4899" stroke="#fff5d1" strokeWidth="0.6" />
+          </g>
+
+          {/* Médaillon de cire rose avec monogramme L (en bas à droite) */}
+          <g transform="translate(178 82)">
+            <circle r="9" fill="#9d174d" stroke="#4a0d27" strokeWidth="0.6" />
+            <circle r="7" fill="none" stroke="#fde68a" strokeWidth="0.5" strokeDasharray="1 1.5" />
+            <text textAnchor="middle" dominantBaseline="middle" fontSize="9" fontFamily="serif" fontWeight="700" fill="url(#reine-bg-gold)" stroke="#4a0d27" strokeWidth="0.2">L</text>
+          </g>
+
+          {/* Vignette rose */}
+          <rect width="200" height="100" fill="url(#reine-bg-vignette)" />
+        </svg>
+      );
+
     default:
       return null;
   }

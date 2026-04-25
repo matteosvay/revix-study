@@ -66,6 +66,14 @@ const RARITY_THEME: Record<Rarity, { ring: string; glow: string; aura: string; l
     text: "text-amber-400",
     gradient: "from-amber-200 via-yellow-400 to-amber-600",
   },
+  queen: {
+    ring: "ring-pink-300",
+    glow: "shadow-[0_0_90px_hsl(330_100%_75%/0.95)]",
+    aura: "legendary-aura",
+    label: "bg-gradient-to-r from-pink-300 via-rose-400 to-amber-300 text-white",
+    text: "text-pink-500",
+    gradient: "from-pink-300 via-rose-400 to-amber-300",
+  },
 };
 
 function rewardToCards(r: Reward): Card[] {

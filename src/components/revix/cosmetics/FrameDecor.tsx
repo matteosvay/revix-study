@@ -33,6 +33,86 @@ export function FrameDecor({
 
   // ===== Above-avatar overlays (rendered ON TOP of the photo) =====
   if (layer === "above") {
+    if (itemKey === "frame_reine") {
+      // Petite couronne rose+or qui flotte au-dessus de la photo de profil.
+      // Rendue derrière l'avatar (z-0) pour que la photo reste visible —
+      // seules les pointes de la couronne dépassent au-dessus de la tête.
+      const WRAP: Record<string, string> = {
+        sm: "-top-3 left-1/2 -translate-x-1/2 w-8 h-5",
+        md: "-top-4 left-1/2 -translate-x-1/2 w-12 h-7",
+        lg: "-top-6 left-1/2 -translate-x-1/2 w-16 h-10",
+        xl: "-top-8 left-1/2 -translate-x-1/2 w-24 h-14",
+      };
+      return (
+        <div className={`absolute ${WRAP[size]} pointer-events-none z-0`}>
+          <svg viewBox="0 0 100 60" className="w-full h-full overflow-visible">
+            <defs>
+              <linearGradient id="reine-gold" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%" stopColor="#fff5d1" />
+                <stop offset="50%" stopColor="#f5c14e" />
+                <stop offset="100%" stopColor="#b8860b" />
+              </linearGradient>
+              <radialGradient id="reine-ruby" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#ffe8f0" />
+                <stop offset="40%" stopColor="#ec4899" />
+                <stop offset="100%" stopColor="#831843" />
+              </radialGradient>
+              <radialGradient id="reine-glow" cx="50%" cy="50%" r="50%">
+                <stop offset="0%" stopColor="#fbcfe8" stopOpacity="0.7" />
+                <stop offset="100%" stopColor="#fbcfe8" stopOpacity="0" />
+              </radialGradient>
+            </defs>
+            {/* Halo rose tendre */}
+            <ellipse cx="50" cy="42" rx="48" ry="14" fill="url(#reine-glow)">
+              <animate attributeName="opacity" values="0.45;0.9;0.45" dur="3.2s" repeatCount="indefinite" />
+            </ellipse>
+            {/* Bandeau de la couronne */}
+            <path
+              d="M12 42 Q50 50 88 42 L84 52 Q50 58 16 52 Z"
+              fill="url(#reine-gold)"
+              stroke="#7c5300"
+              strokeWidth="0.8"
+            />
+            {/* Pointes — 5 pics avec rubis sur le pic central */}
+            <path
+              d="M12 42 L22 18 L32 42 L42 14 L50 6 L58 14 L68 42 L78 18 L88 42 Z"
+              fill="url(#reine-gold)"
+              stroke="#7c5300"
+              strokeWidth="0.8"
+              strokeLinejoin="round"
+            />
+            {/* Petits rubis aux extrémités */}
+            <circle cx="22" cy="20" r="2.4" fill="url(#reine-ruby)" stroke="#fbcfe8" strokeWidth="0.4">
+              <animate attributeName="r" values="2.2;2.8;2.2" dur="2.4s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="78" cy="20" r="2.4" fill="url(#reine-ruby)" stroke="#fbcfe8" strokeWidth="0.4">
+              <animate attributeName="r" values="2.2;2.8;2.2" dur="2.4s" begin="0.6s" repeatCount="indefinite" />
+            </circle>
+            {/* Rubis central, plus gros */}
+            <circle cx="50" cy="10" r="3.6" fill="url(#reine-ruby)" stroke="#fff" strokeWidth="0.6">
+              <animate attributeName="r" values="3.2;4.2;3.2" dur="2.6s" repeatCount="indefinite" />
+            </circle>
+            {/* Mini perles dorées sur le bandeau */}
+            {[20, 35, 50, 65, 80].map((cx, i) => (
+              <circle key={i} cx={cx} cy="46" r="1.4" fill="#fff5d1" stroke="#7c5300" strokeWidth="0.3">
+                <animate attributeName="opacity" values="0.6;1;0.6" dur="1.8s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
+              </circle>
+            ))}
+            {/* Pétales/étincelles flottantes */}
+            {Array.from({ length: 6 }).map((_, i) => {
+              const x = 10 + i * 14;
+              return (
+                <text key={i} x={x} y="2" fontSize="3.5" fill="#f9a8d4" opacity="0.85">
+                  🌹
+                  <animate attributeName="y" values="2;-4;2" dur="3.4s" begin={`${i * 0.4}s`} repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.4;1;0.4" dur="3.4s" begin={`${i * 0.4}s`} repeatCount="indefinite" />
+                </text>
+              );
+            })}
+          </svg>
+        </div>
+      );
+    }
     if (itemKey === "frame_origine") {
       // Photoreal liquid-gold crown + ring overlay (ABOVE the avatar).
       // The PNG includes both the dripping gold ring AND the baroque crown on top.
@@ -145,6 +225,62 @@ export function FrameDecor({
   }
 
   switch (itemKey) {
+    /* ===================== QUEEN (Léna) ===================== */
+    case "frame_reine":
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <radialGradient id="reine-aura" cx="50%" cy="50%" r="50%">
+                <stop offset="55%" stopColor="#f9a8d4" stopOpacity="0" />
+                <stop offset="100%" stopColor="#ec4899" stopOpacity="0.55" />
+              </radialGradient>
+              <linearGradient id="reine-ring-grad" x1="0" y1="0" x2="1" y2="1">
+                <stop offset="0%" stopColor="#fbcfe8" />
+                <stop offset="50%" stopColor="#fde68a" />
+                <stop offset="100%" stopColor="#f472b6" />
+              </linearGradient>
+            </defs>
+            {/* Aura rose dégradée pulsante */}
+            <circle cx="50" cy="50" r="48" fill="url(#reine-aura)">
+              <animate attributeName="r" values="46;52;46" dur="3s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="3s" repeatCount="indefinite" />
+            </circle>
+            {/* Anneau rose+or tournant */}
+            <circle cx="50" cy="50" r="48" fill="none" stroke="url(#reine-ring-grad)" strokeWidth="1.5" strokeDasharray="4 3" opacity="0.85">
+              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="14s" repeatCount="indefinite" />
+            </circle>
+            {/* Pétales de rose qui tournent */}
+            {Array.from({ length: 8 }).map((_, i) => {
+              const a = (i * 45 * Math.PI) / 180;
+              const r = 47;
+              const cx = 50 + Math.cos(a) * r;
+              const cy = 50 + Math.sin(a) * r;
+              return (
+                <text key={i} x={cx} y={cy} fontSize="5" textAnchor="middle" dominantBaseline="middle" opacity="0.95">
+                  🌹
+                  <animate attributeName="opacity" values="0.5;1;0.5" dur="2.4s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
+                  <animateTransform attributeName="transform" type="rotate" from={`0 ${cx} ${cy}`} to={`360 ${cx} ${cy}`} dur="9s" repeatCount="indefinite" />
+                </text>
+              );
+            })}
+            {/* Étincelles dorées */}
+            {Array.from({ length: 10 }).map((_, i) => {
+              const a = ((i * 36 + 18) * Math.PI) / 180;
+              const r = 50;
+              const cx = 50 + Math.cos(a) * r;
+              const cy = 50 + Math.sin(a) * r;
+              return (
+                <circle key={i} cx={cx} cy={cy} r="0.9" fill="#fde68a" style={{ filter: "drop-shadow(0 0 3px #fbbf24)" }}>
+                  <animate attributeName="opacity" values="0.2;1;0.2" dur="2s" begin={`${i * 0.15}s`} repeatCount="indefinite" />
+                  <animate attributeName="r" values="0.5;1.5;0.5" dur="2s" begin={`${i * 0.15}s`} repeatCount="indefinite" />
+                </circle>
+              );
+            })}
+          </svg>
+        </div>
+      );
+
     /* ===================== LEGENDARY ===================== */
     case "frame_phoenix":
       return (
