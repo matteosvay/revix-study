@@ -6,6 +6,7 @@ import { ArrowLeft, Brain, Trash2, Loader2 } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CourseSummary, type CourseSummaryData } from "@/components/revix/CourseSummary";
@@ -15,11 +16,13 @@ type Course = { id: string; title: string; subject: string | null; emoji: string
 
 const QUIZ_TYPES = [
   { value: "qcm", label: "QCM", desc: "Choix multiple, 4 réponses possibles" },
+  { value: "qcm_multi", label: "QCM multi-réponses", desc: "Plusieurs bonnes réponses à cocher" },
   { value: "vrai_faux", label: "Vrai / Faux", desc: "Affirmations à juger" },
   { value: "ouvert", label: "Questions ouvertes", desc: "Réponse rédigée, corrigée par l'IA" },
   { value: "trous", label: "Texte à trous", desc: "Compléter les mots manquants" },
+  { value: "ordre", label: "Mise en ordre", desc: "Remettre les éléments dans le bon ordre" },
 ] as const;
-const COUNT_OPTIONS = [5, 10, 15, 20];
+const COUNT_PRESETS = [5, 10, 15, 20, 30];
 
 export default function CourseDetail() {
   const { id } = useParams();
@@ -66,15 +69,25 @@ export default function CourseDetail() {
         user_id: user!.id, course_id: course.id, title: `Quizz · ${course.title}${titleSuffix}`, quiz_type: quizType,
       }).select().single();
       if (qErr) throw qErr;
-      const rows = qs.map((q: any, i: number) => ({
-        quiz_id: quiz.id, user_id: user!.id, question: q.question,
-        type: q.type ?? quizType,
-        answers: q.answers ?? null,
-        correct_index: typeof q.correct_index === "number" ? q.correct_index : null,
-        accepted_answers: q.accepted_answers ?? null,
-        explanation: q.explanation, position: i,
-        chapter: q.chapter ?? chapterFilter ?? null,
-      }));
+      const rows = qs.map((q: any, i: number) => {
+        // Pour qcm_multi : on stocke correct_indices dans accepted_answers (JSON-encodé en strings)
+        // Pour ordre : on stocke correct_order dans accepted_answers
+        let acceptedAnswers = q.accepted_answers ?? null;
+        if (q.type === "qcm_multi" && Array.isArray(q.correct_indices)) {
+          acceptedAnswers = q.correct_indices.map((n: number) => String(n));
+        } else if (q.type === "ordre" && Array.isArray(q.correct_order)) {
+          acceptedAnswers = q.correct_order.map((n: number) => String(n));
+        }
+        return {
+          quiz_id: quiz.id, user_id: user!.id, question: q.question,
+          type: q.type ?? quizType,
+          answers: q.answers ?? null,
+          correct_index: typeof q.correct_index === "number" ? q.correct_index : null,
+          accepted_answers: acceptedAnswers,
+          explanation: q.explanation, position: i,
+          chapter: q.chapter ?? chapterFilter ?? null,
+        };
+      });
       await supabase.from("quiz_questions").insert(rows);
       toast.success("Quizz créé ✨");
       setQuizSheetOpen(false);
@@ -148,13 +161,20 @@ export default function CourseDetail() {
 
               <div>
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">Nombre de questions</Label>
-                <div className="mt-2 grid grid-cols-4 gap-2">
-                  {COUNT_OPTIONS.map(n => (
+                <div className="mt-2 grid grid-cols-5 gap-2">
+                  {COUNT_PRESETS.map(n => (
                     <button key={n} type="button" onClick={() => setQuizCount(n)}
-                      className={`h-12 rounded-xl border-2 font-semibold transition ${quizCount === n ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>
+                      className={`h-11 rounded-xl border-2 font-semibold transition text-sm ${quizCount === n ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>
                       {n}
                     </button>
                   ))}
+                </div>
+                <div className="mt-3 px-1">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-[11px] text-muted-foreground font-mono uppercase tracking-wider">Personnalisé</span>
+                    <span className="font-bold text-primary text-sm">{quizCount} questions</span>
+                  </div>
+                  <Slider value={[quizCount]} onValueChange={(v) => setQuizCount(v[0])} min={3} max={50} step={1} />
                 </div>
               </div>
 
