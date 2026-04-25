@@ -4,17 +4,17 @@
  */
 import type { CSSProperties } from "react";
 
-export type Rarity = "common" | "rare" | "epic" | "legendary" | "creator";
+export type Rarity = "common" | "rare" | "epic" | "legendary" | "creator" | "queen";
 
 export const RARITY_LABEL: Record<Rarity, string> = {
-  common: "Commun", rare: "Rare", epic: "Épique", legendary: "Légendaire", creator: "Créateur",
+  common: "Commun", rare: "Rare", epic: "Épique", legendary: "Légendaire", creator: "Créateur", queen: "Reine",
 };
 
 /**
  * Display order from lowest to highest rarity.
- * `creator` is the most prestigious tier — it sits ABOVE legendary.
+ * `queen` is the most prestigious tier — exclusive, above creator.
  */
-export const RARITY_ORDER: Rarity[] = ["common", "rare", "epic", "legendary", "creator"];
+export const RARITY_ORDER: Rarity[] = ["common", "rare", "epic", "legendary", "creator", "queen"];
 
 /** Numeric rank — higher = more prestigious. Useful for sorting (desc). */
 export function rarityRank(r: Rarity | null | undefined): number {
@@ -29,6 +29,7 @@ export const RARITY_RING: Record<Rarity, string> = {
   epic: "ring-purple-500",
   legendary: "ring-yellow-400",
   creator: "ring-amber-300",
+  queen: "ring-pink-300",
 };
 export const RARITY_TEXT: Record<Rarity, string> = {
   common: "text-muted-foreground",
@@ -36,6 +37,7 @@ export const RARITY_TEXT: Record<Rarity, string> = {
   epic: "text-purple-500",
   legendary: "text-yellow-500",
   creator: "text-amber-400",
+  queen: "text-pink-500",
 };
 export const RARITY_BORDER: Record<Rarity, string> = {
   common: "border-muted-foreground/40",
@@ -43,6 +45,7 @@ export const RARITY_BORDER: Record<Rarity, string> = {
   epic: "border-purple-500",
   legendary: "border-yellow-400",
   creator: "border-amber-300",
+  queen: "border-pink-300",
 };
 export const CATEGORY_LABEL: Record<string, string> = {
   frame: "Cadre", background: "Fond", sticker: "Sticker", title: "Titre",
