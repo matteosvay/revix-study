@@ -94,6 +94,17 @@ export default function Quizz() {
 
   useEffect(() => { loadInventory(); }, [user]);
 
+  // Initialise l'ordre mélangé pour les questions de type "ordre"
+  useEffect(() => {
+    if (phase !== "play") return;
+    const q = questions[qIdx];
+    if (!q) return;
+    if (q.type === "ordre" && q.answers) {
+      // On part de l'ordre tel que présenté (déjà mélangé par l'IA)
+      setOrderPicked(q.answers.map((_, i) => i));
+    }
+  }, [qIdx, phase, questions]);
+
   const comboMultiplier = useMemo(() => {
     if (combo >= 10) return 3;
     if (combo >= 5) return 2;
