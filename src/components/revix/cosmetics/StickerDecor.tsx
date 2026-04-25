@@ -1,6 +1,26 @@
-const CUSTOM_STICKERS = new Set([
-  "sticker_phoenix", "sticker_dragon", "sticker_crown_royal", "sticker_diamond",
-  "sticker_galaxy", "sticker_meteor", "sticker_infinity", "sticker_cosmic_eye",
+import phoenixImg from "@/assets/cosmetics/sticker_phoenix.webp";
+import dragonImg from "@/assets/cosmetics/sticker_dragon.webp";
+import crownRoyalImg from "@/assets/cosmetics/sticker_crown_royal.webp";
+import diamondImg from "@/assets/cosmetics/sticker_diamond.webp";
+import galaxyImg from "@/assets/cosmetics/sticker_galaxy.webp";
+import meteorImg from "@/assets/cosmetics/sticker_meteor.webp";
+import infinityImg from "@/assets/cosmetics/sticker_infinity.webp";
+import cosmicEyeImg from "@/assets/cosmetics/sticker_cosmic_eye.webp";
+
+/** Photoreal PNG/webp stickers (premium legendary) — keyed by item_key. */
+const PNG_STICKERS: Record<string, { src: string; glow: string }> = {
+  sticker_phoenix:     { src: phoenixImg,    glow: "drop-shadow(0 0 6px hsl(20 100% 55% / 0.9)) drop-shadow(0 0 14px hsl(35 100% 55% / 0.7))" },
+  sticker_dragon:      { src: dragonImg,     glow: "drop-shadow(0 0 6px hsl(140 100% 45% / 0.9)) drop-shadow(0 0 12px hsl(150 80% 40% / 0.6))" },
+  sticker_crown_royal: { src: crownRoyalImg, glow: "drop-shadow(0 0 6px hsl(45 100% 55% / 0.9)) drop-shadow(0 0 12px hsl(45 90% 50% / 0.5))" },
+  sticker_diamond:     { src: diamondImg,    glow: "drop-shadow(0 0 6px hsl(200 100% 75% / 0.95)) drop-shadow(0 0 14px hsl(220 100% 65% / 0.6))" },
+  sticker_galaxy:      { src: galaxyImg,     glow: "drop-shadow(0 0 8px hsl(300 100% 65% / 0.85)) drop-shadow(0 0 16px hsl(280 100% 60% / 0.5))" },
+  sticker_meteor:      { src: meteorImg,     glow: "drop-shadow(0 0 6px hsl(25 100% 55% / 0.95)) drop-shadow(0 0 14px hsl(45 100% 60% / 0.6))" },
+  sticker_infinity:    { src: infinityImg,   glow: "drop-shadow(0 0 6px hsl(180 100% 60% / 0.85)) drop-shadow(0 0 14px hsl(320 100% 65% / 0.55))" },
+  sticker_cosmic_eye:  { src: cosmicEyeImg,  glow: "drop-shadow(0 0 6px hsl(280 100% 65% / 0.9)) drop-shadow(0 0 14px hsl(45 100% 55% / 0.5))" },
+};
+
+/** SVG-only custom stickers (still drawn inline) */
+const SVG_STICKERS = new Set([
   "sticker_crown", "sticker_crown_simple", "sticker_unicorn", "sticker_wizard",
   "sticker_ninja", "sticker_alien", "sticker_trophy_gold",
   "sticker_lightning", "sticker_rocket", "sticker_medal", "sticker_trophy_bronze",
@@ -8,7 +28,7 @@ const CUSTOM_STICKERS = new Set([
 ]);
 
 export function hasCustomSticker(itemKey?: string | null) {
-  return !!itemKey && CUSTOM_STICKERS.has(itemKey);
+  return !!itemKey && (itemKey in PNG_STICKERS || SVG_STICKERS.has(itemKey));
 }
 
 /**
@@ -20,181 +40,26 @@ export function StickerDecor({ itemKey, className }: { itemKey?: string | null; 
   if (!itemKey) return null;
   const wrap = `inline-block ${className ?? ""}`;
 
+  // Photoreal PNG sticker — wraps in a span with subtle glow + breathing animation
+  if (itemKey in PNG_STICKERS) {
+    const { src, glow } = PNG_STICKERS[itemKey];
+    return (
+      <span className={`${wrap} relative`}>
+        <img
+          src={src}
+          alt=""
+          loading="lazy"
+          width={256}
+          height={256}
+          className="block w-full h-full object-contain animate-cosmetic-breathe"
+          style={{ filter: glow }}
+          draggable={false}
+        />
+      </span>
+    );
+  }
+
   switch (itemKey) {
-    /* =========== LEGENDARY =========== */
-    case "sticker_phoenix":
-      return (
-        <span className={wrap}>
-          <svg viewBox="0 0 32 32" className="w-full h-full overflow-visible">
-            <defs>
-              <linearGradient id="st-phx-flame" x1="0" y1="1" x2="0" y2="0">
-                <stop offset="0%" stopColor="#ffd166" />
-                <stop offset="60%" stopColor="#ff5b1f" />
-                <stop offset="100%" stopColor="#7a0000" stopOpacity="0" />
-              </linearGradient>
-              <radialGradient id="st-phx-glow" cx="50%" cy="50%" r="50%">
-                <stop offset="20%" stopColor="#fde047" stopOpacity="0.7" />
-                <stop offset="100%" stopColor="#ff5b1f" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            <circle cx="16" cy="16" r="14" fill="url(#st-phx-glow)" />
-            <path d="M16 28 C 8 24 6 16 10 10 C 12 14 14 14 16 12 C 18 14 20 14 22 10 C 26 16 24 24 16 28 Z" fill="url(#st-phx-flame)" stroke="#7a0000" strokeWidth="0.6" />
-            <path d="M16 6 L18 12 L24 10 L20 14 L26 16 L20 18 L24 22 L18 20 L16 26 L14 20 L8 22 L12 18 L6 16 L12 14 L8 10 L14 12 Z" fill="#ff8c00" stroke="#7a0000" strokeWidth="0.4">
-              <animateTransform attributeName="transform" type="rotate" from="0 16 16" to="360 16 16" dur="20s" repeatCount="indefinite" />
-            </path>
-            <circle cx="16" cy="16" r="1.5" fill="#fff" />
-          </svg>
-        </span>
-      );
-
-    case "sticker_dragon":
-      return (
-        <span className={wrap}>
-          <svg viewBox="0 0 32 32" className="w-full h-full overflow-visible">
-            <defs>
-              <radialGradient id="st-drg-glow" cx="50%" cy="50%" r="50%">
-                <stop offset="40%" stopColor="#22c55e" stopOpacity="0.5" />
-                <stop offset="100%" stopColor="#22c55e" stopOpacity="0" />
-              </radialGradient>
-            </defs>
-            <circle cx="16" cy="16" r="14" fill="url(#st-drg-glow)" />
-            <path d="M6 18 Q 10 8 16 12 Q 22 8 26 18 Q 22 22 16 18 Q 10 22 6 18 Z" fill="#15803d" stroke="#052e16" strokeWidth="0.8" />
-            <circle cx="11" cy="14" r="1.4" fill="#fde047" />
-            <circle cx="11" cy="14" r="0.6" fill="#000" />
-            <circle cx="21" cy="14" r="1.4" fill="#fde047" />
-            <circle cx="21" cy="14" r="0.6" fill="#000" />
-            <path d="M14 18 L18 18 L17 20 L15 20 Z" fill="#7f1d1d" />
-            <path d="M16 22 Q 16 26 14 26" stroke="#ff5b1f" strokeWidth="1.2" fill="none">
-              <animate attributeName="opacity" values="0.5;1;0.5" dur="1.4s" repeatCount="indefinite" />
-            </path>
-          </svg>
-        </span>
-      );
-
-    case "sticker_crown_royal":
-      return (
-        <span className={wrap}>
-          <svg viewBox="0 0 32 32" className="w-full h-full overflow-visible">
-            <defs>
-              <linearGradient id="st-crn" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#fde047" />
-                <stop offset="100%" stopColor="#a16207" />
-              </linearGradient>
-            </defs>
-            <path d="M5 22 L7 10 L12 16 L16 6 L20 16 L25 10 L27 22 Z" fill="url(#st-crn)" stroke="#451a03" strokeWidth="0.8" />
-            <rect x="5" y="22" width="22" height="3" fill="url(#st-crn)" stroke="#451a03" strokeWidth="0.8" />
-            <circle cx="7" cy="10" r="1.6" fill="#ef4444" stroke="#7f1d1d" strokeWidth="0.4" />
-            <circle cx="16" cy="6" r="1.8" fill="#22d3ee" stroke="#0e7490" strokeWidth="0.4" />
-            <circle cx="25" cy="10" r="1.6" fill="#22c55e" stroke="#14532d" strokeWidth="0.4" />
-            <circle cx="11" cy="20" r="0.9" fill="#fff">
-              <animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="21" cy="20" r="0.9" fill="#fff">
-              <animate attributeName="opacity" values="0.3;1;0.3" dur="1.6s" begin="0.5s" repeatCount="indefinite" />
-            </circle>
-          </svg>
-        </span>
-      );
-
-    case "sticker_diamond":
-      return (
-        <span className={wrap}>
-          <svg viewBox="0 0 32 32" className="w-full h-full overflow-visible">
-            <defs>
-              <linearGradient id="st-dia" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor="#bae6fd" />
-                <stop offset="100%" stopColor="#0369a1" />
-              </linearGradient>
-            </defs>
-            <polygon points="16,3 26,12 16,29 6,12" fill="url(#st-dia)" stroke="#0c4a6e" strokeWidth="0.8" />
-            <polyline points="6,12 16,12 26,12" stroke="#0c4a6e" strokeWidth="0.6" fill="none" />
-            <polyline points="11,12 16,29 21,12" stroke="#0c4a6e" strokeWidth="0.6" fill="none" />
-            <polygon points="16,3 11,12 16,12 21,12" fill="#fff" opacity="0.4" />
-            <circle cx="11" cy="8" r="1" fill="#fff">
-              <animate attributeName="opacity" values="0;1;0" dur="2s" repeatCount="indefinite" />
-            </circle>
-          </svg>
-        </span>
-      );
-
-    case "sticker_galaxy":
-      return (
-        <span className={wrap}>
-          <svg viewBox="0 0 32 32" className="w-full h-full overflow-visible">
-            <defs>
-              <radialGradient id="st-gal" cx="50%" cy="50%" r="50%">
-                <stop offset="0%" stopColor="#fff" />
-                <stop offset="30%" stopColor="#a855f7" />
-                <stop offset="100%" stopColor="#1e1b4b" />
-              </radialGradient>
-            </defs>
-            <circle cx="16" cy="16" r="14" fill="url(#st-gal)" stroke="#1e1b4b" strokeWidth="0.6" />
-            <g transform="translate(16 16)">
-              {[0, 90, 180, 270].map((d) => (
-                <ellipse key={d} rx="11" ry="3" fill="none" stroke="#fff" strokeWidth="0.5" opacity="0.6" transform={`rotate(${d})`} />
-              ))}
-              <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="10s" repeatCount="indefinite" additive="sum" />
-            </g>
-            <circle cx="16" cy="16" r="2" fill="#fff" />
-          </svg>
-        </span>
-      );
-
-    case "sticker_meteor":
-      return (
-        <span className={wrap}>
-          <svg viewBox="0 0 32 32" className="w-full h-full overflow-visible">
-            <defs>
-              <linearGradient id="st-met" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#fde047" stopOpacity="0" />
-                <stop offset="60%" stopColor="#fb923c" />
-                <stop offset="100%" stopColor="#7c2d12" />
-              </linearGradient>
-            </defs>
-            <path d="M2 4 L18 20 L14 24 L0 8 Z" fill="url(#st-met)" />
-            <circle cx="22" cy="22" r="6" fill="#7c2d12" stroke="#1c0a05" strokeWidth="0.6" />
-            <circle cx="20" cy="20" r="1.2" fill="#1c0a05" />
-            <circle cx="24" cy="23" r="0.8" fill="#1c0a05" />
-            <circle cx="22" cy="22" r="6" fill="none" stroke="#fde047" strokeWidth="0.6" opacity="0.7">
-              <animate attributeName="r" values="6;9;6" dur="1.4s" repeatCount="indefinite" />
-              <animate attributeName="opacity" values="0.7;0;0.7" dur="1.4s" repeatCount="indefinite" />
-            </circle>
-          </svg>
-        </span>
-      );
-
-    case "sticker_infinity":
-      return (
-        <span className={wrap}>
-          <svg viewBox="0 0 32 32" className="w-full h-full overflow-visible">
-            <defs>
-              <linearGradient id="st-inf" x1="0" y1="0" x2="1" y2="0">
-                <stop offset="0%" stopColor="#a855f7" />
-                <stop offset="50%" stopColor="#22d3ee" />
-                <stop offset="100%" stopColor="#a855f7" />
-                <animate attributeName="x1" values="0;1;0" dur="4s" repeatCount="indefinite" />
-              </linearGradient>
-            </defs>
-            <path d="M8 16 C 8 10 14 10 16 16 C 18 22 24 22 24 16 C 24 10 18 10 16 16 C 14 22 8 22 8 16 Z" fill="none" stroke="url(#st-inf)" strokeWidth="3" strokeLinecap="round" />
-          </svg>
-        </span>
-      );
-
-    case "sticker_cosmic_eye":
-      return (
-        <span className={wrap}>
-          <svg viewBox="0 0 32 32" className="w-full h-full overflow-visible">
-            <ellipse cx="16" cy="16" rx="14" ry="9" fill="#1e1b4b" stroke="#a855f7" strokeWidth="0.8" />
-            <circle cx="16" cy="16" r="6" fill="#a855f7" />
-            <circle cx="16" cy="16" r="3.5" fill="#000" />
-            <circle cx="14" cy="14" r="1.2" fill="#fff" />
-            <circle cx="16" cy="16" r="6" fill="none" stroke="#22d3ee" strokeWidth="0.6">
-              <animate attributeName="r" values="6;7.5;6" dur="2s" repeatCount="indefinite" />
-            </circle>
-          </svg>
-        </span>
-      );
-
     /* =========== EPIC =========== */
     case "sticker_crown":
     case "sticker_crown_simple":

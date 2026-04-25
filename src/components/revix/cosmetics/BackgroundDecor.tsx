@@ -12,32 +12,105 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
       return (
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
           <defs>
-            <radialGradient id="bgphx" cx="50%" cy="100%" r="80%">
-              <stop offset="0%" stopColor="#fde047" />
-              <stop offset="35%" stopColor="#f97316" />
-              <stop offset="70%" stopColor="#7f1d1d" />
-              <stop offset="100%" stopColor="#1a0000" />
+            {/* Sky → embers → deep */}
+            <radialGradient id="bgphx-sky" cx="50%" cy="100%" r="95%">
+              <stop offset="0%" stopColor="#fff3a8" />
+              <stop offset="20%" stopColor="#fde047" />
+              <stop offset="42%" stopColor="#fb923c" />
+              <stop offset="68%" stopColor="#9a1900" />
+              <stop offset="100%" stopColor="#0a0000" />
             </radialGradient>
-            <linearGradient id="bgphxFlame" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0%" stopColor="#ffd166" stopOpacity="0.95" />
-              <stop offset="60%" stopColor="#ff5b1f" stopOpacity="0.7" />
+            {/* Tall flame gradient with translucent tip */}
+            <linearGradient id="bgphx-flame" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%"   stopColor="#fff7c0" stopOpacity="0.95" />
+              <stop offset="25%"  stopColor="#ffd166" stopOpacity="0.95" />
+              <stop offset="60%"  stopColor="#ff5b1f" stopOpacity="0.7" />
               <stop offset="100%" stopColor="#7a0000" stopOpacity="0" />
             </linearGradient>
+            {/* Inner blue-hot core */}
+            <linearGradient id="bgphx-core" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%"   stopColor="#fff" stopOpacity="0.9" />
+              <stop offset="50%"  stopColor="#fde047" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#ff5b1f" stopOpacity="0" />
+            </linearGradient>
+            <radialGradient id="bgphx-haze" cx="50%" cy="80%" r="60%">
+              <stop offset="0%"   stopColor="#ffb84a" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#ffb84a" stopOpacity="0" />
+            </radialGradient>
+            <filter id="bgphx-blur" x="-10%" y="-10%" width="120%" height="120%">
+              <feGaussianBlur stdDeviation="1.6" />
+            </filter>
           </defs>
-          <rect width="200" height="100" fill="url(#bgphx)" />
-          {Array.from({ length: 18 }).map((_, i) => {
-            const x = (i / 18) * 200 + (i % 2 ? 5 : 0);
+          {/* Base sky */}
+          <rect width="200" height="100" fill="url(#bgphx-sky)" />
+          {/* Soft heat haze */}
+          <rect width="200" height="100" fill="url(#bgphx-haze)">
+            <animate attributeName="opacity" values="0.7;1;0.7" dur="4s" repeatCount="indefinite" />
+          </rect>
+          {/* Distant smoke trails */}
+          <g opacity="0.45" filter="url(#bgphx-blur)">
+            {Array.from({ length: 6 }).map((_, i) => {
+              const x = 20 + i * 30;
+              return (
+                <path key={`sm${i}`} d={`M ${x} 90 Q ${x - 6} 60 ${x + 4} 30 Q ${x - 4} 10 ${x} -10`} stroke="#3b1303" strokeWidth="6" fill="none" opacity="0.5">
+                  <animateTransform attributeName="transform" type="translate" values="0 0; 6 -6; 0 0" dur={`${5 + (i % 3)}s`} repeatCount="indefinite" />
+                </path>
+              );
+            })}
+          </g>
+          {/* Background diffused flames (large blurred) */}
+          <g filter="url(#bgphx-blur)" opacity="0.7">
+            {Array.from({ length: 10 }).map((_, i) => {
+              const x = (i / 10) * 200 + (i % 2 ? 6 : 0);
+              const dur = 1.6 + (i % 4) * 0.25;
+              return (
+                <path key={`bg${i}`}
+                      d={`M ${x} 105 C ${x - 14} 70 ${x + 12} 50 ${x} 18 C ${x - 6} 28 ${x + 6} 28 ${x} 105 Z`}
+                      fill="url(#bgphx-flame)">
+                  <animateTransform attributeName="transform" type="scale" values="1 0.85; 1 1.12; 1 0.85" dur={`${dur}s`} repeatCount="indefinite" additive="sum" />
+                </path>
+              );
+            })}
+          </g>
+          {/* Foreground sharp flames */}
+          {Array.from({ length: 22 }).map((_, i) => {
+            const x = (i / 22) * 200 + (i % 2 ? 4 : 0);
+            const h = 30 + (i % 5) * 12;
+            const dur = 1.0 + (i % 5) * 0.22;
             return (
-              <path key={i} d={`M ${x} 100 C ${x - 8} 70 ${x + 8} 50 ${x} 25`} stroke="url(#bgphxFlame)" strokeWidth="6" fill="none" strokeLinecap="round" opacity="0.85">
-                <animateTransform attributeName="transform" type="translate" values="0 6; 0 -4; 0 6" dur={`${1.2 + (i % 5) * 0.2}s`} repeatCount="indefinite" />
-                <animate attributeName="opacity" values="0.5;1;0.5" dur={`${1.2 + (i % 5) * 0.2}s`} repeatCount="indefinite" />
-              </path>
+              <g key={`f${i}`}>
+                <path d={`M ${x} 100 C ${x - 6} ${100 - h * 0.4} ${x + 6} ${100 - h * 0.7} ${x} ${100 - h}`}
+                      stroke="url(#bgphx-flame)" strokeWidth="4" fill="none" strokeLinecap="round" opacity="0.95">
+                  <animateTransform attributeName="transform" type="translate" values="0 4; 0 -3; 0 4" dur={`${dur}s`} repeatCount="indefinite" />
+                  <animate attributeName="opacity" values="0.5;1;0.5" dur={`${dur}s`} repeatCount="indefinite" />
+                </path>
+                <path d={`M ${x} 100 C ${x - 2} ${100 - h * 0.4} ${x + 2} ${100 - h * 0.7} ${x} ${100 - h * 0.85}`}
+                      stroke="url(#bgphx-core)" strokeWidth="1.5" fill="none" strokeLinecap="round">
+                  <animateTransform attributeName="transform" type="translate" values="0 4; 0 -3; 0 4" dur={`${dur}s`} repeatCount="indefinite" />
+                </path>
+              </g>
             );
           })}
-          {Array.from({ length: 30 }).map((_, i) => (
-            <circle key={`s${i}`} cx={(i * 13) % 200} cy={20 + ((i * 7) % 50)} r="0.8" fill="#ffefb3">
-              <animate attributeName="opacity" values="0;1;0" dur={`${1.5 + (i % 4) * 0.3}s`} begin={`${i * 0.15}s`} repeatCount="indefinite" />
-              <animate attributeName="cy" values={`${20 + ((i * 7) % 50)}; ${0 + ((i * 7) % 50)}`} dur={`${1.5 + (i % 4) * 0.3}s`} begin={`${i * 0.15}s`} repeatCount="indefinite" />
+          {/* Rising embers (lots, varied) */}
+          {Array.from({ length: 50 }).map((_, i) => {
+            const x = (i * 13) % 200;
+            const startY = 60 + ((i * 7) % 35);
+            const endY = -10 - ((i * 5) % 30);
+            const r = (i % 7 === 0) ? 1.4 : (i % 3 === 0 ? 0.9 : 0.55);
+            const c = i % 4 === 0 ? "#fff7c0" : i % 3 === 0 ? "#ffd166" : "#ff8a3d";
+            const dur = 2.4 + (i % 6) * 0.4;
+            return (
+              <circle key={`e${i}`} cx={x} cy={startY} r={r} fill={c} opacity="0">
+                <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;0.15;0.85;1" dur={`${dur}s`} begin={`${i * 0.1}s`} repeatCount="indefinite" />
+                <animate attributeName="cy" values={`${startY}; ${endY}`} dur={`${dur}s`} begin={`${i * 0.1}s`} repeatCount="indefinite" />
+                <animate attributeName="cx" values={`${x}; ${x + (i % 2 ? 8 : -8)}`} dur={`${dur}s`} begin={`${i * 0.1}s`} repeatCount="indefinite" />
+              </circle>
+            );
+          })}
+          {/* Bright sparks (small, fast) */}
+          {Array.from({ length: 18 }).map((_, i) => (
+            <circle key={`sp${i}`} cx={(i * 23) % 200} cy={70 + ((i * 11) % 25)} r="0.4" fill="#fff">
+              <animate attributeName="opacity" values="0;1;0" dur={`${0.6 + (i % 4) * 0.2}s`} begin={`${i * 0.07}s`} repeatCount="indefinite" />
             </circle>
           ))}
         </svg>
@@ -47,24 +120,54 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
       return (
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
           <defs>
-            <radialGradient id="bggal" cx="50%" cy="50%" r="70%">
-              <stop offset="0%" stopColor="#a855f7" />
-              <stop offset="40%" stopColor="#3b0764" />
-              <stop offset="100%" stopColor="#0b0420" />
+            <radialGradient id="bggal-core" cx="50%" cy="50%" r="60%">
+              <stop offset="0%"   stopColor="#fff" />
+              <stop offset="8%"   stopColor="#fbcfe8" />
+              <stop offset="22%"  stopColor="#a855f7" />
+              <stop offset="55%"  stopColor="#3b0764" />
+              <stop offset="100%" stopColor="#020014" />
             </radialGradient>
+            <radialGradient id="bggal-arm" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stopColor="#f0abfc" stopOpacity="0.95" />
+              <stop offset="60%"  stopColor="#a855f7" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#1e1b4b" stopOpacity="0" />
+            </radialGradient>
+            <filter id="bggal-blur"><feGaussianBlur stdDeviation="1.4" /></filter>
           </defs>
-          <rect width="200" height="100" fill="url(#bggal)" />
+          <rect width="200" height="100" fill="#020014" />
+          <rect width="200" height="100" fill="url(#bggal-core)" />
+          {/* Diffused arms */}
+          <g transform="translate(100 50)" filter="url(#bggal-blur)">
+            {[0, 90, 180, 270].map((deg) => (
+              <ellipse key={`a${deg}`} cx="0" cy="0" rx="90" ry="18" fill="url(#bggal-arm)" opacity="0.65" transform={`rotate(${deg})`} />
+            ))}
+            <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="80s" repeatCount="indefinite" additive="sum" />
+          </g>
+          {/* Spiral rings */}
           <g transform="translate(100 50)">
-            {[0, 60, 120, 180, 240, 300].map((deg) => (
-              <ellipse key={deg} rx="80" ry="20" fill="none" stroke="#c084fc" strokeWidth="0.5" opacity="0.5" transform={`rotate(${deg})`} />
+            {[0, 36, 72, 108, 144, 180, 216, 252, 288, 324].map((deg, i) => (
+              <ellipse key={`r${deg}`} cx="0" cy="0" rx={70 - (i % 3) * 10} ry={16 - (i % 3) * 3} fill="none" stroke="#e9d5ff" strokeWidth={(i % 3 === 0) ? 0.6 : 0.3} opacity={0.45 - (i % 4) * 0.06} transform={`rotate(${deg})`} />
             ))}
             <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="40s" repeatCount="indefinite" additive="sum" />
           </g>
-          {Array.from({ length: 60 }).map((_, i) => (
-            <circle key={i} cx={(i * 17) % 200} cy={(i * 11) % 100} r={i % 4 === 0 ? 1.2 : 0.6} fill="#fff">
-              <animate attributeName="opacity" values="0.2;1;0.2" dur={`${1.5 + (i % 4) * 0.4}s`} repeatCount="indefinite" />
-            </circle>
-          ))}
+          {/* Bright center pulse */}
+          <circle cx="100" cy="50" r="6" fill="#fff" opacity="0.9">
+            <animate attributeName="r" values="5;8;5" dur="3.4s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.6;1;0.6" dur="3.4s" repeatCount="indefinite" />
+          </circle>
+          <circle cx="100" cy="50" r="14" fill="none" stroke="#fff" strokeWidth="0.4" opacity="0.5">
+            <animate attributeName="r" values="10;22;10" dur="4s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.6;0;0.6" dur="4s" repeatCount="indefinite" />
+          </circle>
+          {/* Stars (lots, varied with twinkle + colors) */}
+          {Array.from({ length: 90 }).map((_, i) => {
+            const c = i % 9 === 0 ? "#fbcfe8" : i % 7 === 0 ? "#a5f3fc" : "#fff";
+            return (
+              <circle key={`s${i}`} cx={(i * 17) % 200} cy={(i * 11) % 100} r={i % 5 === 0 ? 1.3 : 0.5} fill={c}>
+                <animate attributeName="opacity" values="0.2;1;0.2" dur={`${1.4 + (i % 6) * 0.35}s`} begin={`${(i % 9) * 0.18}s`} repeatCount="indefinite" />
+              </circle>
+            );
+          })}
         </svg>
       );
 
@@ -72,21 +175,48 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
       return (
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
           <defs>
-            <radialGradient id="bgvoid" cx="50%" cy="50%" r="60%">
-              <stop offset="0%" stopColor="#7c3aed" />
-              <stop offset="60%" stopColor="#1e1b4b" />
+            <radialGradient id="bgvoid-bg" cx="50%" cy="50%" r="80%">
+              <stop offset="0%"   stopColor="#1e1240" />
+              <stop offset="40%"  stopColor="#0a0420" />
               <stop offset="100%" stopColor="#000" />
             </radialGradient>
+            <radialGradient id="bgvoid-disk" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stopColor="#000" stopOpacity="1" />
+              <stop offset="55%"  stopColor="#000" stopOpacity="1" />
+              <stop offset="60%"  stopColor="#fde047" stopOpacity="0.9" />
+              <stop offset="75%"  stopColor="#fb923c" stopOpacity="0.6" />
+              <stop offset="100%" stopColor="#fb923c" stopOpacity="0" />
+            </radialGradient>
+            <linearGradient id="bgvoid-jet" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="#22d3ee" stopOpacity="0" />
+              <stop offset="50%"  stopColor="#22d3ee" stopOpacity="0.7" />
+              <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
+            </linearGradient>
           </defs>
-          <rect width="200" height="100" fill="url(#bgvoid)" />
-          <circle cx="100" cy="50" r="22" fill="#000" />
-          <circle cx="100" cy="50" r="22" fill="none" stroke="#a855f7" strokeWidth="1" opacity="0.7">
-            <animate attributeName="r" values="22;30;22" dur="3s" repeatCount="indefinite" />
-            <animate attributeName="opacity" values="0.7;0;0.7" dur="3s" repeatCount="indefinite" />
+          <rect width="200" height="100" fill="url(#bgvoid-bg)" />
+          {/* Accretion disk */}
+          <ellipse cx="100" cy="50" rx="42" ry="14" fill="url(#bgvoid-disk)">
+            <animateTransform attributeName="transform" type="rotate" from="0 100 50" to="360 100 50" dur="14s" repeatCount="indefinite" />
+          </ellipse>
+          {/* Black hole event horizon */}
+          <circle cx="100" cy="50" r="14" fill="#000" />
+          <circle cx="100" cy="50" r="14" fill="none" stroke="#fde047" strokeWidth="0.6" opacity="0.7" />
+          {/* Polar jets */}
+          <rect x="98" y="0" width="4" height="36" fill="url(#bgvoid-jet)">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="2.4s" repeatCount="indefinite" />
+          </rect>
+          <rect x="98" y="64" width="4" height="36" fill="url(#bgvoid-jet)" transform="rotate(180 100 82)">
+            <animate attributeName="opacity" values="0.4;1;0.4" dur="2.4s" begin="1.2s" repeatCount="indefinite" />
+          </rect>
+          {/* Lensing rings */}
+          <circle cx="100" cy="50" r="22" fill="none" stroke="#a855f7" strokeWidth="0.8" opacity="0.7">
+            <animate attributeName="r" values="20;36;20" dur="4s" repeatCount="indefinite" />
+            <animate attributeName="opacity" values="0.7;0;0.7" dur="4s" repeatCount="indefinite" />
           </circle>
-          {Array.from({ length: 40 }).map((_, i) => (
-            <circle key={i} cx={(i * 19) % 200} cy={(i * 13) % 100} r="0.6" fill="#fff">
-              <animate attributeName="opacity" values="0.1;1;0.1" dur={`${1 + (i % 5) * 0.3}s`} repeatCount="indefinite" />
+          {/* Dense starfield */}
+          {Array.from({ length: 70 }).map((_, i) => (
+            <circle key={i} cx={(i * 19) % 200} cy={(i * 13) % 100} r={i % 8 === 0 ? 1.1 : 0.4} fill="#fff">
+              <animate attributeName="opacity" values="0.1;1;0.1" dur={`${1.2 + (i % 6) * 0.3}s`} begin={`${(i % 7) * 0.2}s`} repeatCount="indefinite" />
             </circle>
           ))}
         </svg>
@@ -96,22 +226,48 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
       return (
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
           <defs>
-            <linearGradient id="bgdim" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#ff00cc" />
-              <stop offset="33%" stopColor="#00ffff" />
-              <stop offset="66%" stopColor="#ffff00" />
-              <stop offset="100%" stopColor="#00ffaa" />
+            <linearGradient id="bgdim-bg" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%"   stopColor="#ff00cc">
+                <animate attributeName="stop-color" values="#ff00cc;#00ffff;#ffff00;#00ffaa;#ff00cc" dur="9s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="50%"  stopColor="#00ffff">
+                <animate attributeName="stop-color" values="#00ffff;#ffff00;#00ffaa;#ff00cc;#00ffff" dur="9s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="100%" stopColor="#00ffaa">
+                <animate attributeName="stop-color" values="#00ffaa;#ff00cc;#00ffff;#ffff00;#00ffaa" dur="9s" repeatCount="indefinite" />
+              </stop>
             </linearGradient>
+            <radialGradient id="bgdim-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#fff" stopOpacity="0.4" />
+              <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+            </radialGradient>
+            <filter id="bgdim-blur"><feGaussianBlur stdDeviation="0.6" /></filter>
           </defs>
-          <rect width="200" height="100" fill="url(#bgdim)">
-            <animate attributeName="opacity" values="0.85;1;0.85" dur="3s" repeatCount="indefinite" />
-          </rect>
-          <g transform="translate(100 50)" opacity="0.7">
-            {[0, 30, 60, 90, 120, 150].map((deg) => (
-              <line key={deg} x1="-100" y1="0" x2="100" y2="0" stroke="#fff" strokeWidth="0.4" transform={`rotate(${deg})`} />
+          <rect width="200" height="100" fill="url(#bgdim-bg)" />
+          {/* Concentric warp rings */}
+          <g transform="translate(100 50)" opacity="0.85">
+            {[10, 22, 36, 52, 70].map((r, i) => (
+              <ellipse key={i} cx="0" cy="0" rx={r * 1.6} ry={r * 0.6} fill="none" stroke="#fff" strokeWidth="0.5" opacity={0.7 - i * 0.1}>
+                <animate attributeName="rx" values={`${r * 1.5};${r * 1.7};${r * 1.5}`} dur={`${3 + i * 0.5}s`} repeatCount="indefinite" />
+              </ellipse>
             ))}
-            <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="20s" repeatCount="indefinite" additive="sum" />
           </g>
+          {/* Diagonal rays */}
+          <g transform="translate(100 50)" filter="url(#bgdim-blur)">
+            {Array.from({ length: 12 }).map((_, i) => (
+              <line key={i} x1="-120" y1="0" x2="120" y2="0" stroke="#fff" strokeWidth="0.3" opacity="0.45" transform={`rotate(${i * 30})`} />
+            ))}
+            <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="30s" repeatCount="indefinite" additive="sum" />
+          </g>
+          <circle cx="100" cy="50" r="20" fill="url(#bgdim-glow)">
+            <animate attributeName="r" values="18;26;18" dur="3s" repeatCount="indefinite" />
+          </circle>
+          {/* Floating particles */}
+          {Array.from({ length: 24 }).map((_, i) => (
+            <circle key={i} cx={(i * 17) % 200} cy={(i * 13) % 100} r="0.6" fill="#fff">
+              <animate attributeName="opacity" values="0;1;0" dur={`${1.4 + (i % 4) * 0.4}s`} begin={`${i * 0.1}s`} repeatCount="indefinite" />
+            </circle>
+          ))}
         </svg>
       );
 
@@ -119,17 +275,42 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
       return (
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
           <defs>
-            <linearGradient id="bgholo" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#ff00cc" />
-              <stop offset="33%" stopColor="#00ffff" />
-              <stop offset="66%" stopColor="#ffff00" />
-              <stop offset="100%" stopColor="#00ffaa" />
-              <animate attributeName="x1" values="0;1;0" dur="6s" repeatCount="indefinite" />
+            <linearGradient id="bgholo-base" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%"   stopColor="#ff00cc">
+                <animate attributeName="stop-color" values="#ff00cc;#00ffff;#ffff00;#00ffaa;#ff00cc" dur="10s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="33%"  stopColor="#00ffff">
+                <animate attributeName="stop-color" values="#00ffff;#ffff00;#00ffaa;#ff00cc;#00ffff" dur="10s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="66%"  stopColor="#ffff00">
+                <animate attributeName="stop-color" values="#ffff00;#00ffaa;#ff00cc;#00ffff;#ffff00" dur="10s" repeatCount="indefinite" />
+              </stop>
+              <stop offset="100%" stopColor="#00ffaa">
+                <animate attributeName="stop-color" values="#00ffaa;#ff00cc;#00ffff;#ffff00;#00ffaa" dur="10s" repeatCount="indefinite" />
+              </stop>
+            </linearGradient>
+            <linearGradient id="bgholo-shine" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%"   stopColor="#fff" stopOpacity="0" />
+              <stop offset="50%"  stopColor="#fff" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#fff" stopOpacity="0" />
             </linearGradient>
           </defs>
-          <rect width="200" height="100" fill="url(#bgholo)" />
-          {Array.from({ length: 12 }).map((_, i) => (
-            <rect key={i} x={i * 20} y="0" width="4" height="100" fill="#fff" opacity="0.08" />
+          <rect width="200" height="100" fill="url(#bgholo-base)" />
+          {/* Vertical scanlines */}
+          {Array.from({ length: 20 }).map((_, i) => (
+            <rect key={i} x={i * 10} y="0" width="2" height="100" fill="#fff" opacity={i % 2 === 0 ? 0.07 : 0.04} />
+          ))}
+          {/* Horizontal shine sweep */}
+          <rect x="-80" y="0" width="80" height="100" fill="url(#bgholo-shine)" opacity="0.7">
+            <animate attributeName="x" values="-80;200" dur="4s" repeatCount="indefinite" />
+          </rect>
+          {/* Diagonal sparkles */}
+          {Array.from({ length: 14 }).map((_, i) => (
+            <g key={i} transform={`translate(${(i * 17) % 200} ${(i * 11) % 100})`}>
+              <path d="M0 -2 L0.5 0 L2 0 L0.5 0.5 L0 2 L-0.5 0.5 L-2 0 L-0.5 0 Z" fill="#fff" opacity="0.85">
+                <animate attributeName="opacity" values="0;1;0" dur={`${1.4 + (i % 4) * 0.3}s`} begin={`${i * 0.18}s`} repeatCount="indefinite" />
+              </path>
+            </g>
           ))}
         </svg>
       );
@@ -138,19 +319,60 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
       return (
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
           <defs>
-            <linearGradient id="bgcry" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#4a148c" />
-              <stop offset="50%" stopColor="#0891b2" />
-              <stop offset="100%" stopColor="#4a148c" />
+            <radialGradient id="bgcry-bg" cx="50%" cy="50%" r="80%">
+              <stop offset="0%"   stopColor="#312e81" />
+              <stop offset="50%"  stopColor="#0c0a3e" />
+              <stop offset="100%" stopColor="#000" />
+            </radialGradient>
+            <linearGradient id="bgcry-c1" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%"   stopColor="#0e7490" />
+              <stop offset="55%"  stopColor="#22d3ee" />
+              <stop offset="100%" stopColor="#cffafe" />
             </linearGradient>
+            <linearGradient id="bgcry-c2" x1="0" y1="1" x2="0" y2="0">
+              <stop offset="0%"   stopColor="#581c87" />
+              <stop offset="55%"  stopColor="#a855f7" />
+              <stop offset="100%" stopColor="#f5d0fe" />
+            </linearGradient>
+            <radialGradient id="bgcry-glow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stopColor="#22d3ee" stopOpacity="0.5" />
+              <stop offset="100%" stopColor="#22d3ee" stopOpacity="0" />
+            </radialGradient>
           </defs>
-          <rect width="200" height="100" fill="url(#bgcry)" />
-          {[20, 60, 100, 140, 180].map((x, i) => (
-            <g key={i}>
-              <polygon points={`${x},100 ${x - 8},70 ${x + 8},70`} fill="#22d3ee" opacity="0.7" />
-              <polygon points={`${x},100 ${x - 5},80 ${x + 5},80`} fill="#67e8f9" opacity="0.9" />
-              <polygon points={`${x},0 ${x - 8},30 ${x + 8},30`} fill="#a855f7" opacity="0.7" />
-            </g>
+          <rect width="200" height="100" fill="url(#bgcry-bg)" />
+          <ellipse cx="100" cy="50" rx="80" ry="40" fill="url(#bgcry-glow)">
+            <animate attributeName="opacity" values="0.5;1;0.5" dur="4s" repeatCount="indefinite" />
+          </ellipse>
+          {/* Bottom crystals — varied heights */}
+          {[10, 28, 50, 72, 96, 122, 148, 168, 190].map((x, i) => {
+            const grad = i % 2 === 0 ? "bgcry-c1" : "bgcry-c2";
+            const w = 7 + (i % 4) * 2;
+            const h = 22 + ((i * 5) % 28);
+            return (
+              <g key={`bc${i}`}>
+                <polygon points={`${x},100 ${x - w},${100 - h * 0.4} ${x},${100 - h} ${x + w},${100 - h * 0.4}`} fill={`url(#${grad})`} stroke="#0c4a6e" strokeWidth="0.4" opacity="0.95" />
+                <polygon points={`${x},100 ${x - w * 0.45},${100 - h * 0.5} ${x},${100 - h}`} fill="#fff" opacity="0.25" />
+              </g>
+            );
+          })}
+          {/* Top crystals */}
+          {[20, 52, 88, 130, 168].map((x, i) => {
+            const grad = i % 2 === 0 ? "bgcry-c2" : "bgcry-c1";
+            const w = 6 + (i % 3) * 2;
+            const h = 18 + ((i * 7) % 22);
+            return (
+              <g key={`tc${i}`}>
+                <polygon points={`${x},0 ${x - w},${h * 0.4} ${x},${h} ${x + w},${h * 0.4}`} fill={`url(#${grad})`} stroke="#581c87" strokeWidth="0.4" opacity="0.95" />
+                <polygon points={`${x},0 ${x - w * 0.45},${h * 0.5} ${x},${h}`} fill="#fff" opacity="0.25" />
+              </g>
+            );
+          })}
+          {/* Floating crystal motes */}
+          {Array.from({ length: 18 }).map((_, i) => (
+            <circle key={i} cx={(i * 17) % 200} cy={30 + ((i * 7) % 40)} r="0.7" fill="#67e8f9">
+              <animate attributeName="opacity" values="0.2;1;0.2" dur={`${1.6 + (i % 4) * 0.3}s`} begin={`${i * 0.1}s`} repeatCount="indefinite" />
+              <animate attributeName="cy" values={`${30 + ((i * 7) % 40)};${20 + ((i * 7) % 40)};${30 + ((i * 7) % 40)}`} dur={`${4 + (i % 3)}s`} repeatCount="indefinite" />
+            </circle>
           ))}
         </svg>
       );
@@ -159,18 +381,47 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
       return (
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
           <defs>
-            <linearGradient id="bgcel" x1="0" y1="1" x2="0" y2="0">
-              <stop offset="0%" stopColor="#fff5cc" />
-              <stop offset="50%" stopColor="#ffd700" />
-              <stop offset="100%" stopColor="#ff8800" />
+            <radialGradient id="bgcel-sky" cx="50%" cy="55%" r="80%">
+              <stop offset="0%"   stopColor="#fff" />
+              <stop offset="20%"  stopColor="#fff5cc" />
+              <stop offset="55%"  stopColor="#ffd700" />
+              <stop offset="85%"  stopColor="#ff8800" />
+              <stop offset="100%" stopColor="#7c2d12" />
+            </radialGradient>
+            <radialGradient id="bgcel-sun" cx="50%" cy="50%" r="50%">
+              <stop offset="0%"   stopColor="#fff" />
+              <stop offset="60%"  stopColor="#fff5cc" stopOpacity="0.9" />
+              <stop offset="100%" stopColor="#ffd700" stopOpacity="0" />
+            </radialGradient>
+            <linearGradient id="bgcel-ray" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"   stopColor="#fff" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#fff" stopOpacity="0" />
             </linearGradient>
           </defs>
-          <rect width="200" height="100" fill="url(#bgcel)" />
-          <circle cx="100" cy="50" r="18" fill="#fff" opacity="0.9">
-            <animate attributeName="r" values="18;24;18" dur="4s" repeatCount="indefinite" />
+          <rect width="200" height="100" fill="url(#bgcel-sky)" />
+          {/* Long radiant rays */}
+          <g transform="translate(100 55)">
+            {Array.from({ length: 24 }).map((_, i) => {
+              const deg = (i * 15);
+              return (
+                <rect key={i} x="-2" y="-100" width="4" height="100" fill="url(#bgcel-ray)" opacity={0.4 - (i % 3) * 0.1} transform={`rotate(${deg})`} />
+              );
+            })}
+            <animateTransform attributeName="transform" type="rotate" from="0 0 0" to="360 0 0" dur="60s" repeatCount="indefinite" additive="sum" />
+          </g>
+          {/* Sun core */}
+          <circle cx="100" cy="55" r="28" fill="url(#bgcel-sun)">
+            <animate attributeName="r" values="26;32;26" dur="5s" repeatCount="indefinite" />
           </circle>
-          {[0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330].map((deg) => (
-            <line key={deg} x1="100" y1="50" x2={100 + Math.cos((deg * Math.PI) / 180) * 90} y2={50 + Math.sin((deg * Math.PI) / 180) * 90} stroke="#fff" strokeWidth="0.6" opacity="0.4" />
+          <circle cx="100" cy="55" r="14" fill="#fff" opacity="0.95">
+            <animate attributeName="r" values="13;16;13" dur="5s" repeatCount="indefinite" />
+          </circle>
+          {/* Floating golden particles */}
+          {Array.from({ length: 28 }).map((_, i) => (
+            <circle key={i} cx={(i * 13) % 200} cy={(i * 11) % 100} r="0.7" fill="#fff5cc">
+              <animate attributeName="opacity" values="0.2;1;0.2" dur={`${2 + (i % 5) * 0.3}s`} begin={`${i * 0.12}s`} repeatCount="indefinite" />
+              <animate attributeName="cy" values={`${(i * 11) % 100};${((i * 11) % 100) - 10};${(i * 11) % 100}`} dur={`${5 + (i % 3)}s`} repeatCount="indefinite" />
+            </circle>
           ))}
         </svg>
       );
