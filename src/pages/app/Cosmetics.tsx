@@ -8,7 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
-import { backgroundStyle, RARITY_LABEL, RARITY_RING, RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
+import { backgroundStyle, RARITY_LABEL, RARITY_RING, RARITY_TEXT, rarityRank, type Rarity } from "@/lib/cosmetics";
 import { TitleBadge } from "@/components/revix/TitleBadge";
 import { BackgroundDecor } from "@/components/revix/cosmetics/BackgroundDecor";
 import { StickerDecor, hasCustomSticker } from "@/components/revix/cosmetics/StickerDecor";
@@ -61,7 +61,17 @@ export default function Cosmetics() {
   const stickerEmoji = items.find(i => i.item_key === profile?.equipped_sticker)?.emoji ?? null;
   const titleItem = items.find(i => i.item_key === profile?.equipped_title);
 
-  const byCat = (cat: Item["category"]) => items.filter(i => i.category === cat);
+  const byCat = (cat: Item["category"]) =>
+    items
+      .filter(i => i.category === cat)
+      // Sort: highest rarity first (creator > legendary > epic > rare > common),
+      // then equipped first, then alphabetical.
+      .sort((a, b) => {
+        const dr = rarityRank(b.rarity) - rarityRank(a.rarity);
+        if (dr !== 0) return dr;
+        if (a.equipped !== b.equipped) return a.equipped ? -1 : 1;
+        return a.name.localeCompare(b.name);
+      });
 
   const renderGrid = (list: Item[], cat: Item["category"]) => {
     if (list.length === 0) {
