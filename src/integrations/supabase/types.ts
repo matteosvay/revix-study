@@ -591,10 +591,77 @@ export type Database = {
         }
         Relationships: []
       }
+      question_reviews: {
+        Row: {
+          chapter: string | null
+          course_id: string | null
+          created_at: string
+          due_at: string
+          ease: number
+          id: string
+          interval_days: number
+          lapses: number
+          last_correct: boolean | null
+          last_reviewed_at: string | null
+          question_id: string
+          repetitions: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chapter?: string | null
+          course_id?: string | null
+          created_at?: string
+          due_at?: string
+          ease?: number
+          id?: string
+          interval_days?: number
+          lapses?: number
+          last_correct?: boolean | null
+          last_reviewed_at?: string | null
+          question_id: string
+          repetitions?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chapter?: string | null
+          course_id?: string | null
+          created_at?: string
+          due_at?: string
+          ease?: number
+          id?: string
+          interval_days?: number
+          lapses?: number
+          last_correct?: boolean | null
+          last_reviewed_at?: string | null
+          question_id?: string
+          repetitions?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "question_reviews_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "question_reviews_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "quiz_questions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quiz_attempts: {
         Row: {
           created_at: string
           id: string
+          is_boss_attempt: boolean
           max_combo: number
           quiz_id: string
           score: number
@@ -605,6 +672,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          is_boss_attempt?: boolean
           max_combo?: number
           quiz_id: string
           score: number
@@ -615,6 +683,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          is_boss_attempt?: boolean
           max_combo?: number
           quiz_id?: string
           score?: number
@@ -1067,6 +1136,44 @@ export type Database = {
         }
         Relationships: []
       }
+      voice_notes: {
+        Row: {
+          audio_path: string | null
+          course_id: string | null
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          transcript: string | null
+          user_id: string
+        }
+        Insert: {
+          audio_path?: string | null
+          course_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          transcript?: string | null
+          user_id: string
+        }
+        Update: {
+          audio_path?: string | null
+          course_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          transcript?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "voice_notes_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       xp_events: {
         Row: {
           amount: number
@@ -1128,6 +1235,36 @@ export type Database = {
       }
       generate_room_code: { Args: never; Returns: string }
       generate_student_code: { Args: never; Returns: string }
+      get_chapter_mastery: {
+        Args: { p_course_id: string }
+        Returns: {
+          avg_ease: number
+          chapter: string
+          due_today: number
+          mastered_questions: number
+          mastery_pct: number
+          reviewed_questions: number
+          total_questions: number
+        }[]
+      }
+      get_due_review_questions: {
+        Args: { p_limit?: number }
+        Returns: {
+          accepted_answers: Json
+          answers: Json
+          chapter: string
+          correct_index: number
+          course_emoji: string
+          course_id: string
+          course_title: string
+          due_at: string
+          explanation: string
+          question: string
+          question_id: string
+          quiz_id: string
+          type: string
+        }[]
+      }
       get_duel_questions: {
         Args: { p_duel_id: string }
         Returns: {
@@ -1187,6 +1324,10 @@ export type Database = {
       join_room_by_code: { Args: { p_code: string }; Returns: string }
       open_daily_loot_box: { Args: never; Returns: Json }
       restore_streak: { Args: { p_user_id: string }; Returns: Json }
+      review_question: {
+        Args: { p_correct: boolean; p_question_id: string }
+        Returns: Json
+      }
       search_users_public: {
         Args: { p_query: string }
         Returns: {
