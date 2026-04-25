@@ -94,10 +94,15 @@ export function frameStyle(itemKey: string | null | undefined): { className: str
   if (k === "frame_pixel")    return { className: "ring-[3px] ring-emerald-400 shadow-[0_0_10px_hsl(150_85%_45%)]", style: {} };
   if (k === "frame_marker_pink") return { className: "ring-[3px] ring-pink-400", style: {} };
   /* ===== Creator-exclusive ===== */
-  if (k === "frame_origine") return {
-    className: "p-[3px] rounded-full shadow-[0_0_24px_hsl(45_100%_55%/0.55)]",
-    style: { background: "conic-gradient(from 0deg, #1a0d00, #ffd166, #fff7c2, #ffaa00, #6a3a00, #ffd166, #1a0d00)" },
-  };
+  if (k === "frame_origine") {
+    // The ornate ring is rendered by the PNG overlay (FrameDecor "above" layer).
+    // Here we only add a subtle warm glow so the avatar feels lit from within,
+    // without competing with the photoreal liquid-gold ring on top.
+    return {
+      className: "rounded-full shadow-[0_0_28px_hsl(40_100%_55%/0.45)]",
+      style: {},
+    };
+  }
   return { className: "ring-2 ring-offset-2 ring-offset-background ring-primary/40", style: {} };
 }
 
