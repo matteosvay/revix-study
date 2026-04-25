@@ -4,7 +4,7 @@ import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle, Scissors, SkipForward, Timer, Zap } from "lucide-react";
+import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle, Scissors, SkipForward, Timer, Zap, Trash2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -12,6 +12,10 @@ import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { XP_REWARDS } from "@/lib/gamification";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 import { localDateKey } from "@/lib/date";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type QType = "qcm" | "qcm_multi" | "vrai_faux" | "ouvert" | "trous" | "ordre";
 type Q = {
@@ -58,6 +62,8 @@ export default function Quizz() {
   const isFlash = params.get("mode") === "flash";
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
+  const [quizToDelete, setQuizToDelete] = useState<Quiz | null>(null);
+  const [deletingQuiz, setDeletingQuiz] = useState(false);
   const [questions, setQuestions] = useState<Q[]>([]);
   const [phase, setPhase] = useState<"select" | "play" | "end">("select");
   const [qIdx, setQIdx] = useState(0);
