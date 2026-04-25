@@ -479,6 +479,44 @@ export default function Quizz() {
 
           {wrong.length > 0 && (
             <div className="mt-5">
+              {(() => {
+                // Groupement par chapitre
+                const byChapter = new Map<string, number>();
+                let totalTagged = 0;
+                wrong.forEach((i) => {
+                  const ch = questions[i]?.chapter ?? null;
+                  if (ch) {
+                    byChapter.set(ch, (byChapter.get(ch) ?? 0) + 1);
+                    totalTagged++;
+                  }
+                });
+                if (byChapter.size === 0) return null;
+                const sorted = [...byChapter.entries()].sort((a, b) => b[1] - a[1]);
+                return (
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="h-4 w-4 text-destructive" />
+                      <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">Erreurs par chapitre</p>
+                    </div>
+                    <div className="space-y-1.5">
+                      {sorted.map(([ch, n]) => {
+                        const pct = Math.round((n / totalTagged) * 100);
+                        return (
+                          <div key={ch} className="postit postit-pink p-2.5 -rotate-[0.3deg]">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="font-hand text-base flex-1 truncate">{ch}</p>
+                              <span className="font-mono-tag text-[10px] bg-destructive/15 text-destructive px-1.5 py-0.5 rounded-full shrink-0">{n} erreur{n > 1 ? "s" : ""}</span>
+                            </div>
+                            <div className="mt-1.5 h-1.5 bg-foreground/10 rounded-full overflow-hidden">
+                              <div className="h-full bg-destructive/60" style={{ width: `${pct}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground mb-2">À retravailler</p>
               <div className="space-y-2">
                 {wrong.map(i => (
