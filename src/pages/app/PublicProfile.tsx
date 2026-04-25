@@ -39,14 +39,15 @@ export default function PublicProfile() {
       </div>
 
       <div className="px-5">
-        <div className="rounded-md border-[2.5px] border-foreground overflow-hidden shadow-brutal-sm">
-          <div className="h-28 relative overflow-hidden" style={backgroundStyle(p.equipped_background)}>
+        <div className="rounded-md border-[2.5px] border-foreground overflow-hidden shadow-brutal-sm bg-card">
+          <div className="relative w-full aspect-[16/9] overflow-hidden" style={backgroundStyle(p.equipped_background)}>
             <BackgroundDecor itemKey={p.equipped_background} />
-            <div className="absolute -bottom-10 left-4 z-10">
+          </div>
+          <div className="flex items-start gap-3 px-4 pt-3 pb-4 border-t-[2.5px] border-foreground">
+            <div className="-mt-12 shrink-0">
               <CosmeticAvatar fallback={initials} avatarUrl={p.avatar_url} frame={p.equipped_frame} sticker={p.sticker_emoji} stickerKey={p.equipped_sticker} size="lg" />
             </div>
-          </div>
-          <div className="bg-card pt-12 pb-4 px-4">
+            <div className="min-w-0 flex-1">
             <p className="font-serif text-2xl leading-tight">{p.display_name ?? "Sans nom"}</p>
             {p.username && <p className="text-xs text-muted-foreground">@{p.username}</p>}
             <div className="mt-1">
@@ -63,6 +64,7 @@ export default function PublicProfile() {
                 {[p.formation, p.cursus].filter(Boolean).join(" · ")}
               </p>
             )}
+            </div>
           </div>
         </div>
 
