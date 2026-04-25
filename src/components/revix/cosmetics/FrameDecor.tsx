@@ -22,10 +22,10 @@ export function FrameDecor({ itemKey, size = "md" }: { itemKey?: string | null; 
   if (!itemKey) return null;
   // Outer scale so particles can extend beyond the avatar
   const SCALE: Record<string, string> = {
-    sm: "-inset-2",
-    md: "-inset-3",
-    lg: "-inset-4",
-    xl: "-inset-5",
+    sm: "-inset-1.5",
+    md: "-inset-2",
+    lg: "-inset-2.5",
+    xl: "-inset-3",
   };
   const wrap: CSSProperties = { pointerEvents: "none" };
 
@@ -157,13 +157,13 @@ export function FrameDecor({ itemKey, size = "md" }: { itemKey?: string | null; 
             </defs>
             <circle cx="50" cy="50" r="48" fill="url(#csm-glow)" />
             <g>
-              <ellipse cx="50" cy="50" rx="49" ry="14" fill="none" stroke="#a855f7" strokeWidth="0.8" opacity="0.9">
+              <ellipse cx="50" cy="50" rx="49" ry="49" fill="none" stroke="#a855f7" strokeWidth="0.8" opacity="0.9">
                 <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="8s" repeatCount="indefinite" />
               </ellipse>
-              <ellipse cx="50" cy="50" rx="49" ry="14" fill="none" stroke="#22d3ee" strokeWidth="0.6" opacity="0.7" transform="rotate(60 50 50)">
+              <ellipse cx="50" cy="50" rx="48" ry="48" fill="none" stroke="#22d3ee" strokeWidth="0.6" opacity="0.7" strokeDasharray="3 4" transform="rotate(60 50 50)">
                 <animateTransform attributeName="transform" type="rotate" from="60 50 50" to="420 50 50" dur="10s" repeatCount="indefinite" />
               </ellipse>
-              <ellipse cx="50" cy="50" rx="49" ry="14" fill="none" stroke="#f472b6" strokeWidth="0.6" opacity="0.7" transform="rotate(120 50 50)">
+              <ellipse cx="50" cy="50" rx="47" ry="47" fill="none" stroke="#f472b6" strokeWidth="0.6" opacity="0.7" strokeDasharray="2 5" transform="rotate(120 50 50)">
                 <animateTransform attributeName="transform" type="rotate" from="120 50 50" to="480 50 50" dur="12s" repeatCount="indefinite" />
               </ellipse>
             </g>

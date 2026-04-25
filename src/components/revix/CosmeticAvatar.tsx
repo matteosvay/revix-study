@@ -38,16 +38,16 @@ export function CosmeticAvatar({
   const f = frameStyle(frame);
   return (
     <div className={cn("relative inline-flex rounded-full", f.className, className)} style={f.style}>
-      <Avatar className={cn(SIZE[size], "border-2 border-background")}>
+      {/* Animated SVG/PNG decor BEHIND the avatar so the photo stays in front */}
+      <FrameDecor itemKey={frame} size={size} />
+      <Avatar className={cn(SIZE[size], "border-2 border-background relative z-10")}>
         {avatarUrl && <AvatarImage src={avatarUrl} alt={fallback} className="object-cover" />}
         <AvatarFallback className="gradient-primary text-primary-foreground font-bold">
           {fallback}
         </AvatarFallback>
       </Avatar>
-      {/* Animated SVG decor on top of the frame for legendary/epic+ frames */}
-      <FrameDecor itemKey={frame} size={size} />
       {sticker && (
-        <span className={cn("absolute leading-none drop-shadow-md select-none z-10", STICKER_SIZE[size])} aria-hidden>
+        <span className={cn("absolute leading-none drop-shadow-md select-none z-20", STICKER_SIZE[size])} aria-hidden>
           {hasCustomSticker(stickerKey)
             ? <StickerDecor itemKey={stickerKey} className="block w-[1em] h-[1em]" />
             : sticker}
