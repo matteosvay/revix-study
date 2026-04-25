@@ -13,7 +13,7 @@ import { XP_REWARDS } from "@/lib/gamification";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 import { localDateKey } from "@/lib/date";
 
-type QType = "qcm" | "vrai_faux" | "ouvert" | "trous";
+type QType = "qcm" | "qcm_multi" | "vrai_faux" | "ouvert" | "trous" | "ordre";
 type Q = {
   id: string;
   question: string;
@@ -39,9 +39,11 @@ type CourseGap = {
 
 const TYPE_LABELS: Record<QType, string> = {
   qcm: "QCM",
+  qcm_multi: "QCM multi",
   vrai_faux: "Vrai / Faux",
   ouvert: "Question ouverte",
   trous: "Texte à trous",
+  ordre: "Mise en ordre",
 };
 
 function normalize(s: string) {
@@ -61,6 +63,11 @@ export default function Quizz() {
   const [qIdx, setQIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [textAnswer, setTextAnswer] = useState("");
+  const [multiPicked, setMultiPicked] = useState<number[]>([]);
+  const [multiSubmitted, setMultiSubmitted] = useState(false);
+  const [orderPicked, setOrderPicked] = useState<number[]>([]);
+  const [orderSubmitted, setOrderSubmitted] = useState<boolean>(false);
+  const [orderCorrect, setOrderCorrect] = useState<boolean>(false);
   const [openResult, setOpenResult] = useState<{ correct: boolean; feedback: string } | null>(null);
   const [grading, setGrading] = useState(false);
   const [score, setScore] = useState(0);
@@ -86,6 +93,17 @@ export default function Quizz() {
   };
 
   useEffect(() => { loadInventory(); }, [user]);
+
+  // Initialise l'ordre mélangé pour les questions de type "ordre"
+  useEffect(() => {
+    if (phase !== "play") return;
+    const q = questions[qIdx];
+    if (!q) return;
+    if (q.type === "ordre" && q.answers) {
+      // On part de l'ordre tel que présenté (déjà mélangé par l'IA)
+      setOrderPicked(q.answers.map((_, i) => i));
+    }
+  }, [qIdx, phase, questions]);
 
   const comboMultiplier = useMemo(() => {
     if (combo >= 10) return 3;
@@ -159,6 +177,7 @@ export default function Quizz() {
     setQuestions(data as any);
     setQIdx(0); setPicked(null); setTextAnswer(""); setOpenResult(null); setScore(0); setWrong([]);
     setCombo(0); setMaxCombo(0); setHidden([]);
+    setMultiPicked([]); setMultiSubmitted(false); setOrderPicked([]); setOrderSubmitted(false); setOrderCorrect(false);
     setPhase("play");
   };
 
@@ -271,6 +290,7 @@ export default function Quizz() {
       }
     } else {
       setQIdx(qIdx + 1); setPicked(null); setTextAnswer(""); setOpenResult(null); setHidden([]);
+      setMultiPicked([]); setMultiSubmitted(false); setOrderPicked([]); setOrderSubmitted(false); setOrderCorrect(false);
     }
   };
 
@@ -343,6 +363,44 @@ export default function Quizz() {
     } catch (e: any) {
       toast.error(e?.message ?? "Erreur de correction");
     } finally { setGrading(false); }
+  };
+
+  // Soumet une réponse QCM multi
+  const submitMulti = () => {
+    const q = questions[qIdx];
+    const correct = (q.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n)).sort();
+    const userPicked = [...multiPicked].sort();
+    const ok = correct.length === userPicked.length && correct.every((n, i) => n === userPicked[i]);
+    setMultiSubmitted(true);
+    advance(ok);
+    supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
+  };
+
+  // Soumet la mise en ordre
+  const submitOrder = () => {
+    const q = questions[qIdx];
+    const correct = (q.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+    const ok = correct.length === orderPicked.length && correct.every((n, i) => n === orderPicked[i]);
+    setOrderSubmitted(true);
+    setOrderCorrect(ok);
+    advance(ok);
+    supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
+  };
+
+  const toggleMulti = (i: number) => {
+    if (multiSubmitted) return;
+    setMultiPicked(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
+  };
+
+  const moveOrder = (from: number, dir: -1 | 1) => {
+    if (orderSubmitted) return;
+    setOrderPicked(prev => {
+      const arr = [...prev];
+      const to = from + dir;
+      if (to < 0 || to >= arr.length) return arr;
+      [arr[from], arr[to]] = [arr[to], arr[from]];
+      return arr;
+    });
   };
 
   if (phase === "select") {
@@ -425,8 +483,14 @@ export default function Quizz() {
   if (phase === "play") {
     const q = questions[qIdx];
     const isChoice = q.type === "qcm" || q.type === "vrai_faux";
+    const isMulti = q.type === "qcm_multi";
+    const isOrder = q.type === "ordre";
+    const isText = q.type === "ouvert" || q.type === "trous";
     const choices = q.type === "vrai_faux" ? (q.answers ?? ["Vrai", "Faux"]) : (q.answers ?? []);
     const postitVariants = ["", "answer-postit-pink", "answer-postit-blue", "answer-postit-mint"];
+    const correctMultiSet = isMulti
+      ? new Set((q.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n)))
+      : new Set<number>();
     return (
       <AppLayout>
         <div className="px-5 pt-5">
@@ -512,6 +576,89 @@ export default function Quizz() {
                   );
                 })}
               </div>
+            ) : isMulti ? (
+              <div className="mt-5 space-y-3">
+                <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground px-1">
+                  Coche TOUTES les bonnes réponses
+                </p>
+                <div className="grid grid-cols-1 gap-3">
+                  {(q.answers ?? []).map((a, i) => {
+                    const checked = multiPicked.includes(i);
+                    const isCorrect = correctMultiSet.has(i);
+                    const variant = postitVariants[i % postitVariants.length];
+                    const tilt = i % 2 === 0 ? "tilt-l" : "tilt-r";
+                    let stateCls = "";
+                    if (multiSubmitted) {
+                      if (isCorrect) stateCls = "is-correct";
+                      else if (checked) stateCls = "is-wrong";
+                      else stateCls = "is-faded";
+                    }
+                    return (
+                      <button key={i} onClick={() => toggleMulti(i)} disabled={multiSubmitted}
+                        className={`answer-postit ${variant} ${tilt} ${stateCls} flex items-center gap-3`}>
+                        <span className={`h-6 w-6 rounded-md border-2 border-foreground flex items-center justify-center shrink-0 ${checked ? "bg-foreground text-background" : "bg-background"}`}>
+                          {checked && <CheckCircle2 className="h-4 w-4" />}
+                        </span>
+                        <span className="flex-1">{a}</span>
+                        {multiSubmitted && isCorrect && <CheckCircle2 className="h-5 w-5 text-success" />}
+                        {multiSubmitted && checked && !isCorrect && <XCircle className="h-5 w-5 text-destructive" />}
+                      </button>
+                    );
+                  })}
+                </div>
+                {!multiSubmitted && (
+                  <Button onClick={submitMulti} disabled={multiPicked.length === 0}
+                    className="w-full rounded-full gradient-primary border-0">
+                    Valider mes choix
+                  </Button>
+                )}
+              </div>
+            ) : isOrder ? (
+              <div className="mt-5 space-y-3">
+                <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground px-1">
+                  Réorganise dans le bon ordre (haut → bas)
+                </p>
+                <div className="space-y-2">
+                  {orderPicked.map((origIdx, pos) => {
+                    const label = q.answers?.[origIdx] ?? "";
+                    const variant = postitVariants[pos % postitVariants.length];
+                    let stateCls = "";
+                    if (orderSubmitted) {
+                      const correct = (q.accepted_answers ?? []).map(s => parseInt(s, 10));
+                      stateCls = correct[pos] === origIdx ? "is-correct" : "is-wrong";
+                    }
+                    return (
+                      <div key={`${origIdx}-${pos}`} className={`answer-postit ${variant} ${stateCls} flex items-center gap-3`}>
+                        <span className="h-7 w-7 rounded-md bg-foreground/15 flex items-center justify-center font-mono-tag font-bold text-xs shrink-0">
+                          {pos + 1}
+                        </span>
+                        <span className="flex-1">{label}</span>
+                        {!orderSubmitted && (
+                          <div className="flex flex-col gap-0.5">
+                            <button onClick={() => moveOrder(pos, -1)} disabled={pos === 0}
+                              className="h-5 w-7 rounded border-2 border-foreground bg-background text-xs font-bold disabled:opacity-30 hover:bg-foreground hover:text-background transition">↑</button>
+                            <button onClick={() => moveOrder(pos, 1)} disabled={pos === orderPicked.length - 1}
+                              className="h-5 w-7 rounded border-2 border-foreground bg-background text-xs font-bold disabled:opacity-30 hover:bg-foreground hover:text-background transition">↓</button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {!orderSubmitted && (
+                  <Button onClick={submitOrder} className="w-full rounded-full gradient-primary border-0">
+                    Valider l'ordre
+                  </Button>
+                )}
+                {orderSubmitted && (
+                  <div className={`answer-postit ${orderCorrect ? "is-correct" : "is-wrong"} !cursor-default`}>
+                    <div className="flex items-center gap-2 font-mono-tag text-xs uppercase">
+                      {orderCorrect ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
+                      <span>{orderCorrect ? "Ordre exact !" : "Ordre incorrect"}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="mt-5 space-y-3">
                 <Textarea
@@ -539,13 +686,13 @@ export default function Quizz() {
               </div>
             )}
 
-            {((isChoice && picked !== null) || (!isChoice && openResult !== null)) && q.explanation && (
+            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isText && openResult !== null)) && q.explanation && (
               <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
                 💡 {q.explanation}
               </div>
             )}
 
-            {((isChoice && picked !== null) || (!isChoice && openResult !== null)) && (
+            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isText && openResult !== null)) && (
               <Button
                 onClick={goNext}
                 className="mt-5 w-full rounded-md gradient-primary border-2 border-foreground font-bold animate-fade-in"
@@ -644,9 +791,21 @@ export default function Quizz() {
                   <div key={i} className="text-sm">
                     <p className="font-medium">{questions[i].question}</p>
                     <p className="font-hand text-base text-success mt-0.5">
-                      → {questions[i].answers && typeof questions[i].correct_index === "number"
-                          ? questions[i].answers![questions[i].correct_index!]
-                          : questions[i].accepted_answers?.[0] ?? questions[i].explanation}
+                      → {(() => {
+                        const qq = questions[i];
+                        if (qq.type === "qcm_multi" && qq.answers) {
+                          const idxs = (qq.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+                          return idxs.map(n => qq.answers![n]).filter(Boolean).join(" + ");
+                        }
+                        if (qq.type === "ordre" && qq.answers) {
+                          const idxs = (qq.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+                          return idxs.map((n, k) => `${k + 1}. ${qq.answers![n]}`).join(" → ");
+                        }
+                        if (qq.answers && typeof qq.correct_index === "number") {
+                          return qq.answers[qq.correct_index];
+                        }
+                        return qq.accepted_answers?.[0] ?? qq.explanation;
+                      })()}
                     </p>
                   </div>
                 ))}
