@@ -4,28 +4,31 @@
  */
 import type { CSSProperties } from "react";
 
-export type Rarity = "common" | "rare" | "epic" | "legendary";
+export type Rarity = "common" | "rare" | "epic" | "legendary" | "creator";
 
 export const RARITY_LABEL: Record<Rarity, string> = {
-  common: "Commun", rare: "Rare", epic: "Épique", legendary: "Légendaire",
+  common: "Commun", rare: "Rare", epic: "Épique", legendary: "Légendaire", creator: "Créateur",
 };
 export const RARITY_RING: Record<Rarity, string> = {
   common: "ring-muted-foreground/40",
   rare: "ring-blue-400",
   epic: "ring-purple-500",
   legendary: "ring-yellow-400",
+  creator: "ring-amber-300",
 };
 export const RARITY_TEXT: Record<Rarity, string> = {
   common: "text-muted-foreground",
   rare: "text-blue-500",
   epic: "text-purple-500",
   legendary: "text-yellow-500",
+  creator: "text-amber-400",
 };
 export const RARITY_BORDER: Record<Rarity, string> = {
   common: "border-muted-foreground/40",
   rare: "border-blue-400",
   epic: "border-purple-500",
   legendary: "border-yellow-400",
+  creator: "border-amber-300",
 };
 export const CATEGORY_LABEL: Record<string, string> = {
   frame: "Cadre", background: "Fond", sticker: "Sticker", title: "Titre",
@@ -76,6 +79,11 @@ export function frameStyle(itemKey: string | null | undefined): { className: str
   if (k === "frame_crystal_blue")   return { className: "p-[3px] rounded-full shadow-[0_0_14px_hsl(195_100%_60%)]", style: { background: "linear-gradient(135deg, #0e7490, #22d3ee, #cffafe, #0e7490)" } };
   if (k === "frame_pixel")    return { className: "ring-[3px] ring-emerald-400 shadow-[0_0_10px_hsl(150_85%_45%)]", style: {} };
   if (k === "frame_marker_pink") return { className: "ring-[3px] ring-pink-400", style: {} };
+  /* ===== Creator-exclusive ===== */
+  if (k === "frame_origine") return {
+    className: "p-[3px] rounded-full shadow-[0_0_24px_hsl(45_100%_55%/0.55)]",
+    style: { background: "conic-gradient(from 0deg, #1a0d00, #ffd166, #fff7c2, #ffaa00, #6a3a00, #ffd166, #1a0d00)" },
+  };
   return { className: "ring-2 ring-offset-2 ring-offset-background ring-primary/40", style: {} };
 }
 
@@ -123,5 +131,12 @@ export function backgroundStyle(itemKey: string | null | undefined): CSSProperti
   if (k === "bg_violet_crystal")  return { background: "radial-gradient(ellipse at 30% 50%, hsl(280 100% 60% / 0.6), transparent 50%), radial-gradient(ellipse at 70% 60%, hsl(220 100% 50% / 0.5), transparent 55%), linear-gradient(135deg, #1e1b4b 0%, #0f0a2e 100%)" };
   if (k === "bg_thunderstorm")    return { background: "radial-gradient(ellipse at 50% 30%, hsl(220 50% 30% / 0.8), transparent 50%), linear-gradient(180deg, #1e293b 0%, #0f172a 60%, #020617 100%)" };
   if (k === "bg_pastel_lavender") return { background: "linear-gradient(135deg, hsl(270 100% 92%), hsl(290 100% 88%))" };
+  /* ===== Creator-exclusive ===== */
+  if (k === "bg_origine") return {
+    background:
+      "radial-gradient(ellipse at 30% 20%, hsl(45 100% 55% / 0.25), transparent 55%)," +
+      "radial-gradient(ellipse at 75% 75%, hsl(35 90% 45% / 0.25), transparent 55%)," +
+      "linear-gradient(160deg, #1a0f02 0%, #0e0700 50%, #1a0f02 100%)",
+  };
   return { background: "hsl(var(--muted))" };
 }
