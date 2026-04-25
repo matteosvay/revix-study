@@ -32,12 +32,16 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Contenu trop court" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     const safeCount = Math.max(3, Math.min(30, Number(count) || 10));
-    const allowedTypes = ["qcm", "vrai_faux", "ouvert", "trous"];
+    const safeCountFinal = Math.max(3, Math.min(50, Number(count) || 10));
+    const allowedTypes = ["qcm", "qcm_multi", "vrai_faux", "ouvert", "trous", "ordre"];
     const type = allowedTypes.includes(quizType) ? quizType : "qcm";
 
     const typeInstructions: Record<string, string> = {
       qcm: `Génère des QCM. Chaque question a EXACTEMENT 4 réponses (A/B/C/D), UNE SEULE correcte.
 Renseigne "type":"qcm", "answers" (4 strings), "correct_index" (0-3), "explanation" (1-2 phrases).`,
+      qcm_multi: `Génère des QCM à RÉPONSES MULTIPLES. Chaque question a EXACTEMENT 4 ou 5 réponses, et entre 2 et 4 réponses CORRECTES (jamais une seule, jamais toutes).
+Renseigne "type":"qcm_multi", "answers" (4-5 strings), "correct_indices" (tableau d'indices 0-based des bonnes réponses, longueur 2-4), "explanation" (1-2 phrases qui justifie chaque bonne réponse).
+Ne renseigne PAS correct_index.`,
       vrai_faux: `Génère des affirmations à juger Vrai ou Faux.
 Renseigne "type":"vrai_faux", "answers":["Vrai","Faux"], "correct_index" (0 si l'affirmation est vraie, 1 si fausse), "explanation" (justifie).`,
       ouvert: `Génère des questions OUVERTES qui demandent une réponse rédigée courte (1 à 3 phrases).
@@ -46,6 +50,9 @@ Ne renseigne PAS answers ni correct_index.`,
       trous: `Génère des phrases à TROUS. La question contient un ou plusieurs "____" à compléter.
 Renseigne "type":"trous", "accepted_answers" (toutes les variantes valides du mot/expression à insérer, en minuscule), "explanation" (la phrase complète corrigée).
 Ne renseigne PAS answers ni correct_index.`,
+      ordre: `Génère des questions de MISE EN ORDRE. La question demande de remettre des éléments dans l'ordre chronologique, logique ou hiérarchique correct.
+Renseigne "type":"ordre", "answers" (4 à 6 éléments, déjà MÉLANGÉS — pas dans le bon ordre), "correct_order" (tableau d'indices 0-based dans l'ordre correct, ex: [2,0,3,1]), "explanation" (justifie l'ordre attendu).
+Ne renseigne PAS correct_index.`,
     };
 
     const chapterList = Array.isArray(chapters) && chapters.length
@@ -92,9 +99,11 @@ ${content.slice(0, 12000)}
                     type: "object",
                     properties: {
                       question: { type: "string" },
-                      type: { type: "string", enum: ["qcm", "vrai_faux", "ouvert", "trous"] },
+                      type: { type: "string", enum: ["qcm", "qcm_multi", "vrai_faux", "ouvert", "trous", "ordre"] },
                       answers: { type: "array", items: { type: "string" } },
                       correct_index: { type: "integer", minimum: 0 },
+                      correct_indices: { type: "array", items: { type: "integer", minimum: 0 } },
+                      correct_order: { type: "array", items: { type: "integer", minimum: 0 } },
                       accepted_answers: { type: "array", items: { type: "string" } },
                       explanation: { type: "string" },
                       chapter: { type: "string" },
