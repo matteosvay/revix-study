@@ -275,7 +275,10 @@ export default function Quizz() {
   const pick = (i: number) => {
     if (picked !== null) return;
     setPicked(i);
-    advance(questions[qIdx].correct_index === i);
+    const ok = questions[qIdx].correct_index === i;
+    advance(ok);
+    // SRS: enregistre la révision en arrière-plan
+    supabase.rpc("review_question", { p_question_id: questions[qIdx].id, p_correct: ok });
   };
 
   const usePowerup = async (key: "power_5050" | "power_skip" | "power_time") => {
@@ -316,6 +319,7 @@ export default function Quizz() {
       const ok = accepted.includes(user) || accepted.some(a => user.includes(a) || a.includes(user));
       setOpenResult({ correct: ok, feedback: ok ? "Bonne réponse !" : `Attendu : ${q.accepted_answers?.[0] ?? "—"}` });
       advance(ok);
+      supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
       return;
     }
     // ouvert -> IA
@@ -333,6 +337,7 @@ export default function Quizz() {
       const ok = !!data?.correct;
       setOpenResult({ correct: ok, feedback: data?.feedback ?? "" });
       advance(ok);
+      supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
     } catch (e: any) {
       toast.error(e?.message ?? "Erreur de correction");
     } finally { setGrading(false); }

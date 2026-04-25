@@ -9,6 +9,8 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CourseSummary, type CourseSummaryData } from "@/components/revix/CourseSummary";
+import { ChapterHeatmap } from "@/components/revix/ChapterHeatmap";
+import { VoiceNotes } from "@/components/revix/VoiceNotes";
 
 type Course = { id: string; title: string; subject: string | null; emoji: string | null; source_content: string | null; summary: CourseSummaryData | null };
 
@@ -114,6 +116,15 @@ export default function CourseDetail() {
         ) : (
           <p className="text-sm text-muted-foreground">Aucun résumé pour ce cours.</p>
         )}
+
+        <ChapterHeatmap
+          courseId={course.id}
+          courseTitle={course.title}
+          sourceContent={course.source_content}
+          subject={course.subject}
+        />
+
+        <VoiceNotes courseId={course.id} />
 
         <Sheet open={quizSheetOpen} onOpenChange={setQuizSheetOpen}>
           <SheetTrigger asChild>
