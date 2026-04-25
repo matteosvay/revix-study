@@ -3,18 +3,26 @@ import { useNavigate, useParams } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Play, Pause, SkipForward, LogOut, Send, Plus, Check, Copy, BookOpen, Sparkles, X, Download, StickyNote, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
+import { Link } from "react-router-dom";
 
 type RoomMember = { id: string; user_id: string; status: string; last_seen: string };
 type Msg = { id: string; user_id: string; content: string; is_system: boolean; created_at: string };
 type Goal = { id: string; user_id: string; content: string; done: boolean };
-type Profile = { id: string; display_name: string | null; avatar_url: string | null };
+type Profile = {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  equipped_frame?: string | null;
+  equipped_sticker?: string | null;
+  sticker_emoji?: string | null;
+};
 type SharedCourse = { id: string; room_id: string; course_id: string; shared_by: string; created_at: string };
 type CourseInfo = { id: string; title: string; emoji: string | null; subject: string | null; summary: any; user_id: string };
 type WhiteboardNote = { id: string; room_id: string; user_id: string; content: string; color: string; created_at: string };
@@ -381,10 +389,13 @@ export default function StudyRoom() {
               return (
                 <div key={m.id} className="flex flex-col items-center min-w-[60px]">
                   <div className="relative">
-                    <Avatar className="h-12 w-12 border-2 border-foreground">
-                      {p?.avatar_url && <AvatarImage src={p.avatar_url} />}
-                      <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">{initials(p?.display_name)}</AvatarFallback>
-                    </Avatar>
+                    {m.user_id === user?.id ? (
+                      <CosmeticAvatar fallback={initials(p?.display_name)} avatarUrl={p?.avatar_url} frame={p?.equipped_frame} sticker={p?.sticker_emoji} size="md" />
+                    ) : (
+                      <Link to={`/app/u/${m.user_id}`}>
+                        <CosmeticAvatar fallback={initials(p?.display_name)} avatarUrl={p?.avatar_url} frame={p?.equipped_frame} sticker={p?.sticker_emoji} size="md" />
+                      </Link>
+                    )}
                     <span className={`absolute -bottom-1 -right-1 h-3 w-3 rounded-full border-2 border-card ${
                       m.status === "focus" ? "bg-success" : m.status === "pause" ? "bg-accent" : "bg-muted-foreground"
                     }`} />

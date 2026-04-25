@@ -2,12 +2,15 @@ import { useEffect, useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Plus, LogIn, Users, Flame, Crown, Loader2, Copy, LogOut, Check, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { Link } from "react-router-dom";
+import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
+import { RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
+import { cn } from "@/lib/utils";
 
 type Group = {
   id: string;
@@ -30,6 +33,12 @@ type Member = {
   role: string;
   contributed_today: boolean;
   xp_today: number;
+  equipped_frame?: string | null;
+  equipped_sticker?: string | null;
+  sticker_emoji?: string | null;
+  title_name?: string | null;
+  title_emoji?: string | null;
+  title_rarity?: Rarity | null;
 };
 
 const initials = (n?: string | null) => (n ?? "U").split(" ").map(s => s[0]).filter(Boolean).join("").slice(0, 2).toUpperCase();
@@ -244,16 +253,24 @@ export default function StudyGroups() {
             ) : (
               <div className="space-y-1 max-h-64 overflow-y-auto">
                 {members.map((m) => (
-                  <div key={m.user_id} className="flex items-center gap-2 p-2 bg-card border border-foreground/30 rounded-md">
-                    <Avatar className="h-8 w-8 border border-foreground">
-                      {m.avatar_url && <AvatarImage src={m.avatar_url} />}
-                      <AvatarFallback className="text-[10px] font-bold">{initials(m.display_name)}</AvatarFallback>
-                    </Avatar>
+                  <Link key={m.user_id} to={m.user_id === user?.id ? "/app/profil" : `/app/u/${m.user_id}`} className="flex items-center gap-2 p-2 bg-card border border-foreground/30 rounded-md hover:bg-secondary/40 transition-colors">
+                    <CosmeticAvatar
+                      fallback={initials(m.display_name)}
+                      avatarUrl={m.avatar_url}
+                      frame={m.equipped_frame}
+                      sticker={m.sticker_emoji}
+                      size="sm"
+                    />
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-bold truncate flex items-center gap-1">
                         {m.display_name ?? "—"}
                         {m.role === "owner" && <Crown className="h-3 w-3 text-accent" />}
                       </p>
+                      {m.title_name && (
+                        <p className={cn("text-[9px] font-mono uppercase tracking-wider truncate", RARITY_TEXT[m.title_rarity ?? "common"])}>
+                          {m.title_emoji} {m.title_name}
+                        </p>
+                      )}
                       <p className="text-[9px] text-muted-foreground">N{m.level} · {m.xp_today} XP today</p>
                     </div>
                     {m.contributed_today ? (
@@ -261,7 +278,7 @@ export default function StudyGroups() {
                     ) : (
                       <X className="h-4 w-4 text-muted-foreground" />
                     )}
-                  </div>
+                  </Link>
                 ))}
               </div>
             )}

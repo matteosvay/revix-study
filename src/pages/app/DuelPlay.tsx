@@ -2,14 +2,22 @@ import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Loader2, Swords, Trophy, Wifi, WifiOff } from "lucide-react";
+import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
+import { Link } from "react-router-dom";
 
 type Q = { id: string; position: number; question: string; answers: string[]; correct_index: number; explanation: string | null };
-type Profile = { id: string; display_name: string | null; avatar_url: string | null };
+type Profile = {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  equipped_frame?: string | null;
+  equipped_sticker?: string | null;
+  sticker_emoji?: string | null;
+};
 
 const initials = (n?: string | null) => (n ?? "?").split(" ").map(s => s[0]).join("").slice(0, 2).toUpperCase();
 
@@ -182,19 +190,17 @@ export default function DuelPlay() {
           {/* Tableau de scores côte-à-côte */}
           <div className="grid grid-cols-2 gap-3">
             <div className={`p-4 rounded-md border-2 border-foreground shadow-brutal-sm text-center ${won ? "bg-success/20" : tie ? "bg-card" : "bg-card"}`}>
-              <Avatar className="h-14 w-14 mx-auto border-2 border-foreground">
-                {me?.avatar_url && <AvatarImage src={me.avatar_url} className="object-cover" />}
-                <AvatarFallback className="bg-primary text-primary-foreground font-bold">{initials(me?.display_name)}</AvatarFallback>
-              </Avatar>
+              <div className="flex justify-center">
+                <CosmeticAvatar fallback={initials(me?.display_name)} avatarUrl={me?.avatar_url} frame={me?.equipped_frame} sticker={me?.sticker_emoji} size="md" />
+              </div>
               <p className="text-xs font-bold mt-2">Toi</p>
               <p className="font-mono text-3xl font-bold mt-1">{myScore ?? "?"}</p>
               <p className="text-[10px] text-muted-foreground">/ {duel.num_questions}</p>
             </div>
             <div className={`p-4 rounded-md border-2 border-foreground shadow-brutal-sm text-center ${lost ? "bg-destructive/10" : "bg-card"}`}>
-              <Avatar className="h-14 w-14 mx-auto border-2 border-foreground">
-                {other?.avatar_url && <AvatarImage src={other.avatar_url} className="object-cover" />}
-                <AvatarFallback className="bg-secondary text-foreground font-bold">{initials(other?.display_name)}</AvatarFallback>
-              </Avatar>
+              <Link to={`/app/u/${otherId}`} className="flex justify-center">
+                <CosmeticAvatar fallback={initials(other?.display_name)} avatarUrl={other?.avatar_url} frame={other?.equipped_frame} sticker={other?.sticker_emoji} size="md" />
+              </Link>
               <p className="text-xs font-bold mt-2 truncate">{other?.display_name ?? "Adversaire"}</p>
               <p className="font-mono text-3xl font-bold mt-1">{otherScore ?? "—"}</p>
               <p className="text-[10px] text-muted-foreground">{otherScore == null ? "en cours..." : `/ ${duel.num_questions}`}</p>
