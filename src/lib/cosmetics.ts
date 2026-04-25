@@ -108,14 +108,11 @@ export function frameStyle(itemKey: string | null | undefined): { className: str
   }
   /* ===== Queen-exclusive (Léna) ===== */
   if (k === "frame_reine") {
-    // Roses + or — couronne royale rose poudré et or rose.
-    // The animated decor (couronne + pétales) is rendered by FrameDecor.
+    // The ornate rose-gold ring + crown are rendered by FrameDecor (PNG overlay).
+    // Here we only add a soft pink-gold glow so the avatar feels lit from within.
     return {
-      className: "p-[3px] rounded-full shadow-[0_0_28px_hsl(330_100%_75%/0.7)]",
-      style: {
-        background:
-          "conic-gradient(from 140deg, #f9a8d4, #fde68a, #fbbf24, #f9a8d4, #f472b6, #fde68a, #f9a8d4)",
-      },
+      className: "rounded-full shadow-[0_0_28px_hsl(330_100%_75%/0.55)]",
+      style: {},
     };
   }
   return { className: "ring-2 ring-offset-2 ring-offset-background ring-primary/40", style: {} };
