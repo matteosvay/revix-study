@@ -483,8 +483,14 @@ export default function Quizz() {
   if (phase === "play") {
     const q = questions[qIdx];
     const isChoice = q.type === "qcm" || q.type === "vrai_faux";
+    const isMulti = q.type === "qcm_multi";
+    const isOrder = q.type === "ordre";
+    const isText = q.type === "ouvert" || q.type === "trous";
     const choices = q.type === "vrai_faux" ? (q.answers ?? ["Vrai", "Faux"]) : (q.answers ?? []);
     const postitVariants = ["", "answer-postit-pink", "answer-postit-blue", "answer-postit-mint"];
+    const correctMultiSet = isMulti
+      ? new Set((q.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n)))
+      : new Set<number>();
     return (
       <AppLayout>
         <div className="px-5 pt-5">
