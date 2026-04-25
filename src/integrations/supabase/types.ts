@@ -519,6 +519,7 @@ export type Database = {
         Row: {
           accepted_answers: Json | null
           answers: Json | null
+          chapter: string | null
           correct_index: number | null
           explanation: string | null
           id: string
@@ -531,6 +532,7 @@ export type Database = {
         Insert: {
           accepted_answers?: Json | null
           answers?: Json | null
+          chapter?: string | null
           correct_index?: number | null
           explanation?: string | null
           id?: string
@@ -543,6 +545,7 @@ export type Database = {
         Update: {
           accepted_answers?: Json | null
           answers?: Json | null
+          chapter?: string | null
           correct_index?: number | null
           explanation?: string | null
           id?: string

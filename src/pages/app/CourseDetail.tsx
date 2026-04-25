@@ -40,19 +40,29 @@ export default function CourseDetail() {
     })();
   }, [id]);
 
-  const generateQuiz = async () => {
+  const generateQuiz = async (chapterFilter?: string) => {
     if (!course?.source_content) { toast.error("Contenu source indisponible."); return; }
     setCreatingQuiz(true);
     try {
+      const chapters = course.summary?.sections?.map((s) => s.title).filter(Boolean) ?? [];
       const { data, error } = await supabase.functions.invoke("generate-quiz", {
-        body: { content: course.source_content, subject: course.subject, title: course.title, count: quizCount, quizType },
+        body: {
+          content: course.source_content,
+          subject: course.subject,
+          title: course.title,
+          count: quizCount,
+          quizType,
+          chapters,
+          chapter: chapterFilter ?? null,
+        },
       });
       if (error) throw error;
       const qs = data?.questions ?? [];
       if (!qs.length) throw new Error("Aucune question générée.");
       const { data: { user } } = await supabase.auth.getUser();
+      const titleSuffix = chapterFilter ? ` · ${chapterFilter}` : "";
       const { data: quiz, error: qErr } = await supabase.from("quizzes").insert({
-        user_id: user!.id, course_id: course.id, title: `Quizz · ${course.title}`, quiz_type: quizType,
+        user_id: user!.id, course_id: course.id, title: `Quizz · ${course.title}${titleSuffix}`, quiz_type: quizType,
       }).select().single();
       if (qErr) throw qErr;
       const rows = qs.map((q: any, i: number) => ({
@@ -62,6 +72,7 @@ export default function CourseDetail() {
         correct_index: typeof q.correct_index === "number" ? q.correct_index : null,
         accepted_answers: q.accepted_answers ?? null,
         explanation: q.explanation, position: i,
+        chapter: q.chapter ?? chapterFilter ?? null,
       }));
       await supabase.from("quiz_questions").insert(rows);
       toast.success("Quizz créé ✨");
@@ -144,7 +155,7 @@ export default function CourseDetail() {
                 </div>
               </div>
 
-              <Button onClick={generateQuiz} disabled={creatingQuiz} className="w-full rounded-full gradient-primary border-0 h-12">
+              <Button onClick={() => generateQuiz()} disabled={creatingQuiz} className="w-full rounded-full gradient-primary border-0 h-12">
                 {creatingQuiz ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Génération...</> : <><Brain className="h-4 w-4 mr-2" /> Générer le quizz</>}
               </Button>
             </div>

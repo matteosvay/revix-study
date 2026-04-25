@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight } from "lucide-react";
+import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -22,8 +22,20 @@ type Q = {
   correct_index: number | null;
   accepted_answers: string[] | null;
   explanation: string;
+  chapter?: string | null;
 };
-type Quiz = { id: string; title: string; quiz_type?: string };
+type Quiz = { id: string; title: string; quiz_type?: string; course_id?: string | null };
+
+type CourseGap = {
+  course_id: string;
+  course_title: string;
+  course_emoji: string | null;
+  source_content: string | null;
+  subject: string | null;
+  chapters: string[]; // tous les chapitres du cours
+  covered: Set<string>; // chapitres déjà couverts par un quizz
+  missing: string[];
+};
 
 const TYPE_LABELS: Record<QType, string> = {
   qcm: "QCM",
@@ -39,6 +51,7 @@ function normalize(s: string) {
 export default function Quizz() {
   const { user } = useAuth();
   const [params] = useSearchParams();
+  const nav = useNavigate();
   const presetId = params.get("id");
   const [quizzes, setQuizzes] = useState<Quiz[]>([]);
   const [activeQuiz, setActiveQuiz] = useState<Quiz | null>(null);
@@ -51,14 +64,63 @@ export default function Quizz() {
   const [grading, setGrading] = useState(false);
   const [score, setScore] = useState(0);
   const [wrong, setWrong] = useState<number[]>([]);
+  const [gaps, setGaps] = useState<CourseGap[]>([]);
+  const [generatingChapter, setGeneratingChapter] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const { data } = await supabase.from("quizzes").select("id,title,quiz_type").eq("user_id", user.id).order("created_at", { ascending: false });
-      setQuizzes((data as any) ?? []);
-      if (presetId && data?.find(q => q.id === presetId)) {
-        const q = data.find(x => x.id === presetId)!;
+      const { data: qzs } = await supabase
+        .from("quizzes")
+        .select("id,title,quiz_type,course_id")
+        .eq("user_id", user.id)
+        .order("created_at", { ascending: false });
+      setQuizzes((qzs as any) ?? []);
+
+      // Calcule les chapitres non encore couverts par cours
+      const { data: courses } = await supabase
+        .from("courses")
+        .select("id,title,emoji,subject,source_content,summary")
+        .eq("user_id", user.id);
+
+      const { data: allQuestions } = await supabase
+        .from("quiz_questions")
+        .select("quiz_id,chapter")
+        .eq("user_id", user.id);
+
+      const coveredByCourse = new Map<string, Set<string>>();
+      for (const qz of (qzs ?? []) as any[]) {
+        if (!qz.course_id) continue;
+        const chapsForQuiz = (allQuestions ?? [])
+          .filter((q: any) => q.quiz_id === qz.id && q.chapter)
+          .map((q: any) => q.chapter as string);
+        if (!coveredByCourse.has(qz.course_id)) coveredByCourse.set(qz.course_id, new Set());
+        chapsForQuiz.forEach((c) => coveredByCourse.get(qz.course_id)!.add(c));
+      }
+
+      const computedGaps: CourseGap[] = [];
+      for (const c of (courses ?? []) as any[]) {
+        const sections: string[] = (c.summary?.sections ?? []).map((s: any) => s.title).filter(Boolean);
+        if (!sections.length) continue;
+        const covered = coveredByCourse.get(c.id) ?? new Set<string>();
+        const missing = sections.filter((s) => !covered.has(s));
+        if (missing.length) {
+          computedGaps.push({
+            course_id: c.id,
+            course_title: c.title,
+            course_emoji: c.emoji,
+            source_content: c.source_content,
+            subject: c.subject,
+            chapters: sections,
+            covered,
+            missing,
+          });
+        }
+      }
+      setGaps(computedGaps);
+
+      if (presetId && qzs?.find((q: any) => q.id === presetId)) {
+        const q = qzs.find((x: any) => x.id === presetId)!;
         startQuiz(q as any);
       }
     })();
@@ -71,6 +133,48 @@ export default function Quizz() {
     setQuestions(data as any);
     setQIdx(0); setPicked(null); setTextAnswer(""); setOpenResult(null); setScore(0); setWrong([]);
     setPhase("play");
+  };
+
+  const generateForChapter = async (gap: CourseGap, chapter: string) => {
+    if (!user || !gap.source_content) { toast.error("Contenu source indisponible."); return; }
+    setGeneratingChapter(`${gap.course_id}::${chapter}`);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-quiz", {
+        body: {
+          content: gap.source_content,
+          subject: gap.subject,
+          title: gap.course_title,
+          count: 10,
+          quizType: "qcm",
+          chapters: gap.chapters,
+          chapter,
+        },
+      });
+      if (error) throw error;
+      const qs = data?.questions ?? [];
+      if (!qs.length) throw new Error("Aucune question générée.");
+      const { data: quiz, error: qErr } = await supabase.from("quizzes").insert({
+        user_id: user.id, course_id: gap.course_id,
+        title: `Quizz · ${gap.course_title} · ${chapter}`, quiz_type: "qcm",
+      }).select().single();
+      if (qErr) throw qErr;
+      const rows = qs.map((q: any, i: number) => ({
+        quiz_id: quiz.id, user_id: user.id, question: q.question,
+        type: q.type ?? "qcm",
+        answers: q.answers ?? null,
+        correct_index: typeof q.correct_index === "number" ? q.correct_index : null,
+        accepted_answers: q.accepted_answers ?? null,
+        explanation: q.explanation, position: i,
+        chapter: q.chapter ?? chapter,
+      }));
+      await supabase.from("quiz_questions").insert(rows);
+      toast.success("Quizz prêt ✨");
+      nav(`/app/quizz?id=${quiz.id}`);
+    } catch (e: any) {
+      toast.error(e?.message ?? "Erreur");
+    } finally {
+      setGeneratingChapter(null);
+    }
   };
 
   // Enregistre la réponse mais NE passe PAS à la question suivante (l'utilisateur clique sur "Suivant")
@@ -166,6 +270,45 @@ export default function Quizz() {
     return (
       <AppLayout>
         <PageHeader emoji="🧠" title="Quizz" subtitle="Choisis un quizz pour t'entraîner." />
+        {gaps.length > 0 && (
+          <div className="px-4 mt-2 mb-4">
+            <div className="flex items-center gap-2 mb-3 px-1">
+              <Sparkles className="h-4 w-4 text-primary" />
+              <p className="font-mono-tag text-[11px] uppercase tracking-wider text-muted-foreground">Chapitres à explorer</p>
+            </div>
+            <div className="space-y-3">
+              {gaps.map((gap) => (
+                <div key={gap.course_id} className="notebook-card p-3.5">
+                  <div className="flex items-center gap-2 mb-2">
+                    <span className="text-xl">{gap.course_emoji ?? "📘"}</span>
+                    <p className="font-serif text-sm flex-1 truncate">{gap.course_title}</p>
+                    <span className="font-mono-tag text-[10px] text-muted-foreground">{gap.missing.length} restant{gap.missing.length > 1 ? "s" : ""}</span>
+                  </div>
+                  <div className="flex flex-wrap gap-2">
+                    {gap.missing.slice(0, 6).map((ch) => {
+                      const key = `${gap.course_id}::${ch}`;
+                      const loading = generatingChapter === key;
+                      return (
+                        <button
+                          key={ch}
+                          onClick={() => generateForChapter(gap, ch)}
+                          disabled={!!generatingChapter}
+                          className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-dashed border-primary/40 bg-primary/5 hover:bg-primary/15 hover:border-primary text-xs font-medium transition disabled:opacity-50"
+                        >
+                          {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 text-primary" />}
+                          <span className="max-w-[180px] truncate">{ch}</span>
+                        </button>
+                      );
+                    })}
+                    {gap.missing.length > 6 && (
+                      <span className="text-xs text-muted-foreground self-center">+{gap.missing.length - 6}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
         {quizzes.length === 0 ? (
           <div className="px-5 mt-6 text-center">
             <div className="inline-block notebook-card dog-ear p-6 max-w-xs mx-auto">
@@ -176,6 +319,7 @@ export default function Quizz() {
           </div>
         ) : (
           <div className="px-4 space-y-3">
+            <p className="font-mono-tag text-[11px] uppercase tracking-wider text-muted-foreground px-1">Tes quizz</p>
             {quizzes.map((q, i) => (
               <button
                 key={q.id}
@@ -335,6 +479,44 @@ export default function Quizz() {
 
           {wrong.length > 0 && (
             <div className="mt-5">
+              {(() => {
+                // Groupement par chapitre
+                const byChapter = new Map<string, number>();
+                let totalTagged = 0;
+                wrong.forEach((i) => {
+                  const ch = questions[i]?.chapter ?? null;
+                  if (ch) {
+                    byChapter.set(ch, (byChapter.get(ch) ?? 0) + 1);
+                    totalTagged++;
+                  }
+                });
+                if (byChapter.size === 0) return null;
+                const sorted = [...byChapter.entries()].sort((a, b) => b[1] - a[1]);
+                return (
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle className="h-4 w-4 text-destructive" />
+                      <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">Erreurs par chapitre</p>
+                    </div>
+                    <div className="space-y-1.5">
+                      {sorted.map(([ch, n]) => {
+                        const pct = Math.round((n / totalTagged) * 100);
+                        return (
+                          <div key={ch} className="postit postit-pink p-2.5 -rotate-[0.3deg]">
+                            <div className="flex items-center justify-between gap-2">
+                              <p className="font-hand text-base flex-1 truncate">{ch}</p>
+                              <span className="font-mono-tag text-[10px] bg-destructive/15 text-destructive px-1.5 py-0.5 rounded-full shrink-0">{n} erreur{n > 1 ? "s" : ""}</span>
+                            </div>
+                            <div className="mt-1.5 h-1.5 bg-foreground/10 rounded-full overflow-hidden">
+                              <div className="h-full bg-destructive/60" style={{ width: `${pct}%` }} />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                );
+              })()}
               <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground mb-2">À retravailler</p>
               <div className="space-y-2">
                 {wrong.map(i => (
