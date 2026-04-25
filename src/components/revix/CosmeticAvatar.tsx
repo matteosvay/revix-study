@@ -1,6 +1,8 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { frameStyle } from "@/lib/cosmetics";
 import { cn } from "@/lib/utils";
+import { FrameDecor } from "@/components/revix/cosmetics/FrameDecor";
+import { StickerDecor, hasCustomSticker } from "@/components/revix/cosmetics/StickerDecor";
 
 type Size = "sm" | "md" | "lg" | "xl";
 const SIZE: Record<Size, string> = {
@@ -21,6 +23,7 @@ export function CosmeticAvatar({
   fallback,
   frame,
   sticker,
+  stickerKey,
   size = "md",
   className,
 }: {
@@ -28,6 +31,7 @@ export function CosmeticAvatar({
   fallback: string;
   frame?: string | null;
   sticker?: string | null;
+  stickerKey?: string | null;
   size?: Size;
   className?: string;
 }) {
@@ -40,9 +44,13 @@ export function CosmeticAvatar({
           {fallback}
         </AvatarFallback>
       </Avatar>
+      {/* Animated SVG decor on top of the frame for legendary/epic+ frames */}
+      <FrameDecor itemKey={frame} size={size} />
       {sticker && (
-        <span className={cn("absolute leading-none drop-shadow-md select-none", STICKER_SIZE[size])} aria-hidden>
-          {sticker}
+        <span className={cn("absolute leading-none drop-shadow-md select-none z-10", STICKER_SIZE[size])} aria-hidden>
+          {hasCustomSticker(stickerKey)
+            ? <StickerDecor itemKey={stickerKey} className="block w-[1em] h-[1em]" />
+            : sticker}
         </span>
       )}
     </div>

@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
 import { backgroundStyle, RARITY_LABEL, RARITY_RING, RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
 import { TitleBadge } from "@/components/revix/TitleBadge";
+import { BackgroundDecor } from "@/components/revix/cosmetics/BackgroundDecor";
+import { StickerDecor, hasCustomSticker } from "@/components/revix/cosmetics/StickerDecor";
 import { cn } from "@/lib/utils";
 
 type Item = {
@@ -76,15 +78,26 @@ export default function Cosmetics() {
         {list.map(item => (
           <div key={item.item_key} className={cn("rounded-md border-[2.5px] border-foreground bg-card p-3 shadow-brutal-sm relative", item.equipped && "ring-2 ring-primary")}>
             {item.equipped && <span className="absolute top-1.5 right-1.5 text-[10px] font-mono uppercase bg-primary text-primary-foreground px-1.5 py-0.5 rounded-sm flex items-center gap-0.5"><Check className="h-3 w-3"/>Équipé</span>}
-            <div className="h-20 rounded-md overflow-hidden border-2 border-foreground/20 mb-2 flex items-center justify-center" style={cat === "background" ? backgroundStyle(item.item_key) : undefined}>
+            <div className="h-20 rounded-md overflow-hidden border-2 border-foreground/20 mb-2 flex items-center justify-center relative" style={cat === "background" ? backgroundStyle(item.item_key) : undefined}>
+              {cat === "background" && <BackgroundDecor itemKey={item.item_key} />}
               {cat === "frame" && (
                 <CosmeticAvatar fallback={initials} avatarUrl={profile?.avatar_url} frame={item.item_key} size="md" />
               )}
-              {cat === "sticker" && <span className="text-5xl">{item.emoji}</span>}
+              {cat === "sticker" && (
+                hasCustomSticker(item.item_key)
+                  ? <StickerDecor itemKey={item.item_key} className="block w-12 h-12" />
+                  : <span className="text-5xl">{item.emoji}</span>
+              )}
               {cat === "title" && (
-                <div className="text-center px-2">
-                  <span className="text-2xl">{item.emoji}</span>
-                  <p className="text-xs font-bold mt-0.5 truncate">{item.name}</p>
+                <div className="text-center px-2 z-10">
+                  {item.item_key === "title_owner" ? (
+                    <p className="owner-title text-base">{item.name}</p>
+                  ) : (
+                    <>
+                      {item.emoji && <span className="text-2xl">{item.emoji}</span>}
+                      <p className={cn("text-xs font-bold mt-0.5 truncate font-mono uppercase tracking-wider", RARITY_TEXT[item.rarity])}>{item.name}</p>
+                    </>
+                  )}
                 </div>
               )}
             </div>
@@ -118,13 +131,15 @@ export default function Cosmetics() {
       <div className="px-5">
         {/* Live preview */}
         <div className="rounded-md border-[2.5px] border-foreground overflow-hidden mb-4 shadow-brutal-sm">
-          <div className="h-24 relative" style={backgroundStyle(profile?.equipped_background)}>
-            <div className="absolute -bottom-10 left-4">
+          <div className="h-24 relative overflow-hidden" style={backgroundStyle(profile?.equipped_background)}>
+            <BackgroundDecor itemKey={profile?.equipped_background} />
+            <div className="absolute -bottom-10 left-4 z-10">
               <CosmeticAvatar
                 fallback={initials}
                 avatarUrl={profile?.avatar_url}
                 frame={profile?.equipped_frame}
                 sticker={stickerEmoji}
+                stickerKey={profile?.equipped_sticker}
                 size="lg"
               />
             </div>
