@@ -3,10 +3,15 @@ import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, ChevronRight, BookOpen } from "lucide-react";
+import { Search, Plus, ChevronRight, BookOpen, Trash2, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
+import { toast } from "sonner";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
 type CourseRow = { id: string; title: string; subject: string | null; emoji: string | null; created_at: string };
 
@@ -15,6 +20,8 @@ export default function Fiches() {
   const [courses, setCourses] = useState<CourseRow[]>([]);
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(true);
+  const [toDelete, setToDelete] = useState<CourseRow | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -30,6 +37,17 @@ export default function Fiches() {
   }, [user]);
 
   const filtered = courses.filter(c => c.title.toLowerCase().includes(search.toLowerCase()));
+
+  const removeCourse = async () => {
+    if (!toDelete) return;
+    setDeleting(true);
+    const { error } = await supabase.from("courses").delete().eq("id", toDelete.id);
+    setDeleting(false);
+    if (error) { toast.error("Suppression impossible"); return; }
+    setCourses(prev => prev.filter(c => c.id !== toDelete.id));
+    toast.success("Cours supprimé");
+    setToDelete(null);
+  };
 
   return (
     <AppLayout>
@@ -70,30 +88,52 @@ export default function Fiches() {
             const tape = i % 3 === 0 ? "yellow" : i % 3 === 1 ? "pink" : "mint";
             const tilt = i % 2 === 0 ? "tilt-l" : "tilt-r";
             return (
-              <Link
-                key={c.id}
-                to={`/app/fiches/${c.id}`}
-                className={`block notebook-card dog-ear ${tilt} relative p-4 hover:shadow-glow transition-shadow`}
-              >
+              <div key={c.id} className={`notebook-card dog-ear ${tilt} relative hover:shadow-glow transition-shadow`}>
                 <Tape variant={tape as any} position={i % 2 === 0 ? "top-left" : "top-right"} />
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl shrink-0">{c.emoji ?? "📘"}</span>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-serif text-lg leading-tight truncate">{c.title}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      {c.subject && <span className="label-tape">{c.subject}</span>}
-                      <span className="font-mono-tag text-[10px] uppercase text-muted-foreground">
-                        {new Date(c.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
-                      </span>
+                <div className="flex items-center gap-3 p-4">
+                  <Link to={`/app/fiches/${c.id}`} className="flex items-center gap-3 flex-1 min-w-0">
+                    <span className="text-3xl shrink-0">{c.emoji ?? "📘"}</span>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-serif text-lg leading-tight truncate">{c.title}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        {c.subject && <span className="label-tape">{c.subject}</span>}
+                        <span className="font-mono-tag text-[10px] uppercase text-muted-foreground">
+                          {new Date(c.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                        </span>
+                      </div>
                     </div>
-                  </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                  </Link>
+                  <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setToDelete(c); }}
+                    className="h-9 w-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition shrink-0"
+                    aria-label="Supprimer le cours"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
                 </div>
-              </Link>
+              </div>
             );
           })}
         </div>
       )}
+
+      <AlertDialog open={!!toDelete} onOpenChange={(o) => !o && setToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Supprimer ce cours ?</AlertDialogTitle>
+            <AlertDialogDescription>
+              « {toDelete?.title} » et tous les quizz / révisions liés seront supprimés. Cette action est irréversible.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleting}>Annuler</AlertDialogCancel>
+            <AlertDialogAction onClick={removeCourse} disabled={deleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {deleting ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Suppression…</> : <>Supprimer</>}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </AppLayout>
   );
 }
