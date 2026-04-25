@@ -89,8 +89,20 @@ export default function Upload() {
         if (file.size > 25 * 1024 * 1024) {
           throw new Error("Fichier trop lourd (max 25 Mo). Compresse-le ou découpe-le.");
         }
-        // upload to storage
-        const path = `${user.id}/${Date.now()}_${file.name}`;
+        // upload to storage — sanitise le nom (Supabase Storage refuse accents, espaces, caractères spéciaux)
+        const dotIdx = file.name.lastIndexOf(".");
+        const rawBase = dotIdx > 0 ? file.name.slice(0, dotIdx) : file.name;
+        const rawExt = dotIdx > 0 ? file.name.slice(dotIdx + 1) : "";
+        const safeBase = rawBase
+          .normalize("NFD")
+          .replace(/[\u0300-\u036f]/g, "") // accents
+          .replace(/[^a-zA-Z0-9._-]+/g, "_")
+          .replace(/_+/g, "_")
+          .replace(/^_+|_+$/g, "")
+          .slice(0, 80) || "fichier";
+        const safeExt = rawExt.replace(/[^a-zA-Z0-9]+/g, "").toLowerCase().slice(0, 10);
+        const safeName = safeExt ? `${safeBase}.${safeExt}` : safeBase;
+        const path = `${user.id}/${Date.now()}_${safeName}`;
         const { error: upErr } = await supabase.storage.from("course-uploads").upload(path, file);
         if (upErr) throw upErr;
         storagePath = path;
