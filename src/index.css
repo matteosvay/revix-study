@@ -823,3 +823,25 @@
     animation: draw-stroke 0.9s ease-out forwards;
   }
 }
+
+@layer utilities {
+  @keyframes loot-bounce {
+    0%, 100% { transform: translateY(0) rotate(-3deg); }
+    50% { transform: translateY(-6px) rotate(3deg); }
+  }
+  .loot-bounce { animation: loot-bounce 1.4s ease-in-out infinite; }
+
+  @keyframes combo-pop {
+    0% { transform: scale(0.6); opacity: 0; }
+    50% { transform: scale(1.25); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .combo-pop { animation: combo-pop 0.45s ease-out; }
+
+  @keyframes shake-fomo {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+  }
+  .shake-fomo { animation: shake-fomo 0.4s ease-in-out 2; }
+}
