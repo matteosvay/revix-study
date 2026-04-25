@@ -3,6 +3,7 @@ import phoenixRing from "@/assets/cosmetics/frame_phoenix_ring.webp";
 import dragonRing from "@/assets/cosmetics/frame_dragon_ring.webp";
 import diamondRing from "@/assets/cosmetics/frame_diamond_ring.webp";
 import cosmicRing from "@/assets/cosmetics/frame_cosmic_ring.webp";
+import origineRing from "@/assets/cosmetics/frame_origine_ring.png";
 
 /** Photoreal PNG rings overlaid on top of the avatar for legendary frames. */
 const PNG_RINGS: Record<string, { src: string; glow: string }> = {
@@ -33,113 +34,49 @@ export function FrameDecor({
   // ===== Above-avatar overlays (rendered ON TOP of the photo) =====
   if (layer === "above") {
     if (itemKey === "frame_origine") {
-      // Real liquid-gold crown sitting on top of the avatar's head.
-      // SCALE_ABOVE positions the crown so it overlaps just the top ~40% of the avatar.
-      const CROWN_WRAP: Record<string, string> = {
-        sm: "-top-3 -left-1 -right-1 h-6",
-        md: "-top-4 -left-1.5 -right-1.5 h-8",
-        lg: "-top-6 -left-2 -right-2 h-12",
-        xl: "-top-8 -left-2 -right-2 h-16",
+      // Photoreal liquid-gold crown + ring overlay (ABOVE the avatar).
+      // The PNG includes both the dripping gold ring AND the baroque crown on top,
+      // so it visually surrounds the avatar AND rises above the head as a real crown.
+      // Scale extends UP and slightly OUT so the crown towers over the photo.
+      const WRAP: Record<string, string> = {
+        sm: "-top-3 -left-1.5 -right-1.5 -bottom-2",
+        md: "-top-5 -left-2 -right-2 -bottom-3",
+        lg: "-top-8 -left-3 -right-3 -bottom-4",
+        xl: "-top-12 -left-4 -right-4 -bottom-5",
       };
+      const SPARK_COUNT = 14;
       return (
-        <div className={`absolute ${CROWN_WRAP[size]} pointer-events-none z-30`}>
-          <svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMax meet" className="w-full h-full overflow-visible">
-            <defs>
-              <linearGradient id="crown-gold" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"  stopColor="#fff7c2" />
-                <stop offset="40%" stopColor="#ffd166" />
-                <stop offset="80%" stopColor="#a26800" />
-                <stop offset="100%" stopColor="#5a3a00" />
-              </linearGradient>
-              <linearGradient id="crown-shine" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%"  stopColor="#ffffff" stopOpacity="0.85" />
-                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
-              </linearGradient>
-              <radialGradient id="crown-aura" cx="50%" cy="60%" r="60%">
-                <stop offset="0%"  stopColor="#ffd166" stopOpacity="0.45" />
-                <stop offset="100%" stopColor="#ffd166" stopOpacity="0" />
-              </radialGradient>
-              <filter id="crown-glow" x="-30%" y="-30%" width="160%" height="160%">
-                <feGaussianBlur stdDeviation="0.8" result="b" />
-                <feMerge>
-                  <feMergeNode in="b" />
-                  <feMergeNode in="SourceGraphic" />
-                </feMerge>
-              </filter>
-            </defs>
-
-            {/* Soft golden aura under the crown */}
-            <ellipse cx="50" cy="48" rx="38" ry="10" fill="url(#crown-aura)">
-              <animate attributeName="rx" values="34;40;34" dur="2.8s" repeatCount="indefinite" />
-              <animate attributeName="opacity" values="0.6;1;0.6" dur="2.8s" repeatCount="indefinite" />
-            </ellipse>
-
-            {/* Crown body — five spikes joined by a curved base, classic regal silhouette */}
-            <g filter="url(#crown-glow)">
-              <path
-                d="
-                  M 14 50
-                  L 20 22
-                  L 30 40
-                  L 40 12
-                  L 50 38
-                  L 60 12
-                  L 70 40
-                  L 80 22
-                  L 86 50
-                  Q 50 58 14 50
-                  Z
-                "
-                fill="url(#crown-gold)"
-                stroke="#5a3a00"
-                strokeWidth="1.2"
-                strokeLinejoin="round"
-              />
-              {/* Inner shine on the base */}
-              <path
-                d="M 18 48 Q 50 55 82 48 L 80 44 Q 50 50 20 44 Z"
-                fill="url(#crown-shine)"
-                opacity="0.55"
-              />
-
-              {/* Gem at the center spike (M monogram engraved) */}
-              <circle cx="50" cy="22" r="4.2" fill="#7a1f3d" stroke="#5a3a00" strokeWidth="0.8">
-                <animate attributeName="r" values="3.8;4.6;3.8" dur="2.4s" repeatCount="indefinite" />
-              </circle>
-              <circle cx="48.7" cy="20.7" r="1.2" fill="#ffd1e2" opacity="0.85" />
-              <text
-                x="50" y="23.2"
-                textAnchor="middle"
-                dominantBaseline="middle"
-                fontSize="4.2"
-                fontFamily="serif"
-                fontWeight="700"
-                fill="#fff7c2"
-                stroke="#5a3a00"
-                strokeWidth="0.25"
-              >M</text>
-
-              {/* Gems on side spikes */}
-              <circle cx="20" cy="32" r="1.6" fill="#3b82f6" stroke="#5a3a00" strokeWidth="0.4">
-                <animate attributeName="opacity" values="0.7;1;0.7" dur="1.8s" repeatCount="indefinite" />
-              </circle>
-              <circle cx="80" cy="32" r="1.6" fill="#10b981" stroke="#5a3a00" strokeWidth="0.4">
-                <animate attributeName="opacity" values="0.7;1;0.7" dur="1.8s" begin="0.6s" repeatCount="indefinite" />
-              </circle>
-
-              {/* Tip sparkles on each spike */}
-              {[
-                [20, 22], [40, 12], [60, 12], [80, 22],
-              ].map(([cx, cy], i) => (
-                <circle key={i} cx={cx} cy={cy} r="0.8" fill="#fff7c2">
-                  <animate attributeName="opacity" values="0.2;1;0.2" dur="1.6s" begin={`${i * 0.25}s`} repeatCount="indefinite" />
-                  <animate attributeName="r" values="0.5;1.3;0.5" dur="1.6s" begin={`${i * 0.25}s`} repeatCount="indefinite" />
+        <div className={`absolute ${WRAP[size]} pointer-events-none z-30`}>
+          <img
+            src={origineRing}
+            alt=""
+            loading="lazy"
+            width={1024}
+            height={1024}
+            draggable={false}
+            className="block w-full h-full object-contain animate-cosmetic-breathe"
+            style={{
+              filter:
+                "drop-shadow(0 0 6px hsl(45 100% 65% / 0.85)) " +
+                "drop-shadow(0 0 18px hsl(38 100% 55% / 0.55)) " +
+                "drop-shadow(0 4px 10px hsl(30 80% 25% / 0.45))",
+            }}
+          />
+          {/* Floating gold motes */}
+          <svg viewBox="0 0 100 100" className="absolute inset-0 w-full h-full overflow-visible">
+            {Array.from({ length: SPARK_COUNT }).map((_, i) => {
+              const a = (i * (360 / SPARK_COUNT) * Math.PI) / 180;
+              const r = 47 + (i % 3) * 1.2;
+              const cx = 50 + Math.cos(a) * r;
+              const cy = 50 + Math.sin(a) * r;
+              return (
+                <circle key={i} cx={cx} cy={cy} r="0.8" fill="#fff7c2"
+                  style={{ filter: "drop-shadow(0 0 3px #ffd166)" }}>
+                  <animate attributeName="opacity" values="0.15;1;0.15" dur="2.4s" begin={`${i * 0.14}s`} repeatCount="indefinite" />
+                  <animate attributeName="r" values="0.4;1.3;0.4" dur="2.4s" begin={`${i * 0.14}s`} repeatCount="indefinite" />
                 </circle>
-              ))}
-
-              {/* Engraving line along the base */}
-              <path d="M 18 46 Q 50 52 82 46" fill="none" stroke="#5a3a00" strokeWidth="0.4" opacity="0.7" />
-            </g>
+              );
+            })}
           </svg>
         </div>
       );
@@ -738,70 +675,13 @@ export function FrameDecor({
                 <stop offset="60%" stopColor="#ffd166" stopOpacity="0" />
                 <stop offset="100%" stopColor="#ffaa00" stopOpacity="0.55" />
               </radialGradient>
-              <linearGradient id="orig-gold" x1="0" y1="0" x2="1" y2="1">
-                <stop offset="0%" stopColor="#fff7c2" />
-                <stop offset="50%" stopColor="#ffd166" />
-                <stop offset="100%" stopColor="#a26800" />
-              </linearGradient>
-              <filter id="orig-blur" x="-50%" y="-50%" width="200%" height="200%">
-                <feGaussianBlur stdDeviation="0.6" />
-              </filter>
             </defs>
-
-            {/* Aura */}
+            {/* Soft pulsing golden halo only — the actual ornate ring & crown
+                are rendered by the photoreal PNG in the ABOVE layer. */}
             <circle cx="50" cy="50" r="48" fill="url(#orig-aura)">
-              <animate attributeName="r" values="46;52;46" dur="3s" repeatCount="indefinite" />
-              <animate attributeName="opacity" values="0.7;1;0.7" dur="3s" repeatCount="indefinite" />
+              <animate attributeName="r" values="46;54;46" dur="3.2s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="3.2s" repeatCount="indefinite" />
             </circle>
-
-            {/* Inner shimmering gold ring */}
-            <circle cx="50" cy="50" r="47" fill="none" stroke="url(#orig-gold)" strokeWidth="2" opacity="0.95">
-              <animate attributeName="stroke-width" values="1.6;2.4;1.6" dur="2.6s" repeatCount="indefinite" />
-            </circle>
-            <circle cx="50" cy="50" r="47" fill="none" stroke="#fff7c2" strokeWidth="0.5" opacity="0.7" filter="url(#orig-blur)" />
-
-            {/* Liquid gold dashed ring rotating */}
-            <circle cx="50" cy="50" r="49" fill="none" stroke="url(#orig-gold)" strokeWidth="1" strokeDasharray="1 6" opacity="0.9">
-              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="22s" repeatCount="indefinite" />
-            </circle>
-
-            {/* Crown spikes (8 around top arc) */}
-            {[210, 240, 270, 300, 330, 0, 30, 60].map((deg, i) => {
-              const a = (deg * Math.PI) / 180;
-              const r = 46;
-              const cx = 50 + Math.cos(a) * r;
-              const cy = 50 + Math.sin(a) * r;
-              const big = i === 3 || i === 4; // tallest in front
-              return (
-                <g key={i} transform={`translate(${cx} ${cy}) rotate(${deg + 90})`}>
-                  <path d={big ? "M0,0 L-2.6,-9 L0,-12 L2.6,-9 Z" : "M0,0 L-2,-6 L0,-8 L2,-6 Z"} fill="url(#orig-gold)" stroke="#7a4a00" strokeWidth="0.4">
-                    <animate attributeName="opacity" values="0.7;1;0.7" dur="2.6s" begin={`${i * 0.12}s`} repeatCount="indefinite" />
-                  </path>
-                  <circle cx="0" cy={big ? -12 : -8} r="0.9" fill="#fff7c2">
-                    <animate attributeName="opacity" values="0.4;1;0.4" dur="1.6s" begin={`${i * 0.12}s`} repeatCount="indefinite" />
-                  </circle>
-                </g>
-              );
-            })}
-
-            {/* Engraved M monogram at top */}
-            <g transform="translate(50 8)" fill="url(#orig-gold)" stroke="#7a4a00" strokeWidth="0.3">
-              <text textAnchor="middle" dominantBaseline="middle" fontSize="6" fontFamily="serif" fontWeight="700">M</text>
-            </g>
-
-            {/* Drifting gold motes */}
-            {Array.from({ length: 10 }).map((_, i) => {
-              const a = (i * 36 * Math.PI) / 180;
-              const r = 50;
-              const cx = 50 + Math.cos(a) * r;
-              const cy = 50 + Math.sin(a) * r;
-              return (
-                <circle key={i} cx={cx} cy={cy} r="0.7" fill="#fff7c2" style={{ filter: "drop-shadow(0 0 2px #ffd166)" }}>
-                  <animate attributeName="opacity" values="0.2;1;0.2" dur="2.4s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
-                  <animate attributeName="r" values="0.4;1.1;0.4" dur="2.4s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
-                </circle>
-              );
-            })}
           </svg>
         </div>
       );
