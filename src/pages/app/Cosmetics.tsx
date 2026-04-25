@@ -130,37 +130,36 @@ export default function Cosmetics() {
 
       <div className="px-5">
         {/* Live preview */}
-        <div className="relative rounded-md border-[2.5px] border-foreground overflow-hidden mb-4 shadow-brutal-sm h-44">
-          {/* Fond plein cadre */}
-          <div className="absolute inset-0" style={backgroundStyle(profile?.equipped_background)}>
+        <div className="rounded-md border-[2.5px] border-foreground overflow-hidden mb-4 shadow-brutal-sm bg-card">
+          {/* Fond plein cadre, ratio propre */}
+          <div className="relative w-full aspect-[16/9]" style={backgroundStyle(profile?.equipped_background)}>
             <BackgroundDecor itemKey={profile?.equipped_background} />
           </div>
-          {/* Voile en bas pour lisibilité du nom + titre */}
-          <div className="absolute inset-x-0 bottom-0 h-20 bg-gradient-to-t from-background/95 via-background/80 to-transparent pointer-events-none" />
-          {/* Avatar */}
-          <div className="absolute bottom-3 left-4 z-10">
-            <CosmeticAvatar
-              fallback={initials}
-              avatarUrl={profile?.avatar_url}
-              frame={profile?.equipped_frame}
-              sticker={stickerEmoji}
-              stickerKey={profile?.equipped_sticker}
-              size="lg"
-            />
-          </div>
-          {/* Nom + titre */}
-          <div className="absolute bottom-3 left-28 right-4 z-10">
-            <p className="font-serif text-lg leading-tight text-foreground drop-shadow-[0_1px_0_hsl(var(--background))]">{profile?.display_name ?? "Toi"}</p>
-            {titleItem && (
-              <div className="mt-0.5">
-                <TitleBadge
-                  itemKey={titleItem.item_key}
-                  name={titleItem.name}
-                  emoji={titleItem.emoji}
-                  rarity={titleItem.rarity}
-                />
-              </div>
-            )}
+          {/* Bandeau infos sous le fond */}
+          <div className="flex items-center gap-3 p-3 border-t-[2.5px] border-foreground bg-card">
+            <div className="-mt-10 shrink-0">
+              <CosmeticAvatar
+                fallback={initials}
+                avatarUrl={profile?.avatar_url}
+                frame={profile?.equipped_frame}
+                sticker={stickerEmoji}
+                stickerKey={profile?.equipped_sticker}
+                size="lg"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <p className="font-serif text-lg leading-tight truncate">{profile?.display_name ?? "Toi"}</p>
+              {titleItem && (
+                <div className="mt-1">
+                  <TitleBadge
+                    itemKey={titleItem.item_key}
+                    name={titleItem.name}
+                    emoji={titleItem.emoji}
+                    rarity={titleItem.rarity}
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
 
