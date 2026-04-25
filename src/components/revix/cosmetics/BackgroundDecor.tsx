@@ -989,13 +989,6 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
             );
           })}
 
-          {/* Couronne dorée subtile en haut au centre */}
-          <g transform="translate(100 16) scale(0.5)" opacity="0.9">
-            <path d="M -22 12 L -14 -10 L -7 12 L 0 -16 L 7 12 L 14 -10 L 22 12 L 18 20 L -18 20 Z"
-              fill="url(#reine-bg-gold)" stroke="#7a4a00" strokeWidth="0.6" strokeLinejoin="round" />
-            <circle cx="0" cy="-16" r="3" fill="#ec4899" stroke="#fff5d1" strokeWidth="0.6" />
-          </g>
-
           {/* Médaillon de cire rose avec monogramme L (en bas à droite) */}
           <g transform="translate(178 82)">
             <circle r="9" fill="#9d174d" stroke="#4a0d27" strokeWidth="0.6" />
