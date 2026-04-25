@@ -228,34 +228,54 @@ export default function Planning() {
               const isToday = fmtDate(d) === todayKey;
               const dayDone = dayTasks.filter(t => t.done).length;
               return (
-                <div key={i}>
-                  <div className="flex items-baseline justify-between mb-1.5">
-                    <div className="flex items-baseline gap-2">
-                      <p className={`text-xs font-semibold uppercase tracking-wider ${isToday ? "text-primary" : "text-muted-foreground"}`}>
-                        {dayLabels[i]} {d.getDate()}
-                      </p>
-                      {isToday && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/10 text-primary font-semibold">Aujourd'hui</span>}
+                <div key={i} className={`rounded-2xl border ${isToday ? "border-primary/40 bg-primary/5" : "border-border/40"} p-3`}>
+                  <div className="flex items-center justify-between mb-2">
+                    <div className="flex items-center gap-2">
+                      <div className={`h-9 w-9 rounded-xl flex flex-col items-center justify-center shrink-0 ${isToday ? "gradient-primary text-primary-foreground" : "bg-muted text-foreground"}`}>
+                        <span className="text-[8px] font-bold uppercase leading-none">{dayLabels[i]}</span>
+                        <span className="text-sm font-bold leading-none mt-0.5">{d.getDate()}</span>
+                      </div>
+                      <div>
+                        <p className="text-xs font-semibold capitalize">
+                          {d.toLocaleDateString("fr-FR", { weekday: "long" })}
+                        </p>
+                        {isToday && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-bold uppercase tracking-wider">Aujourd'hui</span>}
+                      </div>
                     </div>
-                    {dayTasks.length > 0 && (
-                      <span className="text-[10px] text-muted-foreground">{dayDone}/{dayTasks.length}</span>
-                    )}
+                    <div className="flex items-center gap-2">
+                      {dayTasks.length > 0 && (
+                        <span className="text-[10px] text-muted-foreground bg-muted px-2 py-0.5 rounded-full font-medium">{dayDone}/{dayTasks.length}</span>
+                      )}
+                      <button
+                        onClick={() => { setAddOpen(true); setTimeout(() => { const inp = document.querySelector<HTMLInputElement>('input[name="date"]'); if (inp) inp.value = fmtDate(d); }, 50); }}
+                        className="h-7 w-7 rounded-lg hover:bg-muted flex items-center justify-center text-muted-foreground hover:text-primary transition"
+                        title="Ajouter une tâche ce jour-là"
+                      >
+                        <Plus className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
                   </div>
                   {dayTasks.length === 0 ? (
-                    <p className="text-xs text-muted-foreground/60 italic px-2">Rien de prévu</p>
+                    <p className="text-xs text-muted-foreground/60 italic px-1 py-1">Rien de prévu</p>
                   ) : (
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       {dayTasks.map(t => (
-                        <div key={t.id} className={`group flex items-center gap-3 p-2.5 rounded-xl glass notion-row ${t.done ? "opacity-50" : ""}`}>
-                          <button onClick={() => toggle(t)} className={`h-5 w-5 rounded-md border-2 flex items-center justify-center shrink-0 transition ${t.done ? "gradient-primary border-transparent" : "border-muted-foreground/40 hover:border-primary"}`}>
+                        <div key={t.id} className={`group flex items-start gap-3 p-3 rounded-xl bg-card border border-border/60 hover:border-primary/40 transition ${t.done ? "opacity-60" : ""}`}>
+                          <button onClick={() => toggle(t)} className={`h-5 w-5 rounded-md border-2 flex items-center justify-center shrink-0 transition mt-0.5 ${t.done ? "gradient-primary border-transparent" : "border-muted-foreground/40 hover:border-primary"}`}>
                             {t.done && <span className="text-primary-foreground text-[10px]">✓</span>}
                           </button>
                           <div className="flex-1 min-w-0">
-                            <p className={`text-sm font-medium truncate ${t.done ? "line-through" : ""}`}>{t.title ?? t.subject}</p>
-                            <p className="text-[11px] text-muted-foreground">
-                              {t.start_time && t.end_time ? `${t.start_time} – ${t.end_time} · ` : ""}{t.subject}
-                            </p>
+                            <p className={`text-sm font-medium leading-snug break-words ${t.done ? "line-through" : ""}`}>{t.title ?? t.subject}</p>
+                            <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 mt-1">
+                              {t.start_time && t.end_time && (
+                                <span className="text-[11px] text-foreground/70 font-mono bg-muted px-1.5 py-0.5 rounded">
+                                  {t.start_time}–{t.end_time}
+                                </span>
+                              )}
+                              <span className="text-[11px] text-primary font-medium">{t.subject}</span>
+                            </div>
                           </div>
-                          <button onClick={() => remove(t.id)} className="opacity-0 group-hover:opacity-100 transition text-muted-foreground hover:text-destructive">
+                          <button onClick={() => remove(t.id)} className="opacity-0 group-hover:opacity-100 sm:opacity-60 transition text-muted-foreground hover:text-destructive shrink-0 mt-0.5" aria-label="Supprimer">
                             <Trash2 className="h-3.5 w-3.5" />
                           </button>
                         </div>
