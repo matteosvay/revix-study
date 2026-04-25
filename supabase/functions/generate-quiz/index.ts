@@ -31,8 +31,7 @@ Deno.serve(async (req) => {
     if (!content || content.trim().length < 20) {
       return new Response(JSON.stringify({ error: "Contenu trop court" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    const safeCount = Math.max(3, Math.min(30, Number(count) || 10));
-    const safeCountFinal = Math.max(3, Math.min(50, Number(count) || 10));
+    const safeCount = Math.max(3, Math.min(50, Number(count) || 10));
     const allowedTypes = ["qcm", "qcm_multi", "vrai_faux", "ouvert", "trous", "ordre"];
     const type = allowedTypes.includes(quizType) ? quizType : "qcm";
 
