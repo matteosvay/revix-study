@@ -106,6 +106,18 @@ export function frameStyle(itemKey: string | null | undefined): { className: str
       style: {},
     };
   }
+  /* ===== Queen-exclusive (Léna) ===== */
+  if (k === "frame_reine") {
+    // Roses + or — couronne royale rose poudré et or rose.
+    // The animated decor (couronne + pétales) is rendered by FrameDecor.
+    return {
+      className: "p-[3px] rounded-full shadow-[0_0_28px_hsl(330_100%_75%/0.7)]",
+      style: {
+        background:
+          "conic-gradient(from 140deg, #f9a8d4, #fde68a, #fbbf24, #f9a8d4, #f472b6, #fde68a, #f9a8d4)",
+      },
+    };
+  }
   return { className: "ring-2 ring-offset-2 ring-offset-background ring-primary/40", style: {} };
 }
 
@@ -159,6 +171,18 @@ export function backgroundStyle(itemKey: string | null | undefined): CSSProperti
       "radial-gradient(ellipse at 30% 20%, hsl(45 100% 55% / 0.25), transparent 55%)," +
       "radial-gradient(ellipse at 75% 75%, hsl(35 90% 45% / 0.25), transparent 55%)," +
       "linear-gradient(160deg, #1a0f02 0%, #0e0700 50%, #1a0f02 100%)",
+  };
+  /* ===== Queen-exclusive (Léna) ===== */
+  if (k === "bg_reine") return {
+    background:
+      // soft golden glow top-left
+      "radial-gradient(ellipse at 25% 20%, hsl(45 100% 75% / 0.55), transparent 55%)," +
+      // dusty rose glow bottom-right
+      "radial-gradient(ellipse at 75% 80%, hsl(335 90% 78% / 0.55), transparent 55%)," +
+      // hint of deep rose center
+      "radial-gradient(circle at 50% 50%, hsl(345 70% 60% / 0.25), transparent 60%)," +
+      // base velvet
+      "linear-gradient(160deg, #fff1f4 0%, #fde7ef 35%, #f9d7e3 65%, #f3c0d3 100%)",
   };
   return { background: "hsl(var(--muted))" };
 }
