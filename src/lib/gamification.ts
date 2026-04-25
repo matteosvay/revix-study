@@ -80,20 +80,32 @@ export function pickWeeklyQuest(seed: string) {
 }
 
 export function todayKey() {
-  return new Date().toISOString().slice(0, 10);
+  // Use LOCAL date so daily quests rotate at user's local midnight (not UTC).
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
 }
 
 export function weekKey() {
   const d = new Date();
   const day = (d.getDay() + 6) % 7; // Monday = 0
   d.setDate(d.getDate() - day);
-  return d.toISOString().slice(0, 10);
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const dd = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${dd}`;
 }
 
 export function weekEnd(weekStart: string) {
-  const d = new Date(weekStart);
+  const [y, m, dd] = weekStart.split("-").map(Number);
+  const d = new Date(y, m - 1, dd);
   d.setDate(d.getDate() + 6);
-  return d.toISOString().slice(0, 10);
+  const yy = d.getFullYear();
+  const mm = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${yy}-${mm}-${day}`;
 }
 
 /** XP rewards table for actions. */
