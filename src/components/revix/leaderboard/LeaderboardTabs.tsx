@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Flame, Trophy, Loader2, Users, GraduationCap, Globe } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
+import { RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
+import { cn } from "@/lib/utils";
 
 type Row = {
   id: string;
@@ -18,6 +20,13 @@ type Row = {
   school?: string | null;
   cursus?: string | null;
   username?: string | null;
+  equipped_frame?: string | null;
+  equipped_sticker?: string | null;
+  equipped_title?: string | null;
+  sticker_emoji?: string | null;
+  title_name?: string | null;
+  title_emoji?: string | null;
+  title_rarity?: Rarity | null;
 };
 
 const initialsOf = (n?: string | null) => (n ?? "U").split(" ").map(s => s[0]).filter(Boolean).join("").slice(0, 2).toUpperCase();
@@ -34,18 +43,28 @@ function Podium({ rows }: { rows: Row[] }) {
         const row = rows[idx];
         if (!row) return <div key={idx} />;
         return (
-          <div key={row.id} className="flex flex-col items-center">
-            <Avatar className={`${idx === 0 ? "h-14 w-14" : "h-10 w-10"} border-2 border-foreground mb-1`}>
-              {row.avatar_url && <AvatarImage src={row.avatar_url} />}
-              <AvatarFallback className="bg-primary text-primary-foreground text-xs font-bold">{initialsOf(row.display_name)}</AvatarFallback>
-            </Avatar>
+          <Link key={row.id} to={row.is_me ? "/app/profil" : `/app/u/${row.id}`} className="flex flex-col items-center">
+            <div className="mb-1">
+              <CosmeticAvatar
+                fallback={initialsOf(row.display_name)}
+                avatarUrl={row.avatar_url}
+                frame={row.equipped_frame}
+                sticker={row.sticker_emoji}
+                size={idx === 0 ? "md" : "sm"}
+              />
+            </div>
             <p className="text-xs font-bold truncate max-w-full">{row.is_me ? "Toi" : row.display_name?.split(" ")[0] ?? "—"}</p>
+            {row.title_name && (
+              <p className={cn("text-[8px] font-mono uppercase tracking-wider truncate max-w-full", RARITY_TEXT[row.title_rarity ?? "common"])}>
+                {row.title_emoji} {row.title_name}
+              </p>
+            )}
             <div className={`${heights[idx]} w-full bg-secondary border-2 border-foreground rounded-t-md mt-1 flex flex-col items-center justify-end p-1`}>
               <p className="text-2xl">{medals[idx]}</p>
               <p className="font-mono text-[10px] font-bold">{row.xp_week} XP</p>
               <p className="text-[8px] font-bold uppercase tracking-wider mt-1">{stamps[idx]}</p>
             </div>
-          </div>
+          </Link>
         );
       })}
     </div>
@@ -76,15 +95,23 @@ function RowList({ rows, scopeLabel }: { rows: Row[]; scopeLabel: string }) {
               className={`flex items-center gap-2 p-2 border-b border-foreground/20 last:border-0 hover:bg-secondary/40 transition-colors ${row.is_me ? "bg-[hsl(var(--highlight-yellow))]/40" : ""}`}
             >
               <span className="font-mono font-bold text-sm w-6 text-center">{i + 1}</span>
-              <Avatar className="h-8 w-8 border border-foreground">
-                {row.avatar_url && <AvatarImage src={row.avatar_url} />}
-                <AvatarFallback className="text-[10px] font-bold">{initialsOf(row.display_name)}</AvatarFallback>
-              </Avatar>
+              <CosmeticAvatar
+                fallback={initialsOf(row.display_name)}
+                avatarUrl={row.avatar_url}
+                frame={row.equipped_frame}
+                sticker={row.sticker_emoji}
+                size="sm"
+              />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1">
                   <p className="text-xs font-bold truncate">{row.is_me ? "Toi" : row.display_name ?? "—"}</p>
                   <span className="text-[8px] font-mono bg-foreground text-background px-1 rounded">N{row.level}</span>
                 </div>
+                {row.title_name && (
+                  <p className={cn("text-[9px] font-mono uppercase tracking-wider truncate", RARITY_TEXT[row.title_rarity ?? "common"])}>
+                    {row.title_emoji} {row.title_name}
+                  </p>
+                )}
                 <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-0.5">
                   <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
                 </div>
