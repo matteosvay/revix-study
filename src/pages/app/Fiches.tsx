@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, ChevronRight, BookOpen, Trash2, Loader2 } from "lucide-react";
+import { Search, Plus, ChevronRight, BookOpen, Trash2, Loader2, Send } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
@@ -12,6 +12,7 @@ import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { SendCourseDialog } from "@/components/revix/SendCourseDialog";
 
 type CourseRow = { id: string; title: string; subject: string | null; emoji: string | null; created_at: string };
 
@@ -22,6 +23,7 @@ export default function Fiches() {
   const [loading, setLoading] = useState(true);
   const [toDelete, setToDelete] = useState<CourseRow | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [toShare, setToShare] = useState<CourseRow | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -105,6 +107,13 @@ export default function Fiches() {
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </Link>
                   <button
+                    onClick={(e) => { e.preventDefault(); e.stopPropagation(); setToShare(c); }}
+                    className="h-9 w-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition shrink-0"
+                    aria-label="Envoyer à un ami"
+                  >
+                    <Send className="h-4 w-4" />
+                  </button>
+                  <button
                     onClick={(e) => { e.preventDefault(); e.stopPropagation(); setToDelete(c); }}
                     className="h-9 w-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition shrink-0"
                     aria-label="Supprimer le cours"
@@ -134,6 +143,15 @@ export default function Fiches() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {toShare && (
+        <SendCourseDialog
+          open={!!toShare}
+          onOpenChange={(o) => !o && setToShare(null)}
+          courseId={toShare.id}
+          courseTitle={toShare.title}
+        />
+      )}
     </AppLayout>
   );
 }
