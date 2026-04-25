@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { useGamification } from "@/hooks/useGamification";
-import { Tape, Postit, Pin, ScribbleUnderline, Stamp } from "@/components/revix/AcademicDecor";
+import { Tape, Pin, ScribbleUnderline, Stamp } from "@/components/revix/AcademicDecor";
 import { Flame, Sparkles, Trophy, Target, Zap, Lock, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
