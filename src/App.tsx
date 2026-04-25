@@ -20,6 +20,7 @@ import Aventure from "./pages/app/Aventure";
 import Campus from "./pages/app/Campus";
 import DuelPlay from "./pages/app/DuelPlay";
 import StudyRoom from "./pages/app/StudyRoom";
+import Revision from "./pages/app/Revision";
 import { AuthProvider } from "./hooks/useAuth";
 import { RequireAuth } from "./components/revix/RequireAuth";
 import { XpOverlay } from "./components/revix/XpOverlay";
@@ -44,6 +45,7 @@ const App = () => (
             <Route path="/app/fiches" element={<RequireAuth><Fiches /></RequireAuth>} />
             <Route path="/app/fiches/:id" element={<RequireAuth><CourseDetail /></RequireAuth>} />
             <Route path="/app/quizz" element={<RequireAuth><Quizz /></RequireAuth>} />
+            <Route path="/app/revision" element={<RequireAuth><Revision /></RequireAuth>} />
             <Route path="/app/planning" element={<RequireAuth><Planning /></RequireAuth>} />
             <Route path="/app/streak" element={<RequireAuth><Streak /></RequireAuth>} />
             <Route path="/app/aventure" element={<RequireAuth><Aventure /></RequireAuth>} />
