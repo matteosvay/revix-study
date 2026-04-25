@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Copy, Check, X, UserPlus, Search, Trophy, Flame, Sparkles, AtSign, Loader2, Swords, BookOpen, Plus, LogIn } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -372,16 +372,18 @@ export default function Campus() {
                     const isPending = pendingWith.has(r.id);
                     return (
                       <div key={r.id} className="flex items-center gap-3 p-3 bg-card rounded-md border-2 border-foreground shadow-brutal-sm">
+                        <Link to={`/app/u/${r.id}`} className="shrink-0">
                         <Avatar className="h-10 w-10 border-2 border-foreground">
                           {r.avatar_url && <AvatarImage src={r.avatar_url} />}
                           <AvatarFallback className="bg-secondary text-foreground text-xs font-bold">{initialsOf(r.display_name)}</AvatarFallback>
                         </Avatar>
-                        <div className="flex-1 min-w-0">
+                        </Link>
+                        <Link to={`/app/u/${r.id}`} className="flex-1 min-w-0 hover:underline">
                           <p className="font-bold text-sm truncate">{r.display_name ?? "Sans nom"}</p>
                           <p className="text-[10px] font-mono text-muted-foreground truncate">
                             {r.username ? `@${r.username} · ` : ""}#{r.student_code}
                           </p>
-                        </div>
+                        </Link>
                         {isFriend ? (
                           <span className="text-[10px] font-bold uppercase text-success px-2">Ami ✓</span>
                         ) : isPending ? (
@@ -447,7 +449,7 @@ export default function Campus() {
                   if (!p) return null;
                   return (
                     <div key={f.id} className="bg-card p-3 rounded-md border-2 border-foreground shadow-brutal-sm flex items-center gap-3">
-                      <div className="relative">
+                      <Link to={`/app/u/${otherId}`} className="relative shrink-0">
                         <Avatar className="h-12 w-12 border-2 border-foreground">
                           {p.avatar_url && <AvatarImage src={p.avatar_url} />}
                           <AvatarFallback className="bg-primary text-primary-foreground text-sm font-bold">{initialsOf(p.display_name)}</AvatarFallback>
@@ -455,8 +457,8 @@ export default function Campus() {
                         <span className="absolute -bottom-1 -right-1 text-[9px] font-mono font-bold bg-accent text-accent-foreground border border-foreground rounded px-1">
                           N{p.level ?? 1}
                         </span>
-                      </div>
-                      <div className="flex-1 min-w-0">
+                      </Link>
+                      <Link to={`/app/u/${otherId}`} className="flex-1 min-w-0 hover:underline">
                         <p className="font-bold text-sm truncate">{p.display_name ?? "—"}</p>
                         <p className="text-[10px] font-mono text-muted-foreground truncate">
                           {p.username ? `@${p.username}` : `#${p.student_code}`}
@@ -465,7 +467,7 @@ export default function Campus() {
                           <span className="flex items-center gap-0.5">🔥{p.streak_days ?? 0}</span>
                           <span className="flex items-center gap-0.5">⭐{p.xp_total ?? 0}</span>
                         </div>
-                      </div>
+                      </Link>
                       <Button size="sm" variant="ghost" onClick={() => removeFriend(otherId)} className="text-destructive h-7 text-[10px] font-bold">
                         Retirer
                       </Button>
