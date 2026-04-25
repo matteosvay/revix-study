@@ -66,6 +66,16 @@ export function frameStyle(itemKey: string | null | undefined): { className: str
   if (k === "frame_cosmic")   return { className: "p-[3px] rounded-full shadow-[0_0_18px_hsl(280_100%_60%)]", style: { background: "linear-gradient(135deg, #000033, #6600cc, #ff00ff, #000033)" } };
   if (k === "frame_celestial") return { className: "p-[3px] rounded-full shadow-[0_0_18px_hsl(50_100%_70%)]", style: { background: "linear-gradient(135deg, #fff5cc, #ffd700, #ffaa00, #fff5cc)" } };
   if (k === "frame_thunder")  return { className: "p-[3px] rounded-full shadow-[0_0_18px_hsl(60_100%_60%)]", style: { background: "linear-gradient(135deg, #1a1a40, #ffff00, #ffffff, #1a1a40)" } };
+  /* ===== Phase 2 — new frames ===== */
+  if (k === "frame_emerald")  return { className: "p-[3px] rounded-full shadow-[0_0_16px_hsl(150_85%_45%)]", style: { background: "linear-gradient(135deg, #064e3b, #10b981, #6ee7b7, #064e3b)" } };
+  if (k === "frame_ruby")     return { className: "p-[3px] rounded-full shadow-[0_0_16px_hsl(0_85%_55%)]",   style: { background: "linear-gradient(135deg, #7f1d1d, #ef4444, #fca5a5, #7f1d1d)" } };
+  if (k === "frame_sapphire") return { className: "p-[3px] rounded-full shadow-[0_0_16px_hsl(220_85%_55%)]", style: { background: "linear-gradient(135deg, #1e3a8a, #3b82f6, #93c5fd, #1e3a8a)" } };
+  if (k === "frame_sun")      return { className: "p-[3px] rounded-full shadow-[0_0_18px_hsl(40_100%_55%)]", style: { background: "radial-gradient(circle, #fef3c7, #f59e0b, #b45309)" } };
+  if (k === "frame_moon")     return { className: "p-[3px] rounded-full shadow-[0_0_16px_hsl(220_60%_75%)]", style: { background: "radial-gradient(circle, #f1f5f9, #94a3b8, #475569)" } };
+  if (k === "frame_shooting_stars") return { className: "ring-2 ring-indigo-400 shadow-[0_0_14px_hsl(240_80%_60%)]", style: {} };
+  if (k === "frame_crystal_blue")   return { className: "p-[3px] rounded-full shadow-[0_0_14px_hsl(195_100%_60%)]", style: { background: "linear-gradient(135deg, #0e7490, #22d3ee, #cffafe, #0e7490)" } };
+  if (k === "frame_pixel")    return { className: "ring-[3px] ring-emerald-400 shadow-[0_0_10px_hsl(150_85%_45%)]", style: {} };
+  if (k === "frame_marker_pink") return { className: "ring-[3px] ring-pink-400", style: {} };
   return { className: "ring-2 ring-offset-2 ring-offset-background ring-primary/40", style: {} };
 }
 
@@ -103,5 +113,15 @@ export function backgroundStyle(itemKey: string | null | undefined): CSSProperti
   if (k === "bg_dimension")    return { background: "conic-gradient(from 90deg at 50% 50%, #ff00cc, #00ffff, #ffff00, #00ffaa, #ff00cc)" };
   if (k === "bg_phoenix_fire") return { background: "radial-gradient(ellipse at 50% 100%, #ffd700, #ff4500, #8b0000)" };
   if (k === "bg_celestial_temple") return { background: "linear-gradient(180deg, #fff5cc, #ffd700, #ffaa00)" };
+  /* ===== Phase 2 — new backgrounds (rich CSS gradients) ===== */
+  if (k === "bg_tropical_sunset") return { background: "linear-gradient(180deg, #fef3c7 0%, #fb923c 35%, #db2777 65%, #4c1d95 100%)" };
+  if (k === "bg_polar_dawn")      return { background: "linear-gradient(180deg, #fbcfe8 0%, #c4b5fd 40%, #93c5fd 75%, #e0f2fe 100%)" };
+  if (k === "bg_mountain_mist")   return { background: "linear-gradient(180deg, #e0f2fe 0%, #cbd5e1 50%, #64748b 100%)" };
+  if (k === "bg_enchanted_forest") return { background: "radial-gradient(ellipse at 30% 20%, hsl(150 60% 60% / 0.4), transparent 50%), radial-gradient(ellipse at 70% 80%, hsl(280 60% 50% / 0.3), transparent 50%), linear-gradient(180deg, #064e3b 0%, #022c22 100%)" };
+  if (k === "bg_deep_sea")        return { background: "radial-gradient(ellipse at 50% 30%, hsl(190 80% 50% / 0.5), transparent 60%), linear-gradient(180deg, #0c4a6e 0%, #082f49 50%, #020617 100%)" };
+  if (k === "bg_golden_desert")   return { background: "linear-gradient(180deg, #fef08a 0%, #fbbf24 35%, #d97706 70%, #78350f 100%)" };
+  if (k === "bg_violet_crystal")  return { background: "radial-gradient(ellipse at 30% 50%, hsl(280 100% 60% / 0.6), transparent 50%), radial-gradient(ellipse at 70% 60%, hsl(220 100% 50% / 0.5), transparent 55%), linear-gradient(135deg, #1e1b4b 0%, #0f0a2e 100%)" };
+  if (k === "bg_thunderstorm")    return { background: "radial-gradient(ellipse at 50% 30%, hsl(220 50% 30% / 0.8), transparent 50%), linear-gradient(180deg, #1e293b 0%, #0f172a 60%, #020617 100%)" };
+  if (k === "bg_pastel_lavender") return { background: "linear-gradient(135deg, hsl(270 100% 92%), hsl(290 100% 88%))" };
   return { background: "hsl(var(--muted))" };
 }
