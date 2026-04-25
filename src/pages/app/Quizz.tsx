@@ -576,6 +576,89 @@ export default function Quizz() {
                   );
                 })}
               </div>
+            ) : isMulti ? (
+              <div className="mt-5 space-y-3">
+                <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground px-1">
+                  Coche TOUTES les bonnes réponses
+                </p>
+                <div className="grid grid-cols-1 gap-3">
+                  {(q.answers ?? []).map((a, i) => {
+                    const checked = multiPicked.includes(i);
+                    const isCorrect = correctMultiSet.has(i);
+                    const variant = postitVariants[i % postitVariants.length];
+                    const tilt = i % 2 === 0 ? "tilt-l" : "tilt-r";
+                    let stateCls = "";
+                    if (multiSubmitted) {
+                      if (isCorrect) stateCls = "is-correct";
+                      else if (checked) stateCls = "is-wrong";
+                      else stateCls = "is-faded";
+                    }
+                    return (
+                      <button key={i} onClick={() => toggleMulti(i)} disabled={multiSubmitted}
+                        className={`answer-postit ${variant} ${tilt} ${stateCls} flex items-center gap-3`}>
+                        <span className={`h-6 w-6 rounded-md border-2 border-foreground flex items-center justify-center shrink-0 ${checked ? "bg-foreground text-background" : "bg-background"}`}>
+                          {checked && <CheckCircle2 className="h-4 w-4" />}
+                        </span>
+                        <span className="flex-1">{a}</span>
+                        {multiSubmitted && isCorrect && <CheckCircle2 className="h-5 w-5 text-success" />}
+                        {multiSubmitted && checked && !isCorrect && <XCircle className="h-5 w-5 text-destructive" />}
+                      </button>
+                    );
+                  })}
+                </div>
+                {!multiSubmitted && (
+                  <Button onClick={submitMulti} disabled={multiPicked.length === 0}
+                    className="w-full rounded-full gradient-primary border-0">
+                    Valider mes choix
+                  </Button>
+                )}
+              </div>
+            ) : isOrder ? (
+              <div className="mt-5 space-y-3">
+                <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground px-1">
+                  Réorganise dans le bon ordre (haut → bas)
+                </p>
+                <div className="space-y-2">
+                  {orderPicked.map((origIdx, pos) => {
+                    const label = q.answers?.[origIdx] ?? "";
+                    const variant = postitVariants[pos % postitVariants.length];
+                    let stateCls = "";
+                    if (orderSubmitted) {
+                      const correct = (q.accepted_answers ?? []).map(s => parseInt(s, 10));
+                      stateCls = correct[pos] === origIdx ? "is-correct" : "is-wrong";
+                    }
+                    return (
+                      <div key={`${origIdx}-${pos}`} className={`answer-postit ${variant} ${stateCls} flex items-center gap-3`}>
+                        <span className="h-7 w-7 rounded-md bg-foreground/15 flex items-center justify-center font-mono-tag font-bold text-xs shrink-0">
+                          {pos + 1}
+                        </span>
+                        <span className="flex-1">{label}</span>
+                        {!orderSubmitted && (
+                          <div className="flex flex-col gap-0.5">
+                            <button onClick={() => moveOrder(pos, -1)} disabled={pos === 0}
+                              className="h-5 w-7 rounded border-2 border-foreground bg-background text-xs font-bold disabled:opacity-30 hover:bg-foreground hover:text-background transition">↑</button>
+                            <button onClick={() => moveOrder(pos, 1)} disabled={pos === orderPicked.length - 1}
+                              className="h-5 w-7 rounded border-2 border-foreground bg-background text-xs font-bold disabled:opacity-30 hover:bg-foreground hover:text-background transition">↓</button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+                {!orderSubmitted && (
+                  <Button onClick={submitOrder} className="w-full rounded-full gradient-primary border-0">
+                    Valider l'ordre
+                  </Button>
+                )}
+                {orderSubmitted && (
+                  <div className={`answer-postit ${orderCorrect ? "is-correct" : "is-wrong"} !cursor-default`}>
+                    <div className="flex items-center gap-2 font-mono-tag text-xs uppercase">
+                      {orderCorrect ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
+                      <span>{orderCorrect ? "Ordre exact !" : "Ordre incorrect"}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="mt-5 space-y-3">
                 <Textarea
@@ -603,13 +686,13 @@ export default function Quizz() {
               </div>
             )}
 
-            {((isChoice && picked !== null) || (!isChoice && openResult !== null)) && q.explanation && (
+            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isText && openResult !== null)) && q.explanation && (
               <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
                 💡 {q.explanation}
               </div>
             )}
 
-            {((isChoice && picked !== null) || (!isChoice && openResult !== null)) && (
+            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isText && openResult !== null)) && (
               <Button
                 onClick={goNext}
                 className="mt-5 w-full rounded-md gradient-primary border-2 border-foreground font-bold animate-fade-in"
