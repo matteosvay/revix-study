@@ -7,7 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { LogOut, Trash2, Sparkles, Camera, Loader2 } from "lucide-react";
+import { LogOut, Trash2, Sparkles, Camera, Loader2, Shirt, BookMarked, ChevronRight } from "lucide-react";
+import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -149,6 +150,30 @@ export default function Profil() {
             <Button variant="secondary" size="sm" className="rounded-full mt-3"><Sparkles className="h-3.5 w-3.5 mr-1" /> Découvrir</Button>
           </div>
         )}
+
+        <div className="space-y-2">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Personnalisation</p>
+          <Link to="/app/cosmetics" className="flex items-center gap-3 rounded-md border-[2.5px] border-foreground bg-card p-3 shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
+            <div className="h-10 w-10 rounded-md gradient-primary border-2 border-foreground flex items-center justify-center text-primary-foreground">
+              <Shirt className="h-5 w-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold">Mes cosmétiques</p>
+              <p className="text-[11px] text-muted-foreground">Cadres, stickers, fonds, titres</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
+          <Link to="/app/revision" className="flex items-center gap-3 rounded-md border-[2.5px] border-foreground bg-card p-3 shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
+            <div className="h-10 w-10 rounded-md bg-secondary border-2 border-foreground flex items-center justify-center">
+              <BookMarked className="h-5 w-5" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold">Révisions ciblées</p>
+              <p className="text-[11px] text-muted-foreground">Heatmap chapitres + boss</p>
+            </div>
+            <ChevronRight className="h-4 w-4 text-muted-foreground" />
+          </Link>
+        </div>
 
         <div className="space-y-3">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Informations</p>
