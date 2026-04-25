@@ -35,22 +35,25 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
     if (!open || !user) return;
     setLoading(true);
     (async () => {
-      const { data: rows, error } = await supabase
-        .from("friendships")
-        .select("requester_id, addressee_id")
-        .eq("status", "accepted")
-        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
-      if (error) { console.error("friends fetch", error); setFriends([]); setLoading(false); return; }
-      const friendIds = (rows ?? []).map((r: any) =>
-        r.requester_id === user.id ? r.addressee_id : r.requester_id
+      const { data, error } = await supabase.rpc("get_friends_leaderboard");
+      if (error) {
+        console.error("friends fetch", error);
+        setFriends([]);
+        setLoading(false);
+        return;
+      }
+      const list = (data ?? [])
+        .filter((r: any) => !r.is_me)
+        .map((r: any) => ({
+          id: r.id,
+          display_name: r.display_name,
+          username: r.username,
+          avatar_url: r.avatar_url,
+        })) as Friend[];
+      list.sort((a, b) =>
+        (a.display_name ?? a.username ?? "").localeCompare(b.display_name ?? b.username ?? "")
       );
-      if (friendIds.length === 0) { setFriends([]); setLoading(false); return; }
-      const { data } = await supabase
-        .from("profiles")
-        .select("id, display_name, username, avatar_url")
-        .in("id", friendIds)
-        .order("display_name");
-      setFriends((data ?? []) as Friend[]);
+      setFriends(list);
       setLoading(false);
     })();
   }, [open, user]);
