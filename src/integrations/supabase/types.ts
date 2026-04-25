@@ -1387,6 +1387,7 @@ export type Database = {
       }
       bump_streak: { Args: { p_user_id: string }; Returns: undefined }
       buy_cosmetic: { Args: { p_item_key: string }; Returns: Json }
+      claim_queen_lootbox: { Args: never; Returns: Json }
       consume_powerup: { Args: { p_powerup_key: string }; Returns: Json }
       create_duel: {
         Args: {
