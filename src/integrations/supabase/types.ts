@@ -500,6 +500,7 @@ export type Database = {
           equipped_background: string | null
           equipped_frame: string | null
           equipped_sticker: string | null
+          equipped_title: string | null
           formation: string | null
           id: string
           last_active_date: string | null
@@ -531,6 +532,7 @@ export type Database = {
           equipped_background?: string | null
           equipped_frame?: string | null
           equipped_sticker?: string | null
+          equipped_title?: string | null
           formation?: string | null
           id: string
           last_active_date?: string | null
@@ -562,6 +564,7 @@ export type Database = {
           equipped_background?: string | null
           equipped_frame?: string | null
           equipped_sticker?: string | null
+          equipped_title?: string | null
           formation?: string | null
           id?: string
           last_active_date?: string | null
@@ -1439,6 +1442,20 @@ export type Database = {
           username: string
           xp_total: number
           xp_week: number
+        }[]
+      }
+      get_global_chapter_mastery: {
+        Args: never
+        Returns: {
+          chapter: string
+          course_emoji: string
+          course_id: string
+          course_title: string
+          due_today: number
+          mastered_questions: number
+          mastery_pct: number
+          reviewed_questions: number
+          total_questions: number
         }[]
       }
       get_global_leaderboard: {
