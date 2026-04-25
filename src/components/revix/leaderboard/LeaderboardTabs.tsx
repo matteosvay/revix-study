@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Flame, Trophy, Loader2, Users, GraduationCap, Globe } from "lucide-react";
@@ -69,7 +70,11 @@ function RowList({ rows, scopeLabel }: { rows: Row[]; scopeLabel: string }) {
         {rows.map((row, i) => {
           const pct = Math.max(2, Math.round((row.xp_week / max) * 100));
           return (
-            <div key={row.id} className={`flex items-center gap-2 p-2 border-b border-foreground/20 last:border-0 ${row.is_me ? "bg-[hsl(var(--highlight-yellow))]/40" : ""}`}>
+            <Link
+              key={row.id}
+              to={row.is_me ? "/app/profil" : `/app/u/${row.id}`}
+              className={`flex items-center gap-2 p-2 border-b border-foreground/20 last:border-0 hover:bg-secondary/40 transition-colors ${row.is_me ? "bg-[hsl(var(--highlight-yellow))]/40" : ""}`}
+            >
               <span className="font-mono font-bold text-sm w-6 text-center">{i + 1}</span>
               <Avatar className="h-8 w-8 border border-foreground">
                 {row.avatar_url && <AvatarImage src={row.avatar_url} />}
@@ -90,7 +95,7 @@ function RowList({ rows, scopeLabel }: { rows: Row[]; scopeLabel: string }) {
                   <Flame className="h-2.5 w-2.5" />{row.streak_days}
                 </p>
               </div>
-            </div>
+            </Link>
           );
         })}
       </div>

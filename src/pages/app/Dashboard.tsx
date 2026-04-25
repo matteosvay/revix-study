@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Flame, Plus, BookOpen, Brain, Calendar, Sparkles, ChevronRight, TrendingUp, Users } from "lucide-react";
+import { Flame, Plus, BookOpen, Brain, Calendar, Sparkles, ChevronRight, TrendingUp, Users, Target, Shirt } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
@@ -58,6 +58,8 @@ export default function Dashboard() {
     { to: "/app/upload", icon: Plus, label: "Nouveau cours", desc: "Upload un PDF ou photo", accent: true },
     { to: "/app/fiches", icon: BookOpen, label: "Mes cours", desc: `${stats.courses} cours` },
     { to: "/app/quizz", icon: Brain, label: "Quizz", desc: `Score moyen ${stats.avg}%` },
+    { to: "/app/revision", icon: Target, label: "Révisions ciblées", desc: "Heatmap & boss du jour" },
+    { to: "/app/cosmetics", icon: Shirt, label: "Cosmétiques", desc: "Cadres, stickers, titres" },
     { to: "/app/aventure", icon: Sparkles, label: "Aventure", desc: levelTier ? `${levelTier.emoji} ${levelTier.name}` : "Quêtes & XP" },
     { to: "/app/planning", icon: Calendar, label: "Planning", desc: "Organise tes révisions" },
     { to: "/app/streak", icon: Flame, label: "Ma streak", desc: `${profile?.streak_days ?? 0}j d'affilée` },
