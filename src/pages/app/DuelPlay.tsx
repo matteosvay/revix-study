@@ -6,7 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Loader2, Swords, Trophy } from "lucide-react";
+import { Loader2, Swords, Trophy, Wifi, WifiOff } from "lucide-react";
 
 type Q = { id: string; position: number; question: string; answers: string[]; correct_index: number; explanation: string | null };
 type Profile = { id: string; display_name: string | null; avatar_url: string | null };
@@ -27,6 +27,7 @@ export default function DuelPlay() {
   const [done, setDone] = useState(false);
   const [profiles, setProfiles] = useState<Record<string, Profile>>({});
   const [waitingAccept, setWaitingAccept] = useState(false);
+  const [opponentPresence, setOpponentPresence] = useState<{ ready: boolean; current_question: number; last_seen: string } | null>(null);
 
   const loadDuel = async () => {
     if (!id || !user) return;
@@ -58,15 +59,31 @@ export default function DuelPlay() {
 
   useEffect(() => { loadDuel(); }, [id, user]);
 
-  // Realtime : suivre le statut du duel et l'arrivée du score adverse
+  // Realtime : statut, scores, et présence live de l'adversaire
   useEffect(() => {
-    if (!id) return;
+    if (!id || !user) return;
+    const loadPresence = async () => {
+      const { data } = await supabase.from("duel_presence").select("*").eq("duel_id", id).neq("user_id", user.id).maybeSingle();
+      setOpponentPresence(data as any);
+    };
+    loadPresence();
     const ch = supabase.channel(`duel:${id}`)
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "duels", filter: `id=eq.${id}` }, () => loadDuel())
       .on("postgres_changes", { event: "INSERT", schema: "public", table: "duel_attempts", filter: `duel_id=eq.${id}` }, () => loadDuel())
+      .on("postgres_changes", { event: "*", schema: "public", table: "duel_presence", filter: `duel_id=eq.${id}` }, () => loadPresence())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [id]);
+  }, [id, user]);
+
+  // Annonce ma présence + index de question actuel à chaque changement
+  useEffect(() => {
+    if (!id || !user || done || waitingAccept) return;
+    supabase.rpc("set_duel_presence", { p_duel_id: id, p_ready: true, p_current_question: idx });
+    const ping = setInterval(() => {
+      supabase.rpc("set_duel_presence", { p_duel_id: id, p_ready: true, p_current_question: idx });
+    }, 15000);
+    return () => clearInterval(ping);
+  }, [id, user, idx, done, waitingAccept]);
 
   useEffect(() => {
     if (done || !duel || selected !== null || waitingAccept) return;
