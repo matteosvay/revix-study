@@ -127,6 +127,25 @@ export function useGamification() {
 
   useEffect(() => { load(); }, [load]);
 
+  // Re-check quests when the tab regains focus or when the local date rolls over.
+  useEffect(() => {
+    if (!user) return;
+    let lastDay = todayKey();
+    const onFocus = () => {
+      const now = todayKey();
+      if (now !== lastDay) {
+        lastDay = now;
+        load();
+      }
+    };
+    const interval = setInterval(onFocus, 60_000);
+    window.addEventListener("focus", onFocus);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", onFocus);
+    };
+  }, [user, load]);
+
   return { profile, dailyQuests, weeklyQuest, loading, reload: load,
     levelTier: profile ? levelInfo(profile.level) : null,
     xp: profile ? xpProgress(profile.xp_total, profile.level) : null };
