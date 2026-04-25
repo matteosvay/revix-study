@@ -464,24 +464,62 @@ export default function Quizz() {
           <div className="px-4 space-y-3">
             <p className="font-mono-tag text-[11px] uppercase tracking-wider text-muted-foreground px-1">Tes quizz</p>
             {quizzes.map((q, i) => (
-              <button
+              <div
                 key={q.id}
-                onClick={() => startQuiz(q)}
-                className={`relative notebook-card w-full flex items-center gap-3 p-4 text-left hover:shadow-glow transition-all ${i % 2 === 0 ? "tilt-l" : "tilt-r"}`}
+                className={`relative notebook-card flex items-center gap-3 p-4 hover:shadow-glow transition-all ${i % 2 === 0 ? "tilt-l" : "tilt-r"}`}
               >
                 <Tape variant={i % 3 === 0 ? "yellow" : i % 3 === 1 ? "pink" : "mint"} position="top-right" />
-                <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
-                  <Brain className="h-5 w-5" />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p className="font-serif text-base truncate">{q.title}</p>
-                  <span className="label-tape mt-1">{TYPE_LABELS[(q.quiz_type as QType) ?? "qcm"] ?? "QCM"}</span>
-                </div>
-                <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              </button>
+                <button onClick={() => startQuiz(q)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
+                  <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
+                    <Brain className="h-5 w-5" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-serif text-base truncate">{q.title}</p>
+                    <span className="label-tape mt-1">{TYPE_LABELS[(q.quiz_type as QType) ?? "qcm"] ?? "QCM"}</span>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); setQuizToDelete(q); }}
+                  className="h-9 w-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition shrink-0"
+                  aria-label="Supprimer le quizz"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </button>
+              </div>
             ))}
           </div>
         )}
+
+        <AlertDialog open={!!quizToDelete} onOpenChange={(o) => !o && setQuizToDelete(null)}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer ce quizz ?</AlertDialogTitle>
+              <AlertDialogDescription>
+                « {quizToDelete?.title} » et toutes ses questions seront supprimés. Tes révisions liées disparaîtront aussi.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={deletingQuiz}>Annuler</AlertDialogCancel>
+              <AlertDialogAction
+                onClick={async () => {
+                  if (!quizToDelete) return;
+                  setDeletingQuiz(true);
+                  const { error } = await supabase.from("quizzes").delete().eq("id", quizToDelete.id);
+                  setDeletingQuiz(false);
+                  if (error) { toast.error("Suppression impossible"); return; }
+                  setQuizzes(prev => prev.filter(x => x.id !== quizToDelete.id));
+                  toast.success("Quizz supprimé");
+                  setQuizToDelete(null);
+                }}
+                disabled={deletingQuiz}
+                className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              >
+                {deletingQuiz ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Suppression…</> : <>Supprimer</>}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </AppLayout>
     );
   }
