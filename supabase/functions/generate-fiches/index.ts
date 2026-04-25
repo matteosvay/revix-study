@@ -131,45 +131,58 @@ Deno.serve(async (req) => {
     const system = `Tu es un PROFESSEUR PARTICULIER d'élite, en français, pour étudiants ${level ?? ""}.
 Ta mission : produire UNE FICHE DE COURS EXHAUSTIVE, COMPLÈTE et RÉELLEMENT PROFONDE à partir du cours fourni.
 
-RÈGLES CRITIQUES — lis-les bien :
-1. NE LAISSE RIEN PASSER. Couvre **chaque concept, chaque définition, chaque formule, chaque mécanisme, chaque exemple, chaque cas particulier** présent dans le cours source. Si le cours contient 12 notions, ta fiche en couvre 12 — pas 5 "grandes idées".
-2. EXPLIQUE en profondeur, comme un prof qui veut que l'élève comprenne vraiment, pas juste qu'il récite. Détaille le "pourquoi" et le "comment", pas seulement le "quoi".
-3. REFORMULE avec tes mots, structure, hiérarchise — mais ne sacrifie AUCUNE information du cours pour faire court. Une fiche longue et complète vaut mieux qu'une fiche courte et superficielle.
-4. Pour les sciences (maths, physique, chimie, bio…) : garde toutes les formules, conditions d'application, démonstrations clés et notations.
+🚨 RÈGLE ABSOLUE SUR LES CHAPITRES — la plus importante :
+Tu DOIS respecter À LA LETTRE la structure de chapitres du cours source.
+- Détecte les chapitres / parties / sections existants dans le texte (titres, "Chapitre X", "Partie X", "I.", "1.", "A.", numérotations, titres en gras…).
+- Crée UNE section dans la fiche pour CHAQUE chapitre du cours, dans le MÊME ORDRE, avec EXACTEMENT le même titre (recopie-le tel quel).
+- ⛔ N'INVENTE PAS de nouveaux chapitres. Ne fusionne pas deux chapitres en un. Ne SCINDE PAS un chapitre en plusieurs. Ne transforme pas une sous-partie en chapitre principal.
+- Les sous-parties d'un chapitre restent À L'INTÉRIEUR de la section de ce chapitre (utilise des blocs paragraph/key_point/list pour les structurer, pas de nouvelle section).
+- Si le cours n'a aucune structure de chapitres détectable, alors (et seulement alors) tu peux créer toi-même un découpage logique.
+
+AUTRES RÈGLES CRITIQUES :
+1. NE LAISSE RIEN PASSER. Couvre **chaque concept, chaque définition, chaque formule, chaque mécanisme, chaque exemple, chaque cas particulier** présent dans le cours source.
+2. EXPLIQUE en profondeur, comme un prof qui veut que l'élève comprenne vraiment, pas juste qu'il récite. Détaille le "pourquoi" et le "comment".
+3. REFORMULE avec tes mots, structure, hiérarchise — mais ne sacrifie AUCUNE information du cours pour faire court.
+4. Pour les sciences : garde toutes les formules, conditions d'application, démonstrations clés et notations.
 5. Pour les matières littéraires/SHS : garde les auteurs, dates, références, citations, écoles de pensée, nuances.
 
-FORMAT — la fiche est une liste de SECTIONS. Chaque section a un titre court + des "blocs" choisis parmi :
+FORMAT — la fiche est une liste de SECTIONS (= chapitres du cours). Chaque section a un titre (= titre exact du chapitre source) + des "blocs" choisis parmi :
   - {"kind":"paragraph","text":"..."} : explication détaillée (utilise **mot** pour mettre en gras les termes clés).
   - {"kind":"definition","term":"...","text":"..."} : définition rigoureuse d'un concept.
-  - {"kind":"key_point","text":"..."} : idée absolument à retenir (mise en valeur).
+  - {"kind":"key_point","text":"..."} : idée absolument à retenir.
   - {"kind":"example","text":"..."} : exemple concret, cas d'application, démonstration.
   - {"kind":"tip","text":"..."} : astuce mémo, piège classique, point de vigilance.
-  - {"kind":"list","items":["...","..."]} : énumération (étapes, propriétés, caractéristiques…).
+  - {"kind":"list","items":["...","..."]} : énumération (étapes, propriétés, sous-parties d'un chapitre…).
 
-VOLUME ATTENDU : autant de sections que nécessaire pour couvrir TOUT le cours (typiquement 5 à 12 sections selon la densité), chaque section avec 4 à 10 blocs riches. Une "intro" de 2-3 phrases situe le sujet et son enjeu.
+VOLUME : chaque section (chapitre) doit contenir 4 à 12 blocs riches selon la densité du chapitre. Une "intro" de 2-3 phrases situe le sujet global et son enjeu.
 
 Tu utilises "tu" et un ton clair, motivant, jamais condescendant. Pas d'emoji dans le texte.`;
 
-    // Découpe le cours pour qu'AUCUN morceau ne soit ignoré
+    // Découpe le cours pour qu'AUCUN morceau ne soit ignoré.
+    // Les chunks ne sont qu'une contrainte technique : on l'explique au modèle pour qu'il
+    // continue de respecter la structure de chapitres SOURCE (pas de sous-parties promues).
     const chunks = chunkContent(content);
     console.log(`[generate-fiches] ${content.length} chars → ${chunks.length} chunk(s)`);
 
-    // Traite tous les chunks EN PARALLÈLE pour rester sous le timeout (150s)
     const results = await Promise.all(chunks.map(async (chunk, i) => {
       const isMulti = chunks.length > 1;
       const partInfo = isMulti
-        ? `\n\nIMPORTANT : ce cours est volumineux et a été découpé en ${chunks.length} parties. Tu traites ici la PARTIE ${i + 1}/${chunks.length}. Couvre EXHAUSTIVEMENT cette partie (toutes les notions qu'elle contient), sans résumer en survol. ${i === 0 ? "Commence par une courte intro situant le sujet global." : "N'écris PAS d'intro (déjà faite dans la partie 1), commence directement par les sections."}`
+        ? `\n\n⚙️ CONTEXTE TECHNIQUE : le cours est volumineux et a dû être découpé en ${chunks.length} morceaux pour des raisons techniques. Tu reçois ici le MORCEAU ${i + 1}/${chunks.length}.
+- Ce découpage technique N'EST PAS une structure de chapitres. Ne le mentionne JAMAIS.
+- Crée UNIQUEMENT des sections correspondant aux VRAIS chapitres présents dans CE morceau (titres explicites du cours).
+- Si un chapitre est partagé entre deux morceaux, traite seulement la portion présente ici sous le titre de ce chapitre — la fusion sera faite ensuite.
+- ${i === 0 ? "Commence par une courte intro situant le sujet global." : "N'écris PAS d'intro (déjà faite dans le morceau 1), commence directement par les sections."}`
         : "";
 
       const userPrompt = `Matière : ${subject ?? "non précisée"}
-Titre : ${title ?? "Cours"}${partInfo}
+Titre du cours : ${title ?? "Cours"}${partInfo}
 
-Cours${isMulti ? ` (partie ${i + 1}/${chunks.length})` : ""} :
+Cours :
 """
 ${chunk}
 """
 
-Produis la fiche de cours complète et exhaustive pour ${isMulti ? "cette partie" : "ce cours"}.`;
+Produis la fiche en respectant SCRUPULEUSEMENT la structure de chapitres du cours source.`;
 
       const resp = await callAI(apiKey, system, userPrompt);
       return { i, resp };
@@ -199,12 +212,27 @@ Produis la fiche de cours complète et exhaustive pour ${isMulti ? "cette partie
       for (const s of partSummary.sections) allSections.push(s);
     }
 
+    // Fusion : si plusieurs chunks ont retourné le même titre de chapitre,
+    // on regroupe les blocs sous une seule section (cas où un chapitre est à cheval).
+    const merged: Record<string, { title: string; blocks: any[] }> = {};
+    const order: string[] = [];
+    for (const s of allSections) {
+      const key = (s.title ?? "").trim().toLowerCase();
+      if (!merged[key]) {
+        merged[key] = { title: s.title, blocks: [...(s.blocks ?? [])] };
+        order.push(key);
+      } else {
+        merged[key].blocks.push(...(s.blocks ?? []));
+      }
+    }
+    const finalSections = order.map(k => merged[k]);
+
     if (!allSections.length) {
       return new Response(JSON.stringify({ error: "L'IA n'a pas pu générer la fiche." }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     return new Response(JSON.stringify({
-      summary: { intro, sections: allSections },
+      summary: { intro, sections: finalSections },
     }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     console.error(e);
