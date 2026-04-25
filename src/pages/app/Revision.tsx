@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { awardXp } from "@/hooks/useGamification";
+import { GlobalChapterHeatmap } from "@/components/revix/GlobalChapterHeatmap";
 
 type DueQ = {
   question_id: string;
@@ -123,6 +124,9 @@ export default function Revision() {
               <Link to="/app/quizz"><Brain className="h-4 w-4 mr-1" /> Faire un quiz</Link>
             </Button>
           </div>
+        </div>
+        <div className="px-5 mt-8 pb-24">
+          <GlobalChapterHeatmap />
         </div>
       </AppLayout>
     );
