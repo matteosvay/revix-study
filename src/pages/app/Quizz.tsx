@@ -13,7 +13,7 @@ import { XP_REWARDS } from "@/lib/gamification";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 import { localDateKey } from "@/lib/date";
 
-type QType = "qcm" | "vrai_faux" | "ouvert" | "trous";
+type QType = "qcm" | "qcm_multi" | "vrai_faux" | "ouvert" | "trous" | "ordre";
 type Q = {
   id: string;
   question: string;
@@ -39,9 +39,11 @@ type CourseGap = {
 
 const TYPE_LABELS: Record<QType, string> = {
   qcm: "QCM",
+  qcm_multi: "QCM multi",
   vrai_faux: "Vrai / Faux",
   ouvert: "Question ouverte",
   trous: "Texte à trous",
+  ordre: "Mise en ordre",
 };
 
 function normalize(s: string) {
@@ -61,6 +63,11 @@ export default function Quizz() {
   const [qIdx, setQIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [textAnswer, setTextAnswer] = useState("");
+  const [multiPicked, setMultiPicked] = useState<number[]>([]);
+  const [multiSubmitted, setMultiSubmitted] = useState(false);
+  const [orderPicked, setOrderPicked] = useState<number[]>([]);
+  const [orderSubmitted, setOrderSubmitted] = useState<boolean>(false);
+  const [orderCorrect, setOrderCorrect] = useState<boolean>(false);
   const [openResult, setOpenResult] = useState<{ correct: boolean; feedback: string } | null>(null);
   const [grading, setGrading] = useState(false);
   const [score, setScore] = useState(0);
@@ -159,6 +166,7 @@ export default function Quizz() {
     setQuestions(data as any);
     setQIdx(0); setPicked(null); setTextAnswer(""); setOpenResult(null); setScore(0); setWrong([]);
     setCombo(0); setMaxCombo(0); setHidden([]);
+    setMultiPicked([]); setMultiSubmitted(false); setOrderPicked([]); setOrderSubmitted(false); setOrderCorrect(false);
     setPhase("play");
   };
 
@@ -271,6 +279,7 @@ export default function Quizz() {
       }
     } else {
       setQIdx(qIdx + 1); setPicked(null); setTextAnswer(""); setOpenResult(null); setHidden([]);
+      setMultiPicked([]); setMultiSubmitted(false); setOrderPicked([]); setOrderSubmitted(false); setOrderCorrect(false);
     }
   };
 
