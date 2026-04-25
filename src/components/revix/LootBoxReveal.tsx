@@ -143,6 +143,8 @@ function Confetti({ rarity }: { rarity: Rarity }) {
 
 function Rays({ rarity }: { rarity: Rarity }) {
   const color =
+    rarity === "queen" ? "hsl(330 100% 70%)" :
+    rarity === "creator" ? "hsl(40 100% 60%)" :
     rarity === "legendary" ? "hsl(45 100% 60%)" :
     rarity === "epic" ? "hsl(280 90% 65%)" :
     rarity === "rare" ? "hsl(220 90% 60%)" :
