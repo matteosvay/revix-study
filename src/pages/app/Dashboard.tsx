@@ -8,6 +8,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
 import { Tape, Pin } from "@/components/revix/AcademicDecor";
 import { NotificationBell } from "@/components/revix/NotificationBell";
+import { LootBoxCard } from "@/components/revix/LootBoxCard";
+import { FlashQuizCard } from "@/components/revix/FlashQuizCard";
+import { useFomoChecks } from "@/hooks/useFomoChecks";
 
 type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
 
@@ -16,6 +19,7 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
   const { profile: gam, levelTier, xp } = useGamification();
+  useFomoChecks();
 
   useEffect(() => {
     if (!user) return;
@@ -55,6 +59,10 @@ export default function Dashboard() {
       />
 
       <div className="px-5">
+        {/* Boîte mystère + flash 5 min */}
+        <LootBoxCard />
+        <FlashQuizCard />
+
         {/* XP / niveau bandeau */}
         {gam && levelTier && xp && (
           <Link to="/app/aventure" className="block card-paper p-4 relative mb-3 tilt-l hover:shadow-glow transition-shadow">
