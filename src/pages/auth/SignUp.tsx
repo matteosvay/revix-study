@@ -10,12 +10,16 @@ import { toast } from "sonner";
 import { CURSUS_OPTIONS } from "@/data/cursus";
 import { SearchableCombobox } from "@/components/revix/SearchableCombobox";
 import { FORMATIONS } from "@/data/formations";
+import { Mail, CheckCircle2, RefreshCw } from "lucide-react";
 
 export default function SignUp() {
   const nav = useNavigate();
   const [cursus, setCursus] = useState<string>("");
   const [formation, setFormation] = useState<string>("");
   const [loading, setLoading] = useState(false);
+  const [submittedEmail, setSubmittedEmail] = useState<string>("");
+  const [submittedName, setSubmittedName] = useState<string>("");
+  const [resending, setResending] = useState(false);
 
   const formationItems = FORMATIONS.map(f => ({
     value: f.name, label: f.abbr ? `${f.abbr} — ${f.name.replace(`${f.abbr} - `, "").replace(`${f.abbr} `, "")}` : f.name, group: f.category,
@@ -24,18 +28,19 @@ export default function SignUp() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
+    const email = String(data.get("email"));
+    const name = String(data.get("name"));
     setLoading(true);
     const { data: signUpData, error } = await supabase.auth.signUp({
-      email: String(data.get("email")),
+      email,
       password: String(data.get("pwd")),
       options: {
         emailRedirectTo: `${window.location.origin}/login`,
-        data: { display_name: String(data.get("name")), cursus },
+        data: { display_name: name, cursus },
       },
     });
     setLoading(false);
     if (error) { toast.error(error.message); return; }
-    // Si une session existe déjà → email auto-confirmé (rare). Sinon → vérification requise.
     if (signUpData.session) {
       if (formation) {
         await supabase.from("profiles").update({ formation }).eq("id", signUpData.session.user.id);
@@ -43,10 +48,94 @@ export default function SignUp() {
       toast.success("Compte créé ! Bienvenue sur Revix ✨");
       nav("/app");
     } else {
-      toast.success("📩 Vérifie ta boîte mail pour confirmer ton inscription !", { duration: 6000 });
-      nav("/login");
+      setSubmittedEmail(email);
+      setSubmittedName(name);
     }
   };
+
+  const handleResend = async () => {
+    if (!submittedEmail) return;
+    setResending(true);
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email: submittedEmail,
+      options: { emailRedirectTo: `${window.location.origin}/login` },
+    });
+    setResending(false);
+    if (error) toast.error(error.message);
+    else toast.success("Email renvoyé ! 📨");
+  };
+
+  if (submittedEmail) {
+    return (
+      <AuthShell title="Presque prêt ! 🎯" subtitle="Une dernière étape avant l'aventure...">
+        <div className="space-y-5 text-center">
+          <div className="relative mx-auto w-20 h-20 flex items-center justify-center">
+            <div className="absolute inset-0 rounded-full gradient-primary opacity-20 animate-ping" />
+            <div className="relative w-20 h-20 rounded-full gradient-primary flex items-center justify-center">
+              <Mail className="w-10 h-10 text-primary-foreground" strokeWidth={2.2} />
+            </div>
+          </div>
+
+          <div>
+            <h2 className="font-serif text-2xl">
+              {submittedName ? `Hey ${submittedName} !` : "C'est parti !"}
+            </h2>
+            <p className="font-hand text-lg text-primary mt-1">
+              On t'a envoyé un email magique ✨
+            </p>
+          </div>
+
+          <div className="notebook-card p-4 text-left space-y-3">
+            <p className="text-sm text-muted-foreground">
+              📩 Un email de confirmation vient d'être envoyé à :
+            </p>
+            <p className="font-mono text-sm font-semibold text-foreground break-all bg-muted/50 px-3 py-2 rounded-lg">
+              {submittedEmail}
+            </p>
+            <div className="space-y-2 pt-2">
+              <div className="flex items-start gap-2 text-sm">
+                <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                <span>Ouvre ta boîte mail (pense à vérifier les <strong>spams</strong> 👀)</span>
+              </div>
+              <div className="flex items-start gap-2 text-sm">
+                <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                <span>Clique sur le lien de confirmation</span>
+              </div>
+              <div className="flex items-start gap-2 text-sm">
+                <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+                <span>Reviens te connecter et débloque ton premier XP 🚀</span>
+              </div>
+            </div>
+          </div>
+
+          <p className="text-xs text-muted-foreground italic">
+            Pas reçu après 2 min ? Vérifie tes spams ou renvoie l'email ci-dessous.
+          </p>
+
+          <div className="flex flex-col gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleResend}
+              disabled={resending}
+              className="w-full rounded-full h-11"
+            >
+              <RefreshCw className={`w-4 h-4 mr-2 ${resending ? "animate-spin" : ""}`} />
+              {resending ? "Envoi..." : "Renvoyer l'email"}
+            </Button>
+            <Button
+              type="button"
+              onClick={() => nav("/login")}
+              className="w-full rounded-full gradient-primary border-0 h-11"
+            >
+              J'ai confirmé, je me connecte →
+            </Button>
+          </div>
+        </div>
+      </AuthShell>
+    );
+  }
 
   return (
     <AuthShell title="Crée ton compte ✨" subtitle="C'est gratuit, et ça change tout.">
