@@ -35,8 +35,15 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
     if (!open || !user) return;
     setLoading(true);
     (async () => {
-      const { data: ids } = await supabase.rpc("get_friend_ids", { p_user_id: user.id });
-      const friendIds = (ids ?? []).map((r: any) => r.friend_id);
+      const { data: rows, error } = await supabase
+        .from("friendships")
+        .select("requester_id, addressee_id")
+        .eq("status", "accepted")
+        .or(`requester_id.eq.${user.id},addressee_id.eq.${user.id}`);
+      if (error) { console.error("friends fetch", error); setFriends([]); setLoading(false); return; }
+      const friendIds = (rows ?? []).map((r: any) =>
+        r.requester_id === user.id ? r.addressee_id : r.requester_id
+      );
       if (friendIds.length === 0) { setFriends([]); setLoading(false); return; }
       const { data } = await supabase
         .from("profiles")
