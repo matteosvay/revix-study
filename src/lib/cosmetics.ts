@@ -9,6 +9,20 @@ export type Rarity = "common" | "rare" | "epic" | "legendary" | "creator";
 export const RARITY_LABEL: Record<Rarity, string> = {
   common: "Commun", rare: "Rare", epic: "Épique", legendary: "Légendaire", creator: "Créateur",
 };
+
+/**
+ * Display order from lowest to highest rarity.
+ * `creator` is the most prestigious tier — it sits ABOVE legendary.
+ */
+export const RARITY_ORDER: Rarity[] = ["common", "rare", "epic", "legendary", "creator"];
+
+/** Numeric rank — higher = more prestigious. Useful for sorting (desc). */
+export function rarityRank(r: Rarity | null | undefined): number {
+  if (!r) return -1;
+  const i = RARITY_ORDER.indexOf(r);
+  return i < 0 ? -1 : i;
+}
+
 export const RARITY_RING: Record<Rarity, string> = {
   common: "ring-muted-foreground/40",
   rare: "ring-blue-400",
