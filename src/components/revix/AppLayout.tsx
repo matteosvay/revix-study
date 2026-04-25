@@ -52,8 +52,9 @@ export const AppLayout = ({ children }: { children: ReactNode }) => {
           {children}
         </main>
 
-        {/* Bottom tab bar brutaliste */}
-        <nav className="absolute bottom-0 inset-x-0 bg-card border-t-[3px] border-foreground">
+        {/* Bottom tab bar brutaliste — z-50 so it always sits above page content
+            (cosmetic frames, stickers and other absolute overlays can use up to z-30). */}
+        <nav className="absolute bottom-0 inset-x-0 bg-card border-t-[3px] border-foreground z-50">
           <div className="grid grid-cols-8 px-1 pt-2 pb-2">
             {nav.map((n) => (
               <NavLink
