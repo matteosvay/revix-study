@@ -975,6 +975,7 @@ export type Database = {
         }
         Returns: string
       }
+      ensure_today_quests: { Args: never; Returns: Json }
       generate_room_code: { Args: never; Returns: string }
       generate_student_code: { Args: never; Returns: string }
       get_duel_questions: {
