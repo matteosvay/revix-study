@@ -155,7 +155,7 @@ export default function CourseDetail() {
                 </div>
               </div>
 
-              <Button onClick={generateQuiz} disabled={creatingQuiz} className="w-full rounded-full gradient-primary border-0 h-12">
+              <Button onClick={() => generateQuiz()} disabled={creatingQuiz} className="w-full rounded-full gradient-primary border-0 h-12">
                 {creatingQuiz ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Génération...</> : <><Brain className="h-4 w-4 mr-2" /> Générer le quizz</>}
               </Button>
             </div>
