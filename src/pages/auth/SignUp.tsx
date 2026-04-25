@@ -25,23 +25,27 @@ export default function SignUp() {
     e.preventDefault();
     const data = new FormData(e.currentTarget);
     setLoading(true);
-    const { error } = await supabase.auth.signUp({
+    const { data: signUpData, error } = await supabase.auth.signUp({
       email: String(data.get("email")),
       password: String(data.get("pwd")),
       options: {
-        emailRedirectTo: `${window.location.origin}/app`,
+        emailRedirectTo: `${window.location.origin}/login`,
         data: { display_name: String(data.get("name")), cursus },
       },
     });
-    // On set la formation après création (le trigger de profil n'a pas accès à formation)
-    if (!error && formation) {
-      const { data: u } = await supabase.auth.getUser();
-      if (u.user) await supabase.from("profiles").update({ formation }).eq("id", u.user.id);
-    }
     setLoading(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Compte créé ! Bienvenue sur Revix ✨");
-    nav("/app");
+    // Si une session existe déjà → email auto-confirmé (rare). Sinon → vérification requise.
+    if (signUpData.session) {
+      if (formation) {
+        await supabase.from("profiles").update({ formation }).eq("id", signUpData.session.user.id);
+      }
+      toast.success("Compte créé ! Bienvenue sur Revix ✨");
+      nav("/app");
+    } else {
+      toast.success("📩 Vérifie ta boîte mail pour confirmer ton inscription !", { duration: 6000 });
+      nav("/login");
+    }
   };
 
   return (
