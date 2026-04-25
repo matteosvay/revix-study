@@ -18,8 +18,136 @@ const PNG_RINGS: Record<string, { src: string; glow: string }> = {
  * Adds particles, flames, sparkles depending on the equipped frame.
  * Sized via container, the SVG fills 100% of the parent (which must be relative).
  */
-export function FrameDecor({ itemKey, size = "md" }: { itemKey?: string | null; size?: "sm" | "md" | "lg" | "xl" }) {
+export function FrameDecor({
+  itemKey,
+  size = "md",
+  layer = "below",
+}: {
+  itemKey?: string | null;
+  size?: "sm" | "md" | "lg" | "xl";
+  /** "below" = behind the avatar (auras, rings). "above" = on top of the avatar (e.g. real crown). */
+  layer?: "below" | "above";
+}) {
   if (!itemKey) return null;
+
+  // ===== Above-avatar overlays (rendered ON TOP of the photo) =====
+  if (layer === "above") {
+    if (itemKey === "frame_origine") {
+      // Real liquid-gold crown sitting on top of the avatar's head.
+      // SCALE_ABOVE positions the crown so it overlaps just the top ~40% of the avatar.
+      const CROWN_WRAP: Record<string, string> = {
+        sm: "-top-3 -left-1 -right-1 h-6",
+        md: "-top-4 -left-1.5 -right-1.5 h-8",
+        lg: "-top-6 -left-2 -right-2 h-12",
+        xl: "-top-8 -left-2 -right-2 h-16",
+      };
+      return (
+        <div className={`absolute ${CROWN_WRAP[size]} pointer-events-none z-30`}>
+          <svg viewBox="0 0 100 60" preserveAspectRatio="xMidYMax meet" className="w-full h-full overflow-visible">
+            <defs>
+              <linearGradient id="crown-gold" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"  stopColor="#fff7c2" />
+                <stop offset="40%" stopColor="#ffd166" />
+                <stop offset="80%" stopColor="#a26800" />
+                <stop offset="100%" stopColor="#5a3a00" />
+              </linearGradient>
+              <linearGradient id="crown-shine" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"  stopColor="#ffffff" stopOpacity="0.85" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+              </linearGradient>
+              <radialGradient id="crown-aura" cx="50%" cy="60%" r="60%">
+                <stop offset="0%"  stopColor="#ffd166" stopOpacity="0.45" />
+                <stop offset="100%" stopColor="#ffd166" stopOpacity="0" />
+              </radialGradient>
+              <filter id="crown-glow" x="-30%" y="-30%" width="160%" height="160%">
+                <feGaussianBlur stdDeviation="0.8" result="b" />
+                <feMerge>
+                  <feMergeNode in="b" />
+                  <feMergeNode in="SourceGraphic" />
+                </feMerge>
+              </filter>
+            </defs>
+
+            {/* Soft golden aura under the crown */}
+            <ellipse cx="50" cy="48" rx="38" ry="10" fill="url(#crown-aura)">
+              <animate attributeName="rx" values="34;40;34" dur="2.8s" repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="2.8s" repeatCount="indefinite" />
+            </ellipse>
+
+            {/* Crown body — five spikes joined by a curved base, classic regal silhouette */}
+            <g filter="url(#crown-glow)">
+              <path
+                d="
+                  M 14 50
+                  L 20 22
+                  L 30 40
+                  L 40 12
+                  L 50 38
+                  L 60 12
+                  L 70 40
+                  L 80 22
+                  L 86 50
+                  Q 50 58 14 50
+                  Z
+                "
+                fill="url(#crown-gold)"
+                stroke="#5a3a00"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+              />
+              {/* Inner shine on the base */}
+              <path
+                d="M 18 48 Q 50 55 82 48 L 80 44 Q 50 50 20 44 Z"
+                fill="url(#crown-shine)"
+                opacity="0.55"
+              />
+
+              {/* Gem at the center spike (M monogram engraved) */}
+              <circle cx="50" cy="22" r="4.2" fill="#7a1f3d" stroke="#5a3a00" strokeWidth="0.8">
+                <animate attributeName="r" values="3.8;4.6;3.8" dur="2.4s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="48.7" cy="20.7" r="1.2" fill="#ffd1e2" opacity="0.85" />
+              <text
+                x="50" y="23.2"
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fontSize="4.2"
+                fontFamily="serif"
+                fontWeight="700"
+                fill="#fff7c2"
+                stroke="#5a3a00"
+                strokeWidth="0.25"
+              >M</text>
+
+              {/* Gems on side spikes */}
+              <circle cx="20" cy="32" r="1.6" fill="#3b82f6" stroke="#5a3a00" strokeWidth="0.4">
+                <animate attributeName="opacity" values="0.7;1;0.7" dur="1.8s" repeatCount="indefinite" />
+              </circle>
+              <circle cx="80" cy="32" r="1.6" fill="#10b981" stroke="#5a3a00" strokeWidth="0.4">
+                <animate attributeName="opacity" values="0.7;1;0.7" dur="1.8s" begin="0.6s" repeatCount="indefinite" />
+              </circle>
+
+              {/* Tip sparkles on each spike */}
+              {[
+                [20, 22], [40, 12], [60, 12], [80, 22],
+              ].map(([cx, cy], i) => (
+                <circle key={i} cx={cx} cy={cy} r="0.8" fill="#fff7c2">
+                  <animate attributeName="opacity" values="0.2;1;0.2" dur="1.6s" begin={`${i * 0.25}s`} repeatCount="indefinite" />
+                  <animate attributeName="r" values="0.5;1.3;0.5" dur="1.6s" begin={`${i * 0.25}s`} repeatCount="indefinite" />
+                </circle>
+              ))}
+
+              {/* Engraving line along the base */}
+              <path d="M 18 46 Q 50 52 82 46" fill="none" stroke="#5a3a00" strokeWidth="0.4" opacity="0.7" />
+            </g>
+          </svg>
+        </div>
+      );
+    }
+    return null;
+  }
+
+  // ===== Below-avatar overlays (legacy behaviour) =====
   // Outer scale so particles can extend beyond the avatar
   const SCALE: Record<string, string> = {
     sm: "-inset-1.5",
