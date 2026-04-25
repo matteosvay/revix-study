@@ -51,6 +51,7 @@ function Podium({ rows }: { rows: Row[] }) {
                 avatarUrl={row.avatar_url}
                 frame={row.equipped_frame}
                 sticker={row.sticker_emoji}
+                stickerKey={row.equipped_sticker}
                 size={idx === 0 ? "md" : "sm"}
               />
             </div>
@@ -103,6 +104,7 @@ function RowList({ rows, scopeLabel }: { rows: Row[]; scopeLabel: string }) {
                 avatarUrl={row.avatar_url}
                 frame={row.equipped_frame}
                 sticker={row.sticker_emoji}
+                stickerKey={row.equipped_sticker}
                 size="sm"
               />
               <div className="flex-1 min-w-0">

@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowLeft, Flame, Trophy, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
+import { BackgroundDecor } from "@/components/revix/cosmetics/BackgroundDecor";
 import { backgroundStyle, type Rarity } from "@/lib/cosmetics";
 import { TitleBadge } from "@/components/revix/TitleBadge";
 import { cn } from "@/lib/utils";
@@ -39,9 +40,10 @@ export default function PublicProfile() {
 
       <div className="px-5">
         <div className="rounded-md border-[2.5px] border-foreground overflow-hidden shadow-brutal-sm">
-          <div className="h-28 relative" style={backgroundStyle(p.equipped_background)}>
-            <div className="absolute -bottom-10 left-4">
-              <CosmeticAvatar fallback={initials} avatarUrl={p.avatar_url} frame={p.equipped_frame} sticker={p.sticker_emoji} size="lg" />
+          <div className="h-28 relative overflow-hidden" style={backgroundStyle(p.equipped_background)}>
+            <BackgroundDecor itemKey={p.equipped_background} />
+            <div className="absolute -bottom-10 left-4 z-10">
+              <CosmeticAvatar fallback={initials} avatarUrl={p.avatar_url} frame={p.equipped_frame} sticker={p.sticker_emoji} stickerKey={p.equipped_sticker} size="lg" />
             </div>
           </div>
           <div className="bg-card pt-12 pb-4 px-4">
