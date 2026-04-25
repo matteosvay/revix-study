@@ -10,6 +10,7 @@ import { Tape, Pin } from "@/components/revix/AcademicDecor";
 import { NotificationBell } from "@/components/revix/NotificationBell";
 import { LootBoxCard } from "@/components/revix/LootBoxCard";
 import { FlashQuizCard } from "@/components/revix/FlashQuizCard";
+import { ReviewCard } from "@/components/revix/ReviewCard";
 import { useFomoChecks } from "@/hooks/useFomoChecks";
 
 type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
@@ -61,6 +62,7 @@ export default function Dashboard() {
       <div className="px-5">
         {/* Boîte mystère + flash 5 min */}
         <LootBoxCard />
+        <ReviewCard />
         <FlashQuizCard />
 
         {/* XP / niveau bandeau */}
