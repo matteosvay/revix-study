@@ -354,6 +354,44 @@ export default function Quizz() {
     } finally { setGrading(false); }
   };
 
+  // Soumet une réponse QCM multi
+  const submitMulti = () => {
+    const q = questions[qIdx];
+    const correct = (q.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n)).sort();
+    const userPicked = [...multiPicked].sort();
+    const ok = correct.length === userPicked.length && correct.every((n, i) => n === userPicked[i]);
+    setMultiSubmitted(true);
+    advance(ok);
+    supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
+  };
+
+  // Soumet la mise en ordre
+  const submitOrder = () => {
+    const q = questions[qIdx];
+    const correct = (q.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+    const ok = correct.length === orderPicked.length && correct.every((n, i) => n === orderPicked[i]);
+    setOrderSubmitted(true);
+    setOrderCorrect(ok);
+    advance(ok);
+    supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
+  };
+
+  const toggleMulti = (i: number) => {
+    if (multiSubmitted) return;
+    setMultiPicked(prev => prev.includes(i) ? prev.filter(x => x !== i) : [...prev, i]);
+  };
+
+  const moveOrder = (from: number, dir: -1 | 1) => {
+    if (orderSubmitted) return;
+    setOrderPicked(prev => {
+      const arr = [...prev];
+      const to = from + dir;
+      if (to < 0 || to >= arr.length) return arr;
+      [arr[from], arr[to]] = [arr[to], arr[from]];
+      return arr;
+    });
+  };
+
   if (phase === "select") {
     return (
       <AppLayout>
