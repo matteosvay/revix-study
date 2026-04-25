@@ -3,12 +3,12 @@ import { Link, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Brain, CheckCircle2, XCircle, Loader2, Repeat, Sparkles } from "lucide-react";
+import { ArrowLeft, Brain, CheckCircle2, XCircle, Loader2, Repeat, Sparkles, ChevronRight, Folder, BookOpen, Flame } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { awardXp } from "@/hooks/useGamification";
-import { GlobalChapterHeatmap } from "@/components/revix/GlobalChapterHeatmap";
+import { RevisionExplorer } from "@/components/revix/RevisionExplorer";
 
 type DueQ = {
   question_id: string;
@@ -115,18 +115,18 @@ export default function Revision() {
     return (
       <AppLayout>
         <PageHeader emoji="🧠" title="Révision" subtitle="Spaced repetition" />
-        <div className="px-5 mt-6 text-center">
-          <div className="inline-block notebook-card dog-ear p-6 max-w-xs mx-auto">
-            <Sparkles className="h-10 w-10 mx-auto text-primary" />
-            <p className="font-hand text-2xl mt-2">Tout est à jour !</p>
-            <p className="text-sm text-muted-foreground mt-1">Aucune question à réviser aujourd'hui. Reviens demain ou termine un nouveau quiz pour alimenter ta file.</p>
-            <Button asChild className="mt-4 rounded-full gradient-primary border-0">
+        <div className="px-5 mt-4 text-center">
+          <div className="inline-block notebook-card dog-ear p-5 max-w-xs mx-auto">
+            <Sparkles className="h-8 w-8 mx-auto text-primary" />
+            <p className="font-hand text-xl mt-2">Tout est à jour !</p>
+            <p className="text-xs text-muted-foreground mt-1">Aucune question à réviser. Explore tes chapitres ci-dessous ou lance un nouveau quiz.</p>
+            <Button asChild size="sm" className="mt-3 rounded-full">
               <Link to="/app/quizz"><Brain className="h-4 w-4 mr-1" /> Faire un quiz</Link>
             </Button>
           </div>
         </div>
-        <div className="px-5 mt-8 pb-24">
-          <GlobalChapterHeatmap />
+        <div className="px-5 mt-6 pb-24">
+          <RevisionExplorer />
         </div>
       </AppLayout>
     );
