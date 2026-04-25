@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Flame, Plus, BookOpen, Brain, Calendar, Sparkles, ChevronRight, TrendingUp } from "lucide-react";
+import { Flame, Plus, BookOpen, Brain, Calendar, Sparkles, ChevronRight, TrendingUp, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
@@ -15,27 +15,40 @@ import { useFomoChecks } from "@/hooks/useFomoChecks";
 
 type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
 
+type GroupRow = {
+  id: string;
+  name: string;
+  emoji: string | null;
+  group_streak_days: number;
+  member_count: number;
+  contributed_today: number;
+  all_contributed_today: boolean;
+};
+
 export default function Dashboard() {
   const { user } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
+  const [groups, setGroups] = useState<GroupRow[]>([]);
   const { profile: gam, levelTier, xp } = useGamification();
   useFomoChecks();
 
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: p }, { count: cc }, { count: qc }, { data: attempts }] = await Promise.all([
+      const [{ data: p }, { count: cc }, { count: qc }, { data: attempts }, { data: gs }] = await Promise.all([
         supabase.from("profiles").select("display_name, streak_days, streak_record, streak_tokens").eq("id", user.id).single(),
         supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quiz_attempts").select("score, total").eq("user_id", user.id),
+        supabase.rpc("get_my_groups"),
       ]);
       setProfile(p as any);
       const avg = attempts && attempts.length
         ? Math.round(attempts.reduce((s, a) => s + (a.score / a.total) * 100, 0) / attempts.length)
         : 0;
       setStats({ courses: cc ?? 0, quizzes: qc ?? 0, avg });
+      setGroups(((gs as any[]) ?? []).slice(0, 3));
     })();
   }, [user]);
 
@@ -136,6 +149,63 @@ export default function Dashboard() {
             </div>
           ))}
         </div>
+
+        {/* Raccourci Study Groups */}
+        <div className="mt-6 mb-2 px-1 flex items-center justify-between">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Groupes d'étude</p>
+          <Link to="/app/groupes" className="text-[11px] font-mono uppercase tracking-wider text-primary hover:underline">
+            Voir tout →
+          </Link>
+        </div>
+        {groups.length === 0 ? (
+          <Link
+            to="/app/groupes"
+            className="block rounded-md border-[2.5px] border-dashed border-foreground/40 p-4 text-center hover:border-foreground hover:bg-secondary/40 transition-colors"
+          >
+            <Users className="h-5 w-5 mx-auto text-muted-foreground" />
+            <p className="text-sm font-bold mt-1.5">Rejoins un groupe</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Streaks collectives + motivation 🔥</p>
+          </Link>
+        ) : (
+          <div className="space-y-1.5">
+            {groups.map((g) => {
+              const ratio = g.member_count > 0 ? g.contributed_today / g.member_count : 0;
+              return (
+                <Link
+                  key={g.id}
+                  to="/app/groupes"
+                  className="flex items-center gap-3 rounded-md border-[2.5px] border-foreground bg-card p-2.5 shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                >
+                  <div className="h-10 w-10 rounded-md border-[2px] border-foreground bg-secondary flex items-center justify-center text-xl shrink-0">
+                    {g.emoji ?? "👥"}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-bold truncate leading-tight">{g.name}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="inline-flex items-center gap-0.5 text-[10px] font-mono uppercase tracking-wider">
+                        <Flame className="h-3 w-3" />
+                        {g.group_streak_days}j
+                      </span>
+                      <span className="text-[10px] text-muted-foreground">
+                        {g.contributed_today}/{g.member_count} aujourd'hui
+                      </span>
+                      {g.all_contributed_today && (
+                        <span className="text-[10px] font-bold text-primary">✓ complet</span>
+                      )}
+                    </div>
+                    <div className="mt-1 h-1 rounded-full bg-muted overflow-hidden">
+                      <div
+                        className="h-full gradient-primary transition-all"
+                        style={{ width: `${Math.round(ratio * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                  <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
         <div className="mt-6 mb-2 px-1">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Raccourcis</p>

@@ -1530,6 +1530,7 @@ export type Database = {
       join_room_by_code: { Args: { p_code: string }; Returns: string }
       leave_study_group: { Args: { p_group_id: string }; Returns: undefined }
       log_group_activity: { Args: { p_xp?: number }; Returns: Json }
+      notify_groups_at_risk: { Args: never; Returns: Json }
       open_daily_loot_box: { Args: never; Returns: Json }
       restore_streak: { Args: { p_user_id: string }; Returns: Json }
       review_question: {

@@ -95,6 +95,12 @@ export function useFomoChecks() {
         // Fallback: skip silently if RLS blocks.
         await supabase.from("notifications").insert(toInsert);
       }
+
+      // 4. Group streaks at risk — only run in the evening (>= 18h local time)
+      const hour = new Date().getHours();
+      if (hour >= 18) {
+        await supabase.rpc("notify_groups_at_risk" as any);
+      }
     })();
 
     return () => { cancelled = true; };
