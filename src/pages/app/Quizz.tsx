@@ -791,9 +791,21 @@ export default function Quizz() {
                   <div key={i} className="text-sm">
                     <p className="font-medium">{questions[i].question}</p>
                     <p className="font-hand text-base text-success mt-0.5">
-                      → {questions[i].answers && typeof questions[i].correct_index === "number"
-                          ? questions[i].answers![questions[i].correct_index!]
-                          : questions[i].accepted_answers?.[0] ?? questions[i].explanation}
+                      → {(() => {
+                        const qq = questions[i];
+                        if (qq.type === "qcm_multi" && qq.answers) {
+                          const idxs = (qq.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+                          return idxs.map(n => qq.answers![n]).filter(Boolean).join(" + ");
+                        }
+                        if (qq.type === "ordre" && qq.answers) {
+                          const idxs = (qq.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+                          return idxs.map((n, k) => `${k + 1}. ${qq.answers![n]}`).join(" → ");
+                        }
+                        if (qq.answers && typeof qq.correct_index === "number") {
+                          return qq.answers[qq.correct_index];
+                        }
+                        return qq.accepted_answers?.[0] ?? qq.explanation;
+                      })()}
                     </p>
                   </div>
                 ))}
