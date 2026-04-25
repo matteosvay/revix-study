@@ -954,4 +954,39 @@
     100% { opacity: 0; }
   }
   .flash-bang { animation: flash-bang 0.5s ease-out forwards; }
+
+  /* ===== Cosmetic premium stickers ===== */
+  @keyframes cosmetic-breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.06); }
+  }
+  .animate-cosmetic-breathe {
+    animation: cosmetic-breathe 3.6s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  @keyframes cosmetic-float {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-3px) rotate(2deg); }
+  }
+  .animate-cosmetic-float {
+    animation: cosmetic-float 4.8s ease-in-out infinite;
+    transform-origin: center;
+  }
+
+  @keyframes cosmetic-shimmer {
+    0% { filter: brightness(1) saturate(1); }
+    50% { filter: brightness(1.18) saturate(1.25); }
+    100% { filter: brightness(1) saturate(1); }
+  }
+
+  /* ===== Background decor: slow drift / gentle rotate ===== */
+  @keyframes bg-drift-x {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(8px); }
+  }
+  @keyframes bg-rotate-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
 }
