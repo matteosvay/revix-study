@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Bell, Check, Trash2 } from "lucide-react";
+import { Bell, Check, Trash2, X, Loader2 } from "lucide-react";
 import { formatDistanceToNow } from "date-fns";
 import { fr } from "date-fns/locale";
 import { supabase } from "@/integrations/supabase/client";
@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { toast } from "sonner";
 
 type Notification = {
   id: string;
@@ -17,6 +18,7 @@ type Notification = {
   link: string | null;
   read: boolean;
   created_at: string;
+  metadata: any;
 };
 
 const ICONS: Record<string, string> = {
@@ -24,6 +26,8 @@ const ICONS: Record<string, string> = {
   friend_accepted: "🤝",
   duel_received: "⚔️",
   duel_completed: "🏁",
+  course_share_received: "📨",
+  course_share_response: "📬",
 };
 
 export const NotificationBell = () => {
@@ -31,6 +35,7 @@ export const NotificationBell = () => {
   const navigate = useNavigate();
   const [items, setItems] = useState<Notification[]>([]);
   const [open, setOpen] = useState(false);
+  const [responding, setResponding] = useState<string | null>(null);
 
   const unread = items.filter((n) => !n.read).length;
 
@@ -38,7 +43,7 @@ export const NotificationBell = () => {
     if (!user) return;
     const { data } = await supabase
       .from("notifications")
-      .select("id,type,title,message,link,read,created_at")
+      .select("id,type,title,message,link,read,created_at,metadata")
       .eq("user_id", user.id)
       .order("created_at", { ascending: false })
       .limit(20);
@@ -80,6 +85,25 @@ export const NotificationBell = () => {
     e.stopPropagation();
     await supabase.from("notifications").delete().eq("id", id);
     setItems((prev) => prev.filter((n) => n.id !== id));
+  };
+
+  const respondShare = async (n: Notification, accept: boolean, e: React.MouseEvent) => {
+    e.stopPropagation();
+    const shareId = n.metadata?.share_id;
+    if (!shareId) return;
+    setResponding(n.id);
+    const { error } = await supabase.rpc("respond_course_share", {
+      p_share_id: shareId,
+      p_accept: accept,
+    });
+    setResponding(null);
+    if (error) {
+      toast.error(error.message.includes("share_not_found") ? "Déjà traité" : "Action impossible");
+      return;
+    }
+    toast.success(accept ? "Fiche ajoutée à tes cours ✨" : "Fiche refusée");
+    await supabase.from("notifications").update({ read: true }).eq("id", n.id);
+    await load();
   };
 
   if (!user) return null;
@@ -138,6 +162,27 @@ export const NotificationBell = () => {
                       <p className="text-[10px] text-muted-foreground/70 mt-1 font-mono">
                         {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
                       </p>
+                      {n.type === "course_share_received" && n.metadata?.share_id && (
+                        <div className="flex gap-2 mt-2">
+                          <Button
+                            size="sm"
+                            onClick={(e) => respondShare(n, true, e)}
+                            disabled={responding === n.id}
+                            className="h-7 px-3 text-[11px]"
+                          >
+                            {responding === n.id ? <Loader2 className="h-3 w-3 animate-spin" /> : <><Check className="h-3 w-3" /> Accepter</>}
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={(e) => respondShare(n, false, e)}
+                            disabled={responding === n.id}
+                            className="h-7 px-3 text-[11px]"
+                          >
+                            <X className="h-3 w-3" /> Refuser
+                          </Button>
+                        </div>
+                      )}
                     </div>
                     <span
                       role="button"
