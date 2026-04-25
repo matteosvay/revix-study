@@ -23,6 +23,13 @@ const QUIZ_TYPES = [
   { value: "ordre", label: "Mise en ordre", desc: "Remettre les éléments dans le bon ordre" },
 ] as const;
 const COUNT_PRESETS = [5, 10, 15, 20, 30];
+const DIFFICULTIES = [
+  { value: "facile", label: "Facile", emoji: "🌱", desc: "Mémorisation, définitions" },
+  { value: "moyen", label: "Moyen", emoji: "📘", desc: "Compréhension, application" },
+  { value: "difficile", label: "Difficile", emoji: "🔥", desc: "Analyse, mise en relation" },
+  { value: "expert", label: "Expert", emoji: "🧠", desc: "Pièges subtils, niveau examen" },
+  { value: "mixte", label: "Mixte", emoji: "🎲", desc: "Progressif facile → difficile" },
+] as const;
 
 export default function CourseDetail() {
   const { id } = useParams();
@@ -32,6 +39,7 @@ export default function CourseDetail() {
   const [quizSheetOpen, setQuizSheetOpen] = useState(false);
   const [quizType, setQuizType] = useState<string>("qcm");
   const [quizCount, setQuizCount] = useState<number>(10);
+  const [quizDifficulty, setQuizDifficulty] = useState<string>("mixte");
 
   useEffect(() => {
     (async () => {
@@ -49,6 +57,16 @@ export default function CourseDetail() {
     setCreatingQuiz(true);
     try {
       const chapters = course.summary?.sections?.map((s) => s.title).filter(Boolean) ?? [];
+      // Récupère les questions déjà posées sur ce cours pour éviter les doublons
+      const { data: prevQuizzes } = await supabase
+        .from("quizzes").select("id").eq("course_id", course.id).order("created_at", { ascending: false }).limit(10);
+      const prevIds = (prevQuizzes ?? []).map(q => q.id);
+      let avoidQuestions: string[] = [];
+      if (prevIds.length) {
+        const { data: prevQs } = await supabase
+          .from("quiz_questions").select("question").in("quiz_id", prevIds).limit(60);
+        avoidQuestions = (prevQs ?? []).map(q => q.question).filter(Boolean);
+      }
       const { data, error } = await supabase.functions.invoke("generate-quiz", {
         body: {
           content: course.source_content,
@@ -56,6 +74,8 @@ export default function CourseDetail() {
           title: course.title,
           count: quizCount,
           quizType,
+          difficulty: quizDifficulty,
+          avoidQuestions,
           chapters,
           chapter: chapterFilter ?? null,
         },
@@ -143,6 +163,22 @@ export default function CourseDetail() {
             </SheetHeader>
 
             <div className="mt-5 space-y-5">
+              <div>
+                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Difficulté</Label>
+                <div className="mt-2 grid grid-cols-5 gap-1.5">
+                  {DIFFICULTIES.map(d => (
+                    <button key={d.value} type="button" onClick={() => setQuizDifficulty(d.value)}
+                      className={`flex flex-col items-center justify-center gap-0.5 py-2 rounded-xl border-2 transition ${quizDifficulty === d.value ? "border-primary bg-primary/5" : "border-border bg-card"}`}>
+                      <span className="text-lg">{d.emoji}</span>
+                      <span className="text-[10px] font-semibold leading-tight">{d.label}</span>
+                    </button>
+                  ))}
+                </div>
+                <p className="text-[11px] text-muted-foreground mt-1.5 px-1">
+                  {DIFFICULTIES.find(d => d.value === quizDifficulty)?.desc}
+                </p>
+              </div>
+
               <div>
                 <Label className="text-xs uppercase tracking-wider text-muted-foreground">Type de quizz</Label>
                 <RadioGroup value={quizType} onValueChange={setQuizType} className="mt-2 space-y-2">
