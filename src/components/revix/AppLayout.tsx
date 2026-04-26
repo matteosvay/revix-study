@@ -27,8 +27,17 @@ const nav = [
  */
 export const AppLayout = ({ children, wide = false }: { children: ReactNode; wide?: boolean }) => {
   const { user } = useAuth();
-  const displayName = (user?.user_metadata?.display_name as string | undefined) ?? user?.email ?? "U";
-  const initials = displayName.split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
+  const rawDisplayName = user?.user_metadata?.display_name;
+  const displayName = typeof rawDisplayName === "string" && rawDisplayName.trim()
+    ? rawDisplayName
+    : user?.email ?? "Utilisateur";
+  const initials = displayName
+    .split(/\s|@/)
+    .filter(Boolean)
+    .map((s) => s[0])
+    .join("")
+    .slice(0, 2)
+    .toUpperCase() || "U";
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-0 sm:p-6 bg-background relative overflow-hidden lg:items-stretch lg:justify-start lg:p-0">
