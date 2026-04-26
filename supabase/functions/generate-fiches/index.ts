@@ -22,7 +22,7 @@ async function requireAuth(req: Request): Promise<Response | null> {
 
 // Découpe le cours en morceaux d'environ ~14k caractères, en respectant les
 // frontières naturelles (paragraphes) pour ne couper aucune notion en deux.
-function chunkContent(raw: string, maxChars = 14000): string[] {
+function chunkContent(raw: string, maxChars = 9000): string[] {
   const text = raw.trim();
   if (text.length <= maxChars) return [text];
 
