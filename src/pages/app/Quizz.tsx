@@ -83,11 +83,11 @@ export default function Quizz() {
   const [assocSelectedLeft, setAssocSelectedLeft] = useState<number | null>(null);
   const [assocSubmitted, setAssocSubmitted] = useState<boolean>(false);
   const [assocCorrect, setAssocCorrect] = useState<boolean>(false);
-  // Paires verrouill\u00e9es (correctes valid\u00e9es) - index "left" qui ne peuvent plus \u00eatre modifi\u00e9s
+  // Paires verrouillées (correctes validées) - index "left" qui ne peuvent plus être modifiés
   const [assocLocked, setAssocLocked] = useState<boolean[]>([]);
   // Nombre de tentatives de validation pour cette question
   const [assocAttempts, setAssocAttempts] = useState<number>(0);
-  // Flash visuel apr\u00e8s un check partiel : highlights des paires fausses
+  // Flash visuel après un check partiel : highlights des paires fausses
   const [assocFlashWrong, setAssocFlashWrong] = useState<boolean>(false);
   const [openResult, setOpenResult] = useState<{ correct: boolean; feedback: string } | null>(null);
   const [grading, setGrading] = useState(false);
@@ -455,13 +455,13 @@ export default function Quizz() {
   // === Association ===
   const onAssocPickLeft = (leftIdx: number) => {
     if (assocSubmitted) return;
-    if (assocLocked[leftIdx]) return; // d\u00e9j\u00e0 verrouill\u00e9 = correct
+    if (assocLocked[leftIdx]) return; // déjà verrouillé = correct
     if (assocFlashWrong) setAssocFlashWrong(false);
     setAssocSelectedLeft(leftIdx);
   };
   const onAssocPickRight = (rightIdx: number) => {
     if (assocSubmitted) return;
-    // Si ce right est d\u00e9j\u00e0 verrouill\u00e9, ignore
+    // Si ce right est déjà verrouillé, ignore
     const lockedLeft = assocMatches.findIndex((r, i) => r === rightIdx && assocLocked[i]);
     if (lockedLeft !== -1) return;
     if (assocFlashWrong) setAssocFlashWrong(false);
@@ -488,13 +488,13 @@ export default function Quizz() {
     setAssocAttempts(nextAttempts);
     const allCorrect = assocMatches.length > 0 && assocMatches.every((r, l) => r === l);
     if (allCorrect) {
-      // Termin\u00e9 d\u00e9finitivement
+      // Terminé définitivement
       setAssocSubmitted(true);
       setAssocCorrect(true);
       // Lock toutes les paires
       setAssocLocked(new Array(assocPairs.length).fill(true));
-      // ok = true seulement si parfait du premier coup, sinon on credite quand m\u00eame
-      // mais on calcule le bonus XP \u00e0 la fin via attempts
+      // ok = true seulement si parfait du premier coup, sinon on credite quand même
+      // mais on calcule le bonus XP à la fin via attempts
       advance(true);
       const q = questions[qIdx];
       if (q) supabase.rpc("review_question", { p_question_id: q.id, p_correct: nextAttempts === 1 });
@@ -502,11 +502,11 @@ export default function Quizz() {
       if (nextAttempts === 1) {
         toast.success("Parfait du premier coup ! 🎯");
       } else {
-        toast.success(`Bravo ! ${nextAttempts} tentatives — score r\u00e9duit`);
+        toast.success(`Bravo ! ${nextAttempts} tentatives — score réduit`);
       }
       return;
     }
-    // Validation partielle : verrouille les bonnes, lib\u00e8re les fausses
+    // Validation partielle : verrouille les bonnes, libère les fausses
     const newLocked = assocPairs.map((_, i) => assocMatches[i] === i);
     const newMatches = assocMatches.map((r, i) => (newLocked[i] ? r : -1));
     const correctCount = newLocked.filter(Boolean).length;
@@ -517,9 +517,9 @@ export default function Quizz() {
     setAssocFlashWrong(true);
     setTimeout(() => setAssocFlashWrong(false), 800);
     if (correctCount === 0) {
-      toast.error(`Aucune paire correcte. R\u00e9essaie !`);
+      toast.error(`Aucune paire correcte. Réessaie !`);
     } else {
-      toast.info(`${correctCount} OK \u2705 \u2014 ${wrongCount} \u00e0 corriger`);
+      toast.info(`${correctCount} OK ✅ — ${wrongCount} à corriger`);
     }
     // Si l'utilisateur a fait trop d'erreurs (5+ tentatives), on abandonne et marque faux
     if (nextAttempts >= 5) {
@@ -529,12 +529,12 @@ export default function Quizz() {
       advance(false);
       const q = questions[qIdx];
       if (q) supabase.rpc("review_question", { p_question_id: q.id, p_correct: false });
-      toast.error("Trop de tentatives \u2014 on passe \u00e0 la suivante");
+      toast.error("Trop de tentatives — on passe à la suivante");
     }
   };
   const resetAssoc = () => {
     if (assocSubmitted) return;
-    // Conserve les paires verrouill\u00e9es (correctes), reset uniquement les autres
+    // Conserve les paires verrouillées (correctes), reset uniquement les autres
     setAssocMatches((m) => m.map((r, i) => (assocLocked[i] ? r : -1)));
     setAssocSelectedLeft(null);
   };
@@ -838,7 +838,7 @@ export default function Quizz() {
               <div className="mt-5 space-y-4">
                 <div className="flex items-center justify-between gap-2 px-1">
                   <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
-                    <Link2 className="h-3 w-3" /> Tape un terme \u00e0 gauche, puis sa d\u00e9finition \u00e0 droite
+                    <Link2 className="h-3 w-3" /> Tape un terme à gauche, puis sa définition à droite
                   </p>
                   {assocAttempts > 0 && !assocSubmitted && (
                     <span className={`font-mono-tag text-[10px] px-2 py-0.5 rounded-full border ${assocAttempts >= 3 ? "border-destructive/50 text-destructive bg-destructive/10" : "border-warning/50 text-warning bg-warning/10"}`}>
@@ -855,7 +855,7 @@ export default function Quizz() {
                       const locked = assocLocked[i];
                       let stateCls = "";
                       if (locked) {
-                        // Verrouill\u00e9 = correct (vert)
+                        // Verrouillé = correct (vert)
                         stateCls = "border-success bg-success/15 cursor-not-allowed";
                       } else if (assocSubmitted) {
                         const ok = assocMatches[i] === i;
@@ -937,7 +937,7 @@ export default function Quizz() {
                 {!assocSubmitted && assocLocked.some(Boolean) && (
                   <div className="flex items-center gap-2 text-xs font-mono-tag text-muted-foreground">
                     <CheckCircle2 className="h-3.5 w-3.5 text-success" />
-                    <span>{assocLocked.filter(Boolean).length}/{assocPairs.length} paires verrouill\u00e9es</span>
+                    <span>{assocLocked.filter(Boolean).length}/{assocPairs.length} paires verrouillées</span>
                   </div>
                 )}
                 {!assocSubmitted && (
@@ -955,7 +955,7 @@ export default function Quizz() {
                       disabled={assocMatches.some((m) => m === -1)}
                       className="flex-1 rounded-full gradient-primary border-0"
                     >
-                      {assocAttempts === 0 ? "Valider mes liens" : "V\u00e9rifier \u00e0 nouveau"}
+                      {assocAttempts === 0 ? "Valider mes liens" : "Vérifier à nouveau"}
                     </Button>
                   </div>
                 )}
@@ -965,7 +965,7 @@ export default function Quizz() {
                       {assocCorrect ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
                       <span>
                         {assocCorrect
-                          ? assocAttempts === 1 ? "Parfait du premier coup ! 🎯" : `R\u00e9ussi en ${assocAttempts} tentatives`
+                          ? assocAttempts === 1 ? "Parfait du premier coup ! 🎯" : `Réussi en ${assocAttempts} tentatives`
                           : "Trop de tentatives"}
                       </span>
                     </div>
