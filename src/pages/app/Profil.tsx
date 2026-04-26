@@ -17,6 +17,7 @@ import { SearchableCombobox, SearchableMultiCombobox } from "@/components/revix/
 import { FORMATIONS } from "@/data/formations";
 import { SUBJECTS } from "@/data/subjects";
 import { AvatarCropper } from "@/components/revix/AvatarCropper";
+import { GENDER_OPTIONS } from "@/lib/gender";
 
 export default function Profil() {
   const { user } = useAuth();
@@ -51,6 +52,7 @@ export default function Profil() {
       formation: profile.formation,
       subjects: profile.subjects ?? [],
       bio: profile.bio ?? null,
+      gender: profile.gender ?? null,
     }).eq("id", user.id);
     if (error) toast.error(error.message); else toast.success("Profil enregistré");
   };
@@ -196,6 +198,18 @@ export default function Profil() {
             <select value={profile.cursus ?? ""} onChange={(e) => setProfile({ ...profile, cursus: e.target.value })} className="w-full h-10 rounded-md border bg-background px-3 text-sm">
               <option value="">—</option>
               {CURSUS_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </div>
+          <div className="space-y-1.5"><Label>Je suis</Label>
+            <select
+              value={profile.gender ?? ""}
+              onChange={(e) => setProfile({ ...profile, gender: e.target.value || null })}
+              className="w-full h-10 rounded-md border bg-background px-3 text-sm"
+            >
+              <option value="">—</option>
+              {GENDER_OPTIONS.map(g => (
+                <option key={g.value} value={g.value}>{g.emoji} {g.label}</option>
+              ))}
             </select>
           </div>
           <div className="space-y-1.5">

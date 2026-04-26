@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { toast } from "sonner";
 import { LootBoxReveal } from "@/components/revix/LootBoxReveal";
+import { genderText, pronoun, type Gender } from "@/lib/gender";
 
 type Notification = {
   id: string;
@@ -188,6 +189,17 @@ export const NotificationBell = () => {
                         {formatDistanceToNow(new Date(n.created_at), { addSuffix: true, locale: fr })}
                       </p>
                       {n.type === "course_share_received" && n.metadata?.share_id && (
+                        <>
+                        {(() => {
+                          const g = n.metadata?.sender_gender as Gender;
+                          const senderName = n.metadata?.sender_name ?? "Cette personne";
+                          const verb = genderText(g, "Il", "Elle", "Iel");
+                          return (
+                            <p className="text-[11px] text-muted-foreground/90 mt-1.5 italic">
+                              {senderName} ({pronoun(g)}) attend ta réponse — {verb.toLowerCase()} pourra le voir.
+                            </p>
+                          );
+                        })()}
                         <div className="flex gap-2 mt-2">
                           <Button
                             size="sm"
@@ -207,6 +219,7 @@ export const NotificationBell = () => {
                             <X className="h-3 w-3" /> Refuser
                           </Button>
                         </div>
+                        </>
                       )}
                       {n.type === "queen_lootbox" && (
                         <div className="mt-2">

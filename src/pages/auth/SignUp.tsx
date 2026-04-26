@@ -10,12 +10,14 @@ import { toast } from "sonner";
 import { CURSUS_OPTIONS } from "@/data/cursus";
 import { SearchableCombobox } from "@/components/revix/SearchableCombobox";
 import { FORMATIONS } from "@/data/formations";
+import { GENDER_OPTIONS } from "@/lib/gender";
 import { Mail, CheckCircle2, RefreshCw } from "lucide-react";
 
 export default function SignUp() {
   const nav = useNavigate();
   const [cursus, setCursus] = useState<string>("");
   const [formation, setFormation] = useState<string>("");
+  const [gender, setGender] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState<string>("");
   const [submittedName, setSubmittedName] = useState<string>("");
@@ -36,14 +38,17 @@ export default function SignUp() {
       password: String(data.get("pwd")),
       options: {
         emailRedirectTo: `${window.location.origin}/login`,
-        data: { display_name: name, cursus },
+        data: { display_name: name, cursus, gender: gender || null },
       },
     });
     setLoading(false);
     if (error) { toast.error(error.message); return; }
     if (signUpData.session) {
-      if (formation) {
-        await supabase.from("profiles").update({ formation }).eq("id", signUpData.session.user.id);
+      if (formation || gender) {
+        await supabase.from("profiles").update({
+          ...(formation ? { formation } : {}),
+          ...(gender ? { gender } : {}),
+        }).eq("id", signUpData.session.user.id);
       }
       toast.success("Compte créé ! Bienvenue sur Revix ✨");
       nav("/app");
@@ -159,6 +164,19 @@ export default function SignUp() {
             <SelectContent>
               {CURSUS_OPTIONS.map(c => (
                 <SelectItem key={c} value={c}>{c}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+        <div className="space-y-2">
+          <Label>Je suis...</Label>
+          <Select value={gender} onValueChange={setGender}>
+            <SelectTrigger><SelectValue placeholder="Choisis ton genre" /></SelectTrigger>
+            <SelectContent>
+              {GENDER_OPTIONS.map(g => (
+                <SelectItem key={g.value} value={g.value}>
+                  <span className="mr-2">{g.emoji}</span>{g.label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

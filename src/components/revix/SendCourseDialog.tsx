@@ -13,12 +13,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { pronoun, type Gender } from "@/lib/gender";
 
 type Friend = {
   id: string;
   display_name: string | null;
   username: string | null;
   avatar_url: string | null;
+  gender: Gender;
 };
 
 type Props = {
@@ -54,6 +56,7 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
           display_name: r.display_name,
           username: r.username,
           avatar_url: r.avatar_url,
+          gender: (r.gender ?? null) as Gender,
         })) as Friend[];
       list.sort((a, b) =>
         (a.display_name ?? a.username ?? "").localeCompare(b.display_name ?? b.username ?? "")
@@ -170,7 +173,7 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
           <AlertDialogDescription>
             Tu vas envoyer <span className="font-bold">« {courseTitle} »</span> à{" "}
             <span className="font-bold">{confirmFriend?.display_name ?? confirmFriend?.username ?? "cet ami"}</span>.
-            Il pourra l'accepter ou la refuser.
+            {" "}{pronoun(confirmFriend?.gender)[0].toUpperCase() + pronoun(confirmFriend?.gender).slice(1)} pourra l'accepter ou la refuser.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
