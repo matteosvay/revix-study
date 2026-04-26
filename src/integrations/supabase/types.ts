@@ -1487,6 +1487,7 @@ export type Database = {
           equipped_frame: string
           equipped_sticker: string
           equipped_title: string
+          gender: string
           id: string
           is_me: boolean
           level: number
