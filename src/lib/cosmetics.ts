@@ -96,6 +96,19 @@ export function frameStyle(itemKey: string | null | undefined): { className: str
   if (k === "frame_crystal_blue")   return { className: "p-[3px] rounded-full shadow-[0_0_14px_hsl(195_100%_60%)]", style: { background: "linear-gradient(135deg, #0e7490, #22d3ee, #cffafe, #0e7490)" } };
   if (k === "frame_pixel")    return { className: "ring-[3px] ring-emerald-400 shadow-[0_0_10px_hsl(150_85%_45%)]", style: {} };
   if (k === "frame_marker_pink") return { className: "ring-[3px] ring-pink-400", style: {} };
+  /* ===== Phase 3 — Summer pack ===== */
+  if (k === "frame_summer_seashell") return { className: "p-[2px] rounded-full", style: { background: "linear-gradient(135deg, #fff1f2, #fecdd3, #fda4af, #fff1f2)" } };
+  if (k === "frame_summer_palm")    return { className: "p-[2px] rounded-full shadow-[0_0_10px_hsl(150_70%_45%/0.5)]", style: { background: "linear-gradient(135deg, #064e3b, #15803d, #facc15, #064e3b)" } };
+  if (k === "frame_summer_wave")    return { className: "p-[2px] rounded-full shadow-[0_0_10px_hsl(195_100%_55%/0.55)]", style: { background: "linear-gradient(135deg, #0c4a6e, #0ea5e9, #67e8f9, #0c4a6e)" } };
+  if (k === "frame_summer_flower")  return { className: "p-[3px] rounded-full shadow-[0_0_12px_hsl(330_90%_65%/0.55)]", style: { background: "conic-gradient(from 0deg, #fb7185, #f59e0b, #84cc16, #f472b6, #fb7185)" } };
+  if (k === "frame_summer_pineapple") return { className: "p-[3px] rounded-full shadow-[0_0_12px_hsl(45_100%_55%/0.55)]", style: { background: "linear-gradient(135deg, #fde047, #ca8a04, #65a30d, #fde047)" } };
+  if (k === "frame_summer_neon")    return { className: "p-[2px] rounded-full shadow-[0_0_18px_hsl(330_100%_60%/0.65)]", style: { background: "linear-gradient(135deg, #ec4899, #22d3ee, #ec4899)" } };
+  if (k === "frame_summer_surf")    return { className: "p-[2px] rounded-full shadow-[0_0_10px_hsl(200_100%_55%/0.4)]", style: { background: "linear-gradient(135deg, #fef3c7, #fb923c, #0ea5e9, #fef3c7)" } };
+  if (k === "frame_summer_pool")    return { className: "p-[2px] rounded-full shadow-[0_0_10px_hsl(190_100%_55%/0.5)]", style: { background: "linear-gradient(135deg, #67e8f9, #06b6d4, #155e75, #67e8f9)" } };
+  if (k === "frame_summer_sunset")  return { className: "p-[3px] rounded-full shadow-[0_0_14px_hsl(20_100%_55%/0.6)]", style: { background: "linear-gradient(135deg, #fef3c7, #fb923c, #db2777, #4c1d95)" } };
+  if (k === "frame_summer_coral")   return { className: "p-[2px] rounded-full shadow-[0_0_10px_hsl(0_85%_70%/0.5)]", style: { background: "linear-gradient(135deg, #fecaca, #f87171, #fb7185, #fecaca)" } };
+  if (k === "frame_summer_gold_sun") return { className: "p-[3px] rounded-full shadow-[0_0_22px_hsl(45_100%_60%/0.85)]", style: { background: "radial-gradient(circle, #fff7c2 0%, #fbbf24 45%, #b45309 100%)" } };
+  if (k === "frame_summer_lagoon")  return { className: "p-[3px] rounded-full shadow-[0_0_18px_hsl(180_90%_55%/0.65)]", style: { background: "conic-gradient(from 0deg, #022c22, #14b8a6, #67e8f9, #155e75, #022c22)" } };
   /* ===== Creator-exclusive ===== */
   if (k === "frame_origine") {
     // The ornate ring is rendered by the PNG overlay (FrameDecor "above" layer).
@@ -162,6 +175,19 @@ export function backgroundStyle(itemKey: string | null | undefined): CSSProperti
   if (k === "bg_violet_crystal")  return { background: "radial-gradient(ellipse at 30% 50%, hsl(280 100% 60% / 0.6), transparent 50%), radial-gradient(ellipse at 70% 60%, hsl(220 100% 50% / 0.5), transparent 55%), linear-gradient(135deg, #1e1b4b 0%, #0f0a2e 100%)" };
   if (k === "bg_thunderstorm")    return { background: "radial-gradient(ellipse at 50% 30%, hsl(220 50% 30% / 0.8), transparent 50%), linear-gradient(180deg, #1e293b 0%, #0f172a 60%, #020617 100%)" };
   if (k === "bg_pastel_lavender") return { background: "linear-gradient(135deg, hsl(270 100% 92%), hsl(290 100% 88%))" };
+  /* ===== Phase 3 — Summer pack ===== */
+  if (k === "bg_summer_beach")      return { background: "linear-gradient(180deg, #87ceeb 0%, #b0e0e6 35%, #f5deb3 70%, #f4a460 100%)" };
+  if (k === "bg_summer_lagoon")     return { background: "radial-gradient(ellipse at 50% 30%, hsl(180 100% 70% / 0.7), transparent 60%), linear-gradient(180deg, #67e8f9 0%, #06b6d4 50%, #0e7490 100%)" };
+  if (k === "bg_summer_palm")       return { background: "linear-gradient(180deg, #fef3c7 0%, #fde68a 30%, #f97316 70%, #7c2d12 100%)" };
+  if (k === "bg_summer_pool")       return { background: "radial-gradient(circle at 30% 40%, hsl(190 100% 80% / 0.6), transparent 50%), radial-gradient(circle at 70% 70%, hsl(200 100% 70% / 0.6), transparent 50%), linear-gradient(135deg, #06b6d4, #0891b2, #155e75)" };
+  if (k === "bg_summer_tropic")     return { background: "linear-gradient(135deg, #f472b6 0%, #f59e0b 35%, #34d399 70%, #06b6d4 100%)" };
+  if (k === "bg_summer_paradise")   return { background: "radial-gradient(ellipse at 50% 100%, hsl(45 100% 65% / 0.6), transparent 70%), linear-gradient(180deg, #fce7f3 0%, #fbcfe8 30%, #f97316 70%, #7c2d12 100%)" };
+  if (k === "bg_summer_sunset_sea") return { background: "linear-gradient(180deg, #fef3c7 0%, #fb923c 30%, #db2777 60%, #1e3a8a 90%, #0c4a6e 100%)" };
+  if (k === "bg_summer_neon_beach") return { background: "linear-gradient(180deg, #4c1d95 0%, #db2777 40%, #f59e0b 75%, #06b6d4 100%)" };
+  if (k === "bg_summer_coconut")    return { background: "linear-gradient(180deg, #fef3c7 0%, #fde68a 50%, #d4a373 100%)" };
+  if (k === "bg_summer_aurora_bay") return { background: "radial-gradient(ellipse at 50% 80%, hsl(40 100% 60% / 0.7), transparent 60%), linear-gradient(180deg, #fef3c7 0%, #fbbf24 25%, #ea580c 55%, #7c2d12 100%)" };
+  if (k === "bg_summer_caribbean")  return { background: "radial-gradient(ellipse at 50% 50%, hsl(170 90% 70% / 0.5), transparent 70%), linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #115e59 100%)" };
+  if (k === "bg_summer_ice_cream")  return { background: "linear-gradient(135deg, #fef3c7 0%, #fbcfe8 35%, #ddd6fe 70%, #bae6fd 100%)" };
   /* ===== Creator-exclusive ===== */
   if (k === "bg_origine") return {
     background:
