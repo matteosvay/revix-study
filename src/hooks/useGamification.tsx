@@ -71,35 +71,42 @@ async function ensureQuests(_userId: string) {
 }
 
 export function useGamification() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<GamProfile | null>(null);
   const [dailyQuests, setDailyQuests] = useState<Quest[]>([]);
   const [weeklyQuest, setWeeklyQuest] = useState<Quest | null>(null);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    if (!user) return;
+    if (authLoading || !user) return;
     setLoading(true);
-    await ensureQuests(user.id);
-    const [{ data: p }, { data: quests }] = await Promise.all([
-      supabase.from("profiles")
-        .select("xp_total, level, xp_week, league, streak_days").eq("id", user.id).maybeSingle(),
-      supabase.from("user_quests").select("*")
-        .eq("user_id", user.id).gte("period_end", todayKey())
-        .order("quest_type").order("created_at"),
-    ]);
-    setProfile(p as any);
-    const all = (quests ?? []) as any as Quest[];
-    setDailyQuests(all.filter((q) => q.quest_type === "daily"));
-    setWeeklyQuest(all.find((q) => q.quest_type === "weekly") ?? null);
-    setLoading(false);
-  }, [user]);
+    try {
+      await ensureQuests(user.id);
+      const [{ data: p }, { data: quests }] = await Promise.all([
+        supabase.from("profiles")
+          .select("xp_total, level, xp_week, league, streak_days").eq("id", user.id).maybeSingle(),
+        supabase.from("user_quests").select("*")
+          .eq("user_id", user.id).gte("period_end", todayKey())
+          .order("quest_type").order("created_at"),
+      ]);
+      setProfile(p as any);
+      const all = (quests ?? []) as any as Quest[];
+      setDailyQuests(all.filter((q) => q.quest_type === "daily"));
+      setWeeklyQuest(all.find((q) => q.quest_type === "weekly") ?? null);
+    } catch {
+      setProfile(null);
+      setDailyQuests([]);
+      setWeeklyQuest(null);
+    } finally {
+      setLoading(false);
+    }
+  }, [authLoading, user]);
 
   useEffect(() => { load(); }, [load]);
 
   // Re-check quests when the tab regains focus or when the local date rolls over.
   useEffect(() => {
-    if (!user) return;
+    if (authLoading || !user) return;
     let lastDay = todayKey();
     const onFocus = () => {
       const now = todayKey();
@@ -114,7 +121,7 @@ export function useGamification() {
       clearInterval(interval);
       window.removeEventListener("focus", onFocus);
     };
-  }, [user, load]);
+  }, [authLoading, user, load]);
 
   return { profile, dailyQuests, weeklyQuest, loading, reload: load,
     levelTier: profile ? levelInfo(profile.level) : null,
