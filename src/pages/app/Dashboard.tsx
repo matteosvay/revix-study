@@ -81,7 +81,7 @@ export default function Dashboard() {
         emoji="✨"
         title={`Salut ${name}`}
         subtitle="Reprends là où tu t'es arrêté."
-        action={<NotificationBell />}
+        action={<div className="lg:hidden"><NotificationBell /></div>}
       />
 
       <div className="px-5">
