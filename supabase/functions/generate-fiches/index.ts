@@ -22,7 +22,7 @@ async function requireAuth(req: Request): Promise<Response | null> {
 
 // Découpe le cours en morceaux d'environ ~14k caractères, en respectant les
 // frontières naturelles (paragraphes) pour ne couper aucune notion en deux.
-function chunkContent(raw: string, maxChars = 14000): string[] {
+function chunkContent(raw: string, maxChars = 9000): string[] {
   const text = raw.trim();
   if (text.length <= maxChars) return [text];
 
@@ -106,7 +106,7 @@ async function callAI(apiKey: string, system: string, userPrompt: string) {
     method: "POST",
     headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      model: "google/gemini-2.5-flash",
+      model: "google/gemini-2.5-pro",
       messages: [{ role: "system", content: system }, { role: "user", content: userPrompt }],
       tools: [SUMMARY_TOOL],
       tool_choice: { type: "function", function: { name: "save_course" } },
@@ -140,11 +140,13 @@ Tu DOIS respecter À LA LETTRE la structure de chapitres du cours source.
 - Si le cours n'a aucune structure de chapitres détectable, alors (et seulement alors) tu peux créer toi-même un découpage logique.
 
 AUTRES RÈGLES CRITIQUES :
-1. NE LAISSE RIEN PASSER. Couvre **chaque concept, chaque définition, chaque formule, chaque mécanisme, chaque exemple, chaque cas particulier** présent dans le cours source.
-2. EXPLIQUE en profondeur, comme un prof qui veut que l'élève comprenne vraiment, pas juste qu'il récite. Détaille le "pourquoi" et le "comment".
-3. REFORMULE avec tes mots, structure, hiérarchise — mais ne sacrifie AUCUNE information du cours pour faire court.
-4. Pour les sciences : garde toutes les formules, conditions d'application, démonstrations clés et notations.
-5. Pour les matières littéraires/SHS : garde les auteurs, dates, références, citations, écoles de pensée, nuances.
+1. ⛔ EXHAUSTIVITÉ TOTALE — interdiction absolue d'omettre quoi que ce soit. Couvre **chaque concept, chaque définition, chaque formule, chaque mécanisme, chaque exemple, chaque cas particulier, chaque chiffre, chaque date, chaque nom propre, chaque acronyme, chaque modèle, chaque typologie, chaque étape de méthode** présent dans le cours source. Si un détail est dans le cours, il DOIT figurer dans la fiche.
+2. AVANT D'ÉCRIRE : balaye mentalement le morceau de cours et liste TOUS les éléments à conserver (notions, sous-notions, listes, exemples, schémas décrits, auteurs cités…). Aucun de ces éléments ne doit disparaître.
+3. Ne résume JAMAIS une énumération du cours en "etc." ou "entre autres". Si le cours liste 7 éléments, la fiche en liste 7. Utilise le bloc "list" pour ne rien perdre.
+4. EXPLIQUE en profondeur, comme un prof qui veut que l'élève comprenne vraiment, pas juste qu'il récite. Détaille le "pourquoi" et le "comment".
+5. REFORMULE avec tes mots, structure, hiérarchise — mais ne sacrifie AUCUNE information du cours pour faire court. Mieux vaut une fiche longue et complète qu'une fiche courte qui oublie des notions.
+6. Marketing / gestion / éco / SHS : garde TOUS les auteurs, dates, modèles (4P, SWOT, PESTEL, BCG, Porter, AIDA, etc.), typologies, segments, exemples d'entreprises, chiffres et pourcentages cités.
+7. Sciences : garde toutes les formules, conditions d'application, démonstrations clés et notations.
 
 FORMAT — la fiche est une liste de SECTIONS (= chapitres du cours). Chaque section a un titre (= titre exact du chapitre source) + des "blocs" choisis parmi :
   - {"kind":"paragraph","text":"..."} : explication détaillée (utilise **mot** pour mettre en gras les termes clés).
@@ -154,7 +156,7 @@ FORMAT — la fiche est une liste de SECTIONS (= chapitres du cours). Chaque sec
   - {"kind":"tip","text":"..."} : astuce mémo, piège classique, point de vigilance.
   - {"kind":"list","items":["...","..."]} : énumération (étapes, propriétés, sous-parties d'un chapitre…).
 
-VOLUME : chaque section (chapitre) doit contenir 4 à 12 blocs riches selon la densité du chapitre. Une "intro" de 2-3 phrases situe le sujet global et son enjeu.
+VOLUME : chaque section (chapitre) doit contenir AU MOINS 6 blocs, et jusqu'à 20 blocs si le chapitre est dense. Préfère TOUJOURS plus de blocs que pas assez : il vaut mieux 15 blocs détaillés qu'une fiche qui passe à côté de notions. Une "intro" de 2-3 phrases situe le sujet global et son enjeu.
 
 Tu utilises "tu" et un ton clair, motivant, jamais condescendant. Pas d'emoji dans le texte.`;
 
