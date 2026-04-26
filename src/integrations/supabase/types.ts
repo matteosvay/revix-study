@@ -540,6 +540,7 @@ export type Database = {
           equipped_sticker: string | null
           equipped_title: string | null
           formation: string | null
+          gender: string | null
           id: string
           last_active_date: string | null
           last_loot_box_at: string | null
@@ -572,6 +573,7 @@ export type Database = {
           equipped_sticker?: string | null
           equipped_title?: string | null
           formation?: string | null
+          gender?: string | null
           id: string
           last_active_date?: string | null
           last_loot_box_at?: string | null
@@ -604,6 +606,7 @@ export type Database = {
           equipped_sticker?: string | null
           equipped_title?: string | null
           formation?: string | null
+          gender?: string | null
           id?: string
           last_active_date?: string | null
           last_loot_box_at?: string | null
@@ -1591,6 +1594,7 @@ export type Database = {
           equipped_sticker: string
           equipped_title: string
           formation: string
+          gender: string
           id: string
           level: number
           sticker_emoji: string
