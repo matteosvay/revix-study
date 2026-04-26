@@ -27,18 +27,31 @@ export function QuizBonusLootBoxCard() {
   const [loaded, setLoaded] = useState(false);
 
   const refresh = async () => {
-    if (!user) return;
-    const { data } = await supabase
-      .from("profiles")
-      .select("quiz_completed_count, quiz_loot_box_claimed_count")
-      .eq("id", user.id)
-      .maybeSingle();
-    const qc = (data as any)?.quiz_completed_count ?? 0;
-    const claimed = (data as any)?.quiz_loot_box_claimed_count ?? 0;
-    const eligible = Math.max(0, Math.floor(qc / 5) - claimed);
-    setQuizCount(qc);
-    setRemaining(eligible);
-    setLoaded(true);
+    if (!user) {
+      // Toujours afficher le teaser même si l'auth tarde — évite d'avoir une carte
+      // invisible sur certains contextes (ex: desktop avec hydratation lente).
+      setLoaded(true);
+      return;
+    }
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("quiz_completed_count, quiz_loot_box_claimed_count")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (error) throw error;
+      const qc = (data as any)?.quiz_completed_count ?? 0;
+      const claimed = (data as any)?.quiz_loot_box_claimed_count ?? 0;
+      const eligible = Math.max(0, Math.floor(qc / 5) - claimed);
+      setQuizCount(qc);
+      setRemaining(eligible);
+    } catch {
+      // En cas d'erreur, on affiche quand même le teaser (état neutre).
+      setQuizCount(0);
+      setRemaining(0);
+    } finally {
+      setLoaded(true);
+    }
   };
 
   useEffect(() => {
