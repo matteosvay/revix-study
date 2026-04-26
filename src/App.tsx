@@ -27,6 +27,7 @@ import PublicProfile from "./pages/app/PublicProfile";
 import { AuthProvider } from "./hooks/useAuth";
 import { RequireAuth } from "./components/revix/RequireAuth";
 import { XpOverlay } from "./components/revix/XpOverlay";
+import { InstallAppPrompt } from "./components/revix/InstallAppPrompt";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <XpOverlay />
+        <InstallAppPrompt />
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Index />} />
