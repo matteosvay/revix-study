@@ -6,6 +6,10 @@ import { toast } from "sonner";
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription,
 } from "@/components/ui/dialog";
+import {
+  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
+  AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -30,6 +34,7 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
   const [loading, setLoading] = useState(false);
   const [sendingTo, setSendingTo] = useState<string | null>(null);
   const [search, setSearch] = useState("");
+  const [confirmFriend, setConfirmFriend] = useState<Friend | null>(null);
 
   useEffect(() => {
     if (!open || !user) return;
@@ -65,6 +70,7 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
       p_recipient_id: recipient.id,
     });
     setSendingTo(null);
+    setConfirmFriend(null);
     if (error) {
       const msg = error.message.includes("not_friends") ? "Vous n'êtes pas amis"
         : error.message.includes("already_pending") ? "Déjà envoyé, en attente"
@@ -129,7 +135,7 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
                 return (
                   <li key={f.id}>
                     <button
-                      onClick={() => send(f)}
+                      onClick={() => setConfirmFriend(f)}
                       disabled={sendingTo !== null}
                       className="w-full flex items-center gap-3 p-2 rounded-md hover:bg-secondary transition disabled:opacity-50"
                     >
@@ -155,5 +161,28 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
         </div>
       </DialogContent>
     </Dialog>
+
+    <AlertDialog open={!!confirmFriend} onOpenChange={(o) => { if (!o && !sendingTo) setConfirmFriend(null); }}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Envoyer cette fiche ? 📨</AlertDialogTitle>
+          <AlertDialogDescription>
+            Tu vas envoyer <span className="font-bold">« {courseTitle} »</span> à{" "}
+            <span className="font-bold">{confirmFriend?.display_name ?? confirmFriend?.username ?? "cet ami"}</span>.
+            Il pourra l'accepter ou la refuser.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel disabled={!!sendingTo}>Annuler</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={(e) => { e.preventDefault(); if (confirmFriend) send(confirmFriend); }}
+            disabled={!!sendingTo}
+          >
+            {sendingTo ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Envoi…</> : <><Send className="h-4 w-4 mr-2" /> Confirmer</>}
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   );
 };
