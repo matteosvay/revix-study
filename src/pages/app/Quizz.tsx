@@ -836,21 +836,34 @@ export default function Quizz() {
               </div>
             ) : isAssoc ? (
               <div className="mt-5 space-y-4">
-                <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-1.5">
-                  <Link2 className="h-3 w-3" /> Tape un terme à gauche, puis sa définition à droite
-                </p>
+                <div className="flex items-center justify-between gap-2 px-1">
+                  <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+                    <Link2 className="h-3 w-3" /> Tape un terme \u00e0 gauche, puis sa d\u00e9finition \u00e0 droite
+                  </p>
+                  {assocAttempts > 0 && !assocSubmitted && (
+                    <span className={`font-mono-tag text-[10px] px-2 py-0.5 rounded-full border ${assocAttempts >= 3 ? "border-destructive/50 text-destructive bg-destructive/10" : "border-warning/50 text-warning bg-warning/10"}`}>
+                      Essai {assocAttempts + 1}/5
+                    </span>
+                  )}
+                </div>
                 <div className="grid grid-cols-2 gap-2.5">
                   {/* Colonne gauche : termes */}
                   <div className="space-y-2">
                     {assocPairs.map((p, i) => {
                       const matched = assocMatches[i] !== -1;
                       const selected = assocSelectedLeft === i;
+                      const locked = assocLocked[i];
                       let stateCls = "";
-                      if (assocSubmitted) {
+                      if (locked) {
+                        // Verrouill\u00e9 = correct (vert)
+                        stateCls = "border-success bg-success/15 cursor-not-allowed";
+                      } else if (assocSubmitted) {
                         const ok = assocMatches[i] === i;
                         stateCls = ok ? "border-success bg-success/10" : "border-destructive bg-destructive/10";
                       } else if (selected) {
                         stateCls = "border-primary bg-primary/15 ring-2 ring-primary/40 scale-[1.02]";
+                      } else if (matched && assocFlashWrong) {
+                        stateCls = "border-destructive bg-destructive/10 animate-pulse";
                       } else if (matched) {
                         stateCls = "border-primary/50 bg-primary/5";
                       } else {
@@ -860,15 +873,17 @@ export default function Quizz() {
                         <button
                           key={`L-${i}`}
                           onClick={() => onAssocPickLeft(i)}
-                          disabled={assocSubmitted}
+                          disabled={assocSubmitted || locked}
                           className={`w-full text-left p-2.5 rounded-xl border-2 transition-all text-sm font-medium ${stateCls}`}
                         >
                           <div className="flex items-center gap-1.5">
-                            <span className="h-5 w-5 rounded-md bg-foreground/10 font-mono-tag text-[10px] font-bold flex items-center justify-center shrink-0">
+                            <span className={`h-5 w-5 rounded-md font-mono-tag text-[10px] font-bold flex items-center justify-center shrink-0 ${locked ? "bg-success text-success-foreground" : "bg-foreground/10"}`}>
                               {String.fromCharCode(65 + i)}
                             </span>
                             <span className="flex-1 leading-tight">{p.left}</span>
-                            {matched && !assocSubmitted && (
+                            {locked ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                            ) : matched && !assocSubmitted && (
                               <span className="text-[10px] font-mono text-primary">→{assocRightOrder.indexOf(assocMatches[i]) + 1}</span>
                             )}
                           </div>
@@ -881,10 +896,15 @@ export default function Quizz() {
                     {assocRightOrder.map((rightIdx, displayPos) => {
                       const usedByLeft = assocMatches.findIndex((r) => r === rightIdx);
                       const isUsed = usedByLeft !== -1;
+                      const lockedHere = usedByLeft !== -1 && assocLocked[usedByLeft];
                       let stateCls = "";
-                      if (assocSubmitted) {
+                      if (lockedHere) {
+                        stateCls = "border-success bg-success/15 cursor-not-allowed";
+                      } else if (assocSubmitted) {
                         const ok = usedByLeft === rightIdx;
                         stateCls = ok ? "border-success bg-success/10" : isUsed ? "border-destructive bg-destructive/10" : "border-border bg-card opacity-60";
+                      } else if (isUsed && assocFlashWrong) {
+                        stateCls = "border-destructive bg-destructive/10 animate-pulse";
                       } else if (isUsed) {
                         stateCls = "border-primary/50 bg-primary/5";
                       } else {
@@ -894,15 +914,17 @@ export default function Quizz() {
                         <button
                           key={`R-${rightIdx}`}
                           onClick={() => onAssocPickRight(rightIdx)}
-                          disabled={assocSubmitted}
+                          disabled={assocSubmitted || lockedHere}
                           className={`w-full text-left p-2.5 rounded-xl border-2 transition-all text-sm ${stateCls}`}
                         >
                           <div className="flex items-center gap-1.5">
-                            <span className="h-5 w-5 rounded-md bg-foreground/10 font-mono-tag text-[10px] font-bold flex items-center justify-center shrink-0">
+                            <span className={`h-5 w-5 rounded-md font-mono-tag text-[10px] font-bold flex items-center justify-center shrink-0 ${lockedHere ? "bg-success text-success-foreground" : "bg-foreground/10"}`}>
                               {displayPos + 1}
                             </span>
                             <span className="flex-1 leading-tight">{assocPairs[rightIdx]?.right}</span>
-                            {isUsed && !assocSubmitted && (
+                            {lockedHere ? (
+                              <CheckCircle2 className="h-3.5 w-3.5 text-success shrink-0" />
+                            ) : isUsed && !assocSubmitted && (
                               <span className="text-[10px] font-mono text-primary">{String.fromCharCode(65 + usedByLeft)}</span>
                             )}
                           </div>
@@ -911,13 +933,20 @@ export default function Quizz() {
                     })}
                   </div>
                 </div>
+                {/* Indicateur de progression */}
+                {!assocSubmitted && assocLocked.some(Boolean) && (
+                  <div className="flex items-center gap-2 text-xs font-mono-tag text-muted-foreground">
+                    <CheckCircle2 className="h-3.5 w-3.5 text-success" />
+                    <span>{assocLocked.filter(Boolean).length}/{assocPairs.length} paires verrouill\u00e9es</span>
+                  </div>
+                )}
                 {!assocSubmitted && (
                   <div className="flex gap-2">
                     <Button
                       variant="outline"
                       onClick={resetAssoc}
                       className="rounded-full"
-                      disabled={assocMatches.every((m) => m === -1)}
+                      disabled={assocMatches.every((m, i) => m === -1 || assocLocked[i])}
                     >
                       <Shuffle className="h-3.5 w-3.5 mr-1" /> Reset
                     </Button>
@@ -926,7 +955,7 @@ export default function Quizz() {
                       disabled={assocMatches.some((m) => m === -1)}
                       className="flex-1 rounded-full gradient-primary border-0"
                     >
-                      Valider mes liens
+                      {assocAttempts === 0 ? "Valider mes liens" : "V\u00e9rifier \u00e0 nouveau"}
                     </Button>
                   </div>
                 )}
@@ -934,7 +963,11 @@ export default function Quizz() {
                   <div className={`answer-postit ${assocCorrect ? "is-correct" : "is-wrong"} !cursor-default`}>
                     <div className="flex items-center gap-2 font-mono-tag text-xs uppercase">
                       {assocCorrect ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
-                      <span>{assocCorrect ? "Toutes les paires correctes !" : "Certaines paires sont fausses"}</span>
+                      <span>
+                        {assocCorrect
+                          ? assocAttempts === 1 ? "Parfait du premier coup ! 🎯" : `R\u00e9ussi en ${assocAttempts} tentatives`
+                          : "Trop de tentatives"}
+                      </span>
                     </div>
                   </div>
                 )}
