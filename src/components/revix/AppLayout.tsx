@@ -1,4 +1,5 @@
 import { ReactNode, useEffect, useState } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 import { NavLink } from "@/components/NavLink";
 import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles } from "lucide-react";
 import { ScribbleUnderline } from "./Scribble";
@@ -26,22 +27,26 @@ const nav = [
  * - ≥lg (desktop) : sidebar fixe à gauche + topbar + main pleine largeur
  */
 export const AppLayout = ({ children, wide = false }: { children: ReactNode; wide?: boolean }) => {
-  return (
-    <>
-      {/* ============ DESKTOP (≥ lg) ============ */}
-      <DesktopLayout wide={wide}>{children}</DesktopLayout>
+  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
 
-      {/* ============ MOBILE / TABLETTE (< lg) ============ */}
-      <MobileLayout>{children}</MobileLayout>
-    </>
-  );
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
+  // Tant qu'on ne sait pas, on rend le layout mobile (le plus simple) pour éviter un flash blanc.
+  if (isDesktop === null) return <MobileLayout>{children}</MobileLayout>;
+  return isDesktop ? <DesktopLayout wide={wide}>{children}</DesktopLayout> : <MobileLayout>{children}</MobileLayout>;
 };
 
 /* ===================== MOBILE (inchangé visuellement) ===================== */
 
 const MobileLayout = ({ children }: { children: ReactNode }) => {
   return (
-    <div className="lg:hidden min-h-screen w-full flex items-center justify-center p-0 sm:p-6 bg-background relative overflow-hidden">
+    <div className="min-h-screen w-full flex items-center justify-center p-0 sm:p-6 bg-background relative overflow-hidden">
       {/* Background décoratif : trame pointillée + bandes diagonales */}
       <div className="hidden sm:block absolute inset-0 dots-bg pointer-events-none opacity-50" />
       <div className="hidden sm:block absolute -top-10 -left-10 w-72 h-72 stripes-violet rounded-full opacity-20 pointer-events-none" />
@@ -122,7 +127,7 @@ const DesktopLayout = ({ children, wide }: { children: ReactNode; wide: boolean 
   const initials = (profile?.display_name ?? "U").split(" ").map((s) => s[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <div className="hidden lg:flex min-h-screen w-full bg-background relative overflow-hidden">
+    <div className="flex min-h-screen w-full bg-background relative overflow-hidden">
       {/* Background dots subtil */}
       <div className="absolute inset-0 dots-bg pointer-events-none opacity-30" />
 
