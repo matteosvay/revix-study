@@ -549,6 +549,7 @@ export type Database = {
           plan: string
           push_enabled: boolean
           quiz_completed_count: number
+          quiz_loot_box_claimed_count: number
           school: string | null
           streak_days: number
           streak_record: number
@@ -582,6 +583,7 @@ export type Database = {
           plan?: string
           push_enabled?: boolean
           quiz_completed_count?: number
+          quiz_loot_box_claimed_count?: number
           school?: string | null
           streak_days?: number
           streak_record?: number
@@ -615,6 +617,7 @@ export type Database = {
           plan?: string
           push_enabled?: boolean
           quiz_completed_count?: number
+          quiz_loot_box_claimed_count?: number
           school?: string | null
           streak_days?: number
           streak_record?: number
@@ -1651,6 +1654,7 @@ export type Database = {
       log_group_activity: { Args: { p_xp?: number }; Returns: Json }
       notify_groups_at_risk: { Args: never; Returns: Json }
       open_daily_loot_box: { Args: never; Returns: Json }
+      open_quiz_bonus_loot_box: { Args: never; Returns: Json }
       respond_course_share: {
         Args: { p_accept: boolean; p_share_id: string }
         Returns: Json
