@@ -278,30 +278,62 @@ export default function Upload() {
           <input
             type="file"
             className="hidden"
+            multiple
             accept={`application/pdf,image/*,.docx,${DOCX_MIME}`}
-            onChange={(e) => onFile(e.target.files?.[0] ?? null)}
+            onChange={(e) => {
+              const list = Array.from(e.target.files ?? []);
+              if (list.length) addFiles(list);
+              e.target.value = ""; // permet de re-sélectionner le même fichier
+            }}
           />
-          {file ? (
+          {files.length > 0 ? (
             <>
-              {file.type.startsWith("image/") ? (
-                <ImageIcon className="h-10 w-10 mx-auto text-primary" />
-              ) : (
-                <FileText className="h-10 w-10 mx-auto text-primary" />
-              )}
-              <p className="mt-3 font-hand text-xl truncate">{file.name}</p>
-              <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Cliquer pour changer</p>
+              <UploadCloud className="h-8 w-8 mx-auto text-primary" />
+              <p className="mt-2 font-hand text-lg">
+                {files.length} fichier{files.length > 1 ? "s" : ""} prêt{files.length > 1 ? "s" : ""}
+              </p>
+              <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Cliquer ou glisser pour en ajouter</p>
             </>
           ) : (
             <>
               <UploadCloud className="h-10 w-10 mx-auto text-primary" />
               <p className="mt-3 font-hand text-xl">📷 Photo · 📄 PDF · 📝 Word</p>
-              <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Glisse ou clique ici</p>
+              <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Glisse ou clique ici (plusieurs fichiers acceptés)</p>
               <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-1">
                 Google Docs : Fichier → Télécharger → .docx
               </p>
             </>
           )}
         </label>
+
+        {files.length > 0 && (
+          <div className="space-y-2">
+            {files.map((f, idx) => (
+              <div key={`${f.name}_${f.size}_${idx}`} className="flex items-center gap-3 notebook-card p-3">
+                {f.type.startsWith("image/") ? (
+                  <ImageIcon className="h-5 w-5 text-primary shrink-0" />
+                ) : (
+                  <FileText className="h-5 w-5 text-primary shrink-0" />
+                )}
+                <div className="flex-1 min-w-0">
+                  <p className="font-hand text-base truncate">{f.name}</p>
+                  <p className="font-mono-tag text-[9px] uppercase text-muted-foreground">
+                    {(f.size / 1024 / 1024).toFixed(2)} Mo
+                  </p>
+                </div>
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); removeFile(idx); }}
+                  aria-label={`Retirer ${f.name}`}
+                >
+                  <X className="h-4 w-4" />
+                </Button>
+              </div>
+            ))}
+          </div>
+        )}
 
         <div className="clip-divider"><span className="font-mono-tag text-[10px] uppercase">ou</span></div>
 
