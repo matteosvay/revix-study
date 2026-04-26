@@ -1,0 +1,1 @@
+UPDATE public.profiles SET quiz_completed_count = quiz_completed_count + 25 WHERE id = '77aebf92-3adb-4517-a823-d7f76f181a99';
