@@ -32,7 +32,7 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: "Contenu trop court" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     const safeCount = Math.max(3, Math.min(50, Number(count) || 10));
-    const allowedTypes = ["qcm", "qcm_multi", "vrai_faux", "ouvert", "trous", "ordre"];
+    const allowedTypes = ["qcm", "qcm_multi", "vrai_faux", "ouvert", "trous", "ordre", "association"];
     const type = allowedTypes.includes(quizType) ? quizType : "qcm";
     const allowedDiff = ["facile", "moyen", "difficile", "expert", "mixte"];
     const diff = allowedDiff.includes(difficulty) ? difficulty : "mixte";
@@ -62,6 +62,10 @@ Ne renseigne PAS answers ni correct_index.`,
       ordre: `Génère des questions de MISE EN ORDRE. La question demande de remettre des éléments dans l'ordre chronologique, logique ou hiérarchique correct.
 Renseigne "type":"ordre", "answers" (4 à 6 éléments, déjà MÉLANGÉS — pas dans le bon ordre), "correct_order" (tableau d'indices 0-based dans l'ordre correct, ex: [2,0,3,1]), "explanation" (justifie l'ordre attendu).
 Ne renseigne PAS correct_index.`,
+      association: `Génère des exercices d'ASSOCIATION (matching). Chaque "question" est une consigne courte (ex: "Associe chaque terme à sa définition" ou "Relie chaque cause à sa conséquence").
+Renseigne "type":"association", "pairs" (un tableau de 4 à 6 paires, chacune {"left":"...", "right":"..."}). Les "left" sont les termes/concepts à relier, les "right" sont les définitions/réponses correspondantes. Sois concis (max 8 mots à droite).
+Renseigne aussi "explanation" (1-2 phrases qui rappellent les liens essentiels).
+Ne renseigne PAS answers, correct_index, ni accepted_answers.`,
     };
 
     const chapterList = Array.isArray(chapters) && chapters.length
@@ -95,10 +99,13 @@ Ne renseigne PAS correct_index.`,
     const shuffled = [...angles].sort(() => (Math.sin(seed * angles.length) > 0 ? 1 : -1) * (Math.random() - 0.5));
     const anglesBlock = `\n\nVARIE LES ANGLES — couvre plusieurs de ces dimensions à travers tes ${safeCount} questions, ne te focalise pas sur une seule :\n${shuffled.slice(0, 5).map(a => `• ${a}`).join("\n")}`;
 
+    const antiBiasNote = type === "qcm" || type === "vrai_faux"
+      ? `\n\nANTI-BIAIS : pour les QCM, NE place PAS systématiquement la bonne réponse à la même position (évite le pattern "toujours C/troisième"). Varie l'index correct entre 0, 1, 2 et 3 au fil des questions, de façon équilibrée.`
+      : "";
     const system = `Tu es un examinateur français pour étudiants ${level ?? ""}.
 Tu crées des questions rigoureuses en français, basées sur le cours fourni.
 ${difficultyInstructions[diff]}
-Pas de question piège ridicule. Utilise "tu".${scopeInstruction}${chapterInstruction}${anglesBlock}${avoidBlock}
+Pas de question piège ridicule. Utilise "tu".${scopeInstruction}${chapterInstruction}${anglesBlock}${avoidBlock}${antiBiasNote}
 
 Couvre tout le cours, pas seulement le début. Réparti tes questions sur l'ENSEMBLE du contenu fourni.
 Seed de variation : ${seed} (utilise-le mentalement pour explorer des angles différents à chaque génération).
@@ -138,6 +145,17 @@ ${content.slice(0, 12000)}
                       correct_indices: { type: "array", items: { type: "integer", minimum: 0 } },
                       correct_order: { type: "array", items: { type: "integer", minimum: 0 } },
                       accepted_answers: { type: "array", items: { type: "string" } },
+                      pairs: {
+                        type: "array",
+                        items: {
+                          type: "object",
+                          properties: {
+                            left: { type: "string" },
+                            right: { type: "string" },
+                          },
+                          required: ["left", "right"],
+                        },
+                      },
                       explanation: { type: "string" },
                       chapter: { type: "string" },
                     },
@@ -163,7 +181,38 @@ ${content.slice(0, 12000)}
     const data = await resp.json();
     const args = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
     const parsed = typeof args === "string" ? JSON.parse(args) : args;
-    return new Response(JSON.stringify({ questions: parsed?.questions ?? [] }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    let questions = parsed?.questions ?? [];
+
+    // ANTI-BIAIS — Re-shuffle des réponses QCM côté serveur pour casser tout pattern positionnel
+    // (le LLM tend à placer la bonne réponse à la 3ème position par défaut).
+    questions = questions.map((q: any) => {
+      if (q.type === "qcm" && Array.isArray(q.answers) && typeof q.correct_index === "number" && q.answers.length >= 2) {
+        const indices = q.answers.map((_: any, i: number) => i);
+        // Shuffle Fisher-Yates
+        for (let i = indices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        const newAnswers = indices.map((i: number) => q.answers[i]);
+        const newCorrect = indices.indexOf(q.correct_index);
+        return { ...q, answers: newAnswers, correct_index: newCorrect };
+      }
+      if (q.type === "qcm_multi" && Array.isArray(q.answers) && Array.isArray(q.correct_indices) && q.answers.length >= 2) {
+        const indices = q.answers.map((_: any, i: number) => i);
+        for (let i = indices.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [indices[i], indices[j]] = [indices[j], indices[i]];
+        }
+        const newAnswers = indices.map((i: number) => q.answers[i]);
+        const oldToNew = new Map<number, number>();
+        indices.forEach((oldIdx: number, newIdx: number) => oldToNew.set(oldIdx, newIdx));
+        const newCorrect = q.correct_indices.map((i: number) => oldToNew.get(i) ?? i).sort((a: number, b: number) => a - b);
+        return { ...q, answers: newAnswers, correct_indices: newCorrect };
+      }
+      return q;
+    });
+
+    return new Response(JSON.stringify({ questions }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
   } catch (e) {
     console.error(e);
     return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erreur" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
