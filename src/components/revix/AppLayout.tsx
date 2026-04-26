@@ -1,5 +1,4 @@
 import { ReactNode, useEffect, useState } from "react";
-import { useIsMobile } from "@/hooks/use-mobile";
 import { NavLink } from "@/components/NavLink";
 import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles } from "lucide-react";
 import { ScribbleUnderline } from "./Scribble";
