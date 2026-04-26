@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { Download, Share, Plus, MoreVertical, X, Smartphone } from "lucide-react";
+import { Download, Share, Plus, MoreVertical, X, Smartphone, MoreHorizontal, ChevronRight } from "lucide-react";
 
 const STORAGE_KEY = "revix.installPrompt.dismissed.v1";
 
@@ -121,18 +121,32 @@ export const InstallAppPrompt = () => {
               <ol className="space-y-3">
                 <li className="flex items-center gap-3 p-3 rounded-lg border-2 border-foreground bg-secondary">
                   <span className="font-display text-lg w-6 shrink-0">1.</span>
-                  <span className="text-sm flex-1">Appuie sur</span>
+                  <span className="text-sm flex-1">Dans Safari, appuie sur</span>
+                  <span className="inline-flex items-center justify-center h-7 w-7 rounded-md border-2 border-foreground bg-background shrink-0">
+                    <MoreHorizontal className="h-4 w-4" strokeWidth={2.5} />
+                  </span>
+                  <span className="text-sm font-bold">en bas</span>
+                </li>
+                <li className="flex items-center gap-3 p-3 rounded-lg border-2 border-foreground bg-secondary">
+                  <span className="font-display text-lg w-6 shrink-0">2.</span>
+                  <span className="text-sm flex-1">Choisis</span>
                   <Share className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                   <span className="text-sm font-bold">Partager</span>
                 </li>
                 <li className="flex items-center gap-3 p-3 rounded-lg border-2 border-foreground bg-secondary">
-                  <span className="font-display text-lg w-6 shrink-0">2.</span>
+                  <span className="font-display text-lg w-6 shrink-0">3.</span>
+                  <span className="text-sm flex-1">Appuie sur</span>
+                  <ChevronRight className="h-5 w-5 shrink-0" strokeWidth={2.5} />
+                  <span className="text-sm font-bold">Voir plus</span>
+                </li>
+                <li className="flex items-center gap-3 p-3 rounded-lg border-2 border-foreground bg-secondary">
+                  <span className="font-display text-lg w-6 shrink-0">4.</span>
                   <span className="text-sm flex-1">Choisis</span>
                   <Plus className="h-5 w-5 shrink-0" strokeWidth={2.5} />
                   <span className="text-sm font-bold">Sur l'écran d'accueil</span>
                 </li>
                 <li className="flex items-center gap-3 p-3 rounded-lg border-2 border-foreground bg-secondary">
-                  <span className="font-display text-lg w-6 shrink-0">3.</span>
+                  <span className="font-display text-lg w-6 shrink-0">5.</span>
                   <span className="text-sm flex-1 font-bold">Ajouter</span>
                 </li>
               </ol>
