@@ -323,7 +323,7 @@ export default function Upload() {
               <p className="mt-3 font-hand text-xl">📷 Photo · 📄 PDF · 📝 Word</p>
               <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Glisse ou clique ici (plusieurs fichiers acceptés)</p>
               <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-1">
-                Max 3 images par fiche
+                Max 3 images · 1 seul PDF ou Word
               </p>
               <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-1">
                 Google Docs : Fichier → Télécharger → .docx
