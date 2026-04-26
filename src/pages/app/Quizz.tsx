@@ -83,6 +83,12 @@ export default function Quizz() {
   const [assocSelectedLeft, setAssocSelectedLeft] = useState<number | null>(null);
   const [assocSubmitted, setAssocSubmitted] = useState<boolean>(false);
   const [assocCorrect, setAssocCorrect] = useState<boolean>(false);
+  // Paires verrouill\u00e9es (correctes valid\u00e9es) - index "left" qui ne peuvent plus \u00eatre modifi\u00e9s
+  const [assocLocked, setAssocLocked] = useState<boolean[]>([]);
+  // Nombre de tentatives de validation pour cette question
+  const [assocAttempts, setAssocAttempts] = useState<number>(0);
+  // Flash visuel apr\u00e8s un check partiel : highlights des paires fausses
+  const [assocFlashWrong, setAssocFlashWrong] = useState<boolean>(false);
   const [openResult, setOpenResult] = useState<{ correct: boolean; feedback: string } | null>(null);
   const [grading, setGrading] = useState(false);
   const [score, setScore] = useState(0);
