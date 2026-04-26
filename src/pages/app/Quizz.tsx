@@ -142,6 +142,9 @@ export default function Quizz() {
           setAssocSelectedLeft(null);
           setAssocSubmitted(false);
           setAssocCorrect(false);
+          setAssocLocked(new Array(pairs.length).fill(false));
+          setAssocAttempts(0);
+          setAssocFlashWrong(false);
         }
       } catch {
         setAssocPairs([]);
