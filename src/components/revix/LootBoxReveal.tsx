@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { X, ChevronRight } from "lucide-react";
+import { X, ChevronRight, Sparkles } from "lucide-react";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
 import { BackgroundDecor } from "@/components/revix/cosmetics/BackgroundDecor";
 import { StickerDecor, hasCustomSticker } from "@/components/revix/cosmetics/StickerDecor";
@@ -221,9 +221,18 @@ function CardReveal({ card }: { card: Card }) {
     "";
 
   return (
-    <div className="card-flip relative">
-      <div className={cn("relative rounded-2xl border-[3px] border-foreground bg-card p-6 w-72 sm:w-80", theme.glow)}>
+    <div className="card-grand-reveal relative">
+      <div className={cn("relative rounded-2xl border-[3px] border-foreground bg-card p-6 w-72 sm:w-80 card-idle-float", theme.glow)}>
         <div className={cn("absolute inset-0 rounded-2xl pointer-events-none", theme.aura)} />
+        {/* Sparkles around premium cards */}
+        {(rarity === "legendary" || rarity === "epic" || rarity === "creator" || rarity === "queen") && (
+          <>
+            <Sparkles className="absolute -top-3 -left-3 h-6 w-6 text-yellow-300 sparkle-twinkle" style={{ animationDelay: "0s" }} />
+            <Sparkles className="absolute -top-2 -right-4 h-5 w-5 text-pink-300 sparkle-twinkle" style={{ animationDelay: "0.4s" }} />
+            <Sparkles className="absolute -bottom-3 -left-2 h-5 w-5 text-purple-300 sparkle-twinkle" style={{ animationDelay: "0.7s" }} />
+            <Sparkles className="absolute -bottom-2 -right-3 h-6 w-6 text-amber-300 sparkle-twinkle" style={{ animationDelay: "1s" }} />
+          </>
+        )}
         <div className={cn("absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest border-2 border-foreground", theme.label)}>
           {RARITY_LABEL[rarity]}
         </div>
@@ -249,19 +258,32 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
     return best;
   }, [cards]);
 
-  // Phases: 0 box-shake | 1 burst flash | 2 reveal cards (one by one)
-  const [phase, setPhase] = useState<"shake" | "burst" | "reveal">("shake");
+  // Phases: anticipation → shake → charge → burst → reveal → (per-card: rarityCard → card)
+  type Phase = "anticipation" | "shake" | "charge" | "burst" | "reveal";
+  const [phase, setPhase] = useState<Phase>("anticipation");
   const [revealIdx, setRevealIdx] = useState(0);
+  const [showRarityBanner, setShowRarityBanner] = useState(true);
   const [showConfetti, setShowConfetti] = useState(false);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase("burst"), 1400);
-    const t2 = setTimeout(() => {
+    // Cinematic timeline
+    const t1 = setTimeout(() => setPhase("shake"),        900);   // tension build
+    const t2 = setTimeout(() => setPhase("charge"),       2100);  // pull-in streaks
+    const t3 = setTimeout(() => setPhase("burst"),        2750);  // explosion
+    const t4 = setTimeout(() => {
       setPhase("reveal");
       setShowConfetti(true);
-    }, 2050);
-    return () => { clearTimeout(t1); clearTimeout(t2); };
+    }, 3300);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
   }, []);
+
+  // When switching to a new card, briefly show rarity banner first
+  useEffect(() => {
+    if (phase !== "reveal") return;
+    setShowRarityBanner(true);
+    const t = setTimeout(() => setShowRarityBanner(false), 750);
+    return () => clearTimeout(t);
+  }, [revealIdx, phase]);
 
   const next = () => {
     if (revealIdx < cards.length - 1) setRevealIdx((i) => i + 1);
@@ -290,6 +312,11 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
         </svg>
       </div>
 
+      {/* Vignette during anticipation/shake/charge — keeps focus on the box */}
+      {phase !== "reveal" && (
+        <div className="absolute inset-0 pointer-events-none vignette-pulse" />
+      )}
+
       {/* Close button */}
       <button
         onClick={onClose}
@@ -302,44 +329,146 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
       {/* Light rays during reveal */}
       {phase === "reveal" && <Rays rarity={peakRarity} />}
 
-      {/* Burst flash */}
+      {/* Charge-phase: magnetic pull streaks converging on box */}
+      {phase === "charge" && (
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          {Array.from({ length: 12 }).map((_, i) => {
+            const angle = (i / 12) * 2 * Math.PI;
+            const dist = 280;
+            const sx = Math.cos(angle) * dist;
+            const sy = Math.sin(angle) * dist;
+            return (
+              <span
+                key={i}
+                className="streak-pull"
+                style={{
+                  // @ts-ignore
+                  "--sx": `${sx}px`,
+                  "--sy": `${sy}px`,
+                  transform: `translate(${sx}px, ${sy}px) rotate(${(angle * 180) / Math.PI + 90}deg)`,
+                  animationDelay: `${i * 0.04}s`,
+                } as any}
+              />
+            );
+          })}
+        </div>
+      )}
+
+      {/* Burst phase: chromatic flash + multiple shockwave rings */}
       {phase === "burst" && (
-        <div className="absolute inset-0 bg-white flash-bang" />
+        <>
+          <div className="absolute inset-0 flash-chromatic" />
+          <div className="shockwave-ring" />
+          <div className="shockwave-ring delay-1" />
+          <div className="shockwave-ring delay-2" />
+        </>
       )}
 
       <div className="relative z-20 h-full w-full flex flex-col items-center justify-center px-5">
-        {/* Phase 1: shaking box */}
+        {/* Pre-reveal: box stages */}
         {phase !== "reveal" && (
-          <div className="flex flex-col items-center gap-5">
-            <div className={cn(phase === "shake" ? "box-shake" : "box-burst")}>
+          <div className="flex flex-col items-center gap-5 relative">
+            {/* Orbiting particles during shake/charge — energy build-up */}
+            {(phase === "shake" || phase === "charge") && (
+              <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+                {Array.from({ length: 10 }).map((_, i) => (
+                  <span
+                    key={i}
+                    className="particle-orbit"
+                    style={{
+                      // @ts-ignore
+                      "--orbit-r": `${70 + (i % 3) * 20}px`,
+                      animationDelay: `${i * 0.12}s`,
+                      animationDuration: `${1.4 + (i % 3) * 0.3}s`,
+                    } as any}
+                  >
+                    <span
+                      className="block w-3 h-3 rounded-full"
+                      style={{
+                        background:
+                          i % 3 === 0 ? "hsl(45 100% 65%)" :
+                          i % 3 === 1 ? "hsl(280 90% 70%)" :
+                          "hsl(220 90% 65%)",
+                        boxShadow: "0 0 12px currentColor",
+                      }}
+                    />
+                  </span>
+                ))}
+              </div>
+            )}
+            <div
+              className={cn(
+                phase === "anticipation" && "anticipation-zoom heartbeat",
+                phase === "shake" && "box-shake-intense",
+                phase === "charge" && "box-charge",
+                phase === "burst" && "box-explode",
+              )}
+            >
               <BoxIcon rarity={peakRarity} />
             </div>
             <p className="font-display text-2xl text-white drop-shadow-lg tracking-wide">
-              {phase === "shake" ? "Ouverture..." : ""}
+              {phase === "anticipation" && "Préparation..."}
+              {phase === "shake" && "Ouverture..."}
+              {phase === "charge" && "⚡️ ⚡️ ⚡️"}
+              {phase === "burst" && ""}
             </p>
           </div>
         )}
 
-        {/* Phase 2: reveal cards one by one */}
+        {/* Reveal: rarity title-card slams in, then prize card drops */}
         {phase === "reveal" && cards[revealIdx] && (
           <>
-            <CardReveal key={revealIdx} card={cards[revealIdx]} />
+            {showRarityBanner ? (
+              <RarityBanner card={cards[revealIdx]} />
+            ) : (
+              <CardReveal key={revealIdx} card={cards[revealIdx]} />
+            )}
             <div className="mt-8 flex flex-col items-center gap-3">
               <p className="text-xs font-mono uppercase tracking-widest text-white/70">
                 {revealIdx + 1} / {cards.length}
               </p>
-              <button
-                onClick={next}
-                className="px-6 py-3 rounded-md border-[2.5px] border-foreground bg-white text-foreground font-bold uppercase tracking-wide text-sm shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-sm transition-all flex items-center gap-2"
-              >
-                {revealIdx < cards.length - 1 ? <>Suivant <ChevronRight className="h-4 w-4" /></> : "Terminer ✨"}
-              </button>
+              {!showRarityBanner && (
+                <button
+                  onClick={next}
+                  className="px-6 py-3 rounded-md border-[2.5px] border-foreground bg-white text-foreground font-bold uppercase tracking-wide text-sm shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-sm transition-all flex items-center gap-2 animate-fade-in"
+                >
+                  {revealIdx < cards.length - 1 ? <>Suivant <ChevronRight className="h-4 w-4" /></> : "Terminer ✨"}
+                </button>
+              )}
             </div>
           </>
         )}
       </div>
 
       {showConfetti && <Confetti rarity={peakRarity} />}
+    </div>
+  );
+}
+
+/** Big rarity announcement that slams in before each card. */
+function RarityBanner({ card }: { card: Card }) {
+  const rarity: Rarity =
+    card.kind === "cosmetic" ? card.rarity :
+    card.kind === "powerup" ? "rare" :
+    card.kind === "token" ? "rare" :
+    "common";
+  const theme = RARITY_THEME[rarity];
+  const isBig = rarity === "epic" || rarity === "legendary" || rarity === "creator" || rarity === "queen";
+  return (
+    <div className="flex flex-col items-center gap-3">
+      <div className={cn("rarity-slam font-display tracking-widest uppercase text-center", isBig ? "text-6xl sm:text-7xl" : "text-4xl sm:text-5xl")}>
+        <span
+          className={cn("bg-clip-text text-transparent bg-gradient-to-r drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]", theme.gradient)}
+          style={{ WebkitBackgroundClip: "text" }}
+        >
+          {RARITY_LABEL[rarity]}
+        </span>
+      </div>
+      {isBig && (
+        <div className="flex items-center gap-2 text-white/90 font-mono text-xs uppercase tracking-[0.3em] animate-fade-in">
+          <Sparkles className="h-3.5 w-3.5" /> Récompense rare <Sparkles className="h-3.5 w-3.5" />
+        </div>
+      )}
     </div>
   );
 }
