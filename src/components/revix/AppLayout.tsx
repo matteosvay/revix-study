@@ -1,6 +1,6 @@
 import { ReactNode, useEffect, useState } from "react";
 import { NavLink } from "@/components/NavLink";
-import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles, Search } from "lucide-react";
+import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles } from "lucide-react";
 import { ScribbleUnderline } from "./Scribble";
 import { Logo } from "./Logo";
 import { NotificationBell } from "./NotificationBell";
@@ -172,16 +172,7 @@ const DesktopLayout = ({ children, wide }: { children: ReactNode; wide: boolean 
       <div className="relative z-10 flex-1 min-w-0 flex flex-col h-screen">
         {/* TOPBAR */}
         <header className="sticky top-0 z-30 h-16 shrink-0 border-b-[3px] border-foreground bg-card/95 backdrop-blur flex items-center justify-between px-6 gap-4">
-          <div className="flex items-center gap-2 flex-1 max-w-md">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <input
-                type="search"
-                placeholder="Rechercher un cours, un ami…"
-                className="w-full h-10 pl-10 pr-4 rounded-lg border-2 border-foreground bg-background text-sm font-medium placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/40"
-              />
-            </div>
-          </div>
+          <div className="flex-1" />
           <div className="flex items-center gap-3">
             {profile && (
               <span className="hidden xl:inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-foreground bg-accent font-mono-tag text-[11px] font-bold uppercase">
