@@ -777,6 +777,111 @@ export default function Quizz() {
                   </div>
                 )}
               </div>
+            ) : isAssoc ? (
+              <div className="mt-5 space-y-4">
+                <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground px-1 flex items-center gap-1.5">
+                  <Link2 className="h-3 w-3" /> Tape un terme à gauche, puis sa définition à droite
+                </p>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {/* Colonne gauche : termes */}
+                  <div className="space-y-2">
+                    {assocPairs.map((p, i) => {
+                      const matched = assocMatches[i] !== -1;
+                      const selected = assocSelectedLeft === i;
+                      let stateCls = "";
+                      if (assocSubmitted) {
+                        const ok = assocMatches[i] === i;
+                        stateCls = ok ? "border-success bg-success/10" : "border-destructive bg-destructive/10";
+                      } else if (selected) {
+                        stateCls = "border-primary bg-primary/15 ring-2 ring-primary/40 scale-[1.02]";
+                      } else if (matched) {
+                        stateCls = "border-primary/50 bg-primary/5";
+                      } else {
+                        stateCls = "border-border bg-card hover:border-primary/40";
+                      }
+                      return (
+                        <button
+                          key={`L-${i}`}
+                          onClick={() => onAssocPickLeft(i)}
+                          disabled={assocSubmitted}
+                          className={`w-full text-left p-2.5 rounded-xl border-2 transition-all text-sm font-medium ${stateCls}`}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span className="h-5 w-5 rounded-md bg-foreground/10 font-mono-tag text-[10px] font-bold flex items-center justify-center shrink-0">
+                              {String.fromCharCode(65 + i)}
+                            </span>
+                            <span className="flex-1 leading-tight">{p.left}</span>
+                            {matched && !assocSubmitted && (
+                              <span className="text-[10px] font-mono text-primary">→{assocRightOrder.indexOf(assocMatches[i]) + 1}</span>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                  {/* Colonne droite : définitions, dans ordre mélangé */}
+                  <div className="space-y-2">
+                    {assocRightOrder.map((rightIdx, displayPos) => {
+                      const usedByLeft = assocMatches.findIndex((r) => r === rightIdx);
+                      const isUsed = usedByLeft !== -1;
+                      let stateCls = "";
+                      if (assocSubmitted) {
+                        const ok = usedByLeft === rightIdx;
+                        stateCls = ok ? "border-success bg-success/10" : isUsed ? "border-destructive bg-destructive/10" : "border-border bg-card opacity-60";
+                      } else if (isUsed) {
+                        stateCls = "border-primary/50 bg-primary/5";
+                      } else {
+                        stateCls = "border-border bg-card hover:border-primary/40";
+                      }
+                      return (
+                        <button
+                          key={`R-${rightIdx}`}
+                          onClick={() => onAssocPickRight(rightIdx)}
+                          disabled={assocSubmitted}
+                          className={`w-full text-left p-2.5 rounded-xl border-2 transition-all text-sm ${stateCls}`}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <span className="h-5 w-5 rounded-md bg-foreground/10 font-mono-tag text-[10px] font-bold flex items-center justify-center shrink-0">
+                              {displayPos + 1}
+                            </span>
+                            <span className="flex-1 leading-tight">{assocPairs[rightIdx]?.right}</span>
+                            {isUsed && !assocSubmitted && (
+                              <span className="text-[10px] font-mono text-primary">{String.fromCharCode(65 + usedByLeft)}</span>
+                            )}
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                {!assocSubmitted && (
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      onClick={resetAssoc}
+                      className="rounded-full"
+                      disabled={assocMatches.every((m) => m === -1)}
+                    >
+                      <Shuffle className="h-3.5 w-3.5 mr-1" /> Reset
+                    </Button>
+                    <Button
+                      onClick={submitAssoc}
+                      disabled={assocMatches.some((m) => m === -1)}
+                      className="flex-1 rounded-full gradient-primary border-0"
+                    >
+                      Valider mes liens
+                    </Button>
+                  </div>
+                )}
+                {assocSubmitted && (
+                  <div className={`answer-postit ${assocCorrect ? "is-correct" : "is-wrong"} !cursor-default`}>
+                    <div className="flex items-center gap-2 font-mono-tag text-xs uppercase">
+                      {assocCorrect ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
+                      <span>{assocCorrect ? "Toutes les paires correctes !" : "Certaines paires sont fausses"}</span>
+                    </div>
+                  </div>
+                )}
+              </div>
             ) : (
               <div className="mt-5 space-y-3">
                 <Textarea
@@ -804,13 +909,13 @@ export default function Quizz() {
               </div>
             )}
 
-            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isText && openResult !== null)) && q.explanation && (
+            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted) || (isText && openResult !== null)) && q.explanation && (
               <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
                 💡 {q.explanation}
               </div>
             )}
 
-            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isText && openResult !== null)) && (
+            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted) || (isText && openResult !== null)) && (
               <Button
                 onClick={goNext}
                 className="mt-5 w-full rounded-md gradient-primary border-2 border-foreground font-bold animate-fade-in"
