@@ -72,17 +72,23 @@ export function QuizBonusLootBoxCard() {
 
   if (!loaded) return null;
 
-  // Nothing unlocked yet → tease progress only when user has done at least 1 quiz
+  // Nothing unlocked yet → always tease progress (even at 0 quizzes) so users
+  // know the bonus box exists.
   if (remaining <= 0) {
-    if (quizCount === 0) return null;
     const next = (Math.floor(quizCount / 5) + 1) * 5;
     const left = next - quizCount;
+    const pct = Math.round(((quizCount % 5) / 5) * 100);
     return (
-      <div className="card-paper p-3 mb-3 flex items-center gap-3 opacity-70">
+      <div className="card-paper p-3 mb-3 flex items-center gap-3 opacity-80">
         <span className="text-2xl">🎁</span>
-        <p className="text-xs text-muted-foreground flex-1">
-          Boîte bonus dans <span className="font-bold text-foreground">{left} quiz</span> ({quizCount}/{next})
-        </p>
+        <div className="flex-1 min-w-0">
+          <p className="text-xs text-muted-foreground">
+            Boîte bonus dans <span className="font-bold text-foreground">{left} quiz</span> ({quizCount}/{next})
+          </p>
+          <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">
+            <div className="h-full gradient-primary transition-all duration-700" style={{ width: `${pct}%` }} />
+          </div>
+        </div>
       </div>
     );
   }
