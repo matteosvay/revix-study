@@ -26,7 +26,7 @@ type GroupRow = {
 };
 
 export default function Dashboard() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
   const [groups, setGroups] = useState<GroupRow[]>([]);
@@ -34,23 +34,33 @@ export default function Dashboard() {
   useFomoChecks();
 
   useEffect(() => {
-    if (!user) return;
+    if (authLoading || !user) return;
+    let active = true;
     (async () => {
-      const [{ data: p }, { count: cc }, { count: qc }, { data: attempts }, { data: gs }] = await Promise.all([
-        supabase.from("profiles").select("display_name, streak_days, streak_record, streak_tokens").eq("id", user.id).single(),
-        supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("quiz_attempts").select("score, total").eq("user_id", user.id),
-        supabase.rpc("get_my_groups"),
-      ]);
-      setProfile(p as any);
-      const avg = attempts && attempts.length
-        ? Math.round(attempts.reduce((s, a) => s + (a.score / a.total) * 100, 0) / attempts.length)
-        : 0;
-      setStats({ courses: cc ?? 0, quizzes: qc ?? 0, avg });
-      setGroups(((gs as any[]) ?? []).slice(0, 3));
+      try {
+        const [{ data: p }, { count: cc }, { count: qc }, { data: attempts }, { data: gs }] = await Promise.all([
+          supabase.from("profiles").select("display_name, streak_days, streak_record, streak_tokens").eq("id", user.id).maybeSingle(),
+          supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+          supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+          supabase.from("quiz_attempts").select("score, total").eq("user_id", user.id),
+          supabase.rpc("get_my_groups"),
+        ]);
+        if (!active) return;
+        setProfile((p as any) ?? null);
+        const avg = attempts && attempts.length
+          ? Math.round(attempts.reduce((s, a) => s + (a.score / a.total) * 100, 0) / attempts.length)
+          : 0;
+        setStats({ courses: cc ?? 0, quizzes: qc ?? 0, avg });
+        setGroups(((gs as any[]) ?? []).slice(0, 3));
+      } catch {
+        if (!active) return;
+        setProfile(null);
+        setStats({ courses: 0, quizzes: 0, avg: 0 });
+        setGroups([]);
+      }
     })();
-  }, [user]);
+    return () => { active = false; };
+  }, [authLoading, user]);
 
   const name = profile?.display_name?.split(" ")[0] ?? "toi";
 
