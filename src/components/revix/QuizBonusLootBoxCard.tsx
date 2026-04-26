@@ -96,23 +96,23 @@ export function QuizBonusLootBoxCard() {
       >
         <span className="tape" />
         <div className="flex items-center gap-3">
-          <div className={`h-14 w-14 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-3xl shadow-glow ${opening ? "" : "loot-bounce"}`}>
-            {opening ? <Loader2 className="h-6 w-6 animate-spin text-white" /> : "🎁"}
+          <div className={`h-14 w-14 rounded-xl gradient-primary flex items-center justify-center text-3xl shadow-glow ${opening ? "" : "loot-bounce"}`}>
+            {opening ? <Loader2 className="h-6 w-6 animate-spin text-primary-foreground" /> : "🎁"}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-serif text-lg leading-none flex items-center gap-1.5">
-              Boîte bonus quiz <Sparkles className="h-4 w-4 text-purple-500 animate-pulse" />
+              Boîte bonus quiz <Sparkles className="h-4 w-4 text-primary animate-pulse" />
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Récompense pour 5 quiz complétés{remaining > 1 ? ` · ${remaining} disponibles` : ""}
             </p>
           </div>
           {remaining > 1 && (
-            <span className="font-mono-tag text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-purple-500/15 text-purple-600">
+            <span className="font-mono-tag text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-primary/15 text-primary">
               ×{remaining}
             </span>
           )}
-          <Gift className="h-5 w-5 text-purple-500" />
+          <Gift className="h-5 w-5 text-primary" />
         </div>
       </button>
 
