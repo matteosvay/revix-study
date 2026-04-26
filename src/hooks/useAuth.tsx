@@ -11,16 +11,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_evt, s) => {
-      setSession(s);
-      setUser(s?.user ?? null);
-    });
-    supabase.auth.getSession().then(({ data: { session: s } }) => {
-      setSession(s);
-      setUser(s?.user ?? null);
+    let mounted = true;
+
+    supabase.auth.getSession().then(({ data: { session: restoredSession } }) => {
+      if (!mounted) return;
+      setSession(restoredSession);
+      setUser(restoredSession?.user ?? null);
+      setLoading(false);
+    }).catch(() => {
+      if (!mounted) return;
+      setSession(null);
+      setUser(null);
       setLoading(false);
     });
-    return () => subscription.unsubscribe();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_evt, nextSession) => {
+      setSession(nextSession);
+      setUser(nextSession?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   return <Ctx.Provider value={{ user, session, loading }}>{children}</Ctx.Provider>;

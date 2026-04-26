@@ -26,15 +26,20 @@ const nav = [
  * - ≥lg (desktop) : sidebar fixe à gauche + topbar + main pleine largeur
  */
 export const AppLayout = ({ children, wide = false }: { children: ReactNode; wide?: boolean }) => {
+  const [isDesktop, setIsDesktop] = useState(() =>
+    typeof window !== "undefined" ? window.matchMedia("(min-width: 1024px)").matches : false
+  );
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 1024px)");
+    const update = () => setIsDesktop(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
   return (
-    <>
-      <div className="lg:hidden min-h-screen bg-background">
-        <MobileLayout>{children}</MobileLayout>
-      </div>
-      <div className="hidden lg:block min-h-screen bg-background">
-        <DesktopLayout wide={wide}>{children}</DesktopLayout>
-      </div>
-    </>
+    isDesktop ? <DesktopLayout wide={wide}>{children}</DesktopLayout> : <MobileLayout>{children}</MobileLayout>
   );
 };
 
