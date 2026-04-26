@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UploadCloud, Sparkles, Loader2, FileText, Image as ImageIcon, CheckCircle2 } from "lucide-react";
+import { UploadCloud, Sparkles, Loader2, FileText, Image as ImageIcon, CheckCircle2, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { extractPdfText, fileToBase64, extractDocxText, isDocx, DOCX_MIME } from "@/lib/pdf";
@@ -26,7 +26,7 @@ const STEPS = [
 export default function Upload() {
   const { user } = useAuth();
   const nav = useNavigate();
-  const [file, setFile] = useState<File | null>(null);
+  const [files, setFiles] = useState<File[]>([]);
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
   const [subject, setSubject] = useState("");
@@ -56,78 +56,121 @@ export default function Upload() {
     };
   }, []);
 
-  const onFile = (f: File | null) => { if (!f) return; setFile(f); if (!title) setTitle(f.name.replace(/\.[^.]+$/, "")); };
-
   const isAcceptedFile = (f: File) =>
     f.type === "application/pdf" || f.type.startsWith("image/") || isDocx(f);
+
+  const addFiles = (incoming: File[]) => {
+    const accepted: File[] = [];
+    const rejected: string[] = [];
+    for (const f of incoming) {
+      if (isAcceptedFile(f)) accepted.push(f);
+      else rejected.push(f.name);
+    }
+    if (rejected.length) {
+      toast.error(`Format non supporté: ${rejected.join(", ")}. PDF, Word (.docx) ou image uniquement.`);
+    }
+    if (!accepted.length) return;
+    setFiles((prev) => {
+      // Évite les doublons (même nom + taille)
+      const seen = new Set(prev.map((f) => `${f.name}_${f.size}`));
+      const merged = [...prev];
+      for (const f of accepted) {
+        const key = `${f.name}_${f.size}`;
+        if (!seen.has(key)) { merged.push(f); seen.add(key); }
+      }
+      return merged;
+    });
+    if (!title) {
+      const first = accepted[0];
+      setTitle(first.name.replace(/\.[^.]+$/, ""));
+    }
+  };
+
+  const removeFile = (idx: number) => {
+    setFiles((prev) => prev.filter((_, i) => i !== idx));
+  };
 
   const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setDragOver(false);
-    const dropped = e.dataTransfer?.files?.[0];
-    if (!dropped) return;
-    if (!isAcceptedFile(dropped)) {
-      toast.error("Format non supporté. Glisse un PDF, un Word (.docx) ou une image.");
-      return;
-    }
-    onFile(dropped);
+    const dropped = Array.from(e.dataTransfer?.files ?? []);
+    if (!dropped.length) return;
+    addFiles(dropped);
   };
 
   const generate = async () => {
     if (!user) return;
-    if (!file && text.trim().length < 20) { toast.error("Ajoute un fichier ou colle du texte."); return; }
+    if (files.length === 0 && text.trim().length < 20) { toast.error("Ajoute un fichier ou colle du texte."); return; }
     if (!title.trim()) { toast.error("Donne un titre à ton cours."); return; }
 
     try {
       setStep(0);
-      let content = text.trim();
-      let storagePath: string | null = null;
+      const parts: string[] = [];
+      let storagePath: string | null = null; // garde le chemin du premier fichier (référence)
 
-      if (file) {
-        // Garde-fou : refuse les fichiers trop lourds (timeout extraction / upload)
-        if (file.size > 25 * 1024 * 1024) {
-          throw new Error("Fichier trop lourd (max 25 Mo). Compresse-le ou découpe-le.");
+      if (text.trim().length >= 20) parts.push(text.trim());
+
+      if (files.length > 0) {
+        // Garde-fou : taille totale (timeout extraction / upload)
+        const totalSize = files.reduce((acc, f) => acc + f.size, 0);
+        if (totalSize > 50 * 1024 * 1024) {
+          throw new Error("Fichiers trop lourds (max 50 Mo au total). Réduis la sélection.");
         }
-        // upload to storage — sanitise le nom (Supabase Storage refuse accents, espaces, caractères spéciaux)
-        const dotIdx = file.name.lastIndexOf(".");
-        const rawBase = dotIdx > 0 ? file.name.slice(0, dotIdx) : file.name;
-        const rawExt = dotIdx > 0 ? file.name.slice(dotIdx + 1) : "";
-        const safeBase = rawBase
-          .normalize("NFD")
-          .replace(/[\u0300-\u036f]/g, "") // accents
-          .replace(/[^a-zA-Z0-9._-]+/g, "_")
-          .replace(/_+/g, "_")
-          .replace(/^_+|_+$/g, "")
-          .slice(0, 80) || "fichier";
-        const safeExt = rawExt.replace(/[^a-zA-Z0-9]+/g, "").toLowerCase().slice(0, 10);
-        const safeName = safeExt ? `${safeBase}.${safeExt}` : safeBase;
-        const path = `${user.id}/${Date.now()}_${safeName}`;
-        const { error: upErr } = await supabase.storage.from("course-uploads").upload(path, file);
-        if (upErr) throw upErr;
-        storagePath = path;
+        for (const f of files) {
+          if (f.size > 25 * 1024 * 1024) {
+            throw new Error(`"${f.name}" dépasse 25 Mo. Compresse-le ou découpe-le.`);
+          }
+        }
 
         setStep(1);
-        if (file.type === "application/pdf") {
-          try {
-            content = await extractPdfText(file);
-          } catch (err) {
-            console.error("[upload] extractPdfText", err);
-            throw new Error("Impossible de lire ce PDF. S'il est scanné, exporte-le en image ou en .docx.");
+        for (let i = 0; i < files.length; i++) {
+          const file = files[i];
+          // upload to storage — sanitise le nom
+          const dotIdx = file.name.lastIndexOf(".");
+          const rawBase = dotIdx > 0 ? file.name.slice(0, dotIdx) : file.name;
+          const rawExt = dotIdx > 0 ? file.name.slice(dotIdx + 1) : "";
+          const safeBase = rawBase
+            .normalize("NFD")
+            .replace(/[\u0300-\u036f]/g, "")
+            .replace(/[^a-zA-Z0-9._-]+/g, "_")
+            .replace(/_+/g, "_")
+            .replace(/^_+|_+$/g, "")
+            .slice(0, 80) || "fichier";
+          const safeExt = rawExt.replace(/[^a-zA-Z0-9]+/g, "").toLowerCase().slice(0, 10);
+          const safeName = safeExt ? `${safeBase}.${safeExt}` : safeBase;
+          const path = `${user.id}/${Date.now()}_${i}_${safeName}`;
+          const { error: upErr } = await supabase.storage.from("course-uploads").upload(path, file);
+          if (upErr) throw upErr;
+          if (!storagePath) storagePath = path;
+
+          let extracted = "";
+          if (file.type === "application/pdf") {
+            try {
+              extracted = await extractPdfText(file);
+            } catch (err) {
+              console.error("[upload] extractPdfText", err);
+              throw new Error(`Impossible de lire "${file.name}". S'il est scanné, exporte-le en image ou .docx.`);
+            }
+            if (extracted.trim().length < 20) {
+              throw new Error(`"${file.name}" ne contient pas de texte lisible (probablement scanné). Exporte-le en image ou en .docx.`);
+            }
+          } else if (isDocx(file)) {
+            extracted = await extractDocxText(file);
+          } else if (file.type.startsWith("image/")) {
+            const b64 = await fileToBase64(file);
+            const { data, error } = await supabase.functions.invoke("extract-pdf", { body: { imageBase64: b64, mimeType: file.type } });
+            if (error) throw error;
+            extracted = data?.text ?? "";
           }
-          // PDF scanné / sans couche texte → propose une alternative
-          if (content.trim().length < 20) {
-            throw new Error("Ce PDF ne contient pas de texte lisible (probablement scanné). Exporte-le en image ou en .docx.");
+
+          if (extracted.trim()) {
+            parts.push(`# ${file.name}\n\n${extracted.trim()}`);
           }
-        } else if (isDocx(file)) {
-          content = await extractDocxText(file);
-        } else if (file.type.startsWith("image/")) {
-          const b64 = await fileToBase64(file);
-          const { data, error } = await supabase.functions.invoke("extract-pdf", { body: { imageBase64: b64, mimeType: file.type } });
-          if (error) throw error;
-          content = data?.text ?? "";
         }
       }
+
+      const content = parts.join("\n\n---\n\n").trim();
 
       if (content.trim().length < 20) throw new Error("Contenu illisible. Essaie un fichier plus net ou colle le texte.");
 
