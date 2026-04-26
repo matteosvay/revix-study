@@ -94,6 +94,7 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
   });
 
   return (
+    <>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
