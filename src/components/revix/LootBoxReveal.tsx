@@ -221,9 +221,18 @@ function CardReveal({ card }: { card: Card }) {
     "";
 
   return (
-    <div className="card-flip relative">
-      <div className={cn("relative rounded-2xl border-[3px] border-foreground bg-card p-6 w-72 sm:w-80", theme.glow)}>
+    <div className="card-grand-reveal relative">
+      <div className={cn("relative rounded-2xl border-[3px] border-foreground bg-card p-6 w-72 sm:w-80 card-idle-float", theme.glow)}>
         <div className={cn("absolute inset-0 rounded-2xl pointer-events-none", theme.aura)} />
+        {/* Sparkles around premium cards */}
+        {(rarity === "legendary" || rarity === "epic" || rarity === "creator" || rarity === "queen") && (
+          <>
+            <Sparkles className="absolute -top-3 -left-3 h-6 w-6 text-yellow-300 sparkle-twinkle" style={{ animationDelay: "0s" }} />
+            <Sparkles className="absolute -top-2 -right-4 h-5 w-5 text-pink-300 sparkle-twinkle" style={{ animationDelay: "0.4s" }} />
+            <Sparkles className="absolute -bottom-3 -left-2 h-5 w-5 text-purple-300 sparkle-twinkle" style={{ animationDelay: "0.7s" }} />
+            <Sparkles className="absolute -bottom-2 -right-3 h-6 w-6 text-amber-300 sparkle-twinkle" style={{ animationDelay: "1s" }} />
+          </>
+        )}
         <div className={cn("absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest border-2 border-foreground", theme.label)}>
           {RARITY_LABEL[rarity]}
         </div>
