@@ -2,9 +2,8 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { AppLayout } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Brain, Trash2, Loader2 } from "lucide-react";
+import { ArrowLeft, Brain, Trash2, Loader2, ListChecks, CheckSquare, ToggleLeft, PenLine, TextCursorInput, ArrowDownUp, Link2, Sparkles } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
@@ -15,12 +14,13 @@ import { VoiceNotes } from "@/components/revix/VoiceNotes";
 type Course = { id: string; title: string; subject: string | null; emoji: string | null; source_content: string | null; summary: CourseSummaryData | null };
 
 const QUIZ_TYPES = [
-  { value: "qcm", label: "QCM", desc: "Choix multiple, 4 réponses possibles" },
-  { value: "qcm_multi", label: "QCM multi-réponses", desc: "Plusieurs bonnes réponses à cocher" },
-  { value: "vrai_faux", label: "Vrai / Faux", desc: "Affirmations à juger" },
-  { value: "ouvert", label: "Questions ouvertes", desc: "Réponse rédigée, corrigée par l'IA" },
-  { value: "trous", label: "Texte à trous", desc: "Compléter les mots manquants" },
-  { value: "ordre", label: "Mise en ordre", desc: "Remettre les éléments dans le bon ordre" },
+  { value: "qcm", label: "QCM", emoji: "🎯", desc: "Choisis la bonne réponse parmi 4", icon: ListChecks },
+  { value: "qcm_multi", label: "Multi-réponses", emoji: "✅", desc: "Coche toutes les bonnes réponses", icon: CheckSquare },
+  { value: "vrai_faux", label: "Vrai / Faux", emoji: "⚖️", desc: "Juge des affirmations rapidement", icon: ToggleLeft },
+  { value: "association", label: "Association", emoji: "🔗", desc: "Relie chaque terme à sa définition", icon: Link2 },
+  { value: "trous", label: "Texte à trous", emoji: "✍️", desc: "Complète les mots manquants", icon: TextCursorInput },
+  { value: "ordre", label: "Mise en ordre", emoji: "🔢", desc: "Remets les éléments dans l'ordre", icon: ArrowDownUp },
+  { value: "ouvert", label: "Question ouverte", emoji: "💬", desc: "Réponse rédigée, corrigée par l'IA", icon: PenLine },
 ] as const;
 const COUNT_PRESETS = [5, 10, 15, 20, 30];
 const DIFFICULTIES = [
@@ -92,16 +92,22 @@ export default function CourseDetail() {
       const rows = qs.map((q: any, i: number) => {
         // Pour qcm_multi : on stocke correct_indices dans accepted_answers (JSON-encodé en strings)
         // Pour ordre : on stocke correct_order dans accepted_answers
+        // Pour association : on stocke les paires sérialisées JSON dans accepted_answers
         let acceptedAnswers = q.accepted_answers ?? null;
+        let answers = q.answers ?? null;
         if (q.type === "qcm_multi" && Array.isArray(q.correct_indices)) {
           acceptedAnswers = q.correct_indices.map((n: number) => String(n));
         } else if (q.type === "ordre" && Array.isArray(q.correct_order)) {
           acceptedAnswers = q.correct_order.map((n: number) => String(n));
+        } else if (q.type === "association" && Array.isArray(q.pairs)) {
+          // answers = labels gauche (préservés dans l'ordre), accepted_answers = JSON paires complètes
+          answers = q.pairs.map((p: any) => p.left);
+          acceptedAnswers = [JSON.stringify(q.pairs)];
         }
         return {
           quiz_id: quiz.id, user_id: user!.id, question: q.question,
           type: q.type ?? quizType,
-          answers: q.answers ?? null,
+          answers,
           correct_index: typeof q.correct_index === "number" ? q.correct_index : null,
           accepted_answers: acceptedAnswers,
           explanation: q.explanation, position: i,
@@ -159,63 +165,119 @@ export default function CourseDetail() {
           </SheetTrigger>
           <SheetContent side="bottom" className="rounded-t-3xl max-h-[85vh] overflow-y-auto">
             <SheetHeader className="text-left">
-              <SheetTitle className="font-serif text-2xl">Configurer ton quizz ✨</SheetTitle>
+              <SheetTitle className="font-serif text-2xl">Configure ton quizz ✨</SheetTitle>
+              <p className="text-sm text-muted-foreground mt-1">Choisis ton ambiance, on s'occupe du reste.</p>
             </SheetHeader>
 
-            <div className="mt-5 space-y-5">
+            <div className="mt-5 space-y-6">
+              {/* Type d'exercice — gros visuels */}
               <div>
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Difficulté</Label>
-                <div className="mt-2 grid grid-cols-5 gap-1.5">
-                  {DIFFICULTIES.map(d => (
-                    <button key={d.value} type="button" onClick={() => setQuizDifficulty(d.value)}
-                      className={`flex flex-col items-center justify-center gap-0.5 py-2 rounded-xl border-2 transition ${quizDifficulty === d.value ? "border-primary bg-primary/5" : "border-border bg-card"}`}>
+                <div className="flex items-center gap-2 mb-2.5">
+                  <Sparkles className="h-3.5 w-3.5 text-primary" />
+                  <Label className="text-[11px] uppercase tracking-wider text-muted-foreground font-mono">Type d'exercice</Label>
+                </div>
+                <div className="grid grid-cols-2 gap-2.5">
+                  {QUIZ_TYPES.map((t) => {
+                    const Icon = t.icon;
+                    const active = quizType === t.value;
+                    return (
+                      <button
+                        key={t.value}
+                        type="button"
+                        onClick={() => setQuizType(t.value)}
+                        className={`relative text-left p-3 rounded-2xl border-2 transition-all overflow-hidden ${
+                          active
+                            ? "border-primary bg-primary/8 shadow-glow scale-[1.02]"
+                            : "border-border bg-card hover:border-primary/40 hover:bg-primary/[0.03]"
+                        }`}
+                      >
+                        <div className="flex items-start gap-2.5">
+                          <div
+                            className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 text-xl transition ${
+                              active ? "bg-primary/15" : "bg-muted/40"
+                            }`}
+                          >
+                            {t.emoji}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-[13px] leading-tight flex items-center gap-1">
+                              {t.label}
+                              {active && <Icon className="h-3 w-3 text-primary" />}
+                            </p>
+                            <p className="text-[10.5px] text-muted-foreground mt-0.5 leading-snug line-clamp-2">{t.desc}</p>
+                          </div>
+                        </div>
+                        {active && (
+                          <div className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary animate-pulse" />
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Difficulté */}
+              <div>
+                <div className="flex items-center justify-between mb-2.5">
+                  <Label className="text-[11px] uppercase tracking-wider text-muted-foreground font-mono">Difficulté</Label>
+                  <span className="text-[11px] text-muted-foreground italic">
+                    {DIFFICULTIES.find((d) => d.value === quizDifficulty)?.desc}
+                  </span>
+                </div>
+                <div className="grid grid-cols-5 gap-1.5">
+                  {DIFFICULTIES.map((d) => (
+                    <button
+                      key={d.value}
+                      type="button"
+                      onClick={() => setQuizDifficulty(d.value)}
+                      className={`flex flex-col items-center justify-center gap-0.5 py-2.5 rounded-xl border-2 transition ${
+                        quizDifficulty === d.value
+                          ? "border-primary bg-primary/10 scale-105"
+                          : "border-border bg-card hover:border-primary/30"
+                      }`}
+                    >
                       <span className="text-lg">{d.emoji}</span>
                       <span className="text-[10px] font-semibold leading-tight">{d.label}</span>
                     </button>
                   ))}
                 </div>
-                <p className="text-[11px] text-muted-foreground mt-1.5 px-1">
-                  {DIFFICULTIES.find(d => d.value === quizDifficulty)?.desc}
-                </p>
               </div>
 
+              {/* Nombre */}
               <div>
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Type de quizz</Label>
-                <RadioGroup value={quizType} onValueChange={setQuizType} className="mt-2 space-y-2">
-                  {QUIZ_TYPES.map(t => (
-                    <label key={t.value} htmlFor={`qt-${t.value}`}
-                      className={`flex items-start gap-3 p-3 rounded-xl border-2 cursor-pointer transition ${quizType === t.value ? "border-primary bg-primary/5" : "border-border"}`}>
-                      <RadioGroupItem id={`qt-${t.value}`} value={t.value} className="mt-1" />
-                      <div className="flex-1">
-                        <p className="font-medium text-sm">{t.label}</p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{t.desc}</p>
-                      </div>
-                    </label>
-                  ))}
-                </RadioGroup>
-              </div>
-
-              <div>
-                <Label className="text-xs uppercase tracking-wider text-muted-foreground">Nombre de questions</Label>
-                <div className="mt-2 grid grid-cols-5 gap-2">
-                  {COUNT_PRESETS.map(n => (
-                    <button key={n} type="button" onClick={() => setQuizCount(n)}
-                      className={`h-11 rounded-xl border-2 font-semibold transition text-sm ${quizCount === n ? "border-primary bg-primary text-primary-foreground" : "border-border bg-card"}`}>
+                <div className="flex items-center justify-between mb-2.5">
+                  <Label className="text-[11px] uppercase tracking-wider text-muted-foreground font-mono">Nombre de questions</Label>
+                  <span className="font-bold text-primary text-sm">{quizCount}</span>
+                </div>
+                <div className="grid grid-cols-5 gap-1.5 mb-3">
+                  {COUNT_PRESETS.map((n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      onClick={() => setQuizCount(n)}
+                      className={`h-10 rounded-xl border-2 font-semibold transition text-sm ${
+                        quizCount === n
+                          ? "border-primary bg-primary text-primary-foreground"
+                          : "border-border bg-card hover:border-primary/40"
+                      }`}
+                    >
                       {n}
                     </button>
                   ))}
                 </div>
-                <div className="mt-3 px-1">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] text-muted-foreground font-mono uppercase tracking-wider">Personnalisé</span>
-                    <span className="font-bold text-primary text-sm">{quizCount} questions</span>
-                  </div>
-                  <Slider value={[quizCount]} onValueChange={(v) => setQuizCount(v[0])} min={3} max={50} step={1} />
-                </div>
+                <Slider value={[quizCount]} onValueChange={(v) => setQuizCount(v[0])} min={3} max={50} step={1} />
               </div>
 
-              <Button onClick={() => generateQuiz()} disabled={creatingQuiz} className="w-full rounded-full gradient-primary border-0 h-12">
-                {creatingQuiz ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Génération...</> : <><Brain className="h-4 w-4 mr-2" /> Générer le quizz</>}
+              <Button
+                onClick={() => generateQuiz()}
+                disabled={creatingQuiz}
+                className="w-full rounded-full gradient-primary border-0 h-12 text-base font-semibold shadow-glow"
+              >
+                {creatingQuiz ? (
+                  <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Génération...</>
+                ) : (
+                  <><Brain className="h-4 w-4 mr-2" /> Lancer le quizz</>
+                )}
               </Button>
             </div>
           </SheetContent>
