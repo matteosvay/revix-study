@@ -139,7 +139,7 @@ ${content.slice(0, 12000)}
                     type: "object",
                     properties: {
                       question: { type: "string" },
-                      type: { type: "string", enum: ["qcm", "qcm_multi", "vrai_faux", "ouvert", "trous", "ordre"] },
+                      type: { type: "string", enum: ["qcm", "qcm_multi", "vrai_faux", "ouvert", "trous", "ordre", "association"] },
                       answers: { type: "array", items: { type: "string" } },
                       correct_index: { type: "integer", minimum: 0 },
                       correct_indices: { type: "array", items: { type: "integer", minimum: 0 } },
