@@ -9,6 +9,7 @@ import { useGamification } from "@/hooks/useGamification";
 import { Tape, Pin } from "@/components/revix/AcademicDecor";
 import { NotificationBell } from "@/components/revix/NotificationBell";
 import { LootBoxCard } from "@/components/revix/LootBoxCard";
+import { QuizBonusLootBoxCard } from "@/components/revix/QuizBonusLootBoxCard";
 import { FlashQuizCard } from "@/components/revix/FlashQuizCard";
 import { ReviewCard } from "@/components/revix/ReviewCard";
 import { useFomoChecks } from "@/hooks/useFomoChecks";
@@ -87,6 +88,7 @@ export default function Dashboard() {
       <div className="px-5">
         {/* Boîte mystère + flash 5 min */}
         <LootBoxCard />
+        <QuizBonusLootBoxCard />
         <ReviewCard />
         <FlashQuizCard />
 
