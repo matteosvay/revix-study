@@ -26,18 +26,18 @@ const nav = [
  * - ≥lg (desktop) : sidebar fixe à gauche + topbar + main pleine largeur
  */
 export const AppLayout = ({ children, wide = false }: { children: ReactNode; wide?: boolean }) => {
-  const [isDesktop, setIsDesktop] = useState<boolean | null>(null);
+  // Init synchrone pour éviter un double mount (et donc des doubles useEffect dans les pages enfant).
+  const [isDesktop, setIsDesktop] = useState<boolean>(() =>
+    typeof window !== "undefined" && window.matchMedia("(min-width: 1024px)").matches
+  );
 
   useEffect(() => {
     const mq = window.matchMedia("(min-width: 1024px)");
     const update = () => setIsDesktop(mq.matches);
-    update();
     mq.addEventListener("change", update);
     return () => mq.removeEventListener("change", update);
   }, []);
 
-  // Tant qu'on ne sait pas, on rend le layout mobile (le plus simple) pour éviter un flash blanc.
-  if (isDesktop === null) return <MobileLayout>{children}</MobileLayout>;
   return isDesktop ? <DesktopLayout wide={wide}>{children}</DesktopLayout> : <MobileLayout>{children}</MobileLayout>;
 };
 
