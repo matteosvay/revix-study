@@ -44,11 +44,11 @@ export default function SignUp() {
     setLoading(false);
     if (error) { toast.error(error.message); return; }
     if (signUpData.session) {
-      const updates: Record<string, any> = {};
-      if (formation) updates.formation = formation;
-      if (gender) updates.gender = gender;
-      if (Object.keys(updates).length) {
-        await supabase.from("profiles").update(updates).eq("id", signUpData.session.user.id);
+      if (formation || gender) {
+        await supabase.from("profiles").update({
+          ...(formation ? { formation } : {}),
+          ...(gender ? { gender } : {}),
+        }).eq("id", signUpData.session.user.id);
       }
       toast.success("Compte créé ! Bienvenue sur Revix ✨");
       nav("/app");
