@@ -4,7 +4,7 @@ import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle, Scissors, SkipForward, Timer, Zap, Trash2 } from "lucide-react";
+import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle, Scissors, SkipForward, Timer, Zap, Trash2, Link2, Shuffle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -17,7 +17,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-type QType = "qcm" | "qcm_multi" | "vrai_faux" | "ouvert" | "trous" | "ordre";
+type QType = "qcm" | "qcm_multi" | "vrai_faux" | "ouvert" | "trous" | "ordre" | "association";
 type Q = {
   id: string;
   question: string;
@@ -48,6 +48,7 @@ const TYPE_LABELS: Record<QType, string> = {
   ouvert: "Question ouverte",
   trous: "Texte à trous",
   ordre: "Mise en ordre",
+  association: "Association 🔗",
 };
 
 function normalize(s: string) {
@@ -74,6 +75,14 @@ export default function Quizz() {
   const [orderPicked, setOrderPicked] = useState<number[]>([]);
   const [orderSubmitted, setOrderSubmitted] = useState<boolean>(false);
   const [orderCorrect, setOrderCorrect] = useState<boolean>(false);
+  // Association : pairs = [{left,right}], rightOrder = indices mélangés des "right",
+  // matches = mapping leftIndex -> rightIndex (ou -1)
+  const [assocPairs, setAssocPairs] = useState<{ left: string; right: string }[]>([]);
+  const [assocRightOrder, setAssocRightOrder] = useState<number[]>([]);
+  const [assocMatches, setAssocMatches] = useState<number[]>([]); // longueur = pairs.length
+  const [assocSelectedLeft, setAssocSelectedLeft] = useState<number | null>(null);
+  const [assocSubmitted, setAssocSubmitted] = useState<boolean>(false);
+  const [assocCorrect, setAssocCorrect] = useState<boolean>(false);
   const [openResult, setOpenResult] = useState<{ correct: boolean; feedback: string } | null>(null);
   const [grading, setGrading] = useState(false);
   const [score, setScore] = useState(0);
@@ -108,6 +117,29 @@ export default function Quizz() {
     if (q.type === "ordre" && q.answers) {
       // On part de l'ordre tel que présenté (déjà mélangé par l'IA)
       setOrderPicked(q.answers.map((_, i) => i));
+    }
+    if (q.type === "association") {
+      // pairs sérialisées dans accepted_answers[0]
+      try {
+        const raw = (q.accepted_answers ?? [])[0];
+        const pairs: { left: string; right: string }[] = raw ? JSON.parse(raw) : [];
+        if (Array.isArray(pairs) && pairs.length) {
+          setAssocPairs(pairs);
+          // Mélange les indices des "right"
+          const order = pairs.map((_, i) => i);
+          for (let i = order.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [order[i], order[j]] = [order[j], order[i]];
+          }
+          setAssocRightOrder(order);
+          setAssocMatches(new Array(pairs.length).fill(-1));
+          setAssocSelectedLeft(null);
+          setAssocSubmitted(false);
+          setAssocCorrect(false);
+        }
+      } catch {
+        setAssocPairs([]);
+      }
     }
   }, [qIdx, phase, questions]);
 
@@ -184,6 +216,7 @@ export default function Quizz() {
     setQIdx(0); setPicked(null); setTextAnswer(""); setOpenResult(null); setScore(0); setWrong([]);
     setCombo(0); setMaxCombo(0); setHidden([]);
     setMultiPicked([]); setMultiSubmitted(false); setOrderPicked([]); setOrderSubmitted(false); setOrderCorrect(false);
+    setAssocPairs([]); setAssocRightOrder([]); setAssocMatches([]); setAssocSelectedLeft(null); setAssocSubmitted(false); setAssocCorrect(false);
     setPhase("play");
   };
 
@@ -297,6 +330,7 @@ export default function Quizz() {
     } else {
       setQIdx(qIdx + 1); setPicked(null); setTextAnswer(""); setOpenResult(null); setHidden([]);
       setMultiPicked([]); setMultiSubmitted(false); setOrderPicked([]); setOrderSubmitted(false); setOrderCorrect(false);
+      setAssocSelectedLeft(null); setAssocSubmitted(false); setAssocCorrect(false);
     }
   };
 
@@ -407,6 +441,45 @@ export default function Quizz() {
       [arr[from], arr[to]] = [arr[to], arr[from]];
       return arr;
     });
+  };
+
+  // === Association ===
+  const onAssocPickLeft = (leftIdx: number) => {
+    if (assocSubmitted) return;
+    setAssocSelectedLeft(leftIdx);
+  };
+  const onAssocPickRight = (rightIdx: number) => {
+    if (assocSubmitted) return;
+    if (assocSelectedLeft === null) {
+      // Permettre de "défaire" : si ce right est déjà associé, libère
+      const usingLeft = assocMatches.findIndex((r) => r === rightIdx);
+      if (usingLeft !== -1) {
+        setAssocMatches((m) => m.map((v, i) => (i === usingLeft ? -1 : v)));
+      }
+      return;
+    }
+    setAssocMatches((m) => {
+      const arr = [...m];
+      // Si ce "right" était déjà associé à un autre "left", libère cet autre
+      const dupLeft = arr.findIndex((r) => r === rightIdx);
+      if (dupLeft !== -1 && dupLeft !== assocSelectedLeft) arr[dupLeft] = -1;
+      arr[assocSelectedLeft!] = rightIdx;
+      return arr;
+    });
+    setAssocSelectedLeft(null);
+  };
+  const submitAssoc = () => {
+    const ok = assocMatches.length > 0 && assocMatches.every((r, l) => r === l);
+    setAssocSubmitted(true);
+    setAssocCorrect(ok);
+    advance(ok);
+    const q = questions[qIdx];
+    if (q) supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
+  };
+  const resetAssoc = () => {
+    if (assocSubmitted) return;
+    setAssocMatches(new Array(assocPairs.length).fill(-1));
+    setAssocSelectedLeft(null);
   };
 
   if (phase === "select") {
@@ -530,6 +603,7 @@ export default function Quizz() {
     const isMulti = q.type === "qcm_multi";
     const isOrder = q.type === "ordre";
     const isText = q.type === "ouvert" || q.type === "trous";
+    const isAssoc = q.type === "association";
     const choices = q.type === "vrai_faux" ? (q.answers ?? ["Vrai", "Faux"]) : (q.answers ?? []);
     const postitVariants = ["", "answer-postit-pink", "answer-postit-blue", "answer-postit-mint"];
     const correctMultiSet = isMulti
