@@ -79,17 +79,27 @@ export default function Upload() {
       const currentImages = prev.filter((f) => f.type.startsWith("image/")).length;
       let imageCount = currentImages;
       let imageLimitHit = false;
+      const hasDoc = prev.some((f) => !f.type.startsWith("image/"));
+      let docAdded = hasDoc;
+      let docLimitHit = false;
       for (const f of accepted) {
         const key = `${f.name}_${f.size}`;
         if (seen.has(key)) continue;
         if (f.type.startsWith("image/")) {
           if (imageCount >= MAX_IMAGES) { imageLimitHit = true; continue; }
           imageCount++;
+        } else {
+          // PDF ou Word : un seul à la fois
+          if (docAdded) { docLimitHit = true; continue; }
+          docAdded = true;
         }
         merged.push(f); seen.add(key);
       }
       if (imageLimitHit) {
         toast.error(`Limite atteinte : ${MAX_IMAGES} images maximum par fiche.`);
+      }
+      if (docLimitHit) {
+        toast.error(`Un seul PDF ou Word à la fois.`);
       }
       return merged;
     });
@@ -313,7 +323,7 @@ export default function Upload() {
               <p className="mt-3 font-hand text-xl">📷 Photo · 📄 PDF · 📝 Word</p>
               <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Glisse ou clique ici (plusieurs fichiers acceptés)</p>
               <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-1">
-                Max 3 images par fiche
+                Max 3 images · 1 seul PDF ou Word
               </p>
               <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-1">
                 Google Docs : Fichier → Télécharger → .docx
