@@ -10,14 +10,15 @@ import { useAuth } from "@/hooks/useAuth";
  *  - Less than 100 XP needed to next level
  */
 export function useFomoChecks() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    if (!user) return;
+    if (authLoading || !user) return;
     let cancelled = false;
 
     (async () => {
-      const today = new Date().toISOString().slice(0, 10);
+      try {
+        const today = new Date().toISOString().slice(0, 10);
 
       const { data: profile } = await supabase
         .from("profiles")
@@ -98,11 +99,14 @@ export function useFomoChecks() {
 
       // 4. Group streaks at risk — only run in the evening (>= 18h local time)
       const hour = new Date().getHours();
-      if (hour >= 18) {
-        await supabase.rpc("notify_groups_at_risk" as any);
+        if (hour >= 18) {
+          await supabase.rpc("notify_groups_at_risk" as any);
+        }
+      } catch {
+        // Silent best-effort checks: they must never block the app shell.
       }
     })();
 
     return () => { cancelled = true; };
-  }, [user]);
+  }, [authLoading, user]);
 }
