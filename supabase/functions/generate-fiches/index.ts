@@ -156,7 +156,7 @@ FORMAT — la fiche est une liste de SECTIONS (= chapitres du cours). Chaque sec
   - {"kind":"tip","text":"..."} : astuce mémo, piège classique, point de vigilance.
   - {"kind":"list","items":["...","..."]} : énumération (étapes, propriétés, sous-parties d'un chapitre…).
 
-VOLUME : chaque section (chapitre) doit contenir 4 à 12 blocs riches selon la densité du chapitre. Une "intro" de 2-3 phrases situe le sujet global et son enjeu.
+VOLUME : chaque section (chapitre) doit contenir AU MOINS 6 blocs, et jusqu'à 20 blocs si le chapitre est dense. Préfère TOUJOURS plus de blocs que pas assez : il vaut mieux 15 blocs détaillés qu'une fiche qui passe à côté de notions. Une "intro" de 2-3 phrases situe le sujet global et son enjeu.
 
 Tu utilises "tu" et un ton clair, motivant, jamais condescendant. Pas d'emoji dans le texte.`;
 
