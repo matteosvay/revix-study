@@ -455,14 +455,20 @@ export default function Quizz() {
   // === Association ===
   const onAssocPickLeft = (leftIdx: number) => {
     if (assocSubmitted) return;
+    if (assocLocked[leftIdx]) return; // d\u00e9j\u00e0 verrouill\u00e9 = correct
+    if (assocFlashWrong) setAssocFlashWrong(false);
     setAssocSelectedLeft(leftIdx);
   };
   const onAssocPickRight = (rightIdx: number) => {
     if (assocSubmitted) return;
+    // Si ce right est d\u00e9j\u00e0 verrouill\u00e9, ignore
+    const lockedLeft = assocMatches.findIndex((r, i) => r === rightIdx && assocLocked[i]);
+    if (lockedLeft !== -1) return;
+    if (assocFlashWrong) setAssocFlashWrong(false);
     if (assocSelectedLeft === null) {
       // Permettre de "défaire" : si ce right est déjà associé, libère
       const usingLeft = assocMatches.findIndex((r) => r === rightIdx);
-      if (usingLeft !== -1) {
+      if (usingLeft !== -1 && !assocLocked[usingLeft]) {
         setAssocMatches((m) => m.map((v, i) => (i === usingLeft ? -1 : v)));
       }
       return;
@@ -471,23 +477,65 @@ export default function Quizz() {
       const arr = [...m];
       // Si ce "right" était déjà associé à un autre "left", libère cet autre
       const dupLeft = arr.findIndex((r) => r === rightIdx);
-      if (dupLeft !== -1 && dupLeft !== assocSelectedLeft) arr[dupLeft] = -1;
+      if (dupLeft !== -1 && dupLeft !== assocSelectedLeft && !assocLocked[dupLeft]) arr[dupLeft] = -1;
       arr[assocSelectedLeft!] = rightIdx;
       return arr;
     });
     setAssocSelectedLeft(null);
   };
   const submitAssoc = () => {
-    const ok = assocMatches.length > 0 && assocMatches.every((r, l) => r === l);
-    setAssocSubmitted(true);
-    setAssocCorrect(ok);
-    advance(ok);
-    const q = questions[qIdx];
-    if (q) supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
+    const nextAttempts = assocAttempts + 1;
+    setAssocAttempts(nextAttempts);
+    const allCorrect = assocMatches.length > 0 && assocMatches.every((r, l) => r === l);
+    if (allCorrect) {
+      // Termin\u00e9 d\u00e9finitivement
+      setAssocSubmitted(true);
+      setAssocCorrect(true);
+      // Lock toutes les paires
+      setAssocLocked(new Array(assocPairs.length).fill(true));
+      // ok = true seulement si parfait du premier coup, sinon on credite quand m\u00eame
+      // mais on calcule le bonus XP \u00e0 la fin via attempts
+      advance(true);
+      const q = questions[qIdx];
+      if (q) supabase.rpc("review_question", { p_question_id: q.id, p_correct: nextAttempts === 1 });
+      // Toast info sur la performance
+      if (nextAttempts === 1) {
+        toast.success("Parfait du premier coup ! 🎯");
+      } else {
+        toast.success(`Bravo ! ${nextAttempts} tentatives — score r\u00e9duit`);
+      }
+      return;
+    }
+    // Validation partielle : verrouille les bonnes, lib\u00e8re les fausses
+    const newLocked = assocPairs.map((_, i) => assocMatches[i] === i);
+    const newMatches = assocMatches.map((r, i) => (newLocked[i] ? r : -1));
+    const correctCount = newLocked.filter(Boolean).length;
+    const wrongCount = assocPairs.length - correctCount;
+    setAssocLocked(newLocked);
+    setAssocMatches(newMatches);
+    setAssocSelectedLeft(null);
+    setAssocFlashWrong(true);
+    setTimeout(() => setAssocFlashWrong(false), 800);
+    if (correctCount === 0) {
+      toast.error(`Aucune paire correcte. R\u00e9essaie !`);
+    } else {
+      toast.info(`${correctCount} OK \u2705 \u2014 ${wrongCount} \u00e0 corriger`);
+    }
+    // Si l'utilisateur a fait trop d'erreurs (5+ tentatives), on abandonne et marque faux
+    if (nextAttempts >= 5) {
+      setAssocSubmitted(true);
+      setAssocCorrect(false);
+      setAssocLocked(new Array(assocPairs.length).fill(true));
+      advance(false);
+      const q = questions[qIdx];
+      if (q) supabase.rpc("review_question", { p_question_id: q.id, p_correct: false });
+      toast.error("Trop de tentatives \u2014 on passe \u00e0 la suivante");
+    }
   };
   const resetAssoc = () => {
     if (assocSubmitted) return;
-    setAssocMatches(new Array(assocPairs.length).fill(-1));
+    // Conserve les paires verrouill\u00e9es (correctes), reset uniquement les autres
+    setAssocMatches((m) => m.map((r, i) => (assocLocked[i] ? r : -1)));
     setAssocSelectedLeft(null);
   };
 
