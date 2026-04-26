@@ -59,6 +59,8 @@ export default function Upload() {
   const isAcceptedFile = (f: File) =>
     f.type === "application/pdf" || f.type.startsWith("image/") || isDocx(f);
 
+  const MAX_IMAGES = 3;
+
   const addFiles = (incoming: File[]) => {
     const accepted: File[] = [];
     const rejected: string[] = [];
@@ -74,9 +76,20 @@ export default function Upload() {
       // Évite les doublons (même nom + taille)
       const seen = new Set(prev.map((f) => `${f.name}_${f.size}`));
       const merged = [...prev];
+      const currentImages = prev.filter((f) => f.type.startsWith("image/")).length;
+      let imageCount = currentImages;
+      let imageLimitHit = false;
       for (const f of accepted) {
         const key = `${f.name}_${f.size}`;
-        if (!seen.has(key)) { merged.push(f); seen.add(key); }
+        if (seen.has(key)) continue;
+        if (f.type.startsWith("image/")) {
+          if (imageCount >= MAX_IMAGES) { imageLimitHit = true; continue; }
+          imageCount++;
+        }
+        merged.push(f); seen.add(key);
+      }
+      if (imageLimitHit) {
+        toast.error(`Limite atteinte : ${MAX_IMAGES} images maximum par fiche.`);
       }
       return merged;
     });
@@ -299,6 +312,9 @@ export default function Upload() {
               <UploadCloud className="h-10 w-10 mx-auto text-primary" />
               <p className="mt-3 font-hand text-xl">📷 Photo · 📄 PDF · 📝 Word</p>
               <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Glisse ou clique ici (plusieurs fichiers acceptés)</p>
+              <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-1">
+                Max 3 images par fiche
+              </p>
               <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-1">
                 Google Docs : Fichier → Télécharger → .docx
               </p>
