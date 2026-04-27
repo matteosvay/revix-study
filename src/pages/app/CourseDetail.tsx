@@ -9,7 +9,6 @@ import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { CourseSummary, type CourseSummaryData } from "@/components/revix/CourseSummary";
-import { VoiceNotes } from "@/components/revix/VoiceNotes";
 
 type Course = { id: string; title: string; subject: string | null; emoji: string | null; source_content: string | null; summary: CourseSummaryData | null };
 
@@ -154,8 +153,6 @@ export default function CourseDetail() {
         ) : (
           <p className="text-sm text-muted-foreground">Aucun résumé pour ce cours.</p>
         )}
-
-        <VoiceNotes courseId={course.id} />
 
         <Sheet open={quizSheetOpen} onOpenChange={setQuizSheetOpen}>
           <SheetTrigger asChild>
