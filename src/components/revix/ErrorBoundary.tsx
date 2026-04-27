@@ -4,6 +4,21 @@ import { AlertTriangle, RefreshCw } from "lucide-react";
 type Props = { children: ReactNode; fallback?: ReactNode };
 type State = { hasError: boolean; error: Error | null };
 
+// Détecte les erreurs de chargement de chunk dynamique (lazy routes).
+// Se produit quand : (a) une nouvelle version est déployée et l'onglet ouvert
+// référence d'anciens noms de chunks, ou (b) Vite redémarre en dev et invalide
+// le cache. Solution : recharger une fois la page.
+const CHUNK_LOAD_ERROR_RE =
+  /Loading chunk |Failed to fetch dynamically imported module|Importing a module script failed|ChunkLoadError/i;
+
+function isChunkLoadError(err: unknown): boolean {
+  if (!err) return false;
+  const msg = err instanceof Error ? err.message : String(err);
+  return CHUNK_LOAD_ERROR_RE.test(msg);
+}
+
+const RELOAD_FLAG = "revix:chunk-reload";
+
 /**
  * Global Error Boundary — catches React render errors and shows a
  * neo-brutalist error screen instead of a blank page.
@@ -21,17 +36,32 @@ export class ErrorBoundary extends Component<Props, State> {
   }
 
   componentDidCatch(error: Error, info: ErrorInfo) {
+    // Recharge automatique sur erreur de chunk (déploiement / restart Vite),
+    // mais une seule fois pour éviter une boucle infinie.
+    if (isChunkLoadError(error) && typeof window !== "undefined") {
+      const alreadyReloaded = sessionStorage.getItem(RELOAD_FLAG);
+      if (!alreadyReloaded) {
+        sessionStorage.setItem(RELOAD_FLAG, "1");
+        window.location.reload();
+        return;
+      }
+      // Si on a déjà rechargé une fois, on nettoie le flag pour la prochaine session
+      sessionStorage.removeItem(RELOAD_FLAG);
+    }
     // Log to console in dev — replace with Sentry/LogRocket in production
     console.error("[ErrorBoundary]", error, info.componentStack);
   }
 
   handleRetry = () => {
+    sessionStorage.removeItem(RELOAD_FLAG);
     this.setState({ hasError: false, error: null });
   };
 
   render() {
     if (this.state.hasError) {
       if (this.props.fallback) return this.props.fallback;
+
+      const chunkErr = isChunkLoadError(this.state.error);
 
       return (
         <div className="min-h-screen flex items-center justify-center p-6"
@@ -49,13 +79,15 @@ export class ErrorBoundary extends Component<Props, State> {
             {/* Title */}
             <h1 className="font-serif text-2xl text-center mb-2"
               style={{ color: "hsl(var(--foreground))" }}>
-              Oups, quelque chose a planté 😵
+              {chunkErr ? "Nouvelle version disponible 🚀" : "Oups, quelque chose a planté 😵"}
             </h1>
 
             {/* Message */}
             <p className="text-sm text-center mb-1"
               style={{ color: "hsl(var(--muted-foreground))" }}>
-              Pas de panique — tes données sont en sécurité.
+              {chunkErr
+                ? "Recharge la page pour récupérer la dernière version."
+                : "Pas de panique — tes données sont en sécurité."}
             </p>
             <p className="text-xs text-center mb-6 font-mono"
               style={{ color: "hsl(var(--muted-foreground))" }}>
@@ -65,7 +97,10 @@ export class ErrorBoundary extends Component<Props, State> {
             {/* Actions */}
             <div className="flex flex-col gap-3">
               <button
-                onClick={this.handleRetry}
+                onClick={() => {
+                  sessionStorage.removeItem(RELOAD_FLAG);
+                  window.location.reload();
+                }}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-md border-[2.5px] border-foreground font-medium text-sm transition-all hover:translate-x-[1px] hover:translate-y-[1px]"
                 style={{
                   background: "hsl(var(--primary))",
@@ -74,7 +109,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 }}
               >
                 <RefreshCw className="h-4 w-4" strokeWidth={2.5} />
-                Réessayer
+                Recharger l'application
               </button>
               <button
                 onClick={() => { window.location.href = "/app"; }}
