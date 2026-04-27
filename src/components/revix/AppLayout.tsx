@@ -44,11 +44,16 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
       <div className="hidden sm:block lg:hidden absolute -top-10 -left-10 w-72 h-72 stripes-violet rounded-full opacity-20 pointer-events-none" />
       <div className="hidden sm:block lg:hidden absolute -bottom-10 -right-10 w-80 h-80 bg-accent rounded-full opacity-25 pointer-events-none" />
 
-      <aside className="hidden lg:flex relative z-10 w-[260px] shrink-0 h-screen border-r-[3px] border-foreground bg-card flex-col">
+      {/* Skip to main content — accessibility */}
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:border-2 focus:border-foreground focus:rounded-md focus:shadow-brutal-sm focus:font-bold focus:text-sm">
+        Aller au contenu principal
+      </a>
+
+      <aside className="hidden lg:flex relative z-10 w-[260px] shrink-0 h-screen border-r-[3px] border-foreground bg-card flex-col" role="complementary" aria-label="Barre latérale">
         <div className="px-5 pt-6 pb-5 border-b-[2.5px] border-foreground">
           <Logo />
         </div>
-        <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-1">
+        <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-1" aria-label="Navigation principale">
           <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground px-3 mb-2">Navigation</p>
           {nav.map((n) => (
             <NavLink
@@ -96,13 +101,13 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
           </Link>
         </header>
 
-        <main className="flex-1 overflow-y-auto overscroll-contain pb-28 animate-fade-in lg:pb-0">
+        <main id="main-content" className="flex-1 overflow-y-auto overscroll-contain pb-28 animate-fade-in lg:pb-0" role="main">
           <div className={`lg:mx-auto lg:px-6 lg:py-6 ${wide ? "lg:max-w-[1400px]" : "lg:max-w-[1200px]"}`}>
             {children}
           </div>
         </main>
 
-        <nav className="lg:hidden absolute bottom-0 inset-x-0 bg-card border-t-[3px] border-foreground z-50">
+        <nav className="lg:hidden absolute bottom-0 inset-x-0 bg-card border-t-[3px] border-foreground z-50" aria-label="Navigation mobile">
           <div className="grid grid-cols-8 px-1 pt-2 pb-2">
             {nav.map((n) => (
               <NavLink
