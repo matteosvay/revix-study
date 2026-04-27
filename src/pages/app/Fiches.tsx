@@ -126,7 +126,7 @@ export default function Fiches() {
             </button>
           )}
         </div>
-        {q && (
+        {search.trim() && (
           <p className="text-[11px] text-muted-foreground mt-1.5 px-1 font-mono-tag uppercase tracking-wider">
             {results.length} résultat{results.length > 1 ? "s" : ""}
           </p>
@@ -139,7 +139,7 @@ export default function Fiches() {
         <div className="px-5 mt-10 text-center">
           <div className="notebook-card dog-ear p-6 max-w-xs mx-auto">
             <BookOpen className="h-10 w-10 mx-auto text-muted-foreground/50" />
-            {q ? (
+            {search.trim() ? (
               <>
                 <p className="font-hand text-2xl mt-2">Aucun résultat</p>
                 <p className="text-sm text-muted-foreground mt-1">
