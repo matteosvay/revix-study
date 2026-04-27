@@ -24,26 +24,5 @@ export default defineConfig(({ mode }) => ({
     cssCodeSplit: true,
     sourcemap: false,
     chunkSizeWarningLimit: 1000,
-    rollupOptions: {
-      output: {
-        // Sépare les vendors lourds → meilleur cache navigateur + téléchargements parallèles
-        manualChunks: {
-          "react-vendor": ["react", "react-dom", "react-router-dom"],
-          "query-vendor": ["@tanstack/react-query"],
-          "supabase-vendor": ["@supabase/supabase-js"],
-          "ui-vendor": [
-            "@radix-ui/react-dialog",
-            "@radix-ui/react-dropdown-menu",
-            "@radix-ui/react-popover",
-            "@radix-ui/react-tabs",
-            "@radix-ui/react-toast",
-            "@radix-ui/react-tooltip",
-            "@radix-ui/react-select",
-          ],
-          "charts-vendor": ["recharts"],
-          "icons-vendor": ["lucide-react"],
-        },
-      },
-    },
   },
 }));
