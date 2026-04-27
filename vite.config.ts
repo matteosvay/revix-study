@@ -41,7 +41,6 @@ export default defineConfig(({ mode }) => ({
             "@radix-ui/react-select",
           ],
           "charts-vendor": ["recharts"],
-          "motion-vendor": ["framer-motion"],
           "icons-vendor": ["lucide-react"],
         },
       },
