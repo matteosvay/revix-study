@@ -1,6 +1,7 @@
 // Only import DOM matchers and mock browser APIs when running in jsdom environment.
 if (typeof window !== "undefined") {
-  import("@testing-library/jest-dom");
+  // @ts-ignore - side-effect import for matchers, no type module exported
+  import("@testing-library/jest-dom/vitest");
 
   Object.defineProperty(window, "matchMedia", {
     writable: true,
