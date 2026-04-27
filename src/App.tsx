@@ -28,19 +28,38 @@ import { AuthProvider } from "./hooks/useAuth";
 import { RequireAuth } from "./components/revix/RequireAuth";
 import { XpOverlay } from "./components/revix/XpOverlay";
 import { InstallAppPrompt } from "./components/revix/InstallAppPrompt";
+import { ErrorBoundary } from "./components/revix/ErrorBoundary";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Données considérées fraîches pendant 2 min → évite les refetches inutiles
+      staleTime: 2 * 60 * 1000,
+      // Garde le cache 10 min après que le composant est démonté
+      gcTime: 10 * 60 * 1000,
+      // Pas de refetch automatique au focus (agaçant sur mobile)
+      refetchOnWindowFocus: false,
+      // Retry 1 fois avec un délai (réseau mobile instable)
+      retry: 1,
+      retryDelay: (attempt) => Math.min(1000 * 2 ** attempt, 5000),
+    },
+    mutations: {
+      retry: 0,
+    },
+  },
+});
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <XpOverlay />
-        <InstallAppPrompt />
-        <BrowserRouter>
-          <Routes>
+  <ErrorBoundary>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <XpOverlay />
+          <InstallAppPrompt />
+          <BrowserRouter>
+            <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
@@ -61,13 +80,14 @@ const App = () => (
             <Route path="/app/duel/:id" element={<RequireAuth><DuelPlay /></RequireAuth>} />
             <Route path="/app/room/:id" element={<RequireAuth><StudyRoom /></RequireAuth>} />
             <Route path="/app/profil" element={<RequireAuth><Profil /></RequireAuth>} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </AuthProvider>
+    </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
