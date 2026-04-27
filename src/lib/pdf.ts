@@ -1,10 +1,24 @@
-import * as pdfjs from "pdfjs-dist";
-import workerUrl from "pdfjs-dist/build/pdf.worker.min.mjs?url";
-import mammoth from "mammoth";
+// pdfjs et mammoth sont volumineux (~1 Mo). On les charge **dynamiquement**
+// uniquement au moment de l'extraction, pour ne pas plomber le bundle initial
+// de la page Upload.
 
-pdfjs.GlobalWorkerOptions.workerSrc = workerUrl;
+let pdfjsPromise: Promise<typeof import("pdfjs-dist")> | null = null;
+async function loadPdfjs() {
+  if (!pdfjsPromise) {
+    pdfjsPromise = (async () => {
+      const [pdfjs, workerUrlMod] = await Promise.all([
+        import("pdfjs-dist"),
+        import("pdfjs-dist/build/pdf.worker.min.mjs?url"),
+      ]);
+      pdfjs.GlobalWorkerOptions.workerSrc = (workerUrlMod as { default: string }).default;
+      return pdfjs;
+    })();
+  }
+  return pdfjsPromise;
+}
 
 export async function extractPdfText(file: File): Promise<string> {
+  const pdfjs = await loadPdfjs();
   const buf = await file.arrayBuffer();
   const pdf = await pdfjs.getDocument({
     data: buf,
@@ -42,6 +56,7 @@ export async function fileToBase64(file: File): Promise<string> {
 
 /** Extrait le texte brut d'un fichier .docx (Word ou Google Docs exporté). */
 export async function extractDocxText(file: File): Promise<string> {
+  const { default: mammoth } = await import("mammoth");
   const buf = await file.arrayBuffer();
   const result = await mammoth.extractRawText({ arrayBuffer: buf });
   return (result.value ?? "").trim();

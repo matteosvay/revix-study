@@ -1,34 +1,38 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+// Eager — pages publiques / critiques au boot
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import Login from "./pages/auth/Login";
 import SignUp from "./pages/auth/SignUp";
 import Reset from "./pages/auth/Reset";
-import Dashboard from "./pages/app/Dashboard";
-import Upload from "./pages/app/Upload";
-import Fiches from "./pages/app/Fiches";
-import Quizz from "./pages/app/Quizz";
-import Planning from "./pages/app/Planning";
-import Profil from "./pages/app/Profil";
-import Streak from "./pages/app/Streak";
-import CourseDetail from "./pages/app/CourseDetail";
-import Aventure from "./pages/app/Aventure";
-import Campus from "./pages/app/Campus";
-import DuelPlay from "./pages/app/DuelPlay";
-import StudyRoom from "./pages/app/StudyRoom";
-import Revision from "./pages/app/Revision";
-import StudyGroups from "./pages/app/StudyGroups";
-import Cosmetics from "./pages/app/Cosmetics";
-import PublicProfile from "./pages/app/PublicProfile";
 import { AuthProvider } from "./hooks/useAuth";
 import { RequireAuth } from "./components/revix/RequireAuth";
 import { XpOverlay } from "./components/revix/XpOverlay";
 import { InstallAppPrompt } from "./components/revix/InstallAppPrompt";
 import { ErrorBoundary } from "./components/revix/ErrorBoundary";
+
+// Lazy — pages /app/* (chargées à la demande pour réduire le bundle initial)
+const Dashboard = lazy(() => import("./pages/app/Dashboard"));
+const Upload = lazy(() => import("./pages/app/Upload"));
+const Fiches = lazy(() => import("./pages/app/Fiches"));
+const Quizz = lazy(() => import("./pages/app/Quizz"));
+const Planning = lazy(() => import("./pages/app/Planning"));
+const Profil = lazy(() => import("./pages/app/Profil"));
+const Streak = lazy(() => import("./pages/app/Streak"));
+const CourseDetail = lazy(() => import("./pages/app/CourseDetail"));
+const Aventure = lazy(() => import("./pages/app/Aventure"));
+const Campus = lazy(() => import("./pages/app/Campus"));
+const DuelPlay = lazy(() => import("./pages/app/DuelPlay"));
+const StudyRoom = lazy(() => import("./pages/app/StudyRoom"));
+const Revision = lazy(() => import("./pages/app/Revision"));
+const StudyGroups = lazy(() => import("./pages/app/StudyGroups"));
+const Cosmetics = lazy(() => import("./pages/app/Cosmetics"));
+const PublicProfile = lazy(() => import("./pages/app/PublicProfile"));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -49,6 +53,12 @@ const queryClient = new QueryClient({
   },
 });
 
+const RouteFallback = () => (
+  <div className="min-h-screen flex items-center justify-center text-muted-foreground text-sm">
+    Chargement...
+  </div>
+);
+
 const App = () => (
   <ErrorBoundary>
     <QueryClientProvider client={queryClient}>
@@ -59,7 +69,8 @@ const App = () => (
           <XpOverlay />
           <InstallAppPrompt />
           <BrowserRouter>
-            <Routes>
+            <Suspense fallback={<RouteFallback />}>
+              <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
             <Route path="/signup" element={<SignUp />} />
@@ -82,7 +93,8 @@ const App = () => (
             <Route path="/app/profil" element={<RequireAuth><Profil /></RequireAuth>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
-            </Routes>
+              </Routes>
+            </Suspense>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>

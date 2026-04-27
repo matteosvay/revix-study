@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -56,28 +56,32 @@ export default function Fiches() {
     })();
   }, [user]);
 
-  const q = norm(search.trim());
-  // Each result = course + matching chapters (if any). When no search → show all, no chapter hits.
-  const results = !q
-    ? courses.map(c => ({ course: c, chapters: [] as string[], titleMatch: true }))
-    : courses
-        .map(c => {
-          const titleMatch = norm(c.title).includes(q) || norm(c.subject ?? "").includes(q);
-          const sections = c.summary?.sections ?? [];
-          const chapterHits: string[] = [];
-          for (const s of sections) {
-            const title = s.title ?? "";
-            const body = (s.blocks ?? []).map(blockText).join(" ");
-            if (norm(title).includes(q) || norm(body).includes(q)) {
-              if (title) chapterHits.push(title);
-            }
+  // Mémoïsation : on évite de re-parser tous les résumés à chaque render
+  // (sinon chaque keystroke ré-analyse tout le texte de tous les cours).
+  const results = useMemo(() => {
+    const q = norm(search.trim());
+    if (!q) {
+      return courses.map(c => ({ course: c, chapters: [] as string[], titleMatch: true }));
+    }
+    return courses
+      .map(c => {
+        const titleMatch = norm(c.title).includes(q) || norm(c.subject ?? "").includes(q);
+        const sections = c.summary?.sections ?? [];
+        const chapterHits: string[] = [];
+        for (const s of sections) {
+          const title = s.title ?? "";
+          const body = (s.blocks ?? []).map(blockText).join(" ");
+          if (norm(title).includes(q) || norm(body).includes(q)) {
+            if (title) chapterHits.push(title);
           }
-          if (titleMatch || chapterHits.length) {
-            return { course: c, chapters: chapterHits.slice(0, 4), titleMatch };
-          }
-          return null;
-        })
-        .filter((r): r is { course: CourseRow; chapters: string[]; titleMatch: boolean } => !!r);
+        }
+        if (titleMatch || chapterHits.length) {
+          return { course: c, chapters: chapterHits.slice(0, 4), titleMatch };
+        }
+        return null;
+      })
+      .filter((r): r is { course: CourseRow; chapters: string[]; titleMatch: boolean } => !!r);
+  }, [courses, search]);
 
   const removeCourse = async () => {
     if (!toDelete) return;
@@ -122,7 +126,7 @@ export default function Fiches() {
             </button>
           )}
         </div>
-        {q && (
+        {search.trim() && (
           <p className="text-[11px] text-muted-foreground mt-1.5 px-1 font-mono-tag uppercase tracking-wider">
             {results.length} résultat{results.length > 1 ? "s" : ""}
           </p>
@@ -135,7 +139,7 @@ export default function Fiches() {
         <div className="px-5 mt-10 text-center">
           <div className="notebook-card dog-ear p-6 max-w-xs mx-auto">
             <BookOpen className="h-10 w-10 mx-auto text-muted-foreground/50" />
-            {q ? (
+            {search.trim() ? (
               <>
                 <p className="font-hand text-2xl mt-2">Aucun résultat</p>
                 <p className="text-sm text-muted-foreground mt-1">
