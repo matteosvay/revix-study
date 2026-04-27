@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Plus, ChevronRight, BookOpen, Trash2, Loader2, Send } from "lucide-react";
+import { Search, Plus, ChevronRight, BookOpen, Trash2, Loader2, Send, Hash, X } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
@@ -14,7 +14,25 @@ import {
 } from "@/components/ui/alert-dialog";
 import { SendCourseDialog } from "@/components/revix/SendCourseDialog";
 
-type CourseRow = { id: string; title: string; subject: string | null; emoji: string | null; created_at: string };
+type SummarySection = { title?: string; blocks?: any[] };
+type SummaryData = { intro?: string; sections?: SummarySection[] } | null;
+type CourseRow = {
+  id: string; title: string; subject: string | null; emoji: string | null;
+  created_at: string; summary: SummaryData;
+};
+
+// Extracts plain text from a summary block of any kind for keyword search.
+function blockText(b: any): string {
+  if (!b) return "";
+  if (typeof b.text === "string") return b.text;
+  if (b.kind === "definition") return `${b.term ?? ""} ${b.text ?? ""}`;
+  if (b.kind === "list" && Array.isArray(b.items)) return b.items.join(" ");
+  return "";
+}
+
+function norm(s: string) {
+  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+}
 
 export default function Fiches() {
   const { user } = useAuth();
@@ -30,7 +48,7 @@ export default function Fiches() {
     (async () => {
       const { data } = await supabase
         .from("courses")
-        .select("id, title, subject, emoji, created_at")
+        .select("id, title, subject, emoji, created_at, summary")
         .eq("user_id", user.id)
         .order("created_at", { ascending: false });
       setCourses((data ?? []) as CourseRow[]);
@@ -38,7 +56,28 @@ export default function Fiches() {
     })();
   }, [user]);
 
-  const filtered = courses.filter(c => c.title.toLowerCase().includes(search.toLowerCase()));
+  const q = norm(search.trim());
+  // Each result = course + matching chapters (if any). When no search → show all, no chapter hits.
+  const results = !q
+    ? courses.map(c => ({ course: c, chapters: [] as string[], titleMatch: true }))
+    : courses
+        .map(c => {
+          const titleMatch = norm(c.title).includes(q) || norm(c.subject ?? "").includes(q);
+          const sections = c.summary?.sections ?? [];
+          const chapterHits: string[] = [];
+          for (const s of sections) {
+            const title = s.title ?? "";
+            const body = (s.blocks ?? []).map(blockText).join(" ");
+            if (norm(title).includes(q) || norm(body).includes(q)) {
+              if (title) chapterHits.push(title);
+            }
+          }
+          if (titleMatch || chapterHits.length) {
+            return { course: c, chapters: chapterHits.slice(0, 4), titleMatch };
+          }
+          return null;
+        })
+        .filter((r): r is { course: CourseRow; chapters: string[]; titleMatch: boolean } => !!r);
 
   const removeCourse = async () => {
     if (!toDelete) return;
@@ -67,26 +106,60 @@ export default function Fiches() {
       <div className="px-5 mb-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Rechercher..." className="pl-9 bg-muted/50 border-0" />
+          <Input
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Rechercher un cours, chapitre ou mot-clé…"
+            className="pl-9 pr-9 bg-muted/50 border-0"
+          />
+          {search && (
+            <button
+              onClick={() => setSearch("")}
+              aria-label="Effacer la recherche"
+              className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition"
+            >
+              <X className="h-3.5 w-3.5" />
+            </button>
+          )}
         </div>
+        {q && (
+          <p className="text-[11px] text-muted-foreground mt-1.5 px-1 font-mono-tag uppercase tracking-wider">
+            {results.length} résultat{results.length > 1 ? "s" : ""}
+          </p>
+        )}
       </div>
 
       {loading ? (
         <div className="px-5 text-sm text-muted-foreground">Chargement...</div>
-      ) : filtered.length === 0 ? (
+      ) : results.length === 0 ? (
         <div className="px-5 mt-10 text-center">
           <div className="notebook-card dog-ear p-6 max-w-xs mx-auto">
             <BookOpen className="h-10 w-10 mx-auto text-muted-foreground/50" />
-            <p className="font-hand text-2xl mt-2">Cahier vide</p>
-            <p className="text-sm text-muted-foreground mt-1">Crée ton premier cours pour commencer.</p>
-            <Button asChild className="mt-4 rounded-full gradient-primary border-0">
-              <Link to="/app/upload"><Plus className="h-4 w-4 mr-1" /> Nouveau cours</Link>
-            </Button>
+            {q ? (
+              <>
+                <p className="font-hand text-2xl mt-2">Aucun résultat</p>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Rien ne correspond à « {search} ».
+                </p>
+                <Button onClick={() => setSearch("")} variant="outline" className="mt-4 rounded-full">
+                  Effacer la recherche
+                </Button>
+              </>
+            ) : (
+              <>
+                <p className="font-hand text-2xl mt-2">Cahier vide</p>
+                <p className="text-sm text-muted-foreground mt-1">Crée ton premier cours pour commencer.</p>
+                <Button asChild className="mt-4 rounded-full gradient-primary border-0">
+                  <Link to="/app/upload"><Plus className="h-4 w-4 mr-1" /> Nouveau cours</Link>
+                </Button>
+              </>
+            )}
           </div>
         </div>
       ) : (
         <div className="px-4 space-y-3 pb-4">
-          {filtered.map((c, i) => {
+          {results.map((r, i) => {
+            const c = r.course;
             const tape = i % 3 === 0 ? "yellow" : i % 3 === 1 ? "pink" : "mint";
             const tilt = i % 2 === 0 ? "tilt-l" : "tilt-r";
             return (
@@ -103,6 +176,19 @@ export default function Fiches() {
                           {new Date(c.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
                         </span>
                       </div>
+                      {r.chapters.length > 0 && (
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {r.chapters.map((ch, idx) => (
+                            <span
+                              key={idx}
+                              className="inline-flex items-center gap-1 text-[10.5px] px-1.5 py-0.5 rounded-md bg-primary/10 text-primary border border-primary/20 max-w-[180px]"
+                            >
+                              <Hash className="h-2.5 w-2.5 shrink-0" />
+                              <span className="truncate">{ch}</span>
+                            </span>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     <ChevronRight className="h-4 w-4 text-muted-foreground" />
                   </Link>
