@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      coach_conversation_state: {
+        Row: {
+          summary: string
+          summary_until_count: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          summary?: string
+          summary_until_count?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          summary?: string
+          summary_until_count?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       coach_messages: {
         Row: {
           content: string
@@ -150,6 +171,7 @@ export type Database = {
       }
       courses: {
         Row: {
+          content_hash: string | null
           created_at: string
           emoji: string | null
           exam_date: string | null
@@ -164,6 +186,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          content_hash?: string | null
           created_at?: string
           emoji?: string | null
           exam_date?: string | null
@@ -178,6 +201,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          content_hash?: string | null
           created_at?: string
           emoji?: string | null
           exam_date?: string | null
@@ -1486,6 +1510,14 @@ export type Database = {
         Returns: Json
       }
       claim_queen_lootbox: { Args: never; Returns: Json }
+      clone_quiz_bank_from_course: {
+        Args: {
+          p_source_course_id: string
+          p_target_course_id: string
+          p_target_user_id: string
+        }
+        Returns: number
+      }
       consume_powerup: { Args: { p_powerup_key: string }; Returns: Json }
       create_duel: {
         Args: {
