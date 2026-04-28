@@ -7,6 +7,100 @@ import {
   jsonResponse,
   type ClaudeTool,
 } from "../_shared/mod.ts";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
+// Tool de génération groupée pour la banque de questions
+const QUIZ_BANK_TOOL: ClaudeTool = {
+  name: "save_quiz_bank",
+  description: "Enregistre une banque de 15 questions de quizz variées",
+  input_schema: {
+    type: "object",
+    properties: {
+      questions: {
+        type: "array",
+        minItems: 15,
+        maxItems: 15,
+        items: {
+          type: "object",
+          properties: {
+            type: { type: "string", enum: ["qcm", "vrai_faux", "ouvert"] },
+            question: { type: "string" },
+            options: { type: "array", items: { type: "string" } },
+            answer: { type: "string" },
+            difficulty: { type: "integer", minimum: 1, maximum: 3 },
+          },
+          required: ["type", "question", "answer", "difficulty"],
+        },
+      },
+    },
+    required: ["questions"],
+  },
+};
+
+/** Best-effort : génère 15 questions et insère dans quiz_bank. N'échoue jamais (logge seulement). */
+async function generateQuizBank(opts: {
+  userId: string;
+  courseId: string;
+  content: string;
+  subject?: string;
+  title?: string;
+}) {
+  try {
+    const truncated = opts.content.slice(0, 12000);
+    const system = `Tu es un générateur de quizz pour étudiants français. À partir du contenu de cours fourni, génère exactement 15 questions variées :
+- 8 QCM (4 options chacun, une seule bonne réponse — la valeur de "answer" doit être EXACTEMENT l'une des options)
+- 4 Vrai/Faux (answer = "vrai" ou "faux")
+- 3 Questions ouvertes courtes (answer = réponse modèle concise)
+
+Varie les niveaux de difficulté (1=facile, 2=moyen, 3=difficile). Les questions doivent couvrir l'ensemble du contenu.`;
+
+    const userPrompt = `Matière : ${opts.subject ?? "non précisée"}
+Titre du cours : ${opts.title ?? "Cours"}
+
+Cours :
+"""
+${truncated}
+"""
+
+Génère exactement 15 questions (8 QCM + 4 Vrai/Faux + 3 Ouvertes).`;
+
+    const result = await callClaude({
+      system,
+      messages: [{ role: "user", content: userPrompt }],
+      maxTokens: 2500,
+      temperature: 0.5,
+      tools: [QUIZ_BANK_TOOL],
+      toolChoice: { type: "tool", name: "save_quiz_bank" },
+    });
+    const questions = (result.toolInput as any)?.questions;
+    if (!Array.isArray(questions) || questions.length === 0) {
+      console.warn("[quiz_bank] no questions returned");
+      return;
+    }
+
+    // Insertion via service role pour bypasser RLS
+    const admin = createClient(
+      Deno.env.get("SUPABASE_URL")!,
+      Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+    );
+    const rows = questions.slice(0, 15).map((q: any) => ({
+      course_id: opts.courseId,
+      user_id: opts.userId,
+      question: String(q.question ?? "").slice(0, 1000),
+      answer: String(q.answer ?? "").slice(0, 1000),
+      question_type: q.type === "vrai_faux" ? "vrai_faux" : q.type === "ouvert" ? "ouvert" : "qcm",
+      options: Array.isArray(q.options) ? q.options.slice(0, 4) : null,
+      difficulty: Math.max(1, Math.min(3, Number(q.difficulty) || 1)),
+    })).filter((r) => r.question && r.answer);
+
+    if (rows.length === 0) return;
+    const { error } = await admin.from("quiz_bank").insert(rows);
+    if (error) console.error("[quiz_bank] insert failed", error);
+    else console.log(`[quiz_bank] inserted ${rows.length} questions for course ${opts.courseId}`);
+  } catch (e) {
+    console.error("[quiz_bank] failed", e);
+  }
+}
 
 function chunkContent(raw: string, maxChars = 9000): string[] {
   const text = raw.trim();
@@ -193,9 +287,16 @@ Produis la fiche en respectant SCRUPULEUSEMENT la structure de chapitres du cour
       return jsonResponse({ error: "L'IA n'a pas pu générer la fiche." }, { status: 500 });
     }
 
-    return jsonResponse({ summary: { intro, sections: finalSections } });
+    const summary = { intro, sections: finalSections };
+
+    // Lecture du courseId optionnel pour pré-générer la banque de quiz (best-effort, non bloquant)
+    // Le frontend peut passer course_id si la fiche est déjà créée, ou l'orchestrer ensuite.
+    return jsonResponse({ summary });
   } catch (e) {
     console.error("[generate-fiches]", e);
     return claudeErrorResponse(e);
   }
 });
+
+// Export pour pouvoir réutiliser depuis ailleurs (ex: appel via Upload après création du course)
+export { generateQuizBank };
