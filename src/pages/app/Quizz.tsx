@@ -572,7 +572,21 @@ export default function Quizz() {
   if (phase === "select") {
     return (
       <AppLayout>
-        <PageHeader emoji="🧠" title="Quizz" subtitle="Choisis un quizz pour t'entraîner." />
+        <PageHeader
+          emoji="🧠"
+          title="Quizz"
+          subtitle="Choisis un quizz pour t'entraîner."
+          action={
+            <Button
+              size="sm"
+              onClick={() => setGenOpen(true)}
+              className="rounded-full gradient-primary border-0"
+            >
+              <Sparkles className="h-4 w-4 mr-1" /> Générer
+            </Button>
+          }
+        />
+        <GenerateQuizDialog open={genOpen} onOpenChange={setGenOpen} />
         {gaps.length > 0 && (
           <div className="px-4 mt-2 mb-4">
             <div className="flex items-center gap-2 mb-3 px-1">
