@@ -12,6 +12,7 @@ import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { XP_REWARDS } from "@/lib/gamification";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 import { localDateKey } from "@/lib/date";
+import { GenerateQuizDialog } from "@/components/revix/GenerateQuizDialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -100,6 +101,7 @@ export default function Quizz() {
   const [maxCombo, setMaxCombo] = useState(0);
   const [hidden, setHidden] = useState<number[]>([]); // 50/50 hidden indices
   const [inventory, setInventory] = useState<Record<string, number>>({});
+  const [genOpen, setGenOpen] = useState(false);
 
   const loadInventory = async () => {
     if (!user) return;
@@ -570,7 +572,21 @@ export default function Quizz() {
   if (phase === "select") {
     return (
       <AppLayout>
-        <PageHeader emoji="🧠" title="Quizz" subtitle="Choisis un quizz pour t'entraîner." />
+        <PageHeader
+          emoji="🧠"
+          title="Quizz"
+          subtitle="Choisis un quizz pour t'entraîner."
+          action={
+            <Button
+              size="sm"
+              onClick={() => setGenOpen(true)}
+              className="rounded-full gradient-primary border-0"
+            >
+              <Sparkles className="h-4 w-4 mr-1" /> Générer
+            </Button>
+          }
+        />
+        <GenerateQuizDialog open={genOpen} onOpenChange={setGenOpen} />
         {gaps.length > 0 && (
           <div className="px-4 mt-2 mb-4">
             <div className="flex items-center gap-2 mb-3 px-1">
