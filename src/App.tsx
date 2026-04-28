@@ -24,6 +24,7 @@ import Revision from "./pages/app/Revision";
 import StudyGroups from "./pages/app/StudyGroups";
 import Cosmetics from "./pages/app/Cosmetics";
 import PublicProfile from "./pages/app/PublicProfile";
+import AiUsage from "./pages/admin/AiUsage";
 import { AuthProvider } from "./hooks/useAuth";
 import { RequireAuth } from "./components/revix/RequireAuth";
 import { XpOverlay } from "./components/revix/XpOverlay";
@@ -82,6 +83,7 @@ const App = () => (
             <Route path="/app/duel/:id" element={<RequireAuth><DuelPlay /></RequireAuth>} />
             <Route path="/app/room/:id" element={<RequireAuth><StudyRoom /></RequireAuth>} />
             <Route path="/app/profil" element={<RequireAuth><Profil /></RequireAuth>} />
+            <Route path="/admin/ai-usage" element={<RequireAuth><AiUsage /></RequireAuth>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
