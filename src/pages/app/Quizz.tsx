@@ -12,6 +12,7 @@ import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { XP_REWARDS } from "@/lib/gamification";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 import { localDateKey } from "@/lib/date";
+import { GenerateQuizDialog } from "@/components/revix/GenerateQuizDialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -100,6 +101,7 @@ export default function Quizz() {
   const [maxCombo, setMaxCombo] = useState(0);
   const [hidden, setHidden] = useState<number[]>([]); // 50/50 hidden indices
   const [inventory, setInventory] = useState<Record<string, number>>({});
+  const [genOpen, setGenOpen] = useState(false);
 
   const loadInventory = async () => {
     if (!user) return;
