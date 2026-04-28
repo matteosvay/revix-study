@@ -181,7 +181,7 @@ Deno.serve(async (req) => {
     const auth = await authenticate(req);
     if (!auth.ok) return auth.response;
 
-    const { content, subject, level, title } = await req.json();
+    const { content, subject, level, title, course_id } = await req.json();
     if (!content || content.trim().length < 20) {
       return jsonResponse({ error: "Contenu trop court" }, { status: 400 });
     }
@@ -289,14 +289,30 @@ Produis la fiche en respectant SCRUPULEUSEMENT la structure de chapitres du cour
 
     const summary = { intro, sections: finalSections };
 
-    // Lecture du courseId optionnel pour pré-générer la banque de quiz (best-effort, non bloquant)
-    // Le frontend peut passer course_id si la fiche est déjà créée, ou l'orchestrer ensuite.
+    // Si le frontend a déjà créé le course (et nous passe son id), pré-génère la banque
+    // de 15 questions en arrière-plan. Best-effort : n'impacte pas la réponse.
+    if (typeof course_id === "string" && course_id.length > 0) {
+      // EdgeRuntime.waitUntil garde la fonction vivante après la réponse
+      const task = generateQuizBank({
+        userId: auth.userId,
+        courseId: course_id,
+        content,
+        subject,
+        title,
+      });
+      // @ts-ignore — EdgeRuntime est dispo en runtime Supabase
+      if (typeof EdgeRuntime !== "undefined" && EdgeRuntime?.waitUntil) {
+        // @ts-ignore
+        EdgeRuntime.waitUntil(task);
+      } else {
+        // fallback : await pour ne pas perdre la promesse en local
+        await task.catch((e) => console.error("[quiz_bank] bg failed", e));
+      }
+    }
+
     return jsonResponse({ summary });
   } catch (e) {
     console.error("[generate-fiches]", e);
     return claudeErrorResponse(e);
   }
 });
-
-// Export pour pouvoir réutiliser depuis ailleurs (ex: appel via Upload après création du course)
-export { generateQuizBank };
