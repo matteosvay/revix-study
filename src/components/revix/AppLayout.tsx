@@ -1,11 +1,12 @@
 import { ReactNode } from "react";
 import { NavLink } from "@/components/NavLink";
-import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles } from "lucide-react";
+import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles, BarChart3 } from "lucide-react";
 import { ScribbleUnderline } from "./Scribble";
 import { Logo } from "./Logo";
 import { NotificationBell } from "./NotificationBell";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Link } from "react-router-dom";
 
 const nav = [
@@ -26,6 +27,7 @@ const nav = [
  */
 export const AppLayout = ({ children, wide = false }: { children: ReactNode; wide?: boolean }) => {
   const { user } = useAuth();
+  const { data: isAdmin } = useIsAdmin();
   const rawDisplayName = user?.user_metadata?.display_name;
   const displayName = typeof rawDisplayName === "string" && rawDisplayName.trim()
     ? rawDisplayName
@@ -67,6 +69,19 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
               <span>{n.label}</span>
             </NavLink>
           ))}
+          {isAdmin && (
+            <>
+              <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground px-3 mb-2 mt-5">Admin</p>
+              <NavLink
+                to="/admin/ai-usage"
+                className="group flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-bold uppercase tracking-wide text-muted-foreground transition-all border-2 border-transparent hover:border-foreground hover:bg-secondary hover:translate-x-0.5"
+                activeClassName="!text-foreground !bg-accent !border-foreground shadow-brutal"
+              >
+                <BarChart3 className="h-[18px] w-[18px] shrink-0" strokeWidth={2.5} />
+                <span>Suivi IA</span>
+              </NavLink>
+            </>
+          )}
         </nav>
         <Link to="/app/profil" className="m-3 p-3 rounded-xl border-[2.5px] border-foreground bg-background hover:bg-secondary transition-colors shadow-brutal flex items-center gap-3">
           <Avatar className="h-10 w-10 border-2 border-foreground shrink-0">
