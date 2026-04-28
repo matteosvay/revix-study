@@ -29,6 +29,7 @@ import { RequireAuth } from "./components/revix/RequireAuth";
 import { XpOverlay } from "./components/revix/XpOverlay";
 import { InstallAppPrompt } from "./components/revix/InstallAppPrompt";
 import { ErrorBoundary } from "./components/revix/ErrorBoundary";
+import { AiLimitModal } from "./components/revix/AiLimitModal";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -58,6 +59,7 @@ const App = () => (
           <Sonner />
           <XpOverlay />
           <InstallAppPrompt />
+          <AiLimitModal />
           <BrowserRouter>
             <Routes>
             <Route path="/" element={<Index />} />
