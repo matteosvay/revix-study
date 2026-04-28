@@ -1187,6 +1187,39 @@ export type Database = {
         }
         Relationships: []
       }
+      usage_counters: {
+        Row: {
+          action_type: string
+          count: number
+          created_at: string
+          id: string
+          period_key: string
+          period_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          count?: number
+          created_at?: string
+          id?: string
+          period_key: string
+          period_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          count?: number
+          created_at?: string
+          id?: string
+          period_key?: string
+          period_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_badges: {
         Row: {
           badge_key: string
@@ -1393,6 +1426,15 @@ export type Database = {
       }
       bump_streak: { Args: { p_user_id: string }; Returns: undefined }
       buy_cosmetic: { Args: { p_item_key: string }; Returns: Json }
+      check_and_increment_usage: {
+        Args: {
+          p_action_type: string
+          p_daily_limit: number
+          p_user_id: string
+          p_weekly_limit: number
+        }
+        Returns: Json
+      }
       claim_queen_lootbox: { Args: never; Returns: Json }
       consume_powerup: { Args: { p_powerup_key: string }; Returns: Json }
       create_duel: {
