@@ -207,9 +207,19 @@ export default function Upload() {
 
       // Génère la fiche de cours (résumé exhaustif)
       const { data: gen, error: gErr } = await supabase.functions.invoke("generate-fiches", {
-        body: { content, subject, title },
+        body: { content, subject, title, course_id: course.id },
       });
-      if (gErr) throw gErr;
+      if (gErr) {
+        // Si rate-limit, le modal s'ouvrira via handleAiLimit ; sinon on jette.
+        const { handleAiLimit } = await import("@/lib/aiLimits");
+        if (handleAiLimit(gErr, gen)) {
+          // Nettoie le course créé sans fiche
+          await supabase.from("courses").delete().eq("id", course.id);
+          setStep(-1);
+          return;
+        }
+        throw gErr;
+      }
       if (!gen?.summary?.sections?.length) {
         throw new Error("L'IA n'a pas pu générer la fiche. Réessaie.");
       }
