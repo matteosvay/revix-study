@@ -127,7 +127,7 @@ ${content.slice(0, 12000)}
       result = await callClaude({
         system,
         messages: [{ role: "user", content: userPrompt }],
-        maxTokens: 800,
+        maxTokens: Math.min(8000, 400 + safeCount * 350),
         temperature: 0.6,
         tools: [QUIZ_TOOL],
         toolChoice: { type: "tool", name: "save_quiz" },
@@ -137,6 +137,17 @@ ${content.slice(0, 12000)}
     }
 
     let questions = (result.toolInput as any)?.questions ?? [];
+    if (!questions.length) {
+      console.error("[generate-quiz] empty questions", {
+        stop_reason: result.raw?.stop_reason,
+        usage: result.raw?.usage,
+        hasToolInput: !!result.toolInput,
+      });
+      return jsonResponse(
+        { error: "Aucune question générée. Réessaie en réduisant le nombre de questions ou la portée." },
+        { status: 502 },
+      );
+    }
 
     // ANTI-BIAIS — re-shuffle answers server side
     questions = questions.map((q: any) => {
