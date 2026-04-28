@@ -13,6 +13,7 @@ import { QuizBonusLootBoxCard } from "@/components/revix/QuizBonusLootBoxCard";
 import { FlashQuizCard } from "@/components/revix/FlashQuizCard";
 import { ReviewCard } from "@/components/revix/ReviewCard";
 import { useFomoChecks } from "@/hooks/useFomoChecks";
+import { UsageMeter } from "@/components/revix/UsageMeter";
 
 type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
 
@@ -249,6 +250,11 @@ export default function Dashboard() {
             </Button>
           </div>
         )}
+
+        <div className="mt-6 mb-2 px-1">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Tes quotas IA</p>
+        </div>
+        <UsageMeter />
       </div>
     </AppLayout>
   );
