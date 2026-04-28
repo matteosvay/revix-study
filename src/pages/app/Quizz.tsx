@@ -393,7 +393,31 @@ export default function Quizz() {
       supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
       return;
     }
-    // ouvert -> IA
+    // ouvert -> correction hybride : Levenshtein d'abord, IA seulement si zone grise
+    const { bestSimilarity } = await import("@/lib/levenshtein");
+    const candidates = [
+      ...(q.accepted_answers ?? []),
+      ...(q.explanation ? [q.explanation] : []),
+    ].filter(Boolean) as string[];
+    if (candidates.length > 0) {
+      const sim = bestSimilarity(textAnswer, candidates);
+      if (sim >= 0.85) {
+        setOpenResult({ correct: true, feedback: "Bonne réponse ! ✨" });
+        advance(true);
+        supabase.rpc("review_question", { p_question_id: q.id, p_correct: true });
+        return;
+      }
+      if (sim < 0.30) {
+        setOpenResult({
+          correct: false,
+          feedback: `Pas tout à fait. Réponse attendue : ${candidates[0]}`,
+        });
+        advance(false);
+        supabase.rpc("review_question", { p_question_id: q.id, p_correct: false });
+        return;
+      }
+      // Zone grise [0.30 ; 0.85[ → on demande à l'IA
+    }
     setGrading(true);
     try {
       const { data, error } = await supabase.functions.invoke("grade-open", {
@@ -404,7 +428,11 @@ export default function Quizz() {
           acceptedAnswers: q.accepted_answers ?? [],
         },
       });
-      if (error) throw error;
+      if (error) {
+        const { handleAiLimit } = await import("@/lib/aiLimits");
+        if (handleAiLimit(error, data)) { setGrading(false); return; }
+        throw error;
+      }
       const ok = !!data?.correct;
       setOpenResult({ correct: ok, feedback: data?.feedback ?? "" });
       advance(ok);
