@@ -1510,6 +1510,19 @@ export type Database = {
         Returns: Json
       }
       claim_queen_lootbox: { Args: never; Returns: Json }
+      clone_course_by_hash: {
+        Args: {
+          p_content_hash: string
+          p_exam_date: string
+          p_level: string
+          p_source_content: string
+          p_source_file_path: string
+          p_subject: string
+          p_target_user_id: string
+          p_title: string
+        }
+        Returns: string
+      }
       clone_quiz_bank_from_course: {
         Args: {
           p_source_course_id: string
