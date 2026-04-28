@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { LogOut, Trash2, Sparkles, Camera, Loader2, Shirt, BookMarked, ChevronRight } from "lucide-react";
+import { LogOut, Trash2, Sparkles, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -18,10 +18,12 @@ import { FORMATIONS } from "@/data/formations";
 import { SUBJECTS } from "@/data/subjects";
 import { AvatarCropper } from "@/components/revix/AvatarCropper";
 import { GENDER_OPTIONS } from "@/lib/gender";
+import { useIsAdmin } from "@/hooks/useIsAdmin";
 
 export default function Profil() {
   const { user } = useAuth();
   const nav = useNavigate();
+  const { data: isAdmin } = useIsAdmin();
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
   const [uploading, setUploading] = useState(false);
@@ -175,6 +177,18 @@ export default function Profil() {
             </div>
             <ChevronRight className="h-4 w-4 text-muted-foreground" />
           </Link>
+          {isAdmin && (
+            <Link to="/admin/ai-usage" className="flex items-center gap-3 rounded-md border-[2.5px] border-foreground bg-card p-3 shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
+              <div className="h-10 w-10 rounded-md bg-primary border-2 border-foreground flex items-center justify-center text-primary-foreground">
+                <BarChart3 className="h-5 w-5" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-bold">Suivi IA Claude <span className="text-[10px] px-1.5 py-0.5 rounded bg-destructive text-destructive-foreground ml-1">ADMIN</span></p>
+                <p className="text-[11px] text-muted-foreground">Coûts, appels, top users</p>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+            </Link>
+          )}
         </div>
 
         <div className="space-y-3">
