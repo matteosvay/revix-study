@@ -198,10 +198,46 @@ export default function Upload() {
       if (content.trim().length < 20) throw new Error("Contenu illisible. Essaie un fichier plus net ou colle le texte.");
 
       setStep(2);
-      // Insert course
+      // ---- Déduplication par hash de contenu ----
+      // Si exactement le même cours existe déjà (peu importe l'utilisateur), on clone
+      // sa fiche + sa banque de quiz au lieu de relancer l'IA.
+      const contentHash = await sha256Hex(content);
+      const { data: clonedId, error: cloneErr } = await supabase.rpc("clone_course_by_hash", {
+        p_content_hash: contentHash,
+        p_target_user_id: user.id,
+        p_title: title,
+        p_subject: subject,
+        p_level: null,
+        p_source_content: content,
+        p_source_file_path: storagePath,
+        p_exam_date: examDate || null,
+      });
+      if (cloneErr) console.warn("[upload] clone_course_by_hash failed", cloneErr);
+
+      if (clonedId) {
+        // Hit du cache : on a un cours prêt, on fait le suivi de gamification habituel
+        setStep(3);
+        const { data: profileState } = await supabase.from("profiles").select("last_active_date").eq("id", user.id).maybeSingle();
+        const todayKey = localDateKey(new Date());
+        const isFirstActivityToday = profileState?.last_active_date !== todayKey;
+        await supabase.rpc("bump_streak", { p_user_id: user.id });
+        await awardXp(user.id, XP_REWARDS.upload, "course_upload");
+        await bumpQuest(user.id, "course_uploaded", 1);
+        if (isFirstActivityToday) {
+          await bumpQuest(user.id, "streak_kept", 1);
+          await bumpQuest(user.id, "w_7_streak", 1);
+        }
+        await bumpQuest(user.id, "w_4_uploads", 1);
+        toast.success("Ta fiche est prête ✨ (déjà disponible dans Revix)");
+        nav(`/app/fiches/${clonedId}`);
+        return;
+      }
+
+      // Pas de cache : insert le cours + appel IA normal
       const { data: course, error: cErr } = await supabase.from("courses").insert({
         user_id: user.id, title, subject, level: null, source_content: content,
         source_file_path: storagePath, exam_date: examDate || null,
+        content_hash: contentHash,
       }).select().single();
       if (cErr) throw cErr;
 
