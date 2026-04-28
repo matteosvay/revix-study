@@ -775,6 +775,56 @@ export type Database = {
           },
         ]
       }
+      quiz_bank: {
+        Row: {
+          answer: string
+          course_id: string
+          created_at: string
+          difficulty: number
+          id: string
+          options: Json | null
+          question: string
+          question_type: string
+          times_correct: number
+          times_shown: number
+          user_id: string
+        }
+        Insert: {
+          answer: string
+          course_id: string
+          created_at?: string
+          difficulty?: number
+          id?: string
+          options?: Json | null
+          question: string
+          question_type: string
+          times_correct?: number
+          times_shown?: number
+          user_id: string
+        }
+        Update: {
+          answer?: string
+          course_id?: string
+          created_at?: string
+          difficulty?: number
+          id?: string
+          options?: Json | null
+          question?: string
+          question_type?: string
+          times_correct?: number
+          times_shown?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "quiz_bank_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       quiz_questions: {
         Row: {
           accepted_answers: Json | null
