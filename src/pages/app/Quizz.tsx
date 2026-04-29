@@ -3,7 +3,6 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Textarea } from "@/components/ui/textarea";
 import { Brain, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle, Scissors, SkipForward, Timer, Zap, Trash2, Link2, Shuffle, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -64,7 +63,6 @@ export default function Quizz() {
   const [phase, setPhase] = useState<"select" | "play" | "end">("select");
   const [qIdx, setQIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
-  const [textAnswer, setTextAnswer] = useState("");
   const [multiPicked, setMultiPicked] = useState<number[]>([]);
   const [multiSubmitted, setMultiSubmitted] = useState(false);
   const [orderPicked, setOrderPicked] = useState<number[]>([]);
@@ -84,8 +82,6 @@ export default function Quizz() {
   const [assocAttempts, setAssocAttempts] = useState<number>(0);
   // Flash visuel après un check partiel : highlights des paires fausses
   const [assocFlashWrong, setAssocFlashWrong] = useState<boolean>(false);
-  const [openResult, setOpenResult] = useState<{ correct: boolean; feedback: string } | null>(null);
-  const [grading, setGrading] = useState(false);
   const [score, setScore] = useState(0);
   const [wrong, setWrong] = useState<number[]>([]);
   const [gaps, setGaps] = useState<CourseGap[]>([]);
