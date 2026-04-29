@@ -636,7 +636,6 @@ export default function Quizz() {
     const isChoice = q.type === "qcm" || q.type === "vrai_faux";
     const isMulti = q.type === "qcm_multi";
     const isOrder = q.type === "ordre";
-    const isText = q.type === "ouvert" || q.type === "trous";
     const isAssoc = q.type === "association";
     const choices = q.type === "vrai_faux" ? (q.answers ?? ["Vrai", "Faux"]) : (q.answers ?? []);
     const postitVariants = ["", "answer-postit-pink", "answer-postit-blue", "answer-postit-mint"];
@@ -949,40 +948,15 @@ export default function Quizz() {
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="mt-5 space-y-3">
-                <Textarea
-                  value={textAnswer}
-                  onChange={(e) => setTextAnswer(e.target.value)}
-                  disabled={openResult !== null || grading}
-                  rows={q.type === "trous" ? 2 : 4}
-                  placeholder={q.type === "trous" ? "Mot ou expression..." : "Rédige ta réponse en quelques phrases..."}
-                  className="resize-none notebook-card !pl-12 font-hand !text-lg"
-                />
-                {openResult === null && (
-                  <Button onClick={submitText} disabled={grading || !textAnswer.trim()} className="w-full rounded-full gradient-primary border-0">
-                    {grading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Correction...</> : "Valider"}
-                  </Button>
-                )}
-                {openResult && (
-                  <div className={`answer-postit ${openResult.correct ? "is-correct" : "is-wrong"} !cursor-default`}>
-                    <div className="flex items-center gap-2 font-mono-tag text-xs uppercase">
-                      {openResult.correct ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
-                      <span>{openResult.correct ? "Bonne réponse" : "À revoir"}</span>
-                    </div>
-                    <p className="font-hand text-base mt-1.5">{openResult.feedback}</p>
-                  </div>
-                )}
-              </div>
-            )}
+            ) : null}
 
-            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted) || (isText && openResult !== null)) && q.explanation && (
+            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted)) && q.explanation && (
               <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
                 💡 {q.explanation}
               </div>
             )}
 
-            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted) || (isText && openResult !== null)) && (
+            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted)) && (
               <Button
                 onClick={goNext}
                 className="mt-5 w-full rounded-md gradient-primary border-2 border-foreground font-bold animate-fade-in"
