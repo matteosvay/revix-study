@@ -1,12 +1,10 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Brain, CheckCircle2, XCircle, Loader2, Repeat, Sparkles, ChevronRight, Folder, BookOpen, Flame } from "lucide-react";
+import { ArrowLeft, Brain, CheckCircle2, XCircle, Repeat, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "sonner";
 import { awardXp } from "@/hooks/useGamification";
 import { RevisionExplorer } from "@/components/revix/RevisionExplorer";
 
