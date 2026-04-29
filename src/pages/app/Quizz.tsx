@@ -1114,7 +1114,7 @@ export default function Quizz() {
         </div>
 
         <div className="mt-5 flex gap-3 justify-center">
-          <button onClick={() => activeQuiz && startQuiz(activeQuiz)} className="pen-btn pen-btn-blue">
+          <button onClick={() => activeQuiz && startQuiz(activeQuiz, { shuffle: true })} className="pen-btn pen-btn-blue">
             <RefreshCw className="h-4 w-4 inline mr-1" /> Refaire
           </button>
           <button onClick={() => setPhase("select")} className="pen-btn pen-btn-green">Autre quizz</button>
