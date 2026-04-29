@@ -603,7 +603,7 @@ export default function Quizz() {
                 className={`relative notebook-card flex items-center gap-3 p-4 hover:shadow-glow transition-all ${i % 2 === 0 ? "tilt-l" : "tilt-r"}`}
               >
                 <Tape variant={i % 3 === 0 ? "yellow" : i % 3 === 1 ? "pink" : "mint"} position="top-right" />
-                <button onClick={() => startQuiz(q)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
+                <button onClick={() => startQuiz(q, { shuffle: true })} className="flex items-center gap-3 flex-1 min-w-0 text-left">
                   <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <Brain className="h-5 w-5" />
                   </div>
@@ -612,6 +612,14 @@ export default function Quizz() {
                     <span className="label-tape mt-1">{TYPE_LABELS[(q.quiz_type as QType) ?? "qcm"] ?? "QCM"}</span>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); openReview(q); }}
+                  className="h-9 w-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition shrink-0"
+                  aria-label="Voir la correction"
+                  title="Voir la correction"
+                >
+                  <Eye className="h-4 w-4" />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); setQuizToDelete(q); }}
