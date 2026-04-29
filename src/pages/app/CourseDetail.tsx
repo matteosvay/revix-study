@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Brain, Trash2, Loader2, ListChecks, CheckSquare, ToggleLeft, ArrowDownUp, Link2, Sparkles } from "lucide-react";
+import { Brain, Trash2, Loader2, ListChecks, CheckSquare, ToggleLeft, ArrowDownUp, Link2, Sparkles } from "lucide-react";
+import { BackButton } from "@/components/revix/BackButton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -129,12 +130,10 @@ export default function CourseDetail() {
 
   return (
     <AppLayout>
-      <div className="px-3 pt-3 flex items-center gap-1">
-        <Button asChild variant="ghost" size="icon" className="rounded-full">
-          <Link to="/app/fiches"><ArrowLeft className="h-5 w-5" /></Link>
-        </Button>
+      <div className="flex items-center gap-1 pr-3">
+        <BackButton fallback="/app/fiches" />
         <div className="flex-1" />
-        <Button onClick={remove} variant="ghost" size="icon" className="rounded-full text-destructive">
+        <Button onClick={remove} variant="ghost" size="icon" className="rounded-full text-destructive mt-4">
           <Trash2 className="h-4 w-4" />
         </Button>
       </div>
