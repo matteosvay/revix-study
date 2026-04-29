@@ -18,17 +18,13 @@ type DueQ = {
   course_emoji: string | null;
   chapter: string | null;
   question: string;
-  type: "qcm" | "vrai_faux" | "ouvert" | "trous";
+  type: "qcm" | "vrai_faux" | "ouvert" | "trous" | "ordre" | "association";
   answers: string[] | null;
   correct_index: number | null;
   accepted_answers: string[] | null;
   explanation: string | null;
   due_at: string;
 };
-
-function normalize(s: string) {
-  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}\s]/gu, "").trim();
-}
 
 export default function Revision() {
   const { user } = useAuth();
@@ -37,16 +33,15 @@ export default function Revision() {
   const [loading, setLoading] = useState(true);
   const [idx, setIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
-  const [text, setText] = useState("");
-  const [openOk, setOpenOk] = useState<boolean | null>(null);
-  const [grading, setGrading] = useState(false);
   const [stats, setStats] = useState({ ok: 0, ko: 0 });
 
   useEffect(() => {
     if (!user) return;
     (async () => {
       const { data } = await supabase.rpc("get_due_review_questions", { p_limit: 15 });
-      setQueue((data as any) ?? []);
+      // Garde uniquement les types supportés ici (QCM / Vrai-Faux).
+      const filtered = ((data as any[]) ?? []).filter((q) => q.type === "qcm" || q.type === "vrai_faux");
+      setQueue(filtered as any);
       setLoading(false);
     })();
   }, [user]);
@@ -61,7 +56,7 @@ export default function Revision() {
   };
 
   const next = async () => {
-    setPicked(null); setText(""); setOpenOk(null);
+    setPicked(null);
     if (idx + 1 >= queue.length) {
       // award xp at the end
       const total = stats.ok + stats.ko + 1;
@@ -76,35 +71,6 @@ export default function Revision() {
     setPicked(i);
     const ok = current.correct_index === i;
     await recordReview(ok);
-  };
-
-  const submitText = async () => {
-    if (!current || !text.trim()) return;
-    if (current.type === "trous") {
-      const accepted = (current.accepted_answers ?? []).map(normalize);
-      const u = normalize(text);
-      const ok = accepted.includes(u) || accepted.some(a => u.includes(a) || a.includes(u));
-      setOpenOk(ok);
-      await recordReview(ok);
-      return;
-    }
-    setGrading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("grade-open", {
-        body: {
-          question: current.question,
-          userAnswer: text,
-          expectedAnswer: current.explanation,
-          acceptedAnswers: current.accepted_answers ?? [],
-        },
-      });
-      if (error) throw error;
-      const ok = !!data?.correct;
-      setOpenOk(ok);
-      await recordReview(ok);
-    } catch (e: any) {
-      toast.error(e?.message ?? "Erreur de correction");
-    } finally { setGrading(false); }
   };
 
   if (loading) {
