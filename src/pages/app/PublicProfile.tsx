@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import { AppLayout } from "@/components/revix/AppLayout";
-import { Button } from "@/components/ui/button";
-import { ArrowLeft, Flame, Trophy, Zap } from "lucide-react";
+import { Flame, Trophy, Zap } from "lucide-react";
+import { BackButton } from "@/components/revix/BackButton";
 import { supabase } from "@/integrations/supabase/client";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
 import { BackgroundDecor } from "@/components/revix/cosmetics/BackgroundDecor";
@@ -31,12 +31,7 @@ export default function PublicProfile() {
 
   return (
     <AppLayout>
-      <div className="px-3 pt-3 flex items-center gap-1">
-        <Button asChild variant="ghost" size="icon" className="rounded-full">
-          <Link to="/app/campus"><ArrowLeft className="h-5 w-5" /></Link>
-        </Button>
-        <p className="text-xs text-muted-foreground">Profil</p>
-      </div>
+      <BackButton fallback="/app/campus" />
 
       <div className="px-5">
         <div className="rounded-md border-[2.5px] border-foreground overflow-hidden shadow-brutal-sm bg-card">
