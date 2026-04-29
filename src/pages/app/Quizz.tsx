@@ -377,67 +377,6 @@ export default function Quizz() {
     }
   };
 
-  const submitText = async () => {
-    const q = questions[qIdx];
-    if (!textAnswer.trim()) { toast.error("Écris ta réponse."); return; }
-    if (q.type === "trous") {
-      const accepted = (q.accepted_answers ?? []).map(normalize);
-      const user = normalize(textAnswer);
-      const ok = accepted.includes(user) || accepted.some(a => user.includes(a) || a.includes(user));
-      setOpenResult({ correct: ok, feedback: ok ? "Bonne réponse !" : `Attendu : ${q.accepted_answers?.[0] ?? "—"}` });
-      advance(ok);
-      supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
-      return;
-    }
-    // ouvert -> correction hybride : Levenshtein d'abord, IA seulement si zone grise
-    const { bestSimilarity } = await import("@/lib/levenshtein");
-    const candidates = [
-      ...(q.accepted_answers ?? []),
-      ...(q.explanation ? [q.explanation] : []),
-    ].filter(Boolean) as string[];
-    if (candidates.length > 0) {
-      const sim = bestSimilarity(textAnswer, candidates);
-      if (sim >= 0.85) {
-        setOpenResult({ correct: true, feedback: "Bonne réponse ! ✨" });
-        advance(true);
-        supabase.rpc("review_question", { p_question_id: q.id, p_correct: true });
-        return;
-      }
-      if (sim < 0.30) {
-        setOpenResult({
-          correct: false,
-          feedback: `Pas tout à fait. Réponse attendue : ${candidates[0]}`,
-        });
-        advance(false);
-        supabase.rpc("review_question", { p_question_id: q.id, p_correct: false });
-        return;
-      }
-      // Zone grise [0.30 ; 0.85[ → on demande à l'IA
-    }
-    setGrading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("grade-open", {
-        body: {
-          question: q.question,
-          userAnswer: textAnswer,
-          expectedAnswer: q.explanation,
-          acceptedAnswers: q.accepted_answers ?? [],
-        },
-      });
-      if (error) {
-        const { handleAiLimit } = await import("@/lib/aiLimits");
-        if (handleAiLimit(error, data)) { setGrading(false); return; }
-        throw error;
-      }
-      const ok = !!data?.correct;
-      setOpenResult({ correct: ok, feedback: data?.feedback ?? "" });
-      advance(ok);
-      supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
-    } catch (e: any) {
-      toast.error(e?.message ?? "Erreur de correction");
-    } finally { setGrading(false); }
-  };
-
   // Soumet une réponse QCM multi
   const submitMulti = () => {
     const q = questions[qIdx];
