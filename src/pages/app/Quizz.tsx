@@ -3,8 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Textarea } from "@/components/ui/textarea";
-import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle, Scissors, SkipForward, Timer, Zap, Trash2, Link2, Shuffle } from "lucide-react";
+import { Brain, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle, Scissors, SkipForward, Timer, Zap, Trash2, Link2, Shuffle, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -18,7 +17,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-type QType = "qcm" | "qcm_multi" | "vrai_faux" | "ouvert" | "trous" | "ordre" | "association";
+type QType = "qcm" | "qcm_multi" | "vrai_faux" | "ordre" | "association";
 type Q = {
   id: string;
   question: string;
@@ -46,15 +45,9 @@ const TYPE_LABELS: Record<QType, string> = {
   qcm: "QCM",
   qcm_multi: "QCM multi",
   vrai_faux: "Vrai / Faux",
-  ouvert: "Question ouverte",
-  trous: "Texte à trous",
   ordre: "Mise en ordre",
   association: "Association 🔗",
 };
-
-function normalize(s: string) {
-  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}\s]/gu, "").trim();
-}
 
 export default function Quizz() {
   const { user } = useAuth();
@@ -70,7 +63,6 @@ export default function Quizz() {
   const [phase, setPhase] = useState<"select" | "play" | "end">("select");
   const [qIdx, setQIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
-  const [textAnswer, setTextAnswer] = useState("");
   const [multiPicked, setMultiPicked] = useState<number[]>([]);
   const [multiSubmitted, setMultiSubmitted] = useState(false);
   const [orderPicked, setOrderPicked] = useState<number[]>([]);
@@ -90,8 +82,6 @@ export default function Quizz() {
   const [assocAttempts, setAssocAttempts] = useState<number>(0);
   // Flash visuel après un check partiel : highlights des paires fausses
   const [assocFlashWrong, setAssocFlashWrong] = useState<boolean>(false);
-  const [openResult, setOpenResult] = useState<{ correct: boolean; feedback: string } | null>(null);
-  const [grading, setGrading] = useState(false);
   const [score, setScore] = useState(0);
   const [wrong, setWrong] = useState<number[]>([]);
   const [gaps, setGaps] = useState<CourseGap[]>([]);
@@ -383,67 +373,6 @@ export default function Quizz() {
     }
   };
 
-  const submitText = async () => {
-    const q = questions[qIdx];
-    if (!textAnswer.trim()) { toast.error("Écris ta réponse."); return; }
-    if (q.type === "trous") {
-      const accepted = (q.accepted_answers ?? []).map(normalize);
-      const user = normalize(textAnswer);
-      const ok = accepted.includes(user) || accepted.some(a => user.includes(a) || a.includes(user));
-      setOpenResult({ correct: ok, feedback: ok ? "Bonne réponse !" : `Attendu : ${q.accepted_answers?.[0] ?? "—"}` });
-      advance(ok);
-      supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
-      return;
-    }
-    // ouvert -> correction hybride : Levenshtein d'abord, IA seulement si zone grise
-    const { bestSimilarity } = await import("@/lib/levenshtein");
-    const candidates = [
-      ...(q.accepted_answers ?? []),
-      ...(q.explanation ? [q.explanation] : []),
-    ].filter(Boolean) as string[];
-    if (candidates.length > 0) {
-      const sim = bestSimilarity(textAnswer, candidates);
-      if (sim >= 0.85) {
-        setOpenResult({ correct: true, feedback: "Bonne réponse ! ✨" });
-        advance(true);
-        supabase.rpc("review_question", { p_question_id: q.id, p_correct: true });
-        return;
-      }
-      if (sim < 0.30) {
-        setOpenResult({
-          correct: false,
-          feedback: `Pas tout à fait. Réponse attendue : ${candidates[0]}`,
-        });
-        advance(false);
-        supabase.rpc("review_question", { p_question_id: q.id, p_correct: false });
-        return;
-      }
-      // Zone grise [0.30 ; 0.85[ → on demande à l'IA
-    }
-    setGrading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("grade-open", {
-        body: {
-          question: q.question,
-          userAnswer: textAnswer,
-          expectedAnswer: q.explanation,
-          acceptedAnswers: q.accepted_answers ?? [],
-        },
-      });
-      if (error) {
-        const { handleAiLimit } = await import("@/lib/aiLimits");
-        if (handleAiLimit(error, data)) { setGrading(false); return; }
-        throw error;
-      }
-      const ok = !!data?.correct;
-      setOpenResult({ correct: ok, feedback: data?.feedback ?? "" });
-      advance(ok);
-      supabase.rpc("review_question", { p_question_id: q.id, p_correct: ok });
-    } catch (e: any) {
-      toast.error(e?.message ?? "Erreur de correction");
-    } finally { setGrading(false); }
-  };
-
   // Soumet une réponse QCM multi
   const submitMulti = () => {
     const q = questions[qIdx];
@@ -703,7 +632,6 @@ export default function Quizz() {
     const isChoice = q.type === "qcm" || q.type === "vrai_faux";
     const isMulti = q.type === "qcm_multi";
     const isOrder = q.type === "ordre";
-    const isText = q.type === "ouvert" || q.type === "trous";
     const isAssoc = q.type === "association";
     const choices = q.type === "vrai_faux" ? (q.answers ?? ["Vrai", "Faux"]) : (q.answers ?? []);
     const postitVariants = ["", "answer-postit-pink", "answer-postit-blue", "answer-postit-mint"];
@@ -1016,40 +944,15 @@ export default function Quizz() {
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="mt-5 space-y-3">
-                <Textarea
-                  value={textAnswer}
-                  onChange={(e) => setTextAnswer(e.target.value)}
-                  disabled={openResult !== null || grading}
-                  rows={q.type === "trous" ? 2 : 4}
-                  placeholder={q.type === "trous" ? "Mot ou expression..." : "Rédige ta réponse en quelques phrases..."}
-                  className="resize-none notebook-card !pl-12 font-hand !text-lg"
-                />
-                {openResult === null && (
-                  <Button onClick={submitText} disabled={grading || !textAnswer.trim()} className="w-full rounded-full gradient-primary border-0">
-                    {grading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Correction...</> : "Valider"}
-                  </Button>
-                )}
-                {openResult && (
-                  <div className={`answer-postit ${openResult.correct ? "is-correct" : "is-wrong"} !cursor-default`}>
-                    <div className="flex items-center gap-2 font-mono-tag text-xs uppercase">
-                      {openResult.correct ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
-                      <span>{openResult.correct ? "Bonne réponse" : "À revoir"}</span>
-                    </div>
-                    <p className="font-hand text-base mt-1.5">{openResult.feedback}</p>
-                  </div>
-                )}
-              </div>
-            )}
+            ) : null}
 
-            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted) || (isText && openResult !== null)) && q.explanation && (
+            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted)) && q.explanation && (
               <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
                 💡 {q.explanation}
               </div>
             )}
 
-            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted) || (isText && openResult !== null)) && (
+            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted)) && (
               <Button
                 onClick={goNext}
                 className="mt-5 w-full rounded-md gradient-primary border-2 border-foreground font-bold animate-fade-in"

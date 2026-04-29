@@ -1,12 +1,10 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Brain, CheckCircle2, XCircle, Loader2, Repeat, Sparkles, ChevronRight, Folder, BookOpen, Flame } from "lucide-react";
+import { ArrowLeft, Brain, CheckCircle2, XCircle, Repeat, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { toast } from "sonner";
 import { awardXp } from "@/hooks/useGamification";
 import { RevisionExplorer } from "@/components/revix/RevisionExplorer";
 
@@ -18,17 +16,13 @@ type DueQ = {
   course_emoji: string | null;
   chapter: string | null;
   question: string;
-  type: "qcm" | "vrai_faux" | "ouvert" | "trous";
+  type: "qcm" | "vrai_faux" | "ouvert" | "trous" | "ordre" | "association";
   answers: string[] | null;
   correct_index: number | null;
   accepted_answers: string[] | null;
   explanation: string | null;
   due_at: string;
 };
-
-function normalize(s: string) {
-  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}\s]/gu, "").trim();
-}
 
 export default function Revision() {
   const { user } = useAuth();
@@ -37,16 +31,15 @@ export default function Revision() {
   const [loading, setLoading] = useState(true);
   const [idx, setIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
-  const [text, setText] = useState("");
-  const [openOk, setOpenOk] = useState<boolean | null>(null);
-  const [grading, setGrading] = useState(false);
   const [stats, setStats] = useState({ ok: 0, ko: 0 });
 
   useEffect(() => {
     if (!user) return;
     (async () => {
       const { data } = await supabase.rpc("get_due_review_questions", { p_limit: 15 });
-      setQueue((data as any) ?? []);
+      // Garde uniquement les types supportés ici (QCM / Vrai-Faux).
+      const filtered = ((data as any[]) ?? []).filter((q) => q.type === "qcm" || q.type === "vrai_faux");
+      setQueue(filtered as any);
       setLoading(false);
     })();
   }, [user]);
@@ -61,7 +54,7 @@ export default function Revision() {
   };
 
   const next = async () => {
-    setPicked(null); setText(""); setOpenOk(null);
+    setPicked(null);
     if (idx + 1 >= queue.length) {
       // award xp at the end
       const total = stats.ok + stats.ko + 1;
@@ -76,35 +69,6 @@ export default function Revision() {
     setPicked(i);
     const ok = current.correct_index === i;
     await recordReview(ok);
-  };
-
-  const submitText = async () => {
-    if (!current || !text.trim()) return;
-    if (current.type === "trous") {
-      const accepted = (current.accepted_answers ?? []).map(normalize);
-      const u = normalize(text);
-      const ok = accepted.includes(u) || accepted.some(a => u.includes(a) || a.includes(u));
-      setOpenOk(ok);
-      await recordReview(ok);
-      return;
-    }
-    setGrading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke("grade-open", {
-        body: {
-          question: current.question,
-          userAnswer: text,
-          expectedAnswer: current.explanation,
-          acceptedAnswers: current.accepted_answers ?? [],
-        },
-      });
-      if (error) throw error;
-      const ok = !!data?.correct;
-      setOpenOk(ok);
-      await recordReview(ok);
-    } catch (e: any) {
-      toast.error(e?.message ?? "Erreur de correction");
-    } finally { setGrading(false); }
   };
 
   if (loading) {
@@ -154,7 +118,6 @@ export default function Revision() {
   }
 
   const q = current;
-  const isChoice = q.type === "qcm" || q.type === "vrai_faux";
   const choices = q.type === "vrai_faux" ? (q.answers ?? ["Vrai", "Faux"]) : (q.answers ?? []);
 
   return (
@@ -182,8 +145,7 @@ export default function Revision() {
           <p className="font-serif text-xl leading-snug mt-2">{q.question}</p>
         </div>
 
-        {isChoice ? (
-          <div className="mt-5 grid grid-cols-1 gap-3">
+        <div className="mt-5 grid grid-cols-1 gap-3">
             {choices.map((a, i) => {
               const isCorrect = i === q.correct_index;
               const isPicked = picked === i;
@@ -206,39 +168,14 @@ export default function Revision() {
               );
             })}
           </div>
-        ) : (
-          <div className="mt-5 space-y-3">
-            <Textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              disabled={openOk !== null || grading}
-              rows={q.type === "trous" ? 2 : 4}
-              placeholder={q.type === "trous" ? "Mot ou expression..." : "Rédige ta réponse..."}
-              className="resize-none notebook-card !pl-12 font-hand !text-lg"
-            />
-            {openOk === null && (
-              <Button onClick={submitText} disabled={grading || !text.trim()} className="w-full rounded-full gradient-primary border-0">
-                {grading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Correction...</> : "Valider"}
-              </Button>
-            )}
-            {openOk !== null && (
-              <div className={`answer-postit ${openOk ? "is-correct" : "is-wrong"} !cursor-default`}>
-                <div className="flex items-center gap-2 font-mono-tag text-xs uppercase">
-                  {openOk ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
-                  <span>{openOk ? "Bonne réponse" : "À revoir"}</span>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
-        {((isChoice && picked !== null) || (!isChoice && openOk !== null)) && q.explanation && (
+        {picked !== null && q.explanation && (
           <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
             💡 {q.explanation}
           </div>
         )}
 
-        {((isChoice && picked !== null) || (!isChoice && openOk !== null)) && (
+        {picked !== null && (
           <Button onClick={next} className="mt-5 w-full rounded-md gradient-primary border-2 border-foreground font-bold animate-fade-in">
             {idx + 1 >= queue.length ? "Voir le bilan" : "Suivante"}
           </Button>

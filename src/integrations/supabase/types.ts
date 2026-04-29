@@ -574,6 +574,7 @@ export type Database = {
           push_enabled: boolean
           quiz_completed_count: number
           quiz_loot_box_claimed_count: number
+          quiz_loot_box_pending: number
           school: string | null
           streak_days: number
           streak_record: number
@@ -608,6 +609,7 @@ export type Database = {
           push_enabled?: boolean
           quiz_completed_count?: number
           quiz_loot_box_claimed_count?: number
+          quiz_loot_box_pending?: number
           school?: string | null
           streak_days?: number
           streak_record?: number
@@ -642,6 +644,7 @@ export type Database = {
           push_enabled?: boolean
           quiz_completed_count?: number
           quiz_loot_box_claimed_count?: number
+          quiz_loot_box_pending?: number
           school?: string | null
           streak_days?: number
           streak_record?: number
@@ -1531,6 +1534,7 @@ export type Database = {
         Returns: Json
       }
       claim_queen_lootbox: { Args: never; Returns: Json }
+      cleanup_old_quizzes: { Args: never; Returns: number }
       clone_course_by_hash: {
         Args: {
           p_content_hash: string

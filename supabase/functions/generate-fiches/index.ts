@@ -23,7 +23,7 @@ const QUIZ_BANK_TOOL: ClaudeTool = {
         items: {
           type: "object",
           properties: {
-            type: { type: "string", enum: ["qcm", "vrai_faux", "ouvert"] },
+            type: { type: "string", enum: ["qcm", "vrai_faux"] },
             question: { type: "string" },
             options: { type: "array", items: { type: "string" } },
             answer: { type: "string" },
@@ -48,9 +48,8 @@ async function generateQuizBank(opts: {
   try {
     const truncated = opts.content.slice(0, 12000);
     const system = `Tu es un générateur de quizz pour étudiants français. À partir du contenu de cours fourni, génère exactement 15 questions variées :
-- 8 QCM (4 options chacun, une seule bonne réponse — la valeur de "answer" doit être EXACTEMENT l'une des options)
+- 11 QCM (4 options chacun, une seule bonne réponse — la valeur de "answer" doit être EXACTEMENT l'une des options)
 - 4 Vrai/Faux (answer = "vrai" ou "faux")
-- 3 Questions ouvertes courtes (answer = réponse modèle concise)
 
 Varie les niveaux de difficulté (1=facile, 2=moyen, 3=difficile). Les questions doivent couvrir l'ensemble du contenu.`;
 
@@ -62,7 +61,7 @@ Cours :
 ${truncated}
 """
 
-Génère exactement 15 questions (8 QCM + 4 Vrai/Faux + 3 Ouvertes).`;
+Génère exactement 15 questions (11 QCM + 4 Vrai/Faux).`;
 
     const result = await callClaude({
       system,
@@ -88,7 +87,7 @@ Génère exactement 15 questions (8 QCM + 4 Vrai/Faux + 3 Ouvertes).`;
       user_id: opts.userId,
       question: String(q.question ?? "").slice(0, 1000),
       answer: String(q.answer ?? "").slice(0, 1000),
-      question_type: q.type === "vrai_faux" ? "vrai_faux" : q.type === "ouvert" ? "ouvert" : "qcm",
+      question_type: q.type === "vrai_faux" ? "vrai_faux" : "qcm",
       options: Array.isArray(q.options) ? q.options.slice(0, 4) : null,
       difficulty: Math.max(1, Math.min(3, Number(q.difficulty) || 1)),
     })).filter((r) => r.question && r.answer);

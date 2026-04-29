@@ -17,14 +17,12 @@ type CourseRow = {
   summary: any;
 };
 
-type QuizType = "qcm" | "qcm_multi" | "vrai_faux" | "ouvert" | "trous" | "ordre" | "association";
+type QuizType = "qcm" | "qcm_multi" | "vrai_faux" | "ordre" | "association";
 
 const TYPES: { key: QuizType; label: string; emoji: string }[] = [
   { key: "qcm", label: "QCM", emoji: "✅" },
   { key: "qcm_multi", label: "QCM multi", emoji: "☑️" },
   { key: "vrai_faux", label: "Vrai / Faux", emoji: "⚖️" },
-  { key: "ouvert", label: "Question ouverte", emoji: "✍️" },
-  { key: "trous", label: "Texte à trous", emoji: "🧩" },
   { key: "ordre", label: "Mise en ordre", emoji: "🔢" },
   { key: "association", label: "Association", emoji: "🔗" },
 ];

@@ -20,7 +20,7 @@ const QUIZ_TOOL: ClaudeTool = {
           type: "object",
           properties: {
             question: { type: "string" },
-            type: { type: "string", enum: ["qcm", "qcm_multi", "vrai_faux", "ouvert", "trous", "ordre", "association"] },
+            type: { type: "string", enum: ["qcm", "qcm_multi", "vrai_faux", "ordre", "association"] },
             answers: { type: "array", items: { type: "string" } },
             correct_index: { type: "integer", minimum: 0 },
             correct_indices: { type: "array", items: { type: "integer", minimum: 0 } },
@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
     if (!limit.allowed) return limit.response;
 
     const safeCount = Math.max(3, Math.min(50, Number(count) || 10));
-    const allowedTypes = ["qcm", "qcm_multi", "vrai_faux", "ouvert", "trous", "ordre", "association"];
+    const allowedTypes = ["qcm", "qcm_multi", "vrai_faux", "ordre", "association"];
     const type = allowedTypes.includes(quizType) ? quizType : "qcm";
     const allowedDiff = ["facile", "moyen", "difficile", "expert", "mixte"];
     const diff = allowedDiff.includes(difficulty) ? difficulty : "mixte";
@@ -80,10 +80,6 @@ Renseigne "type":"qcm", "answers" (4 strings), "correct_index" (0-3), "explanati
 Renseigne "type":"qcm_multi", "answers", "correct_indices" (0-based), "explanation".`,
       vrai_faux: `Affirmations Vrai/Faux.
 Renseigne "type":"vrai_faux", "answers":["Vrai","Faux"], "correct_index" (0 ou 1), "explanation".`,
-      ouvert: `Questions OUVERTES (réponse 1-3 phrases).
-Renseigne "type":"ouvert", "accepted_answers" (3-5 reformulations), "explanation" (réponse modèle).`,
-      trous: `Phrases à TROUS avec "____".
-Renseigne "type":"trous", "accepted_answers" (variantes en minuscule), "explanation" (phrase corrigée).`,
       ordre: `Mise en ORDRE.
 Renseigne "type":"ordre", "answers" (4-6 éléments mélangés), "correct_order" (indices 0-based), "explanation".`,
       association: `Exercices d'ASSOCIATION.

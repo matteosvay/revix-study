@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { AppLayout } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Brain, Trash2, Loader2, ListChecks, CheckSquare, ToggleLeft, PenLine, TextCursorInput, ArrowDownUp, Link2, Sparkles } from "lucide-react";
+import { ArrowLeft, Brain, Trash2, Loader2, ListChecks, CheckSquare, ToggleLeft, ArrowDownUp, Link2, Sparkles } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
@@ -17,9 +17,7 @@ const QUIZ_TYPES = [
   { value: "qcm_multi", label: "Multi-réponses", emoji: "✅", desc: "Coche toutes les bonnes réponses", icon: CheckSquare },
   { value: "vrai_faux", label: "Vrai / Faux", emoji: "⚖️", desc: "Juge des affirmations rapidement", icon: ToggleLeft },
   { value: "association", label: "Association", emoji: "🔗", desc: "Relie chaque terme à sa définition", icon: Link2 },
-  { value: "trous", label: "Texte à trous", emoji: "✍️", desc: "Complète les mots manquants", icon: TextCursorInput },
   { value: "ordre", label: "Mise en ordre", emoji: "🔢", desc: "Remets les éléments dans l'ordre", icon: ArrowDownUp },
-  { value: "ouvert", label: "Question ouverte", emoji: "💬", desc: "Réponse rédigée, corrigée par l'IA", icon: PenLine },
 ] as const;
 const COUNT_PRESETS = [5, 10, 15, 20, 30];
 const DIFFICULTIES = [
