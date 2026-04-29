@@ -61,6 +61,8 @@ export default function Quizz() {
   const [deletingQuiz, setDeletingQuiz] = useState(false);
   const [questions, setQuestions] = useState<Q[]>([]);
   const [phase, setPhase] = useState<"select" | "play" | "end">("select");
+  const [reviewQuiz, setReviewQuiz] = useState<Quiz | null>(null);
+  const [reviewQuestions, setReviewQuestions] = useState<Q[]>([]);
   const [qIdx, setQIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [multiPicked, setMultiPicked] = useState<number[]>([]);
@@ -209,16 +211,45 @@ export default function Quizz() {
     })();
   }, [user, presetId]);
 
-  const startQuiz = async (q: Quiz) => {
+  const startQuiz = async (q: Quiz, opts: { shuffle?: boolean } = {}) => {
     const { data } = await supabase.from("quiz_questions").select("*").eq("quiz_id", q.id).order("position");
     if (!data || !data.length) { toast.error("Quizz vide"); return; }
     setActiveQuiz(q);
-    setQuestions(data as any);
+    let qs = data as any[];
+    if (opts.shuffle) {
+      qs = [...qs].sort(() => Math.random() - 0.5);
+      // Shuffle answers for QCM (but keep correct_index aligned)
+      qs = qs.map((qq) => {
+        if ((qq.type === "qcm" || qq.type === "qcm_multi") && Array.isArray(qq.answers)) {
+          const order = qq.answers.map((_: any, i: number) => i).sort(() => Math.random() - 0.5);
+          const newAnswers = order.map((i: number) => qq.answers[i]);
+          let newCorrect = qq.correct_index;
+          if (typeof qq.correct_index === "number") {
+            newCorrect = order.indexOf(qq.correct_index);
+          }
+          let newAccepted = qq.accepted_answers;
+          if (qq.type === "qcm_multi" && Array.isArray(qq.accepted_answers)) {
+            const acc = qq.accepted_answers.map((s: string) => parseInt(s, 10)).filter((n: number) => !isNaN(n));
+            newAccepted = acc.map((n: number) => String(order.indexOf(n)));
+          }
+          return { ...qq, answers: newAnswers, correct_index: newCorrect, accepted_answers: newAccepted };
+        }
+        return qq;
+      });
+    }
+    setQuestions(qs as any);
     setQIdx(0); setPicked(null); setScore(0); setWrong([]);
     setCombo(0); setMaxCombo(0); setHidden([]);
     setMultiPicked([]); setMultiSubmitted(false); setOrderPicked([]); setOrderSubmitted(false); setOrderCorrect(false);
     setAssocPairs([]); setAssocRightOrder([]); setAssocMatches([]); setAssocSelectedLeft(null); setAssocSubmitted(false); setAssocCorrect(false);
     setPhase("play");
+  };
+
+  const openReview = async (q: Quiz) => {
+    const { data } = await supabase.from("quiz_questions").select("*").eq("quiz_id", q.id).order("position");
+    if (!data || !data.length) { toast.error("Quizz vide"); return; }
+    setReviewQuiz(q);
+    setReviewQuestions(data as any);
   };
 
   const generateForChapter = async (gap: CourseGap, chapter: string) => {
