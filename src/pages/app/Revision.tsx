@@ -148,8 +148,7 @@ export default function Revision() {
           <p className="font-serif text-xl leading-snug mt-2">{q.question}</p>
         </div>
 
-        {isChoice ? (
-          <div className="mt-5 grid grid-cols-1 gap-3">
+        <div className="mt-5 grid grid-cols-1 gap-3">
             {choices.map((a, i) => {
               const isCorrect = i === q.correct_index;
               const isPicked = picked === i;
@@ -172,39 +171,14 @@ export default function Revision() {
               );
             })}
           </div>
-        ) : (
-          <div className="mt-5 space-y-3">
-            <Textarea
-              value={text}
-              onChange={(e) => setText(e.target.value)}
-              disabled={openOk !== null || grading}
-              rows={q.type === "trous" ? 2 : 4}
-              placeholder={q.type === "trous" ? "Mot ou expression..." : "Rédige ta réponse..."}
-              className="resize-none notebook-card !pl-12 font-hand !text-lg"
-            />
-            {openOk === null && (
-              <Button onClick={submitText} disabled={grading || !text.trim()} className="w-full rounded-full gradient-primary border-0">
-                {grading ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Correction...</> : "Valider"}
-              </Button>
-            )}
-            {openOk !== null && (
-              <div className={`answer-postit ${openOk ? "is-correct" : "is-wrong"} !cursor-default`}>
-                <div className="flex items-center gap-2 font-mono-tag text-xs uppercase">
-                  {openOk ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
-                  <span>{openOk ? "Bonne réponse" : "À revoir"}</span>
-                </div>
-              </div>
-            )}
-          </div>
-        )}
 
-        {((isChoice && picked !== null) || (!isChoice && openOk !== null)) && q.explanation && (
+        {picked !== null && q.explanation && (
           <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
             💡 {q.explanation}
           </div>
         )}
 
-        {((isChoice && picked !== null) || (!isChoice && openOk !== null)) && (
+        {picked !== null && (
           <Button onClick={next} className="mt-5 w-full rounded-md gradient-primary border-2 border-foreground font-bold animate-fade-in">
             {idx + 1 >= queue.length ? "Voir le bilan" : "Suivante"}
           </Button>
