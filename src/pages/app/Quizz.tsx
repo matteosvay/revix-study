@@ -214,7 +214,7 @@ export default function Quizz() {
     if (!data || !data.length) { toast.error("Quizz vide"); return; }
     setActiveQuiz(q);
     setQuestions(data as any);
-    setQIdx(0); setPicked(null); setTextAnswer(""); setOpenResult(null); setScore(0); setWrong([]);
+    setQIdx(0); setPicked(null); setScore(0); setWrong([]);
     setCombo(0); setMaxCombo(0); setHidden([]);
     setMultiPicked([]); setMultiSubmitted(false); setOrderPicked([]); setOrderSubmitted(false); setOrderCorrect(false);
     setAssocPairs([]); setAssocRightOrder([]); setAssocMatches([]); setAssocSelectedLeft(null); setAssocSubmitted(false); setAssocCorrect(false);
@@ -329,7 +329,7 @@ export default function Quizz() {
           }
       }
     } else {
-      setQIdx(qIdx + 1); setPicked(null); setTextAnswer(""); setOpenResult(null); setHidden([]);
+      setQIdx(qIdx + 1); setPicked(null); setHidden([]);
       setMultiPicked([]); setMultiSubmitted(false); setOrderPicked([]); setOrderSubmitted(false); setOrderCorrect(false);
       setAssocSelectedLeft(null); setAssocSubmitted(false); setAssocCorrect(false);
     }
@@ -366,7 +366,7 @@ export default function Quizz() {
         setPicked(-99 as any);
       } else {
         setQIdx(qIdx + 1);
-        setPicked(null); setTextAnswer(""); setOpenResult(null); setHidden([]);
+        setPicked(null); setHidden([]);
       }
     } else if (key === "power_time") {
       toast.success("⏱️ +30 sec");
