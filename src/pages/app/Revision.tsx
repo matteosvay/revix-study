@@ -118,7 +118,6 @@ export default function Revision() {
   }
 
   const q = current;
-  const isChoice = q.type === "qcm" || q.type === "vrai_faux";
   const choices = q.type === "vrai_faux" ? (q.answers ?? ["Vrai", "Faux"]) : (q.answers ?? []);
 
   return (
