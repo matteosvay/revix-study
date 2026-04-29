@@ -61,6 +61,8 @@ export default function Quizz() {
   const [deletingQuiz, setDeletingQuiz] = useState(false);
   const [questions, setQuestions] = useState<Q[]>([]);
   const [phase, setPhase] = useState<"select" | "play" | "end">("select");
+  const [reviewQuiz, setReviewQuiz] = useState<Quiz | null>(null);
+  const [reviewQuestions, setReviewQuestions] = useState<Q[]>([]);
   const [qIdx, setQIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [multiPicked, setMultiPicked] = useState<number[]>([]);
@@ -209,16 +211,45 @@ export default function Quizz() {
     })();
   }, [user, presetId]);
 
-  const startQuiz = async (q: Quiz) => {
+  const startQuiz = async (q: Quiz, opts: { shuffle?: boolean } = {}) => {
     const { data } = await supabase.from("quiz_questions").select("*").eq("quiz_id", q.id).order("position");
     if (!data || !data.length) { toast.error("Quizz vide"); return; }
     setActiveQuiz(q);
-    setQuestions(data as any);
+    let qs = data as any[];
+    if (opts.shuffle) {
+      qs = [...qs].sort(() => Math.random() - 0.5);
+      // Shuffle answers for QCM (but keep correct_index aligned)
+      qs = qs.map((qq) => {
+        if ((qq.type === "qcm" || qq.type === "qcm_multi") && Array.isArray(qq.answers)) {
+          const order = qq.answers.map((_: any, i: number) => i).sort(() => Math.random() - 0.5);
+          const newAnswers = order.map((i: number) => qq.answers[i]);
+          let newCorrect = qq.correct_index;
+          if (typeof qq.correct_index === "number") {
+            newCorrect = order.indexOf(qq.correct_index);
+          }
+          let newAccepted = qq.accepted_answers;
+          if (qq.type === "qcm_multi" && Array.isArray(qq.accepted_answers)) {
+            const acc = qq.accepted_answers.map((s: string) => parseInt(s, 10)).filter((n: number) => !isNaN(n));
+            newAccepted = acc.map((n: number) => String(order.indexOf(n)));
+          }
+          return { ...qq, answers: newAnswers, correct_index: newCorrect, accepted_answers: newAccepted };
+        }
+        return qq;
+      });
+    }
+    setQuestions(qs as any);
     setQIdx(0); setPicked(null); setScore(0); setWrong([]);
     setCombo(0); setMaxCombo(0); setHidden([]);
     setMultiPicked([]); setMultiSubmitted(false); setOrderPicked([]); setOrderSubmitted(false); setOrderCorrect(false);
     setAssocPairs([]); setAssocRightOrder([]); setAssocMatches([]); setAssocSelectedLeft(null); setAssocSubmitted(false); setAssocCorrect(false);
     setPhase("play");
+  };
+
+  const openReview = async (q: Quiz) => {
+    const { data } = await supabase.from("quiz_questions").select("*").eq("quiz_id", q.id).order("position");
+    if (!data || !data.length) { toast.error("Quizz vide"); return; }
+    setReviewQuiz(q);
+    setReviewQuestions(data as any);
   };
 
   const generateForChapter = async (gap: CourseGap, chapter: string) => {
@@ -572,7 +603,7 @@ export default function Quizz() {
                 className={`relative notebook-card flex items-center gap-3 p-4 hover:shadow-glow transition-all ${i % 2 === 0 ? "tilt-l" : "tilt-r"}`}
               >
                 <Tape variant={i % 3 === 0 ? "yellow" : i % 3 === 1 ? "pink" : "mint"} position="top-right" />
-                <button onClick={() => startQuiz(q)} className="flex items-center gap-3 flex-1 min-w-0 text-left">
+                <button onClick={() => startQuiz(q, { shuffle: true })} className="flex items-center gap-3 flex-1 min-w-0 text-left">
                   <div className="h-10 w-10 rounded-lg bg-primary/10 text-primary flex items-center justify-center shrink-0">
                     <Brain className="h-5 w-5" />
                   </div>
@@ -581,6 +612,14 @@ export default function Quizz() {
                     <span className="label-tape mt-1">{TYPE_LABELS[(q.quiz_type as QType) ?? "qcm"] ?? "QCM"}</span>
                   </div>
                   <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); openReview(q); }}
+                  className="h-9 w-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-primary hover:bg-primary/10 transition shrink-0"
+                  aria-label="Voir la correction"
+                  title="Voir la correction"
+                >
+                  <Eye className="h-4 w-4" />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); setQuizToDelete(q); }}
@@ -619,6 +658,53 @@ export default function Quizz() {
                 className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               >
                 {deletingQuiz ? <><Loader2 className="h-4 w-4 mr-1 animate-spin" /> Suppression…</> : <>Supprimer</>}
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <AlertDialog open={!!reviewQuiz} onOpenChange={(o) => { if (!o) { setReviewQuiz(null); setReviewQuestions([]); } }}>
+          <AlertDialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Correction · {reviewQuiz?.title}</AlertDialogTitle>
+              <AlertDialogDescription>
+                Toutes les questions et leurs réponses correctes.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-3 my-2">
+              {reviewQuestions.map((qq, idx) => {
+                let correct: string = "";
+                if (qq.type === "qcm_multi" && qq.answers) {
+                  const idxs = (qq.accepted_answers ?? []).map((s) => parseInt(s, 10)).filter((n) => !isNaN(n));
+                  correct = idxs.map((n) => qq.answers![n]).filter(Boolean).join(" + ");
+                } else if (qq.type === "ordre" && qq.answers) {
+                  const idxs = (qq.accepted_answers ?? []).map((s) => parseInt(s, 10)).filter((n) => !isNaN(n));
+                  correct = idxs.map((n, k) => `${k + 1}. ${qq.answers![n]}`).join(" → ");
+                } else if (qq.type === "association") {
+                  try {
+                    const raw = (qq.accepted_answers ?? [])[0];
+                    const pairs: { left: string; right: string }[] = raw ? JSON.parse(raw) : [];
+                    correct = pairs.map((p) => `${p.left} ↔ ${p.right}`).join(" · ");
+                  } catch { correct = ""; }
+                } else if (qq.answers && typeof qq.correct_index === "number") {
+                  correct = qq.answers[qq.correct_index];
+                }
+                return (
+                  <div key={qq.id} className="notebook-card p-3">
+                    <p className="font-mono-tag text-[10px] uppercase text-muted-foreground">Question {idx + 1} · {TYPE_LABELS[qq.type]}</p>
+                    <p className="font-serif text-sm mt-1">{qq.question}</p>
+                    <p className="font-hand text-base text-success mt-2">→ {correct}</p>
+                    {qq.explanation && (
+                      <p className="text-xs text-muted-foreground mt-1.5 italic">💡 {qq.explanation}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Fermer</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { if (reviewQuiz) { const q = reviewQuiz; setReviewQuiz(null); setReviewQuestions([]); startQuiz(q, { shuffle: true }); } }}>
+                <RefreshCw className="h-4 w-4 mr-1" /> Refaire (mélangé)
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -1075,7 +1161,7 @@ export default function Quizz() {
         </div>
 
         <div className="mt-5 flex gap-3 justify-center">
-          <button onClick={() => activeQuiz && startQuiz(activeQuiz)} className="pen-btn pen-btn-blue">
+          <button onClick={() => activeQuiz && startQuiz(activeQuiz, { shuffle: true })} className="pen-btn pen-btn-blue">
             <RefreshCw className="h-4 w-4 inline mr-1" /> Refaire
           </button>
           <button onClick={() => setPhase("select")} className="pen-btn pen-btn-green">Autre quizz</button>
