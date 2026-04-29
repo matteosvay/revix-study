@@ -4,7 +4,7 @@ import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Textarea } from "@/components/ui/textarea";
-import { Brain, Trophy, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle, Scissors, SkipForward, Timer, Zap, Trash2, Link2, Shuffle } from "lucide-react";
+import { Brain, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle, Scissors, SkipForward, Timer, Zap, Trash2, Link2, Shuffle, Eye } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -18,7 +18,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 
-type QType = "qcm" | "qcm_multi" | "vrai_faux" | "ouvert" | "trous" | "ordre" | "association";
+type QType = "qcm" | "qcm_multi" | "vrai_faux" | "ordre" | "association";
 type Q = {
   id: string;
   question: string;
@@ -46,15 +46,9 @@ const TYPE_LABELS: Record<QType, string> = {
   qcm: "QCM",
   qcm_multi: "QCM multi",
   vrai_faux: "Vrai / Faux",
-  ouvert: "Question ouverte",
-  trous: "Texte à trous",
   ordre: "Mise en ordre",
   association: "Association 🔗",
 };
-
-function normalize(s: string) {
-  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^\p{L}\p{N}\s]/gu, "").trim();
-}
 
 export default function Quizz() {
   const { user } = useAuth();
