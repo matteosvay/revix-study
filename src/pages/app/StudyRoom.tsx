@@ -8,6 +8,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { Play, Pause, SkipForward, LogOut, Send, Plus, Check, Copy, BookOpen, Sparkles, X, Download, StickyNote, Loader2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { BackButton } from "@/components/revix/BackButton";
 import { Textarea } from "@/components/ui/textarea";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
 import { Link } from "react-router-dom";
@@ -330,6 +331,7 @@ export default function StudyRoom() {
 
   return (
     <AppLayout>
+      <BackButton fallback="/app/groupes" />
       <PageHeader emoji="📚" title={room.name} action={
         <Button variant="ghost" size="sm" onClick={leaveRoom} className="text-destructive font-bold text-xs h-8">
           <LogOut className="h-3 w-3 mr-1" /> Quitter
