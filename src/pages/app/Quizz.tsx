@@ -662,6 +662,53 @@ export default function Quizz() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        <AlertDialog open={!!reviewQuiz} onOpenChange={(o) => { if (!o) { setReviewQuiz(null); setReviewQuestions([]); } }}>
+          <AlertDialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Correction · {reviewQuiz?.title}</AlertDialogTitle>
+              <AlertDialogDescription>
+                Toutes les questions et leurs réponses correctes.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-3 my-2">
+              {reviewQuestions.map((qq, idx) => {
+                let correct: string = "";
+                if (qq.type === "qcm_multi" && qq.answers) {
+                  const idxs = (qq.accepted_answers ?? []).map((s) => parseInt(s, 10)).filter((n) => !isNaN(n));
+                  correct = idxs.map((n) => qq.answers![n]).filter(Boolean).join(" + ");
+                } else if (qq.type === "ordre" && qq.answers) {
+                  const idxs = (qq.accepted_answers ?? []).map((s) => parseInt(s, 10)).filter((n) => !isNaN(n));
+                  correct = idxs.map((n, k) => `${k + 1}. ${qq.answers![n]}`).join(" → ");
+                } else if (qq.type === "association") {
+                  try {
+                    const raw = (qq.accepted_answers ?? [])[0];
+                    const pairs: { left: string; right: string }[] = raw ? JSON.parse(raw) : [];
+                    correct = pairs.map((p) => `${p.left} ↔ ${p.right}`).join(" · ");
+                  } catch { correct = ""; }
+                } else if (qq.answers && typeof qq.correct_index === "number") {
+                  correct = qq.answers[qq.correct_index];
+                }
+                return (
+                  <div key={qq.id} className="notebook-card p-3">
+                    <p className="font-mono-tag text-[10px] uppercase text-muted-foreground">Question {idx + 1} · {TYPE_LABELS[qq.type]}</p>
+                    <p className="font-serif text-sm mt-1">{qq.question}</p>
+                    <p className="font-hand text-base text-success mt-2">→ {correct}</p>
+                    {qq.explanation && (
+                      <p className="text-xs text-muted-foreground mt-1.5 italic">💡 {qq.explanation}</p>
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Fermer</AlertDialogCancel>
+              <AlertDialogAction onClick={() => { if (reviewQuiz) { const q = reviewQuiz; setReviewQuiz(null); setReviewQuestions([]); startQuiz(q, { shuffle: true }); } }}>
+                <RefreshCw className="h-4 w-4 mr-1" /> Refaire (mélangé)
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </AppLayout>
     );
   }
