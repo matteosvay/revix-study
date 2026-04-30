@@ -37,14 +37,18 @@ Deno.serve(async (req) => {
       admin.from("profiles").select("id", { count: "exact", head: true }),
       admin.from("profiles").select("id", { count: "exact", head: true }).eq("plan", "pro"),
       admin.from("profiles").select("id", { count: "exact", head: true }).eq("plan", "ultra"),
-      admin.from("usage_counters").select("action_type, daily_count").gte("day", sevenDaysAgo.slice(0, 10)),
+      admin
+        .from("usage_counters")
+        .select("action_type, count")
+        .eq("period_type", "daily")
+        .gte("updated_at", sevenDaysAgo),
     ]);
 
     // Aggregate usage by action_type over the last 7 days
     const byAction: Record<string, number> = {};
     for (const row of usageWeek.data ?? []) {
       const a = (row as any).action_type as string;
-      byAction[a] = (byAction[a] ?? 0) + ((row as any).daily_count ?? 0);
+      byAction[a] = (byAction[a] ?? 0) + ((row as any).count ?? 0);
     }
 
     return jsonResponse({
