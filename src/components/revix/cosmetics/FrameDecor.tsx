@@ -943,6 +943,135 @@ export function FrameDecor({
         </div>
       );
 
+    /* ===================== COMMON — material textures (notebook DA) =====================
+       The CSS `ring-*` from frameStyle() gives the base contour. We add a thin SVG
+       layer ON TOP that renders the actual MATERIAL of the frame: paper fibers, kraft
+       grain, dotted/dashed ink, notebook ruling, graph lines, pencil hatching… so each
+       frame FEELS like what its name says, instead of being just a colored ring. */
+    case "frame_paper":
+    case "frame_kraft":
+    case "frame_dotted":
+    case "frame_dashed":
+    case "frame_notebook":
+    case "frame_grid":
+    case "frame_pencil": {
+      const cfg = {
+        frame_paper:    { ink: "#3a2410", base: "#fdfbf3", baseOp: 0.55, accent: "#cdbfa0" },
+        frame_kraft:    { ink: "#5a3a1a", base: "#caa477", baseOp: 0.7,  accent: "#7a5a35" },
+        frame_dotted:   { ink: "#1f1f1f", base: "transparent", baseOp: 0, accent: "#1f1f1f" },
+        frame_dashed:   { ink: "#1f1f1f", base: "transparent", baseOp: 0, accent: "#1f1f1f" },
+        frame_notebook: { ink: "#1d4ed8", base: "#fafdff", baseOp: 0.6,  accent: "#dc2626" },
+        frame_grid:     { ink: "#475569", base: "#f8fafc", baseOp: 0.55, accent: "#cbd5e1" },
+        frame_pencil:   { ink: "#374151", base: "transparent", baseOp: 0, accent: "#6b7280" },
+      }[itemKey];
+      const filterId = `mat-${itemKey}-rough`;
+      const clipId = `mat-${itemKey}-ring`;
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <filter id={filterId}>
+                <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" seed={itemKey.length} />
+                <feDisplacementMap in="SourceGraphic" scale="0.45" />
+              </filter>
+              <clipPath id={clipId}>
+                <path d="M 50 50 m -49 0 a 49 49 0 1 0 98 0 a 49 49 0 1 0 -98 0 M 50 50 m -45 0 a 45 45 0 1 1 90 0 a 45 45 0 1 1 -90 0" fillRule="evenodd" />
+              </clipPath>
+            </defs>
+
+            {cfg.base !== "transparent" && (
+              <circle cx="50" cy="50" r="49" fill={cfg.base} opacity={cfg.baseOp} />
+            )}
+
+            {itemKey === "frame_paper" && (
+              <g style={{ filter: `url(#${filterId})` }}>
+                <circle cx="50" cy="50" r="48.5" fill="none" stroke={cfg.ink} strokeWidth="0.7" opacity="0.55" />
+                <circle cx="50" cy="50" r="47.2" fill="none" stroke={cfg.accent} strokeWidth="0.4" opacity="0.5" strokeDasharray="0.6 1.1" />
+                {Array.from({ length: 18 }).map((_, i) => {
+                  const a = (i * 20 * Math.PI) / 180;
+                  return <line key={i} x1={50 + Math.cos(a) * 47.5} y1={50 + Math.sin(a) * 47.5} x2={50 + Math.cos(a) * 49.4} y2={50 + Math.sin(a) * 49.4} stroke={cfg.accent} strokeWidth="0.25" opacity="0.7" />;
+                })}
+              </g>
+            )}
+
+            {itemKey === "frame_kraft" && (
+              <g style={{ filter: `url(#${filterId})` }}>
+                <circle cx="50" cy="50" r="48" fill="none" stroke={cfg.ink} strokeWidth="1.4" opacity="0.85" />
+                {Array.from({ length: 32 }).map((_, i) => {
+                  const a = (i * 11.25 * Math.PI) / 180;
+                  const rr = 47 + ((i * 7) % 5) * 0.4;
+                  return <circle key={i} cx={50 + Math.cos(a) * rr} cy={50 + Math.sin(a) * rr} r={i % 3 === 0 ? 0.6 : 0.35} fill={cfg.accent} opacity="0.7" />;
+                })}
+                {[20, 80, 140, 220, 300].map((d, i) => {
+                  const a = (d * Math.PI) / 180;
+                  return <line key={i} x1={50 + Math.cos(a) * 47} y1={50 + Math.sin(a) * 47} x2={50 + Math.cos(a) * 49} y2={50 + Math.sin(a) * 49} stroke={cfg.accent} strokeWidth="0.4" opacity="0.6" />;
+                })}
+              </g>
+            )}
+
+            {itemKey === "frame_dotted" && (
+              <g style={{ filter: `url(#${filterId})` }}>
+                {Array.from({ length: 36 }).map((_, i) => {
+                  const a = (i * 10 * Math.PI) / 180;
+                  return <circle key={i} cx={50 + Math.cos(a) * 48.2} cy={50 + Math.sin(a) * 48.2} r="0.85" fill={cfg.ink} opacity="0.9" />;
+                })}
+              </g>
+            )}
+
+            {itemKey === "frame_dashed" && (
+              <circle cx="50" cy="50" r="48.2" fill="none" stroke={cfg.ink} strokeWidth="1" strokeDasharray="3 2" opacity="0.9" style={{ filter: `url(#${filterId})` }} />
+            )}
+
+            {itemKey === "frame_notebook" && (
+              <g>
+                <g clipPath={`url(#${clipId})`}>
+                  {[12, 22, 32, 42, 52, 62, 72, 82].map((y) => (
+                    <line key={y} x1="0" y1={y} x2="100" y2={y} stroke={cfg.ink} strokeWidth="0.3" opacity="0.55" />
+                  ))}
+                  <line x1="20" y1="0" x2="20" y2="100" stroke={cfg.accent} strokeWidth="0.4" opacity="0.6" />
+                </g>
+                <circle cx="50" cy="50" r="48.5" fill="none" stroke={cfg.ink} strokeWidth="0.5" opacity="0.45" style={{ filter: `url(#${filterId})` }} />
+              </g>
+            )}
+
+            {itemKey === "frame_grid" && (
+              <g>
+                <g clipPath={`url(#${clipId})`}>
+                  {Array.from({ length: 13 }).map((_, i) => {
+                    const v = i * 8;
+                    return (
+                      <g key={i}>
+                        <line x1="0" y1={v} x2="100" y2={v} stroke={cfg.accent} strokeWidth="0.3" opacity="0.7" />
+                        <line x1={v} y1="0" x2={v} y2="100" stroke={cfg.accent} strokeWidth="0.3" opacity="0.7" />
+                      </g>
+                    );
+                  })}
+                </g>
+                <circle cx="50" cy="50" r="48.5" fill="none" stroke={cfg.ink} strokeWidth="0.5" opacity="0.5" style={{ filter: `url(#${filterId})` }} />
+              </g>
+            )}
+
+            {itemKey === "frame_pencil" && (
+              <g style={{ filter: `url(#${filterId})` }}>
+                {Array.from({ length: 3 }).map((_, layer) => (
+                  <circle key={layer} cx="50" cy="50" r={47.6 + layer * 0.6} fill="none"
+                    stroke={layer === 1 ? cfg.accent : cfg.ink}
+                    strokeWidth={0.55 - layer * 0.1}
+                    opacity={0.85 - layer * 0.2}
+                    strokeDasharray={layer === 0 ? "0" : layer === 1 ? "1.2 0.6" : "0.4 0.8"}
+                  />
+                ))}
+                {Array.from({ length: 24 }).map((_, i) => {
+                  const a = (i * 15 * Math.PI) / 180;
+                  return <line key={i} x1={50 + Math.cos(a) * 46.8} y1={50 + Math.sin(a) * 46.8} x2={50 + Math.cos(a) * 49} y2={50 + Math.sin(a) * 49} stroke={cfg.ink} strokeWidth="0.35" opacity="0.6" />;
+                })}
+              </g>
+            )}
+          </svg>
+        </div>
+      );
+    }
+
     default:
       return null;
   }
