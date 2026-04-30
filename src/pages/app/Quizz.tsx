@@ -14,6 +14,7 @@ import { localDateKey } from "@/lib/date";
 import { GenerateQuizDialog } from "@/components/revix/GenerateQuizDialog";
 import { useUsage } from "@/hooks/useUsage";
 import { Badge } from "@/components/ui/badge";
+import { ReviewBankDialog } from "@/components/revix/ReviewBankDialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -96,6 +97,7 @@ export default function Quizz() {
   const [hidden, setHidden] = useState<number[]>([]); // 50/50 hidden indices
   const [inventory, setInventory] = useState<Record<string, number>>({});
   const [genOpen, setGenOpen] = useState(false);
+  const [reviewBankCourse, setReviewBankCourse] = useState<{ id: string; title: string } | null>(null);
   const { usage } = useUsage();
   const quizIaUsage = usage.find((u) => u.action === "quiz_ia");
   const quizIaRemaining = quizIaUsage
