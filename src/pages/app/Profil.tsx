@@ -196,7 +196,7 @@ export default function Profil() {
         </div>
 
         {/* Section abonnement */}
-        <div className="space-y-3">
+        <div className="space-y-3 scroll-mt-20" id="abonnement">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Abonnement</p>
 
             {isActive ? (
