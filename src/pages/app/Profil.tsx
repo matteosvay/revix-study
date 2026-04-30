@@ -196,8 +196,7 @@ export default function Profil() {
         </div>
 
         {/* Section abonnement */}
-        {isPaymentsConfigured() && (
-          <div className="space-y-3">
+        <div className="space-y-3">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Abonnement</p>
 
             {isActive ? (
@@ -263,8 +262,7 @@ export default function Profil() {
                 ))}
               </div>
             )}
-          </div>
-        )}
+        </div>
 
         <Dialog
           open={!!checkoutPriceId}
