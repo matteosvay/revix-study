@@ -23,8 +23,22 @@ async function createCheckoutSession(opts: CheckoutBody): Promise<string | null>
   }
   const stripe = createStripeClient(opts.environment);
 
-  const prices = await stripe.prices.list({ lookup_keys: [opts.priceId] });
-  if (!prices.data.length) throw new Error("Price not found for lookup_key " + opts.priceId);
+  const prices = await stripe.prices.list({
+    lookup_keys: [opts.priceId],
+    expand: ["data.product"],
+    active: true,
+    limit: 10,
+  });
+  console.log("create-checkout prices.list result:", JSON.stringify({
+    priceId: opts.priceId,
+    env: opts.environment,
+    hasData: Array.isArray(prices?.data),
+    count: prices?.data?.length ?? null,
+    raw: prices ? Object.keys(prices) : null,
+  }));
+  if (!prices || !Array.isArray(prices.data) || prices.data.length === 0) {
+    throw new Error(`Price not found for lookup_key '${opts.priceId}'. Vérifie que le produit existe dans Stripe (${opts.environment}).`);
+  }
   const stripePrice = prices.data[0];
   const isRecurring = stripePrice.type === "recurring";
 
