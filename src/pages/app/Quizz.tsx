@@ -755,6 +755,16 @@ export default function Quizz() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {reviewBankCourse && (
+          <ReviewBankDialog
+            open={!!reviewBankCourse}
+            onOpenChange={(o) => { if (!o) setReviewBankCourse(null); }}
+            courseId={reviewBankCourse.id}
+            courseTitle={reviewBankCourse.title}
+            limit={10}
+          />
+        )}
       </AppLayout>
     );
   }
