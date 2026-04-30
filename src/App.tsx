@@ -61,8 +61,8 @@ const App = () => (
           <Sonner />
           <XpOverlay />
           <InstallAppPrompt />
-          <AiLimitModal />
           <BrowserRouter>
+            <AiLimitModal />
             <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
