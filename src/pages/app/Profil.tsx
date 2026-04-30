@@ -195,13 +195,98 @@ export default function Profil() {
           ))}
         </div>
 
-        {profile.plan === "gratuit" && (
-          <div className="rounded-2xl gradient-primary p-4 text-primary-foreground">
-            <p className="font-serif text-lg">Passe en Pro ✨</p>
-            <p className="text-xs opacity-90 mt-0.5">Uploads illimités, quizz adaptatifs, planning IA.</p>
-            <Button variant="secondary" size="sm" className="rounded-full mt-3"><Sparkles className="h-3.5 w-3.5 mr-1" /> Découvrir</Button>
+        {/* Section abonnement */}
+        {isPaymentsConfigured() && (
+          <div className="space-y-3">
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Abonnement</p>
+
+            {isActive ? (
+              <div className="rounded-md border-[2.5px] border-foreground bg-card p-4 shadow-brutal-sm space-y-2">
+                <div className="flex items-center gap-2">
+                  <Crown className="h-5 w-5 text-amber-500" />
+                  <p className="font-serif text-lg">Revix {tier === "max" ? "Max" : "Pro"}</p>
+                  <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border-[1.5px] border-foreground bg-primary text-primary-foreground">
+                    Actif
+                  </span>
+                </div>
+                {subscription?.current_period_end && (
+                  <p className="text-xs text-muted-foreground">
+                    {subscription.cancel_at_period_end
+                      ? `Se termine le ${new Date(subscription.current_period_end).toLocaleDateString("fr-FR")}`
+                      : `Prochain renouvellement : ${new Date(subscription.current_period_end).toLocaleDateString("fr-FR")}`}
+                  </p>
+                )}
+                <Button
+                  onClick={openManagePortal}
+                  disabled={portalLoading}
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full w-full mt-1"
+                >
+                  {portalLoading ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <CreditCard className="h-3.5 w-3.5 mr-1" />}
+                  Gérer mon abonnement
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 gap-3">
+                {PLANS.map((p) => (
+                  <div
+                    key={p.id}
+                    className={`rounded-md border-[2.5px] border-foreground bg-gradient-to-br ${p.gradient} p-4 shadow-brutal-sm text-primary-foreground relative overflow-hidden`}
+                  >
+                    {p.highlight && (
+                      <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider bg-foreground text-background px-2 py-0.5 rounded">
+                        Best
+                      </span>
+                    )}
+                    <div className="flex items-baseline gap-2">
+                      <p className="font-serif text-2xl">{p.name}</p>
+                      <p className="font-bold text-xl">{p.price}<span className="text-xs opacity-80">/mois</span></p>
+                    </div>
+                    <p className="text-xs opacity-90 mt-0.5">{p.tagline}</p>
+                    <ul className="mt-3 space-y-1">
+                      {p.perks.map((perk) => (
+                        <li key={perk} className="flex items-center gap-1.5 text-xs">
+                          <Check className="h-3 w-3 shrink-0" /> {perk}
+                        </li>
+                      ))}
+                    </ul>
+                    <Button
+                      variant="secondary"
+                      size="sm"
+                      className="rounded-full mt-3 w-full"
+                      onClick={() => setCheckoutPriceId(p.id)}
+                    >
+                      <Sparkles className="h-3.5 w-3.5 mr-1" /> Choisir {p.name}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         )}
+
+        <Dialog
+          open={!!checkoutPriceId}
+          onOpenChange={(open) => {
+            if (!open) setCheckoutPriceId(null);
+          }}
+        >
+          <DialogContent className="max-w-2xl p-0 overflow-hidden max-h-[90vh] overflow-y-auto">
+            <DialogHeader className="px-5 pt-5">
+              <DialogTitle className="font-serif text-xl">Finaliser l'abonnement</DialogTitle>
+            </DialogHeader>
+            <div className="px-2 pb-4">
+              {checkoutPriceId && user && (
+                <StripeEmbeddedCheckout
+                  priceId={checkoutPriceId}
+                  userId={user.id}
+                  customerEmail={user.email ?? undefined}
+                />
+              )}
+            </div>
+          </DialogContent>
+        </Dialog>
 
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Personnalisation</p>
