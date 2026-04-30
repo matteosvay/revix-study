@@ -5,7 +5,10 @@ import path from "path";
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: "jsdom",
+    // 'node' par défaut : nos tests sont purement logiques (date, sm2, gamification…).
+    // Les tests qui ont besoin du DOM peuvent activer jsdom via l'annotation
+    // `// @vitest-environment jsdom` en tête de fichier.
+    environment: "node",
     globals: true,
     setupFiles: ["./src/test/setup.ts"],
     include: ["src/**/*.{test,spec}.{ts,tsx}"],
