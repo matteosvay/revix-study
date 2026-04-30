@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { LogOut, Trash2, Sparkles, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3 } from "lucide-react";
+import { LogOut, Trash2, Sparkles, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3, Crown, CreditCard, Check } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -19,11 +19,18 @@ import { SUBJECTS } from "@/data/subjects";
 import { AvatarCropper } from "@/components/revix/AvatarCropper";
 import { GENDER_OPTIONS } from "@/lib/gender";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { StripeEmbeddedCheckout } from "@/components/revix/StripeEmbeddedCheckout";
+import { useSubscription } from "@/hooks/useSubscription";
+import { getStripeEnvironment, isPaymentsConfigured } from "@/lib/stripe";
 
 export default function Profil() {
   const { user } = useAuth();
   const nav = useNavigate();
   const { data: isAdmin } = useIsAdmin();
+  const { subscription, isActive, tier, refresh: refreshSub } = useSubscription();
+  const [checkoutPriceId, setCheckoutPriceId] = useState<string | null>(null);
+  const [portalLoading, setPortalLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
   const [uploading, setUploading] = useState(false);
