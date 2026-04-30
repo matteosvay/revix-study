@@ -1963,6 +1963,10 @@ export type Database = {
       notify_groups_at_risk: { Args: never; Returns: Json }
       open_daily_loot_box: { Args: never; Returns: Json }
       open_quiz_bonus_loot_box: { Args: never; Returns: Json }
+      record_review_answer: {
+        Args: { p_correct: boolean; p_question_id: string }
+        Returns: undefined
+      }
       respond_course_share: {
         Args: { p_accept: boolean; p_share_id: string }
         Returns: Json
@@ -2004,6 +2008,17 @@ export type Database = {
         Returns: undefined
       }
       set_username: { Args: { p_username: string }; Returns: Json }
+      start_review_session: {
+        Args: { p_course_id: string; p_limit?: number }
+        Returns: {
+          answer: string
+          difficulty: number
+          id: string
+          options: Json
+          question: string
+          question_type: string
+        }[]
+      }
       submit_duel_attempt: {
         Args: { p_answers: Json; p_duel_id: string; p_score: number }
         Returns: Json

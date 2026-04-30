@@ -14,6 +14,7 @@ import { localDateKey } from "@/lib/date";
 import { GenerateQuizDialog } from "@/components/revix/GenerateQuizDialog";
 import { useUsage } from "@/hooks/useUsage";
 import { Badge } from "@/components/ui/badge";
+import { ReviewBankDialog } from "@/components/revix/ReviewBankDialog";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -96,6 +97,7 @@ export default function Quizz() {
   const [hidden, setHidden] = useState<number[]>([]); // 50/50 hidden indices
   const [inventory, setInventory] = useState<Record<string, number>>({});
   const [genOpen, setGenOpen] = useState(false);
+  const [reviewBankCourse, setReviewBankCourse] = useState<{ id: string; title: string } | null>(null);
   const { usage } = useUsage();
   const quizIaUsage = usage.find((u) => u.action === "quiz_ia");
   const quizIaRemaining = quizIaUsage
@@ -655,6 +657,16 @@ export default function Quizz() {
                 >
                   <Eye className="h-4 w-4" />
                 </button>
+                {q.course_id && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setReviewBankCourse({ id: q.course_id!, title: q.title }); }}
+                    className="h-9 w-9 rounded-full flex items-center justify-center text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10 transition shrink-0"
+                    aria-label="Réviser sans IA"
+                    title="Réviser (sans coût IA)"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </button>
+                )}
                 <button
                   onClick={(e) => { e.stopPropagation(); setQuizToDelete(q); }}
                   className="h-9 w-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition shrink-0"
@@ -743,6 +755,16 @@ export default function Quizz() {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {reviewBankCourse && (
+          <ReviewBankDialog
+            open={!!reviewBankCourse}
+            onOpenChange={(o) => { if (!o) setReviewBankCourse(null); }}
+            courseId={reviewBankCourse.id}
+            courseTitle={reviewBankCourse.title}
+            limit={10}
+          />
+        )}
       </AppLayout>
     );
   }
