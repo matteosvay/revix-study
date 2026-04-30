@@ -28,7 +28,7 @@ export default function Profil() {
   const { user } = useAuth();
   const nav = useNavigate();
   const { data: isAdmin } = useIsAdmin();
-  const { subscription, isActive, tier, refresh: refreshSub } = useSubscription();
+  const { subscription, isActive, tier } = useSubscription();
   const [checkoutPriceId, setCheckoutPriceId] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
