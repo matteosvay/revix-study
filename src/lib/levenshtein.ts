@@ -2,9 +2,19 @@
 // des questions ouvertes : si très proche on valide direct, si très loin on rejette
 // direct, et seulement entre les deux on appelle l'IA.
 
+/** Normalise une chaîne : minuscule, sans accents, sans ponctuation, espaces compactés. */
+export function normalizeAnswer(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .trim()
+    .replace(/[.,;:!?'"()\[\]{}]/g, "")
+    .replace(/\s+/g, " ");
+}
+
 export function similarity(a: string, b: string): number {
-  const normalize = (s: string) =>
-    s.toLowerCase().trim().replace(/[.,;:!?'"]/g, "").replace(/\s+/g, " ");
+  const normalize = normalizeAnswer;
   const s1 = normalize(a);
   const s2 = normalize(b);
   if (s1 === s2) return 1;
@@ -37,4 +47,23 @@ export function bestSimilarity(userAnswer: string, candidates: string[]): number
     if (s > best) best = s;
   }
   return best;
+}
+
+export type HybridGrade =
+  | { source: "client"; correct: true; score: number }
+  | { source: "client"; correct: false; score: number }
+  | { source: "ai-needed"; score: number };
+
+/**
+ * Correction hybride pour réponses ouvertes :
+ * - similarity >= 0.85 → correct (client)
+ * - similarity < 0.30 → faux (client)
+ * - entre les deux → "ai-needed" : le caller doit appeler grade-open.
+ */
+export function gradeHybrid(userAnswer: string, expected: string | string[]): HybridGrade {
+  const candidates = Array.isArray(expected) ? expected : [expected];
+  const score = bestSimilarity(userAnswer, candidates);
+  if (score >= 0.85) return { source: "client", correct: true, score };
+  if (score < 0.30) return { source: "client", correct: false, score };
+  return { source: "ai-needed", score };
 }
