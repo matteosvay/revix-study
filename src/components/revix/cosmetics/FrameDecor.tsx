@@ -601,32 +601,103 @@ export function FrameDecor({
     case "frame_ruby":
     case "frame_sapphire": {
       const palette = {
-        frame_emerald:  { core: "#10b981", light: "#a7f3d0", dark: "#064e3b" },
-        frame_ruby:     { core: "#ef4444", light: "#fecaca", dark: "#7f1d1d" },
-        frame_sapphire: { core: "#3b82f6", light: "#bfdbfe", dark: "#1e3a8a" },
+        frame_emerald:  { core: "#10b981", light: "#d1fae5", mid: "#34d399", dark: "#064e3b", spark: "#ecfccb" },
+        frame_ruby:     { core: "#ef4444", light: "#fee2e2", mid: "#f87171", dark: "#7f1d1d", spark: "#fff1f2" },
+        frame_sapphire: { core: "#3b82f6", light: "#dbeafe", mid: "#60a5fa", dark: "#1e3a8a", spark: "#eff6ff" },
       }[itemKey];
+      const gid = itemKey;
       return (
         <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
           <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
             <defs>
-              <radialGradient id={`gem-${itemKey}-glow`} cx="50%" cy="50%" r="50%">
+              <radialGradient id={`gem-${gid}-glow`} cx="50%" cy="50%" r="50%">
                 <stop offset="55%" stopColor={palette.core} stopOpacity="0" />
-                <stop offset="100%" stopColor={palette.core} stopOpacity="0.55" />
+                <stop offset="100%" stopColor={palette.core} stopOpacity="0.6" />
               </radialGradient>
+              {/* Per-facet gem gradient: dark base → vivid core → bright top — gives depth & cut */}
+              <linearGradient id={`gem-${gid}-facet`} x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%"   stopColor={palette.dark} />
+                <stop offset="45%"  stopColor={palette.core} />
+                <stop offset="80%"  stopColor={palette.mid} />
+                <stop offset="100%" stopColor={palette.light} />
+              </linearGradient>
+              {/* Highlight gradient for the bright top half of each gem */}
+              <linearGradient id={`gem-${gid}-shine`} x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stopColor="#ffffff" stopOpacity="0.85" />
+                <stop offset="100%" stopColor="#ffffff" stopOpacity="0" />
+              </linearGradient>
+              {/* Hand-drawn marker contour ↔ keeps the notebook DA */}
+              <filter id={`gem-${gid}-rough`}>
+                <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="2" seed="3" />
+                <feDisplacementMap in="SourceGraphic" scale="0.6" />
+              </filter>
             </defs>
-            <circle cx="50" cy="50" r="48" fill={`url(#gem-${itemKey}-glow)`} />
-            {Array.from({ length: 12 }).map((_, i) => {
-              const a = (i * 30 * Math.PI) / 180;
-              const cx = 50 + Math.cos(a) * 47;
-              const cy = 50 + Math.sin(a) * 47;
+            {/* Soft ambient glow */}
+            <circle cx="50" cy="50" r="48" fill={`url(#gem-${gid}-glow)`} />
+            {/* Inner darker rim for depth (notebook ink contour) */}
+            <circle cx="50" cy="50" r="46" fill="none" stroke={palette.dark} strokeWidth="0.6" opacity="0.55" />
+            {/* 10 large faceted gems around the avatar — alternating sizes for organic feel */}
+            {Array.from({ length: 10 }).map((_, i) => {
+              const deg = i * 36;
+              const a = (deg * Math.PI) / 180;
+              const r = 48;
+              const cx = 50 + Math.cos(a) * r;
+              const cy = 50 + Math.sin(a) * r;
+              const big = i % 2 === 0;
+              const s = big ? 1 : 0.68;
+              // Pointed teardrop gem: pavilion (bottom point) + crown (top facets)
+              const pts = [
+                `0,${-4.4 * s}`,        // top
+                `${2.6 * s},${-2 * s}`,   // upper-right shoulder
+                `${3 * s},${1.4 * s}`,    // mid-right
+                `0,${4.6 * s}`,         // bottom point (pavilion)
+                `${-3 * s},${1.4 * s}`,   // mid-left
+                `${-2.6 * s},${-2 * s}`,  // upper-left shoulder
+              ].join(" ");
               return (
-                <g key={i} transform={`translate(${cx} ${cy}) rotate(${i * 30 + 45})`}>
-                  <polygon points="0,-3 3,0 0,3 -3,0" fill={palette.light} stroke={palette.dark} strokeWidth="0.5">
-                    <animate attributeName="opacity" values="0.4;1;0.4" dur="2.2s" begin={`${i * 0.15}s`} repeatCount="indefinite" />
-                  </polygon>
-                  <polygon points="0,-1.2 1.2,0 0,1.2 -1.2,0" fill="#fff">
-                    <animate attributeName="opacity" values="0.2;0.9;0.2" dur="1.5s" begin={`${i * 0.15}s`} repeatCount="indefinite" />
-                  </polygon>
+                <g key={i} transform={`translate(${cx} ${cy}) rotate(${deg + 90})`}>
+                  {/* Drop shadow under the gem (sits on the paper) */}
+                  <ellipse cx="0" cy={4.8 * s} rx={2.6 * s} ry={0.7 * s} fill={palette.dark} opacity="0.35" />
+                  {/* Main gem body — vertical gradient for cut depth */}
+                  <polygon
+                    points={pts}
+                    fill={`url(#gem-${gid}-facet)`}
+                    stroke={palette.dark}
+                    strokeWidth="0.5"
+                    strokeLinejoin="round"
+                    style={{ filter: `url(#gem-${gid}-rough)` }}
+                  />
+                  {/* Inner facet lines that show the cut */}
+                  <g stroke={palette.dark} strokeWidth="0.3" opacity="0.65" fill="none">
+                    <line x1="0" y1={-4.4 * s} x2="0" y2={1.4 * s} />
+                    <line x1={-2.6 * s} y1={-2 * s} x2={2.6 * s} y2={-2 * s} />
+                    <line x1={-3 * s} y1={1.4 * s} x2={3 * s} y2={1.4 * s} />
+                    <line x1={-2.6 * s} y1={-2 * s} x2="0" y2={1.4 * s} />
+                    <line x1={2.6 * s} y1={-2 * s} x2="0" y2={1.4 * s} />
+                  </g>
+                  {/* Top crown highlight */}
+                  <polygon
+                    points={`0,${-4.2 * s} ${2.2 * s},${-2 * s} ${-2.2 * s},${-2 * s}`}
+                    fill={`url(#gem-${gid}-shine)`}
+                    opacity="0.9"
+                  />
+                  {/* Tiny specular dot — the classic gem twinkle */}
+                  <circle cx={-0.7 * s} cy={-2.6 * s} r={0.35 * s} fill={palette.spark}>
+                    <animate attributeName="opacity" values="0.3;1;0.3" dur="1.8s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
+                  </circle>
+                </g>
+              );
+            })}
+            {/* Subtle rotating sparkle ring on top */}
+            {Array.from({ length: 6 }).map((_, i) => {
+              const a = (i * 60 * Math.PI) / 180;
+              const cx = 50 + Math.cos(a) * 50;
+              const cy = 50 + Math.sin(a) * 50;
+              return (
+                <g key={`sp${i}`} transform={`translate(${cx} ${cy})`}>
+                  <path d="M 0 -1.6 L 0.4 -0.4 L 1.6 0 L 0.4 0.4 L 0 1.6 L -0.4 0.4 L -1.6 0 L -0.4 -0.4 Z" fill={palette.spark}>
+                    <animate attributeName="opacity" values="0;1;0" dur="2.4s" begin={`${i * 0.4}s`} repeatCount="indefinite" />
+                  </path>
                 </g>
               );
             })}
@@ -640,29 +711,71 @@ export function FrameDecor({
         <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
           <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
             <defs>
-              <radialGradient id="sun-glow" cx="50%" cy="50%" r="50%">
-                <stop offset="55%" stopColor="#fbbf24" stopOpacity="0" />
-                <stop offset="100%" stopColor="#f59e0b" stopOpacity="0.7" />
+              <radialGradient id="sun-glow" cx="50%" cy="50%" r="55%">
+                <stop offset="40%" stopColor="#fff7c0" stopOpacity="0" />
+                <stop offset="80%" stopColor="#fbbf24" stopOpacity="0.55" />
+                <stop offset="100%" stopColor="#b45309" stopOpacity="0.85" />
+              </radialGradient>
+              <linearGradient id="sun-ray" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%"  stopColor="#b45309" stopOpacity="1" />
+                <stop offset="55%" stopColor="#fbbf24" stopOpacity="1" />
+                <stop offset="100%" stopColor="#fff7c0" stopOpacity="0" />
+              </linearGradient>
+              <radialGradient id="sun-corona" cx="50%" cy="50%" r="50%">
+                <stop offset="0%"  stopColor="#fff7c0" stopOpacity="0.95" />
+                <stop offset="60%" stopColor="#fbbf24" stopOpacity="0.4" />
+                <stop offset="100%" stopColor="#fbbf24" stopOpacity="0" />
               </radialGradient>
             </defs>
-            <circle cx="50" cy="50" r="48" fill="url(#sun-glow)" />
+            {/* Heat aura behind everything */}
+            <circle cx="50" cy="50" r="50" fill="url(#sun-glow)">
+              <animate attributeName="opacity" values="0.7;1;0.7" dur="3.2s" repeatCount="indefinite" />
+            </circle>
+            {/* Two ray groups counter-rotating — long flame rays + short triangular rays */}
             <g>
-              {Array.from({ length: 16 }).map((_, i) => {
-                const a = (i * 22.5 * Math.PI) / 180;
-                const r1 = 48;
-                const r2 = 54;
-                const x1 = 50 + Math.cos(a) * r1;
-                const y1 = 50 + Math.sin(a) * r1;
-                const x2 = 50 + Math.cos(a) * r2;
-                const y2 = 50 + Math.sin(a) * r2;
+              {Array.from({ length: 12 }).map((_, i) => {
+                const deg = i * 30;
                 return (
-                  <line key={i} x1={x1} y1={y1} x2={x2} y2={y2} stroke="#fde047" strokeWidth="1.4" strokeLinecap="round" style={{ filter: "drop-shadow(0 0 3px #fbbf24)" }}>
-                    <animate attributeName="opacity" values="0.5;1;0.5" dur="2s" begin={`${i * 0.08}s`} repeatCount="indefinite" />
-                  </line>
+                  <g key={`lr${i}`} transform={`rotate(${deg} 50 50)`}>
+                    {/* Tall flame ray */}
+                    <path
+                      d="M 50 -2 Q 53 12 50 22 Q 47 12 50 -2 Z"
+                      fill="url(#sun-ray)"
+                      stroke="#7c2d12"
+                      strokeWidth="0.4"
+                      strokeLinejoin="round"
+                      opacity="0.95"
+                    >
+                      <animate attributeName="opacity" values="0.6;1;0.6" dur="2.2s" begin={`${i * 0.1}s`} repeatCount="indefinite" />
+                    </path>
+                  </g>
                 );
               })}
-              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="40s" repeatCount="indefinite" />
+              <animateTransform attributeName="transform" type="rotate" from="0 50 50" to="360 50 50" dur="48s" repeatCount="indefinite" />
             </g>
+            <g>
+              {Array.from({ length: 12 }).map((_, i) => {
+                const deg = i * 30 + 15;
+                return (
+                  <g key={`sr${i}`} transform={`rotate(${deg} 50 50)`}>
+                    {/* Short pointed ray between flames */}
+                    <path
+                      d="M 50 4 L 52 14 L 48 14 Z"
+                      fill="#fde047"
+                      stroke="#b45309"
+                      strokeWidth="0.4"
+                      strokeLinejoin="round"
+                    >
+                      <animate attributeName="opacity" values="0.5;1;0.5" dur="1.6s" begin={`${i * 0.12}s`} repeatCount="indefinite" />
+                    </path>
+                  </g>
+                );
+              })}
+              <animateTransform attributeName="transform" type="rotate" from="360 50 50" to="0 50 50" dur="64s" repeatCount="indefinite" />
+            </g>
+            {/* Royal corona ring + inner ink contour to anchor the DA */}
+            <circle cx="50" cy="50" r="46" fill="none" stroke="#7c2d12" strokeWidth="0.7" opacity="0.55" />
+            <circle cx="50" cy="50" r="46" fill="url(#sun-corona)" />
           </svg>
         </div>
       );
@@ -722,15 +835,67 @@ export function FrameDecor({
       return (
         <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
           <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
-            {Array.from({ length: 8 }).map((_, i) => {
-              const a = (i * 45 * Math.PI) / 180;
-              const cx = 50 + Math.cos(a) * 47;
-              const cy = 50 + Math.sin(a) * 47;
+            <defs>
+              <radialGradient id="cb-aura" cx="50%" cy="50%" r="55%">
+                <stop offset="55%" stopColor="#22d3ee" stopOpacity="0" />
+                <stop offset="100%" stopColor="#0e7490" stopOpacity="0.55" />
+              </radialGradient>
+              <linearGradient id="cb-cryst" x1="0" y1="1" x2="0" y2="0">
+                <stop offset="0%"   stopColor="#155e75" />
+                <stop offset="55%"  stopColor="#06b6d4" />
+                <stop offset="100%" stopColor="#cffafe" />
+              </linearGradient>
+              <linearGradient id="cb-shine" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="0%"   stopColor="#fff" stopOpacity="0.9" />
+                <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+              </linearGradient>
+              <filter id="cb-rough">
+                <feTurbulence type="fractalNoise" baseFrequency="1" numOctaves="2" seed="7" />
+                <feDisplacementMap in="SourceGraphic" scale="0.5" />
+              </filter>
+            </defs>
+            <circle cx="50" cy="50" r="50" fill="url(#cb-aura)">
+              <animate attributeName="opacity" values="0.6;1;0.6" dur="3.6s" repeatCount="indefinite" />
+            </circle>
+            <circle cx="50" cy="50" r="46" fill="none" stroke="#0e7490" strokeWidth="0.6" opacity="0.55" />
+            {/* 9 elongated ice-shard crystals around the rim — pointed both ends, like real cave crystals */}
+            {Array.from({ length: 9 }).map((_, i) => {
+              const deg = i * 40;
+              const a = (deg * Math.PI) / 180;
+              const r = 48;
+              const cx = 50 + Math.cos(a) * r;
+              const cy = 50 + Math.sin(a) * r;
+              const big = i % 2 === 0;
+              const s = big ? 1 : 0.7;
+              const pts = [
+                `0,${-6.2 * s}`,
+                `${2 * s},${-2 * s}`,
+                `${1.6 * s},${3 * s}`,
+                `0,${5.4 * s}`,
+                `${-1.6 * s},${3 * s}`,
+                `${-2 * s},${-2 * s}`,
+              ].join(" ");
               return (
-                <g key={i} transform={`translate(${cx} ${cy}) rotate(${i * 45})`}>
-                  <polygon points="0,-4 2,-1 2,2 0,4 -2,2 -2,-1" fill="#cffafe" stroke="#0e7490" strokeWidth="0.5" opacity="0.85">
-                    <animate attributeName="opacity" values="0.5;1;0.5" dur="2.4s" begin={`${i * 0.2}s`} repeatCount="indefinite" />
-                  </polygon>
+                <g key={i} transform={`translate(${cx} ${cy}) rotate(${deg + 90})`}>
+                  <polygon
+                    points={pts}
+                    fill="url(#cb-cryst)"
+                    stroke="#0e7490"
+                    strokeWidth="0.45"
+                    strokeLinejoin="round"
+                    style={{ filter: "url(#cb-rough)" }}
+                  />
+                  {/* Facet line down the middle */}
+                  <line x1="0" y1={-6 * s} x2="0" y2={5 * s} stroke="#0e7490" strokeWidth="0.3" opacity="0.6" />
+                  <line x1={-2 * s} y1={-2 * s} x2={2 * s} y2={-2 * s} stroke="#0e7490" strokeWidth="0.25" opacity="0.5" />
+                  {/* Specular highlight on the upper-left facet */}
+                  <polygon
+                    points={`${-1.6 * s},${-1.5 * s} 0,${-6 * s} ${-0.4 * s},${-1.5 * s}`}
+                    fill="url(#cb-shine)"
+                  />
+                  <circle cx={-0.6 * s} cy={-3.5 * s} r={0.3 * s} fill="#fff">
+                    <animate attributeName="opacity" values="0.3;1;0.3" dur="2.2s" begin={`${i * 0.18}s`} repeatCount="indefinite" />
+                  </circle>
                 </g>
               );
             })}
@@ -777,6 +942,135 @@ export function FrameDecor({
           </svg>
         </div>
       );
+
+    /* ===================== COMMON — material textures (notebook DA) =====================
+       The CSS `ring-*` from frameStyle() gives the base contour. We add a thin SVG
+       layer ON TOP that renders the actual MATERIAL of the frame: paper fibers, kraft
+       grain, dotted/dashed ink, notebook ruling, graph lines, pencil hatching… so each
+       frame FEELS like what its name says, instead of being just a colored ring. */
+    case "frame_paper":
+    case "frame_kraft":
+    case "frame_dotted":
+    case "frame_dashed":
+    case "frame_notebook":
+    case "frame_grid":
+    case "frame_pencil": {
+      const cfg = {
+        frame_paper:    { ink: "#3a2410", base: "#fdfbf3", baseOp: 0.55, accent: "#cdbfa0" },
+        frame_kraft:    { ink: "#5a3a1a", base: "#caa477", baseOp: 0.7,  accent: "#7a5a35" },
+        frame_dotted:   { ink: "#1f1f1f", base: "transparent", baseOp: 0, accent: "#1f1f1f" },
+        frame_dashed:   { ink: "#1f1f1f", base: "transparent", baseOp: 0, accent: "#1f1f1f" },
+        frame_notebook: { ink: "#1d4ed8", base: "#fafdff", baseOp: 0.6,  accent: "#dc2626" },
+        frame_grid:     { ink: "#475569", base: "#f8fafc", baseOp: 0.55, accent: "#cbd5e1" },
+        frame_pencil:   { ink: "#374151", base: "transparent", baseOp: 0, accent: "#6b7280" },
+      }[itemKey];
+      const filterId = `mat-${itemKey}-rough`;
+      const clipId = `mat-${itemKey}-ring`;
+      return (
+        <div className={`absolute ${SCALE[size]} pointer-events-none`} style={wrap}>
+          <svg viewBox="0 0 100 100" className="w-full h-full overflow-visible">
+            <defs>
+              <filter id={filterId}>
+                <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="2" seed={itemKey.length} />
+                <feDisplacementMap in="SourceGraphic" scale="0.45" />
+              </filter>
+              <clipPath id={clipId}>
+                <path d="M 50 50 m -49 0 a 49 49 0 1 0 98 0 a 49 49 0 1 0 -98 0 M 50 50 m -45 0 a 45 45 0 1 1 90 0 a 45 45 0 1 1 -90 0" fillRule="evenodd" />
+              </clipPath>
+            </defs>
+
+            {cfg.base !== "transparent" && (
+              <circle cx="50" cy="50" r="49" fill={cfg.base} opacity={cfg.baseOp} />
+            )}
+
+            {itemKey === "frame_paper" && (
+              <g style={{ filter: `url(#${filterId})` }}>
+                <circle cx="50" cy="50" r="48.5" fill="none" stroke={cfg.ink} strokeWidth="0.7" opacity="0.55" />
+                <circle cx="50" cy="50" r="47.2" fill="none" stroke={cfg.accent} strokeWidth="0.4" opacity="0.5" strokeDasharray="0.6 1.1" />
+                {Array.from({ length: 18 }).map((_, i) => {
+                  const a = (i * 20 * Math.PI) / 180;
+                  return <line key={i} x1={50 + Math.cos(a) * 47.5} y1={50 + Math.sin(a) * 47.5} x2={50 + Math.cos(a) * 49.4} y2={50 + Math.sin(a) * 49.4} stroke={cfg.accent} strokeWidth="0.25" opacity="0.7" />;
+                })}
+              </g>
+            )}
+
+            {itemKey === "frame_kraft" && (
+              <g style={{ filter: `url(#${filterId})` }}>
+                <circle cx="50" cy="50" r="48" fill="none" stroke={cfg.ink} strokeWidth="1.4" opacity="0.85" />
+                {Array.from({ length: 32 }).map((_, i) => {
+                  const a = (i * 11.25 * Math.PI) / 180;
+                  const rr = 47 + ((i * 7) % 5) * 0.4;
+                  return <circle key={i} cx={50 + Math.cos(a) * rr} cy={50 + Math.sin(a) * rr} r={i % 3 === 0 ? 0.6 : 0.35} fill={cfg.accent} opacity="0.7" />;
+                })}
+                {[20, 80, 140, 220, 300].map((d, i) => {
+                  const a = (d * Math.PI) / 180;
+                  return <line key={i} x1={50 + Math.cos(a) * 47} y1={50 + Math.sin(a) * 47} x2={50 + Math.cos(a) * 49} y2={50 + Math.sin(a) * 49} stroke={cfg.accent} strokeWidth="0.4" opacity="0.6" />;
+                })}
+              </g>
+            )}
+
+            {itemKey === "frame_dotted" && (
+              <g style={{ filter: `url(#${filterId})` }}>
+                {Array.from({ length: 36 }).map((_, i) => {
+                  const a = (i * 10 * Math.PI) / 180;
+                  return <circle key={i} cx={50 + Math.cos(a) * 48.2} cy={50 + Math.sin(a) * 48.2} r="0.85" fill={cfg.ink} opacity="0.9" />;
+                })}
+              </g>
+            )}
+
+            {itemKey === "frame_dashed" && (
+              <circle cx="50" cy="50" r="48.2" fill="none" stroke={cfg.ink} strokeWidth="1" strokeDasharray="3 2" opacity="0.9" style={{ filter: `url(#${filterId})` }} />
+            )}
+
+            {itemKey === "frame_notebook" && (
+              <g>
+                <g clipPath={`url(#${clipId})`}>
+                  {[12, 22, 32, 42, 52, 62, 72, 82].map((y) => (
+                    <line key={y} x1="0" y1={y} x2="100" y2={y} stroke={cfg.ink} strokeWidth="0.3" opacity="0.55" />
+                  ))}
+                  <line x1="20" y1="0" x2="20" y2="100" stroke={cfg.accent} strokeWidth="0.4" opacity="0.6" />
+                </g>
+                <circle cx="50" cy="50" r="48.5" fill="none" stroke={cfg.ink} strokeWidth="0.5" opacity="0.45" style={{ filter: `url(#${filterId})` }} />
+              </g>
+            )}
+
+            {itemKey === "frame_grid" && (
+              <g>
+                <g clipPath={`url(#${clipId})`}>
+                  {Array.from({ length: 13 }).map((_, i) => {
+                    const v = i * 8;
+                    return (
+                      <g key={i}>
+                        <line x1="0" y1={v} x2="100" y2={v} stroke={cfg.accent} strokeWidth="0.3" opacity="0.7" />
+                        <line x1={v} y1="0" x2={v} y2="100" stroke={cfg.accent} strokeWidth="0.3" opacity="0.7" />
+                      </g>
+                    );
+                  })}
+                </g>
+                <circle cx="50" cy="50" r="48.5" fill="none" stroke={cfg.ink} strokeWidth="0.5" opacity="0.5" style={{ filter: `url(#${filterId})` }} />
+              </g>
+            )}
+
+            {itemKey === "frame_pencil" && (
+              <g style={{ filter: `url(#${filterId})` }}>
+                {Array.from({ length: 3 }).map((_, layer) => (
+                  <circle key={layer} cx="50" cy="50" r={47.6 + layer * 0.6} fill="none"
+                    stroke={layer === 1 ? cfg.accent : cfg.ink}
+                    strokeWidth={0.55 - layer * 0.1}
+                    opacity={0.85 - layer * 0.2}
+                    strokeDasharray={layer === 0 ? "0" : layer === 1 ? "1.2 0.6" : "0.4 0.8"}
+                  />
+                ))}
+                {Array.from({ length: 24 }).map((_, i) => {
+                  const a = (i * 15 * Math.PI) / 180;
+                  return <line key={i} x1={50 + Math.cos(a) * 46.8} y1={50 + Math.sin(a) * 46.8} x2={50 + Math.cos(a) * 49} y2={50 + Math.sin(a) * 49} stroke={cfg.ink} strokeWidth="0.35" opacity="0.6" />;
+                })}
+              </g>
+            )}
+          </svg>
+        </div>
+      );
+    }
 
     default:
       return null;
