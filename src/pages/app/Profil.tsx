@@ -109,6 +109,47 @@ export default function Profil() {
   }));
   const subjectItems = SUBJECTS.map(s => ({ value: s.name, label: s.name, group: s.category, emoji: s.emoji }));
 
+  const openManagePortal = async () => {
+    if (!user) return;
+    setPortalLoading(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("create-portal-session", {
+        body: {
+          environment: getStripeEnvironment(),
+          returnUrl: `${window.location.origin}/app/profil`,
+        },
+      });
+      if (error || !data?.url) throw new Error(error?.message || "Impossible d'ouvrir le portail");
+      window.open(data.url as string, "_blank");
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur");
+    } finally {
+      setPortalLoading(false);
+    }
+  };
+
+  const PLANS = [
+    {
+      id: "pro_monthly",
+      tier: "pro" as const,
+      name: "Pro",
+      price: "4,99 €",
+      tagline: "Pour étudier sérieusement chaque jour",
+      perks: ["10 quizz IA / jour", "20 messages coach / jour", "5 fiches IA / semaine", "Planning IA hebdo"],
+      gradient: "from-primary to-primary-glow",
+    },
+    {
+      id: "max_monthly",
+      tier: "max" as const,
+      name: "Max",
+      price: "8,99 €",
+      tagline: "Quotas maximaux, zéro limite",
+      perks: ["30 quizz IA / jour", "50 messages coach / jour", "3 fiches IA / jour", "Planning IA illimité"],
+      gradient: "from-amber-500 to-orange-600",
+      highlight: true,
+    },
+  ];
+
   return (
     <AppLayout>
       <PageHeader emoji="👤" title="Profil" />
