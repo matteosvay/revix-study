@@ -47,6 +47,29 @@ export async function authenticate(req: Request): Promise<
 export const CLAUDE_MODEL = "claude-haiku-4-5-20251001";
 const ANTHROPIC_URL = "https://api.anthropic.com/v1/messages";
 
+/**
+ * Extract a JSON object/array from a Claude text response.
+ * Tolerates code fences (```json ... ```) and surrounding prose.
+ * Returns null if no valid JSON can be parsed.
+ */
+export function extractJSON<T = unknown>(text: string): T | null {
+  if (!text) return null;
+  // Strip code fences first
+  const fenceMatch = text.match(/```(?:json)?\s*([\s\S]*?)```/i);
+  const candidate = fenceMatch ? fenceMatch[1] : text;
+  // Try direct parse
+  try { return JSON.parse(candidate.trim()) as T; } catch { /* fall through */ }
+  // Find first { or [ and matching last } or ]
+  const firstObj = candidate.indexOf("{");
+  const firstArr = candidate.indexOf("[");
+  const start = firstArr === -1 ? firstObj : firstObj === -1 ? firstArr : Math.min(firstObj, firstArr);
+  if (start === -1) return null;
+  const isArr = candidate[start] === "[";
+  const end = isArr ? candidate.lastIndexOf("]") : candidate.lastIndexOf("}");
+  if (end <= start) return null;
+  try { return JSON.parse(candidate.slice(start, end + 1)) as T; } catch { return null; }
+}
+
 export type ClaudeMessage = { role: "user" | "assistant"; content: string | unknown };
 
 export interface ClaudeTool {
