@@ -31,24 +31,44 @@ Deno.serve(async (req) => {
   );
 
   try {
-    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const today = new Date();
+    const days: string[] = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(today);
+      d.setUTCDate(d.getUTCDate() - i);
+      days.push(d.toISOString().slice(0, 10));
+    }
+    const minDay = days[0];
 
-    const [profilesAll, profilesPro, profilesUltra, usageWeek] = await Promise.all([
+    const [profilesAll, profilesPro, profilesUltra, dailyStats, topUsers] = await Promise.all([
       admin.from("profiles").select("id", { count: "exact", head: true }),
       admin.from("profiles").select("id", { count: "exact", head: true }).eq("plan", "pro"),
       admin.from("profiles").select("id", { count: "exact", head: true }).eq("plan", "ultra"),
-      admin
-        .from("usage_counters")
-        .select("action_type, count")
-        .eq("period_type", "daily")
-        .gte("updated_at", sevenDaysAgo),
+      admin.from("admin_daily_stats").select("*").gte("day", minDay),
+      admin.from("admin_user_stats").select("*").limit(20),
     ]);
 
-    // Aggregate usage by action_type over the last 7 days
-    const byAction: Record<string, number> = {};
-    for (const row of usageWeek.data ?? []) {
-      const a = (row as any).action_type as string;
-      byAction[a] = (byAction[a] ?? 0) + ((row as any).count ?? 0);
+    // Pivot daily stats into { day, fiche, quiz_ia, ..., total, cost }
+    type Row = { day: string; action_type: string; total_calls: number; estimated_cost_eur: number };
+    const byDay: Record<string, Record<string, number>> = {};
+    for (const d of days) byDay[d] = { fiche: 0, quiz_ia: 0, coach: 0, correction: 0, planning: 0, total: 0, cost: 0 };
+    for (const row of (dailyStats.data ?? []) as Row[]) {
+      const slot = byDay[row.day];
+      if (!slot) continue;
+      slot[row.action_type] = (slot[row.action_type] ?? 0) + Number(row.total_calls ?? 0);
+      slot.total += Number(row.total_calls ?? 0);
+      slot.cost = +((slot.cost ?? 0) + Number(row.estimated_cost_eur ?? 0)).toFixed(4);
+    }
+    const timeline = days.map((day) => ({ day, ...byDay[day] }));
+
+    // Aggregated last-7d totals
+    const usage_last_7d: Record<string, number> = {};
+    let total_cost_7d = 0;
+    for (const slot of Object.values(byDay)) {
+      for (const k of ["fiche", "quiz_ia", "coach", "correction", "planning"]) {
+        usage_last_7d[k] = (usage_last_7d[k] ?? 0) + (slot[k] ?? 0);
+      }
+      total_cost_7d += slot.cost ?? 0;
     }
 
     return jsonResponse({
@@ -58,7 +78,10 @@ Deno.serve(async (req) => {
         ultra: profilesUltra.count ?? 0,
         free: (profilesAll.count ?? 0) - (profilesPro.count ?? 0) - (profilesUltra.count ?? 0),
       },
-      usage_last_7d: byAction,
+      usage_last_7d,
+      total_cost_7d_eur: +total_cost_7d.toFixed(4),
+      timeline,
+      top_users: topUsers.data ?? [],
       generated_at: new Date().toISOString(),
     });
   } catch (e) {
