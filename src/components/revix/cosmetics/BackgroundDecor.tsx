@@ -525,15 +525,61 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
           <defs>
             <linearGradient id="bguw" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#00aaff" />
-              <stop offset="100%" stopColor="#003366" />
+              <stop offset="0%"   stopColor="#7dd3fc" />
+              <stop offset="35%"  stopColor="#0284c7" />
+              <stop offset="100%" stopColor="#082f49" />
             </linearGradient>
+            <linearGradient id="bguw-ray" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#fff" stopOpacity="0.55" />
+              <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+            </linearGradient>
+            <radialGradient id="bguw-caustic" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="#fff" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+            </radialGradient>
           </defs>
           <rect width="200" height="100" fill="url(#bguw)" />
+          {/* God rays from the surface */}
+          {[15, 55, 95, 130, 170].map((x, i) => (
+            <polygon key={`r${i}`} points={`${x},0 ${x + 8},0 ${x + 24},100 ${x - 8},100`} fill="url(#bguw-ray)" opacity="0.5">
+              <animate attributeName="opacity" values="0.25;0.6;0.25" dur={`${5 + i}s`} repeatCount="indefinite" />
+            </polygon>
+          ))}
+          {/* Caustics on the floor */}
+          {[30, 90, 150].map((cx, i) => (
+            <ellipse key={`c${i}`} cx={cx} cy="92" rx="22" ry="6" fill="url(#bguw-caustic)">
+              <animate attributeName="opacity" values="0.3;0.7;0.3" dur={`${4 + i * 0.7}s`} repeatCount="indefinite" />
+            </ellipse>
+          ))}
+          {/* Sea floor with rocks */}
+          <path d="M 0 92 Q 30 85 60 90 T 130 88 T 200 92 L 200 100 L 0 100 Z" fill="#0c4a6e" opacity="0.85" />
+          {[18, 42, 72, 105, 140, 175].map((x, i) => (
+            <ellipse key={`rk${i}`} cx={x} cy={94 + (i % 2)} rx={3 + (i % 3)} ry={1.6} fill="#0c2a3e" opacity="0.85" />
+          ))}
+          {/* Soft seaweed silhouettes */}
+          {[25, 70, 115, 165].map((x, i) => (
+            <path key={`sw${i}`} d={`M ${x} 96 Q ${x - 2} 88 ${x + 1} 80 Q ${x - 1} 72 ${x + 2} 66`} stroke="#065f46" strokeWidth="1.4" fill="none" opacity="0.85" strokeLinecap="round">
+              <animateTransform attributeName="transform" type="rotate" values={`-3 ${x} 96; 3 ${x} 96; -3 ${x} 96`} dur={`${3 + i * 0.4}s`} repeatCount="indefinite" />
+            </path>
+          ))}
+          {/* Drifting bubbles */}
           {Array.from({ length: 18 }).map((_, i) => (
-            <circle key={i} cx={(i * 11) + 5} cy={100 - ((i * 7) % 80)} r={1 + (i % 3)} fill="#bae6fd" opacity="0.7">
-              <animate attributeName="cy" values="100;-10" dur={`${3 + (i % 4) * 0.5}s`} begin={`${i * 0.3}s`} repeatCount="indefinite" />
+            <circle key={i} cx={(i * 11) + 5} cy={100 - ((i * 7) % 80)} r={0.8 + (i % 3) * 0.5} fill="none" stroke="#bae6fd" strokeWidth="0.4" opacity="0.85">
+              <animate attributeName="cy" values="98;-8" dur={`${5 + (i % 4) * 0.7}s`} begin={`${i * 0.3}s`} repeatCount="indefinite" />
+              <animate attributeName="opacity" values="0;0.85;0" dur={`${5 + (i % 4) * 0.7}s`} begin={`${i * 0.3}s`} repeatCount="indefinite" />
             </circle>
+          ))}
+          {/* Tiny fish silhouettes drifting across */}
+          {[
+            { y: 35, dur: 22, dly: 0,  c: "#fbbf24" },
+            { y: 52, dur: 28, dly: 4,  c: "#fb923c" },
+            { y: 68, dur: 18, dly: 8,  c: "#f59e0b" },
+          ].map((f, i) => (
+            <g key={`f${i}`}>
+              <path d="M 0 0 Q 4 -1.6 7 0 Q 4 1.6 0 0 M 7 0 L 9 -1.4 L 9 1.4 Z" fill={f.c} opacity="0.85">
+                <animateMotion dur={`${f.dur}s`} begin={`${f.dly}s`} repeatCount="indefinite" path={`M -10 ${f.y} L 210 ${f.y}`} />
+              </path>
+            </g>
           ))}
         </svg>
       );
@@ -625,20 +671,63 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
       return (
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
           <defs>
-            <linearGradient id="bgf" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#71b280" />
+            <linearGradient id="bgf-sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stopColor="#bae6d3" />
+              <stop offset="55%" stopColor="#71b280" />
               <stop offset="100%" stopColor="#134e5e" />
             </linearGradient>
+            <radialGradient id="bgf-sun" cx="22%" cy="20%" r="35%">
+              <stop offset="0%"  stopColor="#fff7c0" stopOpacity="0.95" />
+              <stop offset="60%" stopColor="#fde68a" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#fde68a" stopOpacity="0" />
+            </radialGradient>
+            <linearGradient id="bgf-ray" x1="0" y1="0" x2="1" y2="1">
+              <stop offset="0%"   stopColor="#fff" stopOpacity="0.45" />
+              <stop offset="100%" stopColor="#fff" stopOpacity="0" />
+            </linearGradient>
           </defs>
-          <rect width="200" height="100" fill="url(#bgf)" />
-          {[20, 50, 80, 110, 140, 170].map((x, i) => (
-            <g key={i}>
-              <polygon points={`${x},100 ${x - 12},60 ${x + 12},60`} fill="#0f5132" />
-              <polygon points={`${x},80 ${x - 9},45 ${x + 9},45`} fill="#1a7f3c" />
-              <polygon points={`${x},60 ${x - 6},30 ${x + 6},30`} fill="#22c55e" />
-              <rect x={x - 1} y="60" width="2" height="40" fill="#5b3a1f" />
-            </g>
+          <rect width="200" height="100" fill="url(#bgf-sky)" />
+          <rect width="200" height="100" fill="url(#bgf-sun)" />
+          {/* Diagonal light shafts coming from the sun */}
+          {[0, 18, 38].map((dx, i) => (
+            <polygon key={i} points={`${20 + dx},10 ${50 + dx},10 ${130 + dx},100 ${100 + dx},100`} fill="url(#bgf-ray)" opacity="0.4">
+              <animate attributeName="opacity" values="0.2;0.5;0.2" dur={`${5 + i}s`} repeatCount="indefinite" />
+            </polygon>
           ))}
+          {/* Distant tree silhouettes — receding hills */}
+          <path d="M 0 70 Q 30 56 60 64 Q 100 50 140 60 Q 170 54 200 64 L 200 100 L 0 100 Z" fill="#1f6b46" opacity="0.55" />
+          <path d="M 0 78 Q 40 68 80 74 Q 120 64 160 72 Q 180 70 200 74 L 200 100 L 0 100 Z" fill="#15543a" opacity="0.7" />
+          {/* Foreground stylized pines — multi-layered triangles + textured trunks */}
+          {[15, 45, 78, 112, 145, 178].map((x, i) => {
+            const big = i % 2 === 0;
+            const baseY = 100;
+            const trunkH = big ? 10 : 7;
+            return (
+              <g key={i}>
+                {/* Trunk with bark hatch */}
+                <rect x={x - 1.4} y={baseY - trunkH} width="2.8" height={trunkH} fill="#5b3a1f" />
+                <line x1={x - 1.4} y1={baseY - trunkH + 2} x2={x + 1.4} y2={baseY - trunkH + 2} stroke="#3a2410" strokeWidth="0.3" opacity="0.7" />
+                <line x1={x - 1.4} y1={baseY - trunkH + 5} x2={x + 1.4} y2={baseY - trunkH + 5} stroke="#3a2410" strokeWidth="0.3" opacity="0.5" />
+                {/* 4 triangle layers from base to top */}
+                <polygon points={`${x},${baseY - trunkH - 4} ${x - (big ? 14 : 10)},${baseY - trunkH + 1} ${x + (big ? 14 : 10)},${baseY - trunkH + 1}`} fill="#0f5132" />
+                <polygon points={`${x},${baseY - trunkH - 14} ${x - (big ? 12 : 9)},${baseY - trunkH - 4} ${x + (big ? 12 : 9)},${baseY - trunkH - 4}`} fill="#1a7f3c" />
+                <polygon points={`${x},${baseY - trunkH - 24} ${x - (big ? 9 : 7)},${baseY - trunkH - 14} ${x + (big ? 9 : 7)},${baseY - trunkH - 14}`} fill="#22c55e" />
+                <polygon points={`${x},${baseY - trunkH - 32} ${x - (big ? 6 : 5)},${baseY - trunkH - 24} ${x + (big ? 6 : 5)},${baseY - trunkH - 24}`} fill="#4ade80" />
+                {/* Snow/highlight on the right side */}
+                <path d={`M ${x},${baseY - trunkH - 32} L ${x + (big ? 5 : 4)},${baseY - trunkH - 24} L ${x + 1},${baseY - trunkH - 24} Z`} fill="#fff" opacity="0.18" />
+              </g>
+            );
+          })}
+          {/* Floating leaves */}
+          {Array.from({ length: 8 }).map((_, i) => {
+            const x = 20 + i * 22;
+            return (
+              <ellipse key={i} cx={x} cy={20 + (i % 3) * 8} rx="1.2" ry="0.6" fill="#86efac" opacity="0.85" transform={`rotate(${i * 30} ${x} ${20 + (i % 3) * 8})`}>
+                <animate attributeName="cy" values={`${20 + (i % 3) * 8};${30 + (i % 3) * 8};${20 + (i % 3) * 8}`} dur={`${4 + i * 0.4}s`} repeatCount="indefinite" />
+                <animate attributeName="opacity" values="0.4;0.95;0.4" dur={`${4 + i * 0.4}s`} repeatCount="indefinite" />
+              </ellipse>
+            );
+          })}
         </svg>
       );
 
@@ -684,22 +773,124 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
     case "bg_corkboard":
       return (
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
-          <rect width="200" height="100" fill="#a37b50" />
-          {Array.from({ length: 80 }).map((_, i) => (
-            <circle key={i} cx={(i * 23) % 200} cy={(i * 17) % 100} r="0.8" fill="#7a5a35" opacity="0.7" />
-          ))}
-          <rect x="20" y="20" width="22" height="22" fill="#fde047" stroke="#ca8a04" strokeWidth="0.5" transform="rotate(-4 31 31)" />
-          <rect x="80" y="40" width="20" height="20" fill="#fbcfe8" stroke="#be185d" strokeWidth="0.5" transform="rotate(3 90 50)" />
-          <rect x="140" y="20" width="22" height="22" fill="#bbf7d0" stroke="#15803d" strokeWidth="0.5" transform="rotate(-2 151 31)" />
+          <defs>
+            <linearGradient id="cork-base" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stopColor="#b88858" />
+              <stop offset="100%" stopColor="#8e6438" />
+            </linearGradient>
+            <radialGradient id="cork-vignette" cx="50%" cy="50%" r="70%">
+              <stop offset="60%" stopColor="#000" stopOpacity="0" />
+              <stop offset="100%" stopColor="#000" stopOpacity="0.35" />
+            </radialGradient>
+          </defs>
+          <rect width="200" height="100" fill="url(#cork-base)" />
+          {/* Dense cork granule texture (3 sizes for depth) */}
+          {Array.from({ length: 220 }).map((_, i) => {
+            const x = (i * 13.7) % 200;
+            const y = (i * 9.3) % 100;
+            const size = i % 7 === 0 ? 1.2 : i % 3 === 0 ? 0.7 : 0.4;
+            const c = i % 5 === 0 ? "#5e3e1d" : i % 4 === 0 ? "#caa477" : "#7a5a35";
+            return <circle key={i} cx={x} cy={y} r={size} fill={c} opacity={i % 4 === 0 ? 0.9 : 0.55} />;
+          })}
+          {/* Wood-frame edge */}
+          <rect x="2" y="2" width="196" height="96" fill="none" stroke="#5a3a1f" strokeWidth="3" rx="1" />
+          <rect x="2" y="2" width="196" height="96" fill="none" stroke="#3a2410" strokeWidth="0.5" rx="1" />
+          {/* Pinned post-its with shadow + push-pin */}
+          {[
+            { x: 20,  y: 20, w: 24, h: 22, fill: "#fde047", stroke: "#ca8a04", rot: -5, txt: "TODO" },
+            { x: 80,  y: 40, w: 22, h: 22, fill: "#fbcfe8", stroke: "#be185d", rot: 3,  txt: "♥" },
+            { x: 140, y: 20, w: 24, h: 22, fill: "#bbf7d0", stroke: "#15803d", rot: -2, txt: "OK" },
+            { x: 50,  y: 60, w: 18, h: 14, fill: "#bae6fd", stroke: "#0369a1", rot: 4,  txt: "" },
+            { x: 120, y: 65, w: 20, h: 16, fill: "#fed7aa", stroke: "#c2410c", rot: -3, txt: "★" },
+          ].map((s, i) => {
+            const cx = s.x + s.w / 2, cy = s.y + s.h / 2;
+            return (
+              <g key={i} transform={`rotate(${s.rot} ${cx} ${cy})`}>
+                {/* Drop shadow */}
+                <rect x={s.x + 0.6} y={s.y + 1.2} width={s.w} height={s.h} fill="#000" opacity="0.25" />
+                {/* Post-it */}
+                <rect x={s.x} y={s.y} width={s.w} height={s.h} fill={s.fill} stroke={s.stroke} strokeWidth="0.4" />
+                {s.txt && <text x={cx} y={cy + 1.6} textAnchor="middle" fontSize="5" fontWeight="800" fill={s.stroke} fontFamily="Caveat, cursive">{s.txt}</text>}
+                {/* Push pin */}
+                <circle cx={cx} cy={s.y + 2.5} r="1.6" fill="#dc2626" stroke="#7f1d1d" strokeWidth="0.3" />
+                <circle cx={cx - 0.5} cy={s.y + 2} r="0.5" fill="#fff" opacity="0.7" />
+              </g>
+            );
+          })}
+          {/* Vignette to push focus to the avatar/center */}
+          <rect width="200" height="100" fill="url(#cork-vignette)" />
         </svg>
       );
 
     case "bg_library":
       return (
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
-          <rect width="200" height="100" fill="#5b3a1f" />
-          {[10, 18, 30, 38, 50, 62, 70, 80, 92, 102, 114, 122, 132, 144, 156, 166, 176, 188].map((x, i) => (
-            <rect key={i} x={x} y="20" width="6" height="60" fill={["#7f1d1d", "#1e3a8a", "#14532d", "#7c2d12", "#581c87"][i % 5]} stroke="#3a2410" strokeWidth="0.5" />
+          <defs>
+            <linearGradient id="lib-wood" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stopColor="#7c4a20" />
+              <stop offset="100%" stopColor="#3a2410" />
+            </linearGradient>
+            <radialGradient id="lib-lamp" cx="50%" cy="55%" r="50%">
+              <stop offset="0%"  stopColor="#fde68a" stopOpacity="0.55" />
+              <stop offset="60%" stopColor="#fbbf24" stopOpacity="0.18" />
+              <stop offset="100%" stopColor="#fbbf24" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <rect width="200" height="100" fill="url(#lib-wood)" />
+          {/* Top shelf */}
+          <rect x="0" y="6" width="200" height="3" fill="#3a2410" />
+          <rect x="0" y="6" width="200" height="0.6" fill="#a16742" />
+          {/* Bottom shelf */}
+          <rect x="0" y="84" width="200" height="3" fill="#3a2410" />
+          <rect x="0" y="84" width="200" height="0.6" fill="#a16742" />
+          {/* Books — varied widths, heights, leaning, with spine details */}
+          {(() => {
+            const palettes = [
+              { c: "#7f1d1d", d: "#450a0a", l: "#fbbf24" },
+              { c: "#1e3a8a", d: "#0c1e4d", l: "#fbbf24" },
+              { c: "#14532d", d: "#052e16", l: "#fde68a" },
+              { c: "#7c2d12", d: "#3f1108", l: "#fde047" },
+              { c: "#581c87", d: "#2e1065", l: "#fbbf24" },
+              { c: "#0c4a6e", d: "#0a2540", l: "#fde68a" },
+              { c: "#831843", d: "#4c0519", l: "#fde047" },
+            ];
+            const books: any[] = [];
+            let x = 4;
+            let i = 0;
+            while (x < 196) {
+              const w = 5 + ((i * 3) % 6);
+              const h = 64 + ((i * 5) % 12);
+              const y = 84 - h;
+              const p = palettes[i % palettes.length];
+              const tilt = i % 11 === 0 ? (i % 2 === 0 ? -4 : 4) : 0;
+              books.push(
+                <g key={i} transform={tilt ? `rotate(${tilt} ${x + w / 2} 84)` : undefined}>
+                  <rect x={x} y={y} width={w} height={h} fill={p.c} stroke={p.d} strokeWidth="0.4" />
+                  {/* Spine bands */}
+                  <rect x={x} y={y + 4} width={w} height="0.6" fill={p.d} opacity="0.8" />
+                  <rect x={x} y={y + h - 5} width={w} height="0.6" fill={p.d} opacity="0.8" />
+                  {/* Title gold band */}
+                  <rect x={x + 0.6} y={y + h * 0.35} width={w - 1.2} height="3" fill={p.l} opacity="0.4" />
+                  <rect x={x + 1.2} y={y + h * 0.36} width={w - 2.4} height="0.4" fill={p.d} opacity="0.7" />
+                  {/* Top edge highlight */}
+                  <rect x={x} y={y} width={w} height="0.4" fill="#fff" opacity="0.18" />
+                </g>
+              );
+              x += w + 0.4;
+              i++;
+            }
+            return books;
+          })()}
+          {/* Warm lamp glow centered */}
+          <ellipse cx="100" cy="55" rx="90" ry="46" fill="url(#lib-lamp)">
+            <animate attributeName="opacity" values="0.7;1;0.7" dur="6s" repeatCount="indefinite" />
+          </ellipse>
+          {/* Floating dust motes */}
+          {Array.from({ length: 12 }).map((_, i) => (
+            <circle key={i} cx={20 + i * 14} cy={30 + (i % 3) * 14} r="0.5" fill="#fde68a" opacity="0.7">
+              <animate attributeName="opacity" values="0.2;0.9;0.2" dur={`${3 + (i % 4)}s`} repeatCount="indefinite" />
+              <animate attributeName="cy" values={`${30 + (i % 3) * 14};${28 + (i % 3) * 14};${30 + (i % 3) * 14}`} dur={`${4 + i * 0.3}s`} repeatCount="indefinite" />
+            </circle>
           ))}
         </svg>
       );
@@ -708,19 +899,77 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
     case "bg_enchanted_forest":
       return (
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
-          {/* Tree silhouettes */}
-          {[10, 35, 60, 90, 120, 150, 180].map((x, i) => (
-            <path key={i} d={`M ${x} 100 L ${x} 60 M ${x - 6} 70 L ${x} 60 L ${x + 6} 70 M ${x - 4} 55 L ${x} 45 L ${x + 4} 55`} stroke="#022c22" strokeWidth="1.5" fill="none" opacity="0.7" />
-          ))}
-          {/* Fireflies */}
-          {Array.from({ length: 18 }).map((_, i) => {
-            const cx = 10 + i * 11;
-            const cy = 20 + (i % 5) * 15;
+          <defs>
+            <linearGradient id="ef-sky" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%"  stopColor="#1e1b4b" />
+              <stop offset="55%" stopColor="#064e3b" />
+              <stop offset="100%" stopColor="#022c22" />
+            </linearGradient>
+            <radialGradient id="ef-moon" cx="78%" cy="22%" r="22%">
+              <stop offset="0%"  stopColor="#fef9c3" stopOpacity="1" />
+              <stop offset="40%" stopColor="#fde68a" stopOpacity="0.45" />
+              <stop offset="100%" stopColor="#fde68a" stopOpacity="0" />
+            </radialGradient>
+            <radialGradient id="ef-mist" cx="50%" cy="80%" r="60%">
+              <stop offset="0%"  stopColor="#86efac" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#86efac" stopOpacity="0" />
+            </radialGradient>
+          </defs>
+          <rect width="200" height="100" fill="url(#ef-sky)" />
+          {/* Distant moon */}
+          <circle cx="158" cy="22" r="10" fill="#fef9c3" opacity="0.95" />
+          <circle cx="156" cy="20" r="3" fill="#fde68a" opacity="0.5" />
+          <rect width="200" height="100" fill="url(#ef-moon)" />
+          {/* Magical mist near the floor */}
+          <rect width="200" height="100" fill="url(#ef-mist)" />
+          {/* Background trees (silhouettes, blurred feel) */}
+          {[8, 26, 50, 75, 100, 125, 150, 172, 192].map((x, i) => {
+            const h = 38 + (i * 7) % 18;
             return (
-              <circle key={i} cx={cx} cy={cy} r="0.8" fill="#fde047" style={{ filter: "drop-shadow(0 0 3px #fbbf24)" }}>
-                <animate attributeName="opacity" values="0.2;1;0.2" dur={`${1.6 + (i % 4) * 0.4}s`} begin={`${i * 0.15}s`} repeatCount="indefinite" />
-                <animate attributeName="cy" values={`${cy};${cy - 4};${cy}`} dur={`${3 + (i % 3)}s`} repeatCount="indefinite" />
-              </circle>
+              <g key={`bt${i}`} opacity="0.55">
+                <rect x={x - 0.8} y={100 - h * 0.3} width="1.6" height={h * 0.3} fill="#022c22" />
+                <path d={`M ${x} ${100 - h} Q ${x - 8} ${100 - h * 0.6} ${x - 7} ${100 - h * 0.4} Q ${x + 8} ${100 - h * 0.6} ${x + 7} ${100 - h * 0.4} Z`} fill="#022c22" />
+                <path d={`M ${x} ${100 - h * 1.05} Q ${x - 6} ${100 - h * 0.75} ${x - 5} ${100 - h * 0.55} Q ${x + 6} ${100 - h * 0.75} ${x + 5} ${100 - h * 0.55} Z`} fill="#064e3b" />
+              </g>
+            );
+          })}
+          {/* Foreground gnarled trees */}
+          {[14, 60, 110, 160].map((x, i) => (
+            <g key={`ft${i}`}>
+              <path d={`M ${x} 100 Q ${x + 2} 80 ${x - 1} 60 Q ${x - 3} 50 ${x} 40`} stroke="#022c22" strokeWidth="2" fill="none" strokeLinecap="round" />
+              <path d={`M ${x - 1} 60 Q ${x - 6} 56 ${x - 10} 50`} stroke="#022c22" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+              <path d={`M ${x} 50 Q ${x + 6} 46 ${x + 10} 42`} stroke="#022c22" strokeWidth="1.2" fill="none" strokeLinecap="round" />
+              {/* Glowing canopy */}
+              <circle cx={x} cy={42} r="6" fill="#10b981" opacity="0.55" />
+              <circle cx={x - 6} cy={48} r="3.5" fill="#10b981" opacity="0.45" />
+              <circle cx={x + 7} cy={44} r="3" fill="#34d399" opacity="0.55" />
+            </g>
+          ))}
+          {/* Glowing mushrooms on the floor */}
+          {[30, 75, 132, 178].map((x, i) => (
+            <g key={`m${i}`}>
+              <ellipse cx={x} cy={97} rx="3" ry="0.8" fill="#000" opacity="0.4" />
+              <rect x={x - 0.7} y={94} width="1.4" height="3.5" fill="#fef3c7" />
+              <ellipse cx={x} cy={94} rx="2.6" ry="1.5" fill="#a78bfa" stroke="#581c87" strokeWidth="0.3" />
+              <circle cx={x - 1} cy={93.6} r="0.3" fill="#fff" />
+              <circle cx={x + 0.7} cy={94.2} r="0.3" fill="#fff" />
+              <ellipse cx={x} cy={93} rx="3" ry="0.8" fill="#a78bfa" opacity="0.5" style={{ filter: "blur(0.6px)" }} />
+            </g>
+          ))}
+          {/* Fireflies — denser, with halo */}
+          {Array.from({ length: 22 }).map((_, i) => {
+            const cx = 8 + i * 9;
+            const cy = 18 + (i % 5) * 14;
+            return (
+              <g key={i}>
+                <circle cx={cx} cy={cy} r="2.4" fill="#fde047" opacity="0.18">
+                  <animate attributeName="opacity" values="0.05;0.4;0.05" dur={`${1.6 + (i % 4) * 0.4}s`} begin={`${i * 0.15}s`} repeatCount="indefinite" />
+                </circle>
+                <circle cx={cx} cy={cy} r="0.85" fill="#fef9c3" style={{ filter: "drop-shadow(0 0 4px #fbbf24)" }}>
+                  <animate attributeName="opacity" values="0.2;1;0.2" dur={`${1.6 + (i % 4) * 0.4}s`} begin={`${i * 0.15}s`} repeatCount="indefinite" />
+                  <animate attributeName="cy" values={`${cy};${cy - 4};${cy}`} dur={`${3 + (i % 3)}s`} repeatCount="indefinite" />
+                </circle>
+              </g>
             );
           })}
         </svg>
@@ -729,17 +978,45 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
     case "bg_deep_sea":
       return (
         <svg viewBox="0 0 200 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full pointer-events-none">
-          {/* Light rays from top */}
           <defs>
             <linearGradient id="ds-ray" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#7dd3fc" stopOpacity="0.5" />
+              <stop offset="0%"  stopColor="#7dd3fc" stopOpacity="0.6" />
               <stop offset="100%" stopColor="#7dd3fc" stopOpacity="0" />
             </linearGradient>
+            <radialGradient id="ds-jelly" cx="50%" cy="40%" r="50%">
+              <stop offset="0%"   stopColor="#f0abfc" stopOpacity="0.85" />
+              <stop offset="100%" stopColor="#a21caf" stopOpacity="0" />
+            </radialGradient>
           </defs>
+          {/* God rays */}
           {[20, 60, 110, 160].map((x, i) => (
             <polygon key={i} points={`${x},0 ${x + 10},0 ${x + 30},100 ${x - 10},100`} fill="url(#ds-ray)">
               <animate attributeName="opacity" values="0.3;0.7;0.3" dur={`${4 + i}s`} repeatCount="indefinite" />
             </polygon>
+          ))}
+          {/* Whale silhouette drifting through */}
+          <g opacity="0.55">
+            <path d="M -30 0 Q -10 -6 6 -2 Q 18 -1 22 -4 Q 26 -1 22 2 Q 18 4 6 4 Q -10 6 -30 0 Z" fill="#0ea5e9">
+              <animateMotion dur="40s" repeatCount="indefinite" path="M -30 50 L 230 30" />
+            </path>
+          </g>
+          {/* Jellyfish */}
+          {[
+            { x: 40,  y: 30, s: 1,    dly: 0 },
+            { x: 130, y: 55, s: 0.7,  dly: 2 },
+            { x: 170, y: 25, s: 0.85, dly: 4 },
+          ].map((j, i) => (
+            <g key={`j${i}`} transform={`translate(${j.x} ${j.y}) scale(${j.s})`}>
+              <ellipse cx="0" cy="0" rx="9" ry="6" fill="url(#ds-jelly)" />
+              <ellipse cx="0" cy="0" rx="9" ry="6" fill="none" stroke="#f0abfc" strokeWidth="0.4" opacity="0.7" />
+              {/* Tentacles */}
+              {[-5, -2, 1, 4].map((tx, k) => (
+                <path key={k} d={`M ${tx} 5 Q ${tx + 1} 12 ${tx - 1} 18 Q ${tx} 24 ${tx + 1} 30`} stroke="#f0abfc" strokeWidth="0.5" fill="none" opacity="0.7">
+                  <animateTransform attributeName="transform" type="translate" values="0 0; 0 1; 0 0" dur={`${3 + k}s`} repeatCount="indefinite" />
+                </path>
+              ))}
+              <animateTransform attributeName="transform" type="translate" values={`${j.x} ${j.y}; ${j.x} ${j.y - 4}; ${j.x} ${j.y}`} dur={`${5 + i}s`} begin={`${j.dly}s`} repeatCount="indefinite" additive="replace" />
+            </g>
           ))}
           {/* Bubbles */}
           {Array.from({ length: 14 }).map((_, i) => {
@@ -751,6 +1028,8 @@ export function BackgroundDecor({ itemKey }: { itemKey?: string | null }) {
               </circle>
             );
           })}
+          {/* Floor sand silhouette */}
+          <path d="M 0 95 Q 50 92 100 94 T 200 95 L 200 100 L 0 100 Z" fill="#0c2a3e" opacity="0.85" />
         </svg>
       );
 
