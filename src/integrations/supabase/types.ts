@@ -1553,7 +1553,32 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      admin_daily_stats: {
+        Row: {
+          action_type: string | null
+          day: string | null
+          estimated_cost_eur: number | null
+          total_calls: number | null
+          unique_users: number | null
+        }
+        Relationships: []
+      }
+      admin_user_stats: {
+        Row: {
+          coach: number | null
+          corrections: number | null
+          email: string | null
+          estimated_cost_eur: number | null
+          fiches: number | null
+          last_activity: string | null
+          plan: string | null
+          plannings: number | null
+          quizz: number | null
+          total_calls: number | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       _award_xp_internal: {
