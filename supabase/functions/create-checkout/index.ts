@@ -23,13 +23,23 @@ async function createCheckoutSession(opts: CheckoutBody): Promise<string | null>
   }
   const stripe = createStripeClient(opts.environment);
 
-  const prices = await stripe.prices.list({
+  let prices;
+  try {
+    prices = await stripe.prices.list({
     lookup_keys: [opts.priceId],
-    expand: ["data.product"],
-    active: true,
-    limit: 10,
-  });
-  console.log("create-checkout prices.list raw:", JSON.stringify(prices));
+      active: true,
+      limit: 10,
+    });
+  } catch (e) {
+    console.error("create-checkout prices.list threw:", e);
+    throw new Error("Connexion Stripe indisponible. Réessaie dans un instant.");
+  }
+  // The connector gateway can return an error envelope with status 200 instead of throwing.
+  if (prices && !Array.isArray((prices as any).data) && (prices as any).type) {
+    console.error("create-checkout gateway error:", JSON.stringify(prices));
+    const msg = (prices as any).message || "Erreur passerelle Stripe";
+    throw new Error(`Passerelle Stripe: ${msg}`);
+  }
   if (!prices || !Array.isArray(prices.data) || prices.data.length === 0) {
     throw new Error(`Price not found for lookup_key '${opts.priceId}'. Vérifie que le produit existe dans Stripe (${opts.environment}).`);
   }
