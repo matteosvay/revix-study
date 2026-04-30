@@ -287,6 +287,8 @@ export default function Profil() {
           </DialogContent>
         </Dialog>
 
+        <ReferralCard />
+
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Personnalisation</p>
           <Link to="/app/cosmetics" className="flex items-center gap-3 rounded-md border-[2.5px] border-foreground bg-card p-3 shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
