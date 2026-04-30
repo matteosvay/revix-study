@@ -575,6 +575,7 @@ export type Database = {
           quiz_completed_count: number
           quiz_loot_box_claimed_count: number
           quiz_loot_box_pending: number
+          referral_code: string | null
           school: string | null
           streak_days: number
           streak_record: number
@@ -610,6 +611,7 @@ export type Database = {
           quiz_completed_count?: number
           quiz_loot_box_claimed_count?: number
           quiz_loot_box_pending?: number
+          referral_code?: string | null
           school?: string | null
           streak_days?: number
           streak_record?: number
@@ -645,6 +647,7 @@ export type Database = {
           quiz_completed_count?: number
           quiz_loot_box_claimed_count?: number
           quiz_loot_box_pending?: number
+          referral_code?: string | null
           school?: string | null
           streak_days?: number
           streak_record?: number
@@ -933,6 +936,62 @@ export type Database = {
             columns: ["course_id"]
             isOneToOne: false
             referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      referrals: {
+        Row: {
+          created_at: string
+          id: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          reward_granted: boolean
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          referral_code: string
+          referred_id: string
+          referrer_id: string
+          reward_granted?: boolean
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          referral_code?: string
+          referred_id?: string
+          referrer_id?: string
+          reward_granted?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: true
+            referencedRelation: "admin_user_stats"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "referrals_referred_id_fkey"
+            columns: ["referred_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "admin_user_stats"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "referrals_referrer_id_fkey"
+            columns: ["referrer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1586,6 +1645,7 @@ export type Database = {
         Returns: Json
       }
       accept_duel: { Args: { p_duel_id: string }; Returns: undefined }
+      apply_referral_code: { Args: { _code: string }; Returns: Json }
       award_xp: {
         Args: { p_amount: number; p_reason: string; p_user_id: string }
         Returns: Json
@@ -1649,6 +1709,7 @@ export type Database = {
         Returns: Json
       }
       generate_group_code: { Args: never; Returns: string }
+      generate_referral_code: { Args: never; Returns: string }
       generate_room_code: { Args: never; Returns: string }
       generate_student_code: { Args: never; Returns: string }
       get_chapter_mastery: {
