@@ -547,13 +547,40 @@ export default function Quizz() {
             <Button
               size="sm"
               onClick={() => setGenOpen(true)}
+              disabled={quizIaRemaining === 0}
               className="rounded-full gradient-primary border-0"
             >
-              <Sparkles className="h-4 w-4 mr-1" /> Générer
+              <Sparkles className="h-4 w-4 mr-1" />
+              Générer
+              {quizIaRemaining !== null && quizIaUsage && (
+                <span className="ml-1.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-primary-foreground/20 text-[10px] font-bold tabular-nums">
+                  {quizIaRemaining}/{quizIaUsage.daily_limit}
+                </span>
+              )}
             </Button>
           }
         />
         <GenerateQuizDialog open={genOpen} onOpenChange={setGenOpen} />
+        {quizzes.length > 0 && (
+          <div className="px-4 -mt-2 mb-3 flex flex-wrap items-center gap-2">
+            <Badge variant="secondary" className="bg-emerald-500/15 text-emerald-700 dark:text-emerald-400 border-emerald-500/30 gap-1">
+              <RefreshCw className="h-3 w-3" /> Réviser : illimité
+            </Badge>
+            {quizIaRemaining !== null && quizIaUsage && (
+              <Badge
+                variant="secondary"
+                className={
+                  quizIaRemaining === 0
+                    ? "bg-destructive/15 text-destructive border-destructive/30 gap-1"
+                    : "bg-primary/10 text-primary border-primary/30 gap-1"
+                }
+              >
+                <Sparkles className="h-3 w-3" />
+                Quizz IA : {quizIaRemaining}/{quizIaUsage.daily_limit} restants
+              </Badge>
+            )}
+          </div>
+        )}
         {gaps.length > 0 && (
           <div className="px-4 mt-2 mb-4">
             <div className="flex items-center gap-2 mb-3 px-1">
