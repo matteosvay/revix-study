@@ -32,7 +32,6 @@ import { XpOverlay } from "./components/revix/XpOverlay";
 import { InstallAppPrompt } from "./components/revix/InstallAppPrompt";
 import { ErrorBoundary } from "./components/revix/ErrorBoundary";
 import { AiLimitModal } from "./components/revix/AiLimitModal";
-import { PaymentTestModeBanner } from "./components/revix/PaymentTestModeBanner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -63,7 +62,6 @@ const App = () => (
           <XpOverlay />
           <InstallAppPrompt />
           <AiLimitModal />
-          <PaymentTestModeBanner />
           <BrowserRouter>
             <Routes>
             <Route path="/" element={<Index />} />
