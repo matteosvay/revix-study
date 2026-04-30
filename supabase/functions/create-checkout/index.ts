@@ -29,13 +29,7 @@ async function createCheckoutSession(opts: CheckoutBody): Promise<string | null>
     active: true,
     limit: 10,
   });
-  console.log("create-checkout prices.list result:", JSON.stringify({
-    priceId: opts.priceId,
-    env: opts.environment,
-    hasData: Array.isArray(prices?.data),
-    count: prices?.data?.length ?? null,
-    raw: prices ? Object.keys(prices) : null,
-  }));
+  console.log("create-checkout prices.list raw:", JSON.stringify(prices));
   if (!prices || !Array.isArray(prices.data) || prices.data.length === 0) {
     throw new Error(`Price not found for lookup_key '${opts.priceId}'. Vérifie que le produit existe dans Stripe (${opts.environment}).`);
   }
