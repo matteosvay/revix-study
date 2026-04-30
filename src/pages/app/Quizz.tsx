@@ -657,6 +657,16 @@ export default function Quizz() {
                 >
                   <Eye className="h-4 w-4" />
                 </button>
+                {q.course_id && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); setReviewBankCourse({ id: q.course_id!, title: q.title }); }}
+                    className="h-9 w-9 rounded-full flex items-center justify-center text-emerald-600 hover:text-emerald-700 hover:bg-emerald-500/10 transition shrink-0"
+                    aria-label="Réviser sans IA"
+                    title="Réviser (sans coût IA)"
+                  >
+                    <RefreshCw className="h-4 w-4" />
+                  </button>
+                )}
                 <button
                   onClick={(e) => { e.stopPropagation(); setQuizToDelete(q); }}
                   className="h-9 w-9 rounded-full flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition shrink-0"
