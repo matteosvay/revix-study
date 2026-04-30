@@ -25,12 +25,14 @@ import StudyGroups from "./pages/app/StudyGroups";
 import Cosmetics from "./pages/app/Cosmetics";
 import PublicProfile from "./pages/app/PublicProfile";
 import AiUsage from "./pages/admin/AiUsage";
+import CheckoutReturn from "./pages/app/CheckoutReturn";
 import { AuthProvider } from "./hooks/useAuth";
 import { RequireAuth } from "./components/revix/RequireAuth";
 import { XpOverlay } from "./components/revix/XpOverlay";
 import { InstallAppPrompt } from "./components/revix/InstallAppPrompt";
 import { ErrorBoundary } from "./components/revix/ErrorBoundary";
 import { AiLimitModal } from "./components/revix/AiLimitModal";
+import { PaymentTestModeBanner } from "./components/revix/PaymentTestModeBanner";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -61,6 +63,7 @@ const App = () => (
           <XpOverlay />
           <InstallAppPrompt />
           <AiLimitModal />
+          <PaymentTestModeBanner />
           <BrowserRouter>
             <Routes>
             <Route path="/" element={<Index />} />
@@ -83,6 +86,7 @@ const App = () => (
             <Route path="/app/duel/:id" element={<RequireAuth><DuelPlay /></RequireAuth>} />
             <Route path="/app/room/:id" element={<RequireAuth><StudyRoom /></RequireAuth>} />
             <Route path="/app/profil" element={<RequireAuth><Profil /></RequireAuth>} />
+            <Route path="/app/checkout/return" element={<RequireAuth><CheckoutReturn /></RequireAuth>} />
             <Route path="/admin/ai-usage" element={<RequireAuth><AiUsage /></RequireAuth>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
