@@ -96,6 +96,11 @@ export default function Quizz() {
   const [hidden, setHidden] = useState<number[]>([]); // 50/50 hidden indices
   const [inventory, setInventory] = useState<Record<string, number>>({});
   const [genOpen, setGenOpen] = useState(false);
+  const { usage } = useUsage();
+  const quizIaUsage = usage.find((u) => u.action === "quiz_ia");
+  const quizIaRemaining = quizIaUsage
+    ? Math.max(0, quizIaUsage.daily_limit - quizIaUsage.daily_used)
+    : null;
 
   const loadInventory = async () => {
     if (!user) return;
