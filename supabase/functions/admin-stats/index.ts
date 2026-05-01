@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
     const [profilesAll, profilesPro, profilesUltra, dailyStats, topUsers] = await Promise.all([
       admin.from("profiles").select("id", { count: "exact", head: true }),
       admin.from("profiles").select("id", { count: "exact", head: true }).eq("plan", "pro"),
-      admin.from("profiles").select("id", { count: "exact", head: true }).eq("plan", "ultra"),
+      admin.from("profiles").select("id", { count: "exact", head: true }).eq("plan", "max"),
       admin.from("admin_daily_stats").select("*").gte("day", minDay),
       admin.from("admin_user_stats").select("*").limit(20),
     ]);

@@ -1,28 +1,19 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { authenticate, corsHeaders, enforceLimit, jsonResponse } from "../_shared/mod.ts";
 
 const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
-    const authHeader = req.headers.get("Authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
-    const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!);
-    const { data: u, error: uErr } = await sb.auth.getUser(authHeader.replace("Bearer ", ""));
-    if (uErr || !u?.user) {
-      return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    }
+    const auth = await authenticate(req);
+    if (!auth.ok) return auth.response;
+
+    const limit = await enforceLimit(auth.supabase, auth.userId, "transcription");
+    if (!limit.allowed) return limit.response;
 
     const { audioBase64, mimeType = "audio/webm" } = await req.json();
     if (!audioBase64 || typeof audioBase64 !== "string" || audioBase64.length < 100) {
-      return new Response(JSON.stringify({ error: "Audio manquant ou trop court" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return jsonResponse({ error: "Audio manquant ou trop court" }, { status: 400 });
     }
 
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
@@ -49,19 +40,20 @@ Deno.serve(async (req) => {
       }),
     });
 
-    if (resp.status === 429) return new Response(JSON.stringify({ error: "Trop de requêtes" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if (resp.status === 402) return new Response(JSON.stringify({ error: "Crédits IA épuisés" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (resp.status === 429) return jsonResponse({ error: "Trop de requêtes" }, { status: 429 });
+    if (resp.status === 402) return jsonResponse({ error: "Crédits IA épuisés" }, { status: 402 });
     if (!resp.ok) {
       const t = await resp.text();
       console.error("AI error", resp.status, t);
-      return new Response(JSON.stringify({ error: "Erreur IA", detail: t }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      // Ne PAS leaker le message brut de l'API IA au client.
+      return jsonResponse({ error: "Erreur IA" }, { status: 500 });
     }
 
     const data = await resp.json();
     const transcript = data.choices?.[0]?.message?.content?.toString().trim() ?? "";
-    return new Response(JSON.stringify({ transcript }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return jsonResponse({ transcript });
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erreur" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return jsonResponse({ error: "Erreur interne" }, { status: 500 });
   }
 });

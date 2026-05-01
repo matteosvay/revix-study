@@ -80,7 +80,25 @@ export async function verifyWebhook(
   );
   const expected = new TextDecoder().decode(encode(new Uint8Array(signed)));
 
-  if (!v1Signatures.includes(expected)) throw new Error("Invalid webhook signature");
+  // Comparaison à temps constant pour éviter les attaques par timing.
+  let matched = false;
+  for (const sig of v1Signatures) {
+    if (timingSafeEqual(sig, expected)) {
+      matched = true;
+      // ne pas break — on veut un temps constant
+    }
+  }
+  if (!matched) throw new Error("Invalid webhook signature");
 
   return JSON.parse(body);
+}
+
+/** Comparaison de deux chaînes hex à temps constant. */
+function timingSafeEqual(a: string, b: string): boolean {
+  if (a.length !== b.length) return false;
+  let diff = 0;
+  for (let i = 0; i < a.length; i++) {
+    diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+  }
+  return diff === 0;
 }

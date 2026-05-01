@@ -115,7 +115,7 @@ Format : ${typeInstructions[type]}`;
 Titre : ${title ?? "Cours"}
 Génère EXACTEMENT ${safeCount} questions à partir de ce cours :
 """
-${content.slice(0, 12000)}
+${content.slice(0, 30000)}
 """`;
 
     let result;

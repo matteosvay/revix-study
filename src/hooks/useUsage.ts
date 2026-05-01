@@ -7,7 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 
 export type UsageAction = "fiche" | "quiz_ia" | "coach" | "correction" | "planning";
-export type UsageTier = "free" | "pro" | "ultra";
+export type UsageTier = "free" | "pro" | "max";
 
 interface Limits {
   daily: number;
@@ -29,7 +29,7 @@ const TIER_LIMITS: Record<UsageTier, Record<UsageAction, Limits>> = {
     correction: { daily: 25, weekly: 120 },
     planning:   { daily: 1,  weekly: 5 },
   },
-  ultra: {
+  max: {
     fiche:      { daily: 3,  weekly: 15 },
     quiz_ia:    { daily: 30, weekly: 150 },
     coach:      { daily: 50, weekly: 300 },
@@ -91,7 +91,10 @@ export function useUsage() {
       ]);
 
       const planValue = (profile as any)?.plan;
-      const t: UsageTier = planValue === "ultra" ? "ultra" : planValue === "pro" ? "pro" : "free";
+      const t: UsageTier =
+        planValue === "max" || planValue === "ultra" ? "max"
+        : planValue === "pro" ? "pro"
+        : "free";
       setTier(t);
 
       const today = todayKey();

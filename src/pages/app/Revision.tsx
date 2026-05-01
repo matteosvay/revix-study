@@ -56,8 +56,11 @@ export default function Revision() {
   const next = async () => {
     setPicked(null);
     if (idx + 1 >= queue.length) {
-      // award xp at the end
-      const total = stats.ok + stats.ko + 1;
+      // Award XP en fin de session.
+      // stats inclut déjà toutes les questions répondues (recordReview a updaté
+      // stats avant ce next()). On utilise queue.length comme source de vérité
+      // pour le total, et stats.ok pour le bonus.
+      const total = queue.length;
       const xp = 10 * total + Math.max(0, stats.ok * 3);
       if (user && total > 0) await awardXp(user.id, xp, "srs_session");
     }

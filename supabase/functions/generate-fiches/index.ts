@@ -244,7 +244,9 @@ Produis la fiche en respectant SCRUPULEUSEMENT la structure de chapitres du cour
         const result = await callClaude({
           system,
           messages: [{ role: "user", content: userPrompt }],
-          maxTokens: 1500,
+          // Budget dynamique : ~1 token ≈ 4 chars FR. Pour des fiches exhaustives
+          // (6-20 blocs/section), on alloue large mais plafonné.
+          maxTokens: Math.min(8000, 2500 + Math.floor(chunk.length / 4)),
           temperature: 0.4,
           tools: [SUMMARY_TOOL],
           toolChoice: { type: "tool", name: "save_course" },
