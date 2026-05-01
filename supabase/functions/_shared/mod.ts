@@ -181,8 +181,8 @@ export function claudeErrorResponse(err: unknown): Response {
 // Rate limiting
 // =====================================================================
 
-export type ActionType = "fiche" | "quiz_ia" | "coach" | "correction" | "planning";
-export type Tier = "free" | "pro" | "ultra";
+export type ActionType = "fiche" | "quiz_ia" | "coach" | "correction" | "planning" | "oral" | "transcription";
+export type Tier = "free" | "pro" | "max";
 
 interface Limits {
   daily: number;
@@ -196,6 +196,8 @@ const TIER_LIMITS: Record<Tier, Record<ActionType, Limits>> = {
     coach:      { daily: 5,  weekly: 15 },
     correction: { daily: 5,  weekly: 15 },
     planning:   { daily: 1,  weekly: 1 },
+    oral:          { daily: 2,  weekly: 5 },
+    transcription: { daily: 5,  weekly: 15 },
   },
   pro: {
     fiche:      { daily: 1,  weekly: 5 },
@@ -203,13 +205,17 @@ const TIER_LIMITS: Record<Tier, Record<ActionType, Limits>> = {
     coach:      { daily: 20, weekly: 100 },
     correction: { daily: 25, weekly: 120 },
     planning:   { daily: 1,  weekly: 5 },
+    oral:          { daily: 10, weekly: 40 },
+    transcription: { daily: 30, weekly: 150 },
   },
-  ultra: {
+  max: {
     fiche:      { daily: 3,  weekly: 15 },
     quiz_ia:    { daily: 30, weekly: 150 },
     coach:      { daily: 50, weekly: 300 },
     correction: { daily: 60, weekly: 350 },
     planning:   { daily: 3,  weekly: 999 },
+    oral:          { daily: 30, weekly: 150 },
+    transcription: { daily: 100, weekly: 500 },
   },
 };
 
@@ -218,9 +224,7 @@ export function getLimits(tier: Tier, action: ActionType): Limits {
 }
 
 export function getUserTier(plan: string | null | undefined): Tier {
-  // Tout le monde en 'free' pour l'instant — on activera pro/ultra quand le système de paiement sera là.
-  // (On garde la mécanique en place : si le champ profiles.plan vaut 'pro' ou 'ultra', on respecte.)
-  if (plan === "ultra") return "ultra";
+  if (plan === "max" || plan === "ultra") return "max";
   if (plan === "pro") return "pro";
   return "free";
 }
@@ -257,8 +261,14 @@ export async function enforceLimit(
 
   if (error) {
     console.error("[enforceLimit] rpc failed", error);
-    // Fail-open so a DB hiccup doesn't break the product.
-    return { allowed: true, usage: { tier, action, fallback: true } };
+    // Fail-CLOSED: on refuse plutôt que de laisser passer en cas d'erreur DB.
+    return {
+      allowed: false,
+      response: jsonResponse(
+        { error: "limit_check_failed", message: "Service de quota indisponible, réessaie dans un instant." },
+        { status: 503 },
+      ),
+    };
   }
 
   if (data?.allowed === false) {
