@@ -27,7 +27,7 @@ async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
   const periodStart = item?.current_period_start ?? subscription.current_period_start;
   const periodEnd = item?.current_period_end ?? subscription.current_period_end;
 
-  await getSupabase().from("subscriptions").upsert(
+  const { error } = await getSupabase().from("subscriptions").upsert(
     {
       user_id: userId,
       stripe_subscription_id: subscription.id,
@@ -43,6 +43,10 @@ async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
     },
     { onConflict: "stripe_subscription_id" },
   );
+  if (error) {
+    console.error("[webhook] subscription upsert failed:", error);
+    throw new Error(`DB upsert failed: ${error.message}`);
+  }
 }
 
 async function handleSubscriptionUpdated(subscription: any, env: StripeEnv) {
@@ -52,7 +56,7 @@ async function handleSubscriptionUpdated(subscription: any, env: StripeEnv) {
   const periodStart = item?.current_period_start ?? subscription.current_period_start;
   const periodEnd = item?.current_period_end ?? subscription.current_period_end;
 
-  await getSupabase()
+  const { error } = await getSupabase()
     .from("subscriptions")
     .update({
       status: subscription.status,
@@ -65,10 +69,14 @@ async function handleSubscriptionUpdated(subscription: any, env: StripeEnv) {
     })
     .eq("stripe_subscription_id", subscription.id)
     .eq("environment", env);
+  if (error) {
+    console.error("[webhook] subscription update failed:", error);
+    throw new Error(`DB update failed: ${error.message}`);
+  }
 }
 
 async function handleSubscriptionDeleted(subscription: any, env: StripeEnv) {
-  await getSupabase()
+  const { error } = await getSupabase()
     .from("subscriptions")
     .update({
       status: "canceled",
@@ -76,6 +84,10 @@ async function handleSubscriptionDeleted(subscription: any, env: StripeEnv) {
     })
     .eq("stripe_subscription_id", subscription.id)
     .eq("environment", env);
+  if (error) {
+    console.error("[webhook] subscription delete failed:", error);
+    throw new Error(`DB delete failed: ${error.message}`);
+  }
 }
 
 async function handleWebhook(req: Request, env: StripeEnv) {
