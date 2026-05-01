@@ -1,35 +1,21 @@
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-};
+import { authenticate, corsHeaders, enforceLimit, jsonResponse } from "../_shared/mod.ts";
 
 const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
-
-async function requireAuth(req: Request): Promise<Response | null> {
-  const authHeader = req.headers.get("Authorization");
-  if (!authHeader?.startsWith("Bearer ")) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-  }
-  const sb = createClient(Deno.env.get("SUPABASE_URL")!, Deno.env.get("SUPABASE_ANON_KEY")!);
-  const { data, error } = await sb.auth.getUser(authHeader.replace("Bearer ", ""));
-  if (error || !data?.user) {
-    return new Response(JSON.stringify({ error: "Unauthorized" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-  }
-  return null;
-}
 
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
-    const unauthorized = await requireAuth(req);
-    if (unauthorized) return unauthorized;
+    const auth = await authenticate(req);
+    if (!auth.ok) return auth.response;
+
+    const limit = await enforceLimit(auth.supabase, auth.userId, "oral");
+    if (!limit.allowed) return limit.response;
+
     const { topic, transcript, courseContent } = await req.json();
     const apiKey = Deno.env.get("LOVABLE_API_KEY");
     if (!apiKey) throw new Error("LOVABLE_API_KEY not configured");
     if (!transcript || transcript.trim().length < 10) {
-      return new Response(JSON.stringify({ error: "Réponse trop courte." }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      return jsonResponse({ error: "Réponse trop courte." }, { status: 400 });
     }
 
     const system = `Tu es un examinateur bienveillant pour le grand oral français.
@@ -73,15 +59,18 @@ ${transcript.slice(0, 6000)}
       }),
     });
 
-    if (resp.status === 429) return new Response(JSON.stringify({ error: "Trop de requêtes." }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if (resp.status === 402) return new Response(JSON.stringify({ error: "Crédits IA épuisés." }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if (!resp.ok) { console.error("AI error", resp.status, await resp.text()); return new Response(JSON.stringify({ error: "Erreur IA" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }); }
+    if (resp.status === 429) return jsonResponse({ error: "Trop de requêtes." }, { status: 429 });
+    if (resp.status === 402) return jsonResponse({ error: "Crédits IA épuisés." }, { status: 402 });
+    if (!resp.ok) {
+      console.error("AI error", resp.status, await resp.text());
+      return jsonResponse({ error: "Erreur IA" }, { status: 500 });
+    }
     const data = await resp.json();
     const args = data.choices?.[0]?.message?.tool_calls?.[0]?.function?.arguments;
     const parsed = typeof args === "string" ? JSON.parse(args) : args;
-    return new Response(JSON.stringify(parsed), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return jsonResponse(parsed);
   } catch (e) {
     console.error(e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erreur" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    return jsonResponse({ error: "Erreur interne" }, { status: 500 });
   }
 });
