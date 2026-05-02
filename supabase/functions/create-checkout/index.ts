@@ -14,7 +14,8 @@ const corsHeaders = {
  */
 const ALLOWED_RETURN_HOSTS = [
   "revix-study.lovable.app",
-  "id-preview--0d4529f0-ab78-407f-a666-44384d4fa848.lovable.app",
+  "lovable.app",
+  "lovableproject.com",
   "localhost",
   "127.0.0.1",
 ];
