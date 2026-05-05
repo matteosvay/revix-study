@@ -582,6 +582,7 @@ export type Database = {
           streak_tokens: number
           student_code: string | null
           subjects: Json | null
+          subscription_tier: string
           updated_at: string
           username: string | null
           week_started_at: string | null
@@ -618,6 +619,7 @@ export type Database = {
           streak_tokens?: number
           student_code?: string | null
           subjects?: Json | null
+          subscription_tier?: string
           updated_at?: string
           username?: string | null
           week_started_at?: string | null
@@ -654,6 +656,7 @@ export type Database = {
           streak_tokens?: number
           student_code?: string | null
           subjects?: Json | null
+          subscription_tier?: string
           updated_at?: string
           username?: string | null
           week_started_at?: string | null
@@ -1614,27 +1617,60 @@ export type Database = {
     Views: {
       admin_daily_stats: {
         Row: {
-          action_type: string | null
+          courses_created: number | null
           day: string | null
-          estimated_cost_eur: number | null
-          total_calls: number | null
-          unique_users: number | null
+          new_subscriptions: number | null
+          new_users: number | null
+          quiz_attempts: number | null
+          quizzes_created: number | null
         }
         Relationships: []
       }
       admin_user_stats: {
         Row: {
-          coach: number | null
-          corrections: number | null
+          created_at: string | null
+          display_name: string | null
           email: string | null
-          estimated_cost_eur: number | null
-          fiches: number | null
-          last_activity: string | null
+          last_active_date: string | null
+          level: number | null
           plan: string | null
-          plannings: number | null
-          quizz: number | null
-          total_calls: number | null
+          streak_days: number | null
+          subscription_tier: string | null
+          total_attempts: number | null
+          total_courses: number | null
+          total_quizzes: number | null
           user_id: string | null
+          xp_total: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          display_name?: string | null
+          email?: string | null
+          last_active_date?: string | null
+          level?: number | null
+          plan?: string | null
+          streak_days?: number | null
+          subscription_tier?: string | null
+          total_attempts?: never
+          total_courses?: never
+          total_quizzes?: never
+          user_id?: string | null
+          xp_total?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          display_name?: string | null
+          email?: string | null
+          last_active_date?: string | null
+          level?: number | null
+          plan?: string | null
+          streak_days?: number | null
+          subscription_tier?: string | null
+          total_attempts?: never
+          total_courses?: never
+          total_quizzes?: never
+          user_id?: string | null
+          xp_total?: number | null
         }
         Relationships: []
       }
@@ -1712,6 +1748,47 @@ export type Database = {
       generate_referral_code: { Args: never; Returns: string }
       generate_room_code: { Args: never; Returns: string }
       generate_student_code: { Args: never; Returns: string }
+      get_admin_daily_stats: {
+        Args: never
+        Returns: {
+          courses_created: number | null
+          day: string | null
+          new_subscriptions: number | null
+          new_users: number | null
+          quiz_attempts: number | null
+          quizzes_created: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "admin_daily_stats"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
+      get_admin_user_stats: {
+        Args: never
+        Returns: {
+          created_at: string | null
+          display_name: string | null
+          email: string | null
+          last_active_date: string | null
+          level: number | null
+          plan: string | null
+          streak_days: number | null
+          subscription_tier: string | null
+          total_attempts: number | null
+          total_courses: number | null
+          total_quizzes: number | null
+          user_id: string | null
+          xp_total: number | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "admin_user_stats"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_chapter_mastery: {
         Args: { p_course_id: string }
         Returns: {
