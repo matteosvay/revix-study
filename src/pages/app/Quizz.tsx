@@ -447,6 +447,9 @@ export default function Quizz() {
     if (picked !== null) return;
     setPicked(i);
     const ok = questions[qIdx].correct_index === i;
+    if ("vibrate" in navigator) {
+      try { navigator.vibrate(ok ? 12 : [20, 30, 20]); } catch {}
+    }
     advance(ok);
     // SRS: enregistre la révision en arrière-plan
     supabase.rpc("review_question", { p_question_id: questions[qIdx].id, p_correct: ok });
