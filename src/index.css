@@ -1138,3 +1138,98 @@
     to   { transform: rotate(360deg); }
   }
 }
+
+/* =====================================================================
+   FLUIDITÉ + ANIMATIONS — pass global (style Duolingo-like, addictif)
+   ===================================================================== */
+@layer utilities {
+  /* Transition de page (clé sur la route) */
+  .route-transition {
+    animation: page-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
+  }
+
+  /* Stagger : enfants apparaissent un par un */
+  .stagger-in > * {
+    opacity: 0;
+    animation: slide-up-fade 0.55s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+  }
+  .stagger-in > *:nth-child(1) { animation-delay: 30ms; }
+  .stagger-in > *:nth-child(2) { animation-delay: 80ms; }
+  .stagger-in > *:nth-child(3) { animation-delay: 130ms; }
+  .stagger-in > *:nth-child(4) { animation-delay: 180ms; }
+  .stagger-in > *:nth-child(5) { animation-delay: 230ms; }
+  .stagger-in > *:nth-child(6) { animation-delay: 280ms; }
+  .stagger-in > *:nth-child(7) { animation-delay: 320ms; }
+  .stagger-in > *:nth-child(8) { animation-delay: 360ms; }
+  .stagger-in > *:nth-child(n+9) { animation-delay: 400ms; }
+
+  @keyframes slide-up-fade {
+    0% { opacity: 0; transform: translateY(14px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes page-in {
+    0% { opacity: 0; transform: translateY(10px) scale(0.99); }
+    100% { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  @keyframes pop-bounce {
+    0% { transform: scale(0.85); opacity: 0; }
+    55% { transform: scale(1.06); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .pop-bounce { animation: pop-bounce 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+  /* Tap : micro feedback haptique-like sur tap mobile */
+  .tap-press {
+    transition: transform 0.15s cubic-bezier(0.22, 1, 0.36, 1),
+                filter 0.15s ease;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tap-press:active {
+    transform: scale(0.94);
+    transition-duration: 0.06s;
+  }
+
+  /* Décor "extra" (post-its / pins / tape) caché sur petit écran pour aérer */
+  .decor-extra { display: inline-block; }
+  @media (max-width: 640px) {
+    .decor-extra { display: none !important; }
+  }
+
+  /* Bottom nav v2 : indicateur actif animé en spring */
+  .nav-postit-active {
+    transition: color 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+                transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .nav-postit-active:active { transform: scale(0.9); }
+  .nav-postit-active.is-active {
+    transform: translateY(-2px);
+  }
+  .nav-postit-active.is-active::before {
+    animation: nav-pop 0.42s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes nav-pop {
+    0%   { transform: translateX(-50%) rotate(-3deg) scale(0); opacity: 0; }
+    60%  { transform: translateX(-50%) rotate(-3deg) scale(1.12); opacity: 1; }
+    100% { transform: translateX(-50%) rotate(-3deg) scale(1); opacity: 1; }
+  }
+
+  /* Scroll plus doux iOS-like */
+  html, body { scroll-behavior: smooth; }
+
+  /* Respect des préférences utilisateur — désactive si l'utilisateur préfère réduire les animations */
+  @media (prefers-reduced-motion: reduce) {
+    .route-transition,
+    .stagger-in > *,
+    .pop-bounce,
+    .nav-postit-active.is-active::before,
+    .float-slow,
+    .wiggle,
+    .drift-slow {
+      animation: none !important;
+    }
+    *, *::before, *::after {
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
