@@ -118,6 +118,39 @@ export default function Quizz() {
 
   useEffect(() => { loadInventory(); }, [user]);
 
+  // ----- Persistance de la progression du quiz (résiste au reload / fermeture d'onglet) -----
+  const progressKey = (uid: string, quizId: string) => `revix:quiz_progress:${uid}:${quizId}`;
+  const PROGRESS_TTL_MS = 24 * 60 * 60 * 1000; // 24h
+
+  // Sauvegarde l'état courant à chaque changement pertinent pendant la phase "play".
+  useEffect(() => {
+    if (phase !== "play" || !user || !activeQuiz || !questions.length) return;
+    try {
+      const snapshot = {
+        quizId: activeQuiz.id,
+        savedAt: Date.now(),
+        questions, qIdx, picked, multiPicked, multiSubmitted,
+        orderPicked, orderSubmitted, orderCorrect,
+        assocPairs, assocRightOrder, assocMatches, assocSelectedLeft,
+        assocSubmitted, assocCorrect, assocLocked, assocAttempts,
+        score, wrong, combo, maxCombo, hidden,
+      };
+      localStorage.setItem(progressKey(user.id, activeQuiz.id), JSON.stringify(snapshot));
+    } catch {}
+  }, [
+    phase, user, activeQuiz, questions, qIdx, picked, multiPicked, multiSubmitted,
+    orderPicked, orderSubmitted, orderCorrect, assocPairs, assocRightOrder, assocMatches,
+    assocSelectedLeft, assocSubmitted, assocCorrect, assocLocked, assocAttempts,
+    score, wrong, combo, maxCombo, hidden,
+  ]);
+
+  // Nettoie la sauvegarde quand le quiz se termine.
+  useEffect(() => {
+    if (phase === "end" && user && activeQuiz) {
+      try { localStorage.removeItem(progressKey(user.id, activeQuiz.id)); } catch {}
+    }
+  }, [phase, user, activeQuiz]);
+
   // Initialise l'ordre mélangé pour les questions de type "ordre"
   useEffect(() => {
     if (phase !== "play") return;
@@ -215,6 +248,40 @@ export default function Quizz() {
 
       if (presetId && qzs?.find((q: any) => q.id === presetId)) {
         const q = qzs.find((x: any) => x.id === presetId)!;
+        // Tente de restaurer une session interrompue
+        try {
+          const raw = localStorage.getItem(progressKey(user.id, q.id));
+          if (raw) {
+            const snap = JSON.parse(raw);
+            if (snap?.savedAt && Date.now() - snap.savedAt < PROGRESS_TTL_MS
+                && Array.isArray(snap.questions) && snap.questions.length) {
+              setActiveQuiz(q as any);
+              setQuestions(snap.questions);
+              setQIdx(snap.qIdx ?? 0);
+              setPicked(snap.picked ?? null);
+              setMultiPicked(snap.multiPicked ?? []);
+              setMultiSubmitted(!!snap.multiSubmitted);
+              setOrderPicked(snap.orderPicked ?? []);
+              setOrderSubmitted(!!snap.orderSubmitted);
+              setOrderCorrect(!!snap.orderCorrect);
+              setAssocPairs(snap.assocPairs ?? []);
+              setAssocRightOrder(snap.assocRightOrder ?? []);
+              setAssocMatches(snap.assocMatches ?? []);
+              setAssocSelectedLeft(snap.assocSelectedLeft ?? null);
+              setAssocSubmitted(!!snap.assocSubmitted);
+              setAssocCorrect(!!snap.assocCorrect);
+              setAssocLocked(snap.assocLocked ?? []);
+              setAssocAttempts(snap.assocAttempts ?? 0);
+              setScore(snap.score ?? 0);
+              setWrong(snap.wrong ?? []);
+              setCombo(snap.combo ?? 0);
+              setMaxCombo(snap.maxCombo ?? 0);
+              setHidden(snap.hidden ?? []);
+              setPhase("play");
+              return;
+            }
+          }
+        } catch {}
         startQuiz(q as any);
       }
     })();
