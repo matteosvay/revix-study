@@ -687,6 +687,10 @@
     transform: translate(-2px, -2px);
     box-shadow: 6px 6px 0 0 hsl(var(--foreground));
   }
+  .answer-postit:active:not(:disabled) {
+    transform: scale(0.97);
+    transition-duration: 0.06s;
+  }
   .answer-postit:disabled { cursor: not-allowed; }
   .answer-postit-pink { background: hsl(var(--postit-pink)); }
   .answer-postit-blue { background: hsl(210 90% 80%); }
@@ -695,13 +699,28 @@
     background: hsl(var(--success));
     color: hsl(var(--success-foreground));
     box-shadow: 4px 4px 0 0 hsl(var(--foreground));
+    animation: correct-pulse 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .answer-postit.is-wrong {
     background: hsl(var(--destructive));
     color: hsl(var(--destructive-foreground));
     box-shadow: 4px 4px 0 0 hsl(var(--foreground));
+    animation: wrong-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
   }
-  .answer-postit.is-faded { opacity: 0.45; }
+  .answer-postit.is-faded { opacity: 0.4; transform: scale(0.97); }
+
+  @keyframes correct-pulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.06); box-shadow: 6px 6px 0 0 hsl(var(--success)); }
+    100% { transform: scale(1); }
+  }
+  @keyframes wrong-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
 
   /* Étoiles dessinées */
   .sketchy-star {
