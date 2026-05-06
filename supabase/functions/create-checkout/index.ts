@@ -71,6 +71,22 @@ async function createCheckoutSession(opts: CheckoutOpts): Promise<string | null>
   const stripePrice = prices.data[0];
   const isRecurring = stripePrice.type === "recurring";
 
+  // Ensure the product has a tax_code (required by Managed Payments).
+  // SaaS / digital subscription → txcd_10103001 (Software as a Service).
+  const productId = typeof stripePrice.product === "string"
+    ? stripePrice.product
+    : stripePrice.product?.id;
+  if (productId) {
+    try {
+      const product = await stripe.products.retrieve(productId);
+      if (!product.tax_code) {
+        await stripe.products.update(productId, { tax_code: "txcd_10103001" });
+      }
+    } catch (e) {
+      console.error("create-checkout tax_code ensure failed:", e);
+    }
+  }
+
   const session = await stripe.checkout.sessions.create({
     line_items: [{ price: stripePrice.id, quantity: opts.quantity || 1 }],
     mode: isRecurring ? "subscription" : "payment",
