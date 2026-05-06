@@ -118,6 +118,39 @@ export default function Quizz() {
 
   useEffect(() => { loadInventory(); }, [user]);
 
+  // ----- Persistance de la progression du quiz (résiste au reload / fermeture d'onglet) -----
+  const progressKey = (uid: string, quizId: string) => `revix:quiz_progress:${uid}:${quizId}`;
+  const PROGRESS_TTL_MS = 24 * 60 * 60 * 1000; // 24h
+
+  // Sauvegarde l'état courant à chaque changement pertinent pendant la phase "play".
+  useEffect(() => {
+    if (phase !== "play" || !user || !activeQuiz || !questions.length) return;
+    try {
+      const snapshot = {
+        quizId: activeQuiz.id,
+        savedAt: Date.now(),
+        questions, qIdx, picked, multiPicked, multiSubmitted,
+        orderPicked, orderSubmitted, orderCorrect,
+        assocPairs, assocRightOrder, assocMatches, assocSelectedLeft,
+        assocSubmitted, assocCorrect, assocLocked, assocAttempts,
+        score, wrong, combo, maxCombo, hidden,
+      };
+      localStorage.setItem(progressKey(user.id, activeQuiz.id), JSON.stringify(snapshot));
+    } catch {}
+  }, [
+    phase, user, activeQuiz, questions, qIdx, picked, multiPicked, multiSubmitted,
+    orderPicked, orderSubmitted, orderCorrect, assocPairs, assocRightOrder, assocMatches,
+    assocSelectedLeft, assocSubmitted, assocCorrect, assocLocked, assocAttempts,
+    score, wrong, combo, maxCombo, hidden,
+  ]);
+
+  // Nettoie la sauvegarde quand le quiz se termine.
+  useEffect(() => {
+    if (phase === "end" && user && activeQuiz) {
+      try { localStorage.removeItem(progressKey(user.id, activeQuiz.id)); } catch {}
+    }
+  }, [phase, user, activeQuiz]);
+
   // Initialise l'ordre mélangé pour les questions de type "ordre"
   useEffect(() => {
     if (phase !== "play") return;
