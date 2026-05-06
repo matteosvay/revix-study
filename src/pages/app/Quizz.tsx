@@ -248,6 +248,40 @@ export default function Quizz() {
 
       if (presetId && qzs?.find((q: any) => q.id === presetId)) {
         const q = qzs.find((x: any) => x.id === presetId)!;
+        // Tente de restaurer une session interrompue
+        try {
+          const raw = localStorage.getItem(progressKey(user.id, q.id));
+          if (raw) {
+            const snap = JSON.parse(raw);
+            if (snap?.savedAt && Date.now() - snap.savedAt < PROGRESS_TTL_MS
+                && Array.isArray(snap.questions) && snap.questions.length) {
+              setActiveQuiz(q as any);
+              setQuestions(snap.questions);
+              setQIdx(snap.qIdx ?? 0);
+              setPicked(snap.picked ?? null);
+              setMultiPicked(snap.multiPicked ?? []);
+              setMultiSubmitted(!!snap.multiSubmitted);
+              setOrderPicked(snap.orderPicked ?? []);
+              setOrderSubmitted(!!snap.orderSubmitted);
+              setOrderCorrect(!!snap.orderCorrect);
+              setAssocPairs(snap.assocPairs ?? []);
+              setAssocRightOrder(snap.assocRightOrder ?? []);
+              setAssocMatches(snap.assocMatches ?? []);
+              setAssocSelectedLeft(snap.assocSelectedLeft ?? null);
+              setAssocSubmitted(!!snap.assocSubmitted);
+              setAssocCorrect(!!snap.assocCorrect);
+              setAssocLocked(snap.assocLocked ?? []);
+              setAssocAttempts(snap.assocAttempts ?? 0);
+              setScore(snap.score ?? 0);
+              setWrong(snap.wrong ?? []);
+              setCombo(snap.combo ?? 0);
+              setMaxCombo(snap.maxCombo ?? 0);
+              setHidden(snap.hidden ?? []);
+              setPhase("play");
+              return;
+            }
+          }
+        } catch {}
         startQuiz(q as any);
       }
     })();
