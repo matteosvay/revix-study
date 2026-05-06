@@ -86,7 +86,7 @@ export default function Dashboard() {
         action={<div className="lg:hidden"><NotificationBell /></div>}
       />
 
-      <div className="px-5">
+      <div className="px-5 stagger-in">
         {/* Boîte mystère + flash 5 min */}
         <LootBoxCard />
         <QuizBonusLootBoxCard />
