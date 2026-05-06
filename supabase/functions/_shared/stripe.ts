@@ -20,6 +20,16 @@ export function getConnectionApiKey(env: StripeEnv): string {
 }
 
 export function createStripeClient(env: StripeEnv): Stripe {
+  const directSecretKey = env === "sandbox"
+    ? Deno.env.get("STRIPE_SANDBOX_SECRET_KEY") || Deno.env.get("STRIPE_SECRET_KEY")
+    : Deno.env.get("STRIPE_LIVE_SECRET_KEY") || Deno.env.get("STRIPE_SECRET_KEY");
+
+  if (directSecretKey?.startsWith("sk_")) {
+    return new Stripe(directSecretKey, {
+      apiVersion: "2026-03-25.dahlia",
+    });
+  }
+
   const connectionApiKey = getConnectionApiKey(env);
   const lovableApiKey = getEnv("LOVABLE_API_KEY");
 
