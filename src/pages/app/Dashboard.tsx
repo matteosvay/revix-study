@@ -97,7 +97,7 @@ export default function Dashboard() {
         {gam && levelTier && xp && (
           <Link to="/app/aventure" className="block card-paper p-4 relative mb-3 tilt-l hover:shadow-glow transition-shadow">
             <Tape variant="yellow" position="top-left" />
-            <Pin color="purple" className="absolute top-2 right-3" />
+            <Pin color="purple" className="absolute top-2 right-3 decor-extra" />
             <div className="flex items-center gap-3">
               <div className="h-12 w-12 rounded-xl gradient-primary flex items-center justify-center text-2xl shadow-soft">
                 {levelTier.emoji}
