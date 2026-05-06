@@ -102,11 +102,11 @@ export default {
           },
         },
         "fade-in": {
-          "0%": { opacity: "0", transform: "translateY(10px)" },
+          "0%": { opacity: "0", transform: "translateY(8px)" },
           "100%": { opacity: "1", transform: "translateY(0)" },
         },
         "scale-in": {
-          "0%": { opacity: "0", transform: "scale(0.95)" },
+          "0%": { opacity: "0", transform: "scale(0.96)" },
           "100%": { opacity: "1", transform: "scale(1)" },
         },
         "float": {
@@ -126,16 +126,37 @@ export default {
           "25%": { transform: "translateX(-3px)" },
           "75%": { transform: "translateX(3px)" },
         },
+        "page-in": {
+          "0%": { opacity: "0", transform: "translateY(12px) scale(0.985)" },
+          "100%": { opacity: "1", transform: "translateY(0) scale(1)" },
+        },
+        "pop-in": {
+          "0%": { opacity: "0", transform: "scale(0.85)" },
+          "60%": { opacity: "1", transform: "scale(1.04)" },
+          "100%": { opacity: "1", transform: "scale(1)" },
+        },
+        "bounce-soft": {
+          "0%,100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-3px)" },
+        },
+        "slide-up-fade": {
+          "0%": { opacity: "0", transform: "translateY(16px)" },
+          "100%": { opacity: "1", transform: "translateY(0)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "fade-in": "fade-in 0.5s ease-out",
-        "scale-in": "scale-in 0.3s ease-out",
+        "fade-in": "fade-in 0.35s cubic-bezier(0.22, 1, 0.36, 1)",
+        "scale-in": "scale-in 0.25s cubic-bezier(0.22, 1, 0.36, 1)",
         "float": "float 3s ease-in-out infinite",
         "pulse-glow": "pulse-glow 2s ease-in-out infinite",
         "press-down": "press-down 0.12s ease forwards",
         "shake-x": "shake-x 0.4s ease",
+        "page-in": "page-in 0.42s cubic-bezier(0.22, 1, 0.36, 1)",
+        "pop-in": "pop-in 0.45s cubic-bezier(0.34, 1.56, 0.64, 1)",
+        "bounce-soft": "bounce-soft 1.6s ease-in-out infinite",
+        "slide-up-fade": "slide-up-fade 0.5s cubic-bezier(0.22, 1, 0.36, 1)",
       },
     },
   },
