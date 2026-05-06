@@ -188,15 +188,17 @@
 
   /* Effet "press" : la carte/bouton se colle au sol au hover */
   .brutal-press {
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    transition: transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+                box-shadow 0.18s cubic-bezier(0.22, 1, 0.36, 1);
   }
   .brutal-press:hover {
-    transform: translate(2px, 2px);
+    transform: translate(1.5px, 1.5px);
     box-shadow: var(--shadow-brutal-sm);
   }
   .brutal-press:active {
-    transform: translate(4px, 4px);
+    transform: translate(3px, 3px) scale(0.985);
     box-shadow: 0 0 0 0 hsl(var(--foreground));
+    transition-duration: 0.08s;
   }
 
   /* Notion-style hover row → brutaliste */
