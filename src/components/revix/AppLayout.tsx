@@ -134,7 +134,7 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
                 key={n.to}
                 to={n.to}
                 end={n.end}
-                className="nav-postit-active flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider text-muted-foreground transition-colors"
+                className="nav-postit-active tap-press flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider text-muted-foreground"
                 activeClassName="is-active"
               >
                 <n.icon className="h-[20px] w-[20px]" strokeWidth={2.5} />
