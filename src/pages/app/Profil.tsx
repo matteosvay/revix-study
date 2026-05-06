@@ -241,7 +241,7 @@ export default function Profil() {
                     )}
                     <div className="flex items-baseline gap-2">
                       <p className="font-serif text-2xl">{p.name}</p>
-                      <p className="font-bold text-xl">{p.price}<span className="text-xs opacity-80">/mois</span></p>
+                      <p className="font-bold text-xl">{p.price}<span className="text-xs opacity-80">/mois TTC</span></p>
                     </div>
                     <p className="text-xs opacity-90 mt-0.5">{p.tagline}</p>
                     <ul className="mt-3 space-y-1">
