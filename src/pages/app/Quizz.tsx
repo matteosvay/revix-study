@@ -15,6 +15,7 @@ import { GenerateQuizDialog } from "@/components/revix/GenerateQuizDialog";
 import { useUsage } from "@/hooks/useUsage";
 import { Badge } from "@/components/ui/badge";
 import { ReviewBankDialog } from "@/components/revix/ReviewBankDialog";
+import { AnimatedNumber, ConfettiBurst } from "@/components/revix/AnimatedNumber";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -446,6 +447,9 @@ export default function Quizz() {
     if (picked !== null) return;
     setPicked(i);
     const ok = questions[qIdx].correct_index === i;
+    if ("vibrate" in navigator) {
+      try { navigator.vibrate(ok ? 12 : [20, 30, 20]); } catch {}
+    }
     advance(ok);
     // SRS: enregistre la révision en arrière-plan
     supabase.rpc("review_question", { p_question_id: questions[qIdx].id, p_correct: ok });
@@ -861,7 +865,7 @@ export default function Quizz() {
               )}
             </span>
           </div>
-          <div className="ruler-bar !h-2.5">
+          <div className="ruler-bar !h-2.5 progress-glow">
             <div className="ruler-fill" style={{ width: `${(qIdx / questions.length) * 100}%` }} />
           </div>
 
@@ -899,7 +903,7 @@ export default function Quizz() {
             </div>
           ) : null}
 
-          <div className="mt-6 animate-scale-in" key={qIdx}>
+          <div className="mt-6 question-card" key={qIdx}>
             <div className="notebook-card p-5 relative">
               <span className="label-tape absolute -top-2 left-4">{TYPE_LABELS[q.type]}</span>
               <p className="font-serif text-xl leading-snug mt-2">{q.question}</p>
@@ -1183,17 +1187,28 @@ export default function Quizz() {
   return (
     <AppLayout>
       <div className="px-5 pt-8 pb-6 animate-scale-in">
-        <div className="notebook-page relative">
-          <span className="rubber-stamp stamp-pop absolute top-3 right-4">{pct >= 80 ? "Très bien" : pct >= 50 ? "Bien" : "À revoir"}</span>
+        <div className="notebook-page relative overflow-hidden">
+          {pct >= 80 && <ConfettiBurst count={pct === 100 ? 36 : 22} />}
+          <span className="rubber-stamp stamp-pop absolute top-3 right-4 z-10">{pct >= 80 ? "Très bien" : pct >= 50 ? "Bien" : "À revoir"}</span>
 
           <p className="font-mono-tag text-[10px] uppercase tracking-widest text-muted-foreground">Résultats</p>
-          <h1 className="font-hand text-5xl text-primary mt-1 leading-none">{score} / {questions.length}</h1>
-          <p className="font-serif text-base text-muted-foreground mt-1">soit <strong className="marker-yellow">{pct}%</strong></p>
+          <h1 className="font-hand text-5xl text-primary mt-1 leading-none score-pop">
+            <AnimatedNumber value={score} /> / {questions.length}
+          </h1>
+          <p className="font-serif text-base text-muted-foreground mt-1">
+            soit <strong className="marker-yellow"><AnimatedNumber value={pct} suffix="%" duration={1100} /></strong>
+          </p>
 
-          {/* étoiles dessinées */}
+          {/* étoiles dessinées — pop l'une après l'autre */}
           <div className="flex gap-1 mt-3">
             {Array.from({ length: 5 }).map((_, i) => (
-              <svg key={i} viewBox="0 0 24 24" className={`h-7 w-7 ${i < stars ? "" : "opacity-25"}`} aria-hidden>
+              <svg
+                key={i}
+                viewBox="0 0 24 24"
+                className={`h-7 w-7 ${i < stars ? "star-pop" : "opacity-25"}`}
+                style={{ animationDelay: `${0.4 + i * 0.12}s` }}
+                aria-hidden
+              >
                 <path className="sketchy-star" d="M12 2 L14.4 8.6 L21.5 9 L16 13.6 L17.8 20.5 L12 16.7 L6.2 20.5 L8 13.6 L2.5 9 L9.6 8.6 Z" />
               </svg>
             ))}
@@ -1206,11 +1221,11 @@ export default function Quizz() {
           <div className="grid grid-cols-2 gap-3">
             <div className="postit p-3 -rotate-2">
               <p className="font-mono-tag text-[10px] uppercase opacity-70">Score</p>
-              <p className="font-hand text-3xl mt-1">{pct}%</p>
+              <p className="font-hand text-3xl mt-1"><AnimatedNumber value={pct} suffix="%" /></p>
             </div>
             <div className="postit postit-pink p-3 rotate-2">
               <p className="font-mono-tag text-[10px] uppercase opacity-70 flex items-center gap-1"><Target className="h-3 w-3" /> Pré-exam</p>
-              <p className="font-hand text-3xl mt-1">~{predicted}/20</p>
+              <p className="font-hand text-3xl mt-1">~<AnimatedNumber value={predicted} />/20</p>
             </div>
           </div>
 

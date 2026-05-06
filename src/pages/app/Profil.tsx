@@ -162,7 +162,7 @@ export default function Profil() {
         onCropped={uploadCropped}
       />
 
-      <div className="px-5 space-y-5">
+      <div className="px-5 space-y-5 stagger-in">
         <div className="flex items-center gap-3">
           <label className="relative cursor-pointer group">
             <Avatar className="h-16 w-16 border-2 border-primary/20">

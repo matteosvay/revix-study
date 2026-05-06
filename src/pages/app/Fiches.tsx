@@ -161,7 +161,7 @@ export default function Fiches() {
           </div>
         </div>
       ) : (
-        <div className="px-4 space-y-3 pb-4">
+        <div className="px-4 space-y-3 pb-4 stagger-in">
           {results.map((r, i) => {
             const c = r.course;
             const tape = i % 3 === 0 ? "yellow" : i % 3 === 1 ? "pink" : "mint";

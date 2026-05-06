@@ -687,6 +687,10 @@
     transform: translate(-2px, -2px);
     box-shadow: 6px 6px 0 0 hsl(var(--foreground));
   }
+  .answer-postit:active:not(:disabled) {
+    transform: scale(0.97);
+    transition-duration: 0.06s;
+  }
   .answer-postit:disabled { cursor: not-allowed; }
   .answer-postit-pink { background: hsl(var(--postit-pink)); }
   .answer-postit-blue { background: hsl(210 90% 80%); }
@@ -695,13 +699,28 @@
     background: hsl(var(--success));
     color: hsl(var(--success-foreground));
     box-shadow: 4px 4px 0 0 hsl(var(--foreground));
+    animation: correct-pulse 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
   }
   .answer-postit.is-wrong {
     background: hsl(var(--destructive));
     color: hsl(var(--destructive-foreground));
     box-shadow: 4px 4px 0 0 hsl(var(--foreground));
+    animation: wrong-shake 0.45s cubic-bezier(0.36, 0.07, 0.19, 0.97);
   }
-  .answer-postit.is-faded { opacity: 0.45; }
+  .answer-postit.is-faded { opacity: 0.4; transform: scale(0.97); }
+
+  @keyframes correct-pulse {
+    0%   { transform: scale(1); }
+    40%  { transform: scale(1.06); box-shadow: 6px 6px 0 0 hsl(var(--success)); }
+    100% { transform: scale(1); }
+  }
+  @keyframes wrong-shake {
+    0%, 100% { transform: translateX(0); }
+    20% { transform: translateX(-6px); }
+    40% { transform: translateX(6px); }
+    60% { transform: translateX(-4px); }
+    80% { transform: translateX(4px); }
+  }
 
   /* Étoiles dessinées */
   .sketchy-star {
@@ -1231,5 +1250,52 @@
     *, *::before, *::after {
       transition-duration: 0.01ms !important;
     }
+  }
+}
+
+/* ====== Quiz : transitions de questions + score animé ====== */
+@layer utilities {
+  .question-card {
+    animation: question-slide-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+  @keyframes question-slide-in {
+    0%   { opacity: 0; transform: translateX(28px); }
+    100% { opacity: 1; transform: translateX(0); }
+  }
+  .score-pop {
+    display: inline-block;
+    animation: score-pop-anim 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes score-pop-anim {
+    0%   { transform: scale(0.5); opacity: 0; }
+    60%  { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); }
+  }
+  .progress-glow .ruler-fill {
+    transition: width 0.55s cubic-bezier(0.22, 1, 0.36, 1) !important;
+    box-shadow: 0 0 12px hsl(var(--primary) / 0.5);
+  }
+  /* Étoile qui pop à l'arrivée, une par une */
+  .star-pop {
+    animation: star-pop-anim 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  }
+  @keyframes star-pop-anim {
+    0%   { transform: scale(0) rotate(-25deg); opacity: 0; }
+    70%  { transform: scale(1.25) rotate(8deg); opacity: 1; }
+    100% { transform: scale(1) rotate(0); }
+  }
+  /* Burst de confetti CSS-only */
+  .confetti-host {
+    position: absolute; inset: 0; pointer-events: none;
+    overflow: hidden; border-radius: inherit;
+  }
+  .confetti-host i {
+    position: absolute; top: -10px; width: 10px; height: 14px; opacity: 0;
+    animation: confetti-drop 2.4s linear forwards;
+  }
+  @keyframes confetti-drop {
+    0%   { opacity: 0; transform: translateY(-20px) rotate(0); }
+    10%  { opacity: 1; }
+    100% { opacity: 0; transform: translateY(110vh) rotate(720deg); }
   }
 }
