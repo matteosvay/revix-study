@@ -861,7 +861,7 @@ export default function Quizz() {
               )}
             </span>
           </div>
-          <div className="ruler-bar !h-2.5">
+          <div className="ruler-bar !h-2.5 progress-glow">
             <div className="ruler-fill" style={{ width: `${(qIdx / questions.length) * 100}%` }} />
           </div>
 
@@ -899,7 +899,7 @@ export default function Quizz() {
             </div>
           ) : null}
 
-          <div className="mt-6 animate-scale-in" key={qIdx}>
+          <div className="mt-6 question-card" key={qIdx}>
             <div className="notebook-card p-5 relative">
               <span className="label-tape absolute -top-2 left-4">{TYPE_LABELS[q.type]}</span>
               <p className="font-serif text-xl leading-snug mt-2">{q.question}</p>
