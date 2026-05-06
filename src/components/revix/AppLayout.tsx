@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { NavLink } from "@/components/NavLink";
+import { useLocation } from "react-router-dom";
 import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles, BarChart3 } from "lucide-react";
 import { ScribbleUnderline } from "./Scribble";
 import { Logo } from "./Logo";
@@ -28,6 +29,7 @@ const nav = [
 export const AppLayout = ({ children, wide = false }: { children: ReactNode; wide?: boolean }) => {
   const { user } = useAuth();
   const { data: isAdmin } = useIsAdmin();
+  const location = useLocation();
   const rawDisplayName = user?.user_metadata?.display_name;
   const displayName = typeof rawDisplayName === "string" && rawDisplayName.trim()
     ? rawDisplayName
@@ -116,8 +118,11 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
           </Link>
         </header>
 
-        <main id="main-content" className="flex-1 overflow-y-auto overscroll-contain pb-28 animate-fade-in lg:pb-0" role="main">
-          <div className={`lg:mx-auto lg:px-6 lg:py-6 ${wide ? "lg:max-w-[1400px]" : "lg:max-w-[1200px]"}`}>
+        <main id="main-content" className="flex-1 overflow-y-auto overscroll-contain pb-28 lg:pb-0" role="main">
+          <div
+            key={location.pathname}
+            className={`route-transition lg:mx-auto lg:px-6 lg:py-6 ${wide ? "lg:max-w-[1400px]" : "lg:max-w-[1200px]"}`}
+          >
             {children}
           </div>
         </main>
@@ -129,7 +134,7 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
                 key={n.to}
                 to={n.to}
                 end={n.end}
-                className="nav-postit-active flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider text-muted-foreground transition-colors"
+                className="nav-postit-active tap-press flex flex-col items-center justify-center gap-0.5 py-1.5 rounded-md text-[9px] font-bold uppercase tracking-wider text-muted-foreground"
                 activeClassName="is-active"
               >
                 <n.icon className="h-[20px] w-[20px]" strokeWidth={2.5} />

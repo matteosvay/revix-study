@@ -125,7 +125,7 @@ export default function Streak() {
           onClick={() => setOpenPrestige(true)}
           className="relative overflow-hidden rounded-md border-[2.5px] border-foreground gradient-hero p-6 text-primary-foreground shadow-brutal-lg w-full text-left hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal transition-all"
         >
-          <Pin color="red" className="absolute top-3 right-3 z-10" />
+          <Pin color="red" className="absolute top-3 right-3 z-10 decor-extra" />
           <ChevronRight className="absolute bottom-3 right-3 h-4 w-4 opacity-70" />
           <div className="relative">
             <div className="flex items-center gap-3">
@@ -161,13 +161,13 @@ export default function Streak() {
         {/* Stats */}
         <div className="grid grid-cols-2 gap-3">
           <div className="card-paper p-4 text-center relative tilt-l">
-            <Tape variant="pink" position="top" />
+            <Tape variant="pink" position="top" className="decor-extra" />
             <Trophy className="h-4 w-4 mx-auto text-primary mt-1" />
             <p className="font-serif text-2xl mt-1">{profile.streak_record}j</p>
             <p className="text-[11px] text-muted-foreground">Record</p>
           </div>
           <div className="card-paper p-4 text-center relative tilt-r">
-            <Tape variant="mint" position="top" />
+            <Tape variant="mint" position="top" className="decor-extra" />
             <CalendarIcon className="h-4 w-4 mx-auto text-primary mt-1" />
             <p className="font-serif text-2xl mt-1">{activeDates.size}</p>
             <p className="text-[11px] text-muted-foreground">Jours actifs</p>
@@ -228,7 +228,7 @@ export default function Streak() {
 
         {/* Pass de restauration */}
         <div className="card-paper p-4 relative">
-          <Tape variant="mint" position="top-right" />
+          <Tape variant="mint" position="top-right" className="decor-extra" />
           <div className="flex items-start justify-between mb-3 gap-3">
             <div>
               <p className="font-serif text-lg">Pass de restauration</p>

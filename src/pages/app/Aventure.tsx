@@ -32,7 +32,7 @@ export default function Aventure() {
           className="card-paper p-5 relative overflow-hidden paper-grain w-full text-left hover:shadow-glow transition-shadow"
         >
           <Tape variant="yellow" position="top-left" />
-          <Pin color="purple" className="absolute top-2 right-3" />
+          <Pin color="purple" className="absolute top-2 right-3 decor-extra" />
           <ChevronRight className="absolute bottom-3 right-3 h-4 w-4 text-muted-foreground" />
           <div className="flex items-center gap-4">
             <div className="relative">
@@ -123,7 +123,7 @@ export default function Aventure() {
         {/* Quêtes journalières */}
         <div className="corkboard p-4 relative">
           <Pin color="red" className="absolute -top-1.5 left-6" />
-          <Pin color="blue" className="absolute -top-1.5 right-6" />
+          <Pin color="blue" className="absolute -top-1.5 right-6 decor-extra" />
           <div className="flex items-end justify-between mb-2 px-1">
             <div>
               <p className="font-mono-tag text-xs font-bold uppercase tracking-wider text-white/95 drop-shadow-sm">Quêtes du jour</p>
@@ -136,7 +136,7 @@ export default function Aventure() {
               const pct = Math.min(100, (q.progress / q.target) * 100);
               return (
                 <div key={q.id} className={`card-paper p-3.5 relative ${i % 2 === 0 ? "tilt-l" : "tilt-r"} hover:shadow-glow transition-shadow`}>
-                  <Pin color={i % 3 === 0 ? "red" : i % 3 === 1 ? "blue" : "purple"} className="absolute -top-1 left-1/2 -translate-x-1/2" />
+                  <Pin color={i % 3 === 0 ? "red" : i % 3 === 1 ? "blue" : "purple"} className="absolute -top-1 left-1/2 -translate-x-1/2 decor-extra" />
                   <div className="flex items-start gap-3">
                     <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-lg shrink-0">
                       {q.emoji}
