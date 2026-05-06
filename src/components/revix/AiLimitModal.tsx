@@ -56,7 +56,7 @@ export function AiLimitModal() {
                 <Sparkles className="h-4 w-4 text-primary" />
                 <span className="font-serif text-lg font-semibold">Pro</span>
               </div>
-              <span className="font-bold text-primary">4,99 €<span className="text-xs font-normal text-muted-foreground">/mois</span></span>
+              <span className="font-bold text-primary">4,99 €<span className="text-xs font-normal text-muted-foreground">/mois TTC</span></span>
             </div>
             <ul className="space-y-1 text-xs text-muted-foreground">
               <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-primary shrink-0" /> 10 quizz IA / jour</li>
@@ -77,7 +77,7 @@ export function AiLimitModal() {
                 <Zap className="h-4 w-4 text-amber-500" />
                 <span className="font-serif text-lg font-semibold">Max</span>
               </div>
-              <span className="font-bold text-amber-600">8,99 €<span className="text-xs font-normal text-muted-foreground">/mois</span></span>
+              <span className="font-bold text-amber-600">8,99 €<span className="text-xs font-normal text-muted-foreground">/mois TTC</span></span>
             </div>
             <ul className="space-y-1 text-xs text-muted-foreground">
               <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-amber-500 shrink-0" /> 30 quizz IA / jour</li>

@@ -17,8 +17,8 @@ const features = [
 
 const plans = [
   { name: "Gratuit", price: "0€", period: "", features: ["3 uploads / semaine", "Fiches basiques", "Accès communauté"], cta: "Commencer", highlighted: false },
-  { name: "Pro", price: "9,99€", period: "/mois", features: ["Uploads illimités", "Quizz adaptatifs", "Planning IA", "Export PDF & Anki"], cta: "Essayer 7j gratuits", highlighted: true, badge: "Le plus populaire" },
-  { name: "Premium", price: "14,99€", period: "/mois", features: ["Tout le plan Pro", "Mode Oral 🎤", "Prédiction de notes", "Coach IA prioritaire"], cta: "Devenir Premium", highlighted: false },
+  { name: "Pro", price: "9,99€", period: "/mois TTC", features: ["Uploads illimités", "Quizz adaptatifs", "Planning IA", "Export PDF & Anki"], cta: "Essayer 7j gratuits", highlighted: true, badge: "Le plus populaire" },
+  { name: "Premium", price: "14,99€", period: "/mois TTC", features: ["Tout le plan Pro", "Mode Oral 🎤", "Prédiction de notes", "Coach IA prioritaire"], cta: "Devenir Premium", highlighted: false },
 ];
 
 export default function Landing() {
