@@ -28,6 +28,7 @@ import AiUsage from "./pages/admin/AiUsage";
 import CheckoutReturn from "./pages/app/CheckoutReturn";
 import { AuthProvider } from "./hooks/useAuth";
 import { RequireAuth } from "./components/revix/RequireAuth";
+import { RequireAdmin } from "./components/revix/RequireAdmin";
 import { XpOverlay } from "./components/revix/XpOverlay";
 import { InstallAppPrompt } from "./components/revix/InstallAppPrompt";
 import { ErrorBoundary } from "./components/revix/ErrorBoundary";
