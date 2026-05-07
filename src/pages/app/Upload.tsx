@@ -11,7 +11,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { extractPdfText, fileToBase64, extractDocxText, isDocx, DOCX_MIME } from "@/lib/pdf";
 import { toast } from "sonner";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
+import { useUsage } from "@/hooks/useUsage";
 import { XP_REWARDS } from "@/lib/gamification";
+import { AI_LIMIT_EVENT } from "@/lib/aiLimits";
 import { localDateKey } from "@/lib/date";
 import { SearchableCombobox } from "@/components/revix/SearchableCombobox";
 import { SUBJECTS } from "@/data/subjects";
@@ -35,6 +37,7 @@ const STEPS = [
 export default function Upload() {
   const { user } = useAuth();
   const nav = useNavigate();
+  const { usage, tier, refresh: refreshUsage } = useUsage();
   const [files, setFiles] = useState<File[]>([]);
   const [text, setText] = useState("");
   const [title, setTitle] = useState("");
@@ -43,6 +46,10 @@ export default function Upload() {
   const [step, setStep] = useState<number>(-1); // -1 idle
   const [dragOver, setDragOver] = useState(false);
   const [userSubjects, setUserSubjects] = useState<string[]>([]);
+
+  // Préflight : la limite 'fiche' courante de l'utilisateur, pour bloquer l'upload
+  // AVANT de lancer l'OCR/extraction et créer une ligne courses orpheline.
+  const ficheUsage = usage.find((u) => u.action === "fiche");
 
   // Récupère les matières ajoutées dans le profil pour les afficher en haut
   useEffect(() => {
@@ -135,6 +142,33 @@ export default function Upload() {
     if (!user) return;
     if (files.length === 0 && text.trim().length < 20) { toast.error("Ajoute un fichier ou colle du texte."); return; }
     if (!title.trim()) { toast.error("Donne un titre à ton cours."); return; }
+
+    // ----- Préflight : vérifie la limite 'fiche' avant de lancer le pipeline -----
+    // Sans ce check, un utilisateur en dépassement de quota voit son upload échouer
+    // mid-pipeline (après OCR de plusieurs images) avec une erreur peu claire.
+    // Le serveur reste l'autorité finale (enforceLimit dans generate-fiches).
+    await refreshUsage();
+    if (ficheUsage?.reached) {
+      const isWeekly = ficheUsage.weekly_used >= ficheUsage.weekly_limit;
+      const period = isWeekly ? "hebdomadaire" : "quotidienne";
+      const used = isWeekly ? ficheUsage.weekly_used : ficheUsage.daily_used;
+      const max = isWeekly ? ficheUsage.weekly_limit : ficheUsage.daily_limit;
+      toast.error(`Limite ${period} de fiches atteinte`, {
+        description: `Tu as utilisé ${used}/${max} générations. ${tier === "max" ? "Ton quota se réinitialise demain." : "Passe à une formule supérieure pour continuer."}`,
+      });
+      window.dispatchEvent(new CustomEvent(AI_LIMIT_EVENT, {
+        detail: {
+          action: "fiche",
+          reason: isWeekly ? "weekly_limit" : "daily_limit",
+          daily_used: ficheUsage.daily_used,
+          daily_limit: ficheUsage.daily_limit,
+          weekly_used: ficheUsage.weekly_used,
+          weekly_limit: ficheUsage.weekly_limit,
+          tier,
+        },
+      }));
+      return;
+    }
 
     try {
       setStep(0);
