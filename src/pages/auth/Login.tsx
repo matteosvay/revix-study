@@ -20,7 +20,19 @@ export default function Login() {
       password: String(data.get("pwd")),
     });
     setLoading(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      // On NE remonte PAS error.message brut : « Invalid login credentials » révèle
+      // si un compte existe ou non pour cet email (énumération de comptes).
+      // On ne distingue pas non plus « email pas confirmé » (autre chemin d'énumération).
+      // Pour les rares vraies erreurs serveur (5xx), on affiche un message dédié.
+      const isServerError = /\b5\d\d\b/.test(error.message) || /service/i.test(error.message);
+      toast.error(
+        isServerError
+          ? "Service temporairement indisponible. Réessaie dans un instant."
+          : "Email ou mot de passe incorrect.",
+      );
+      return;
+    }
     nav("/app");
   };
 
