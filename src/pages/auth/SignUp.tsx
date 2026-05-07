@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { AuthShell } from "./AuthShell";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,6 +23,8 @@ export default function SignUp() {
   const [submittedEmail, setSubmittedEmail] = useState<string>("");
   const [submittedName, setSubmittedName] = useState<string>("");
   const [resending, setResending] = useState(false);
+  // RGPD : consentement explicite obligatoire avant la création de compte.
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   // Capture ?ref=CODE et le mémorise pour l'appliquer après confirmation email
   useEffect(() => {
@@ -39,6 +42,10 @@ export default function SignUp() {
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    if (!acceptedTerms) {
+      toast.error("Tu dois accepter les CGU et la politique de confidentialité pour créer un compte.");
+      return;
+    }
     const data = new FormData(e.currentTarget);
     const email = String(data.get("email"));
     const name = String(data.get("name"));
@@ -48,7 +55,13 @@ export default function SignUp() {
       password: String(data.get("pwd")),
       options: {
         emailRedirectTo: `${window.location.origin}/login`,
-        data: { display_name: name, cursus, gender: gender || null },
+        data: {
+          display_name: name,
+          cursus,
+          gender: gender || null,
+          // Trace de l'acceptation pour pouvoir prouver le consentement RGPD a posteriori
+          terms_accepted_at: new Date().toISOString(),
+        },
       },
     });
     setLoading(false);
@@ -208,6 +221,26 @@ export default function SignUp() {
             placeholder="ex : BUT GEA, Licence Droit, Prépa MPSI..."
             searchPlaceholder="Rechercher une formation..."
           />
+        </div>
+        {/* RGPD : consentement explicite obligatoire avant la création de compte */}
+        <div className="flex items-start gap-2">
+          <Checkbox
+            id="terms"
+            checked={acceptedTerms}
+            onCheckedChange={(v) => setAcceptedTerms(v === true)}
+            className="mt-0.5"
+          />
+          <Label htmlFor="terms" className="text-xs leading-relaxed text-muted-foreground font-normal cursor-pointer">
+            J'accepte les{" "}
+            <Link to="/cgu" target="_blank" className="text-primary font-medium hover:underline">
+              Conditions Générales d'Utilisation
+            </Link>{" "}
+            et la{" "}
+            <Link to="/confidentialite" target="_blank" className="text-primary font-medium hover:underline">
+              Politique de confidentialité
+            </Link>{" "}
+            de Revix.
+          </Label>
         </div>
         <Button type="submit" disabled={loading} className="w-full rounded-full gradient-primary border-0 h-11">
           {loading ? "Création..." : "Créer mon compte"}
