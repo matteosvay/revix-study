@@ -41,8 +41,22 @@ interface CheckoutOpts extends CheckoutBody {
   customerEmail: string | null;
 }
 
+/**
+ * Whitelist explicite des lookup_keys Stripe acceptés par cette fonction.
+ * Sans cette liste, n'importe quel lookup_key existant dans le compte Stripe
+ * est utilisable — y compris un futur prix de test à 0,01€ qu'on aurait oublié
+ * de désarchiver. Toute évolution de tarification doit passer par une mise à
+ * jour de cette constante.
+ */
+const ALLOWED_PRICE_LOOKUP_KEYS = new Set<string>([
+  "pro_monthly",
+  "max_monthly",
+]);
+
 async function createCheckoutSession(opts: CheckoutOpts): Promise<string | null> {
-  if (!/^[a-zA-Z0-9_-]+$/.test(opts.priceId)) throw new Error("Invalid priceId");
+  if (!ALLOWED_PRICE_LOOKUP_KEYS.has(opts.priceId)) {
+    throw new Error(`Invalid priceId '${opts.priceId}'. Plans autorisés : ${[...ALLOWED_PRICE_LOOKUP_KEYS].join(", ")}`);
+  }
   if (opts.environment !== "sandbox" && opts.environment !== "live") {
     throw new Error("Invalid environment");
   }
