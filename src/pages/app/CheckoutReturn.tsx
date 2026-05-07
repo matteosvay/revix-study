@@ -1,10 +1,14 @@
 // Page de retour après paiement Stripe (Embedded Checkout).
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
-import { CheckCircle2, Loader2 } from "lucide-react";
+import { CheckCircle2, Loader2, Mail } from "lucide-react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/hooks/useSubscription";
+
+// TODO Phase 3 : remplacer par l'email de support définitif (ex: support@revix-study.com)
+// quand tu auras choisi et configuré ton domaine de support.
+const SUPPORT_EMAIL = "[VOTRE_EMAIL_DE_SUPPORT]";
 
 export default function CheckoutReturn() {
   const [params] = useSearchParams();
@@ -12,7 +16,8 @@ export default function CheckoutReturn() {
   const { isActive, tier, refresh } = useSubscription();
   const [waited, setWaited] = useState(false);
 
-  // Le webhook met quelques secondes à arriver — on rafraîchit l'abo plusieurs fois.
+  // Le webhook Stripe met quelques secondes (parfois jusqu'à 30s) à arriver. On poll
+  // l'abonnement avec un backoff jusqu'à ~30s avant d'afficher le message de fallback.
   useEffect(() => {
     let cancelled = false;
     let attempts = 0;
@@ -20,8 +25,10 @@ export default function CheckoutReturn() {
       attempts += 1;
       await refresh();
       if (cancelled) return;
-      if (!isActive && attempts < 8) {
-        setTimeout(tick, 1500);
+      if (!isActive && attempts < 15) {
+        // Backoff léger : 1.5s, 1.5s, 2s, 2s, 2.5s, … (~30s total sur 15 essais)
+        const delay = Math.min(1500 + Math.floor(attempts / 2) * 500, 3000);
+        setTimeout(tick, delay);
       } else {
         setWaited(true);
       }
@@ -51,16 +58,27 @@ export default function CheckoutReturn() {
         ) : (
           <>
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
-            <p className="text-sm text-muted-foreground">
+            <p className="text-sm text-muted-foreground max-w-sm">
               {waited
-                ? "Le paiement est confirmé mais la mise à jour de ton compte prend un peu de temps. Reviens dans 1 minute ou contacte le support si rien ne change."
-                : "On confirme ton paiement..."}
+                ? "Le paiement est confirmé côté Stripe, mais la mise à jour de ton compte prend un peu plus de temps que prévu. Ça peut arriver — réessaie dans 1 à 2 minutes en rafraîchissant la page."
+                : "On confirme ton paiement…"}
             </p>
-            {sessionId && <p className="text-[10px] text-muted-foreground font-mono opacity-60">{sessionId}</p>}
+            {sessionId && (
+              <p className="text-[10px] text-muted-foreground font-mono opacity-60 break-all max-w-xs">
+                Référence : {sessionId}
+              </p>
+            )}
             {waited && (
-              <Button asChild variant="outline" className="rounded-full">
-                <Link to="/app/profil">Retour au profil</Link>
-              </Button>
+              <div className="flex flex-col gap-2 items-center">
+                <Button asChild variant="outline" className="rounded-full">
+                  <Link to="/app/profil">Retour au profil</Link>
+                </Button>
+                <Button asChild variant="ghost" size="sm" className="rounded-full">
+                  <a href={`mailto:${SUPPORT_EMAIL}?subject=Abonnement%20non%20activé&body=Référence%20Stripe%20:%20${sessionId ?? ""}`}>
+                    <Mail className="h-3.5 w-3.5 mr-1" /> Contacter le support
+                  </a>
+                </Button>
+              </div>
             )}
           </>
         )}
