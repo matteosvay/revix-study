@@ -16,9 +16,47 @@ const features = [
 ];
 
 const plans = [
-  { name: "Gratuit", price: "0€", period: "", features: ["3 uploads / semaine", "Fiches basiques", "Accès communauté"], cta: "Commencer", highlighted: false },
-  { name: "Pro", price: "9,99€", period: "/mois TTC", features: ["Uploads illimités", "Quizz adaptatifs", "Planning IA", "Export PDF & Anki"], cta: "Essayer 7j gratuits", highlighted: true, badge: "Le plus populaire" },
-  { name: "Premium", price: "14,99€", period: "/mois TTC", features: ["Tout le plan Pro", "Mode Oral 🎤", "Prédiction de notes", "Coach IA prioritaire"], cta: "Devenir Premium", highlighted: false },
+  {
+    name: "Gratuit",
+    price: "0 €",
+    period: "",
+    features: [
+      "2 quizz IA / jour",
+      "5 messages coach / jour",
+      "1 fiche IA / semaine",
+      "Accès communauté",
+    ],
+    cta: "Commencer",
+    highlighted: false,
+  },
+  {
+    name: "Pro",
+    price: "4,99 €",
+    period: "/mois TTC",
+    features: [
+      "10 quizz IA / jour",
+      "20 messages coach / jour",
+      "5 fiches IA / semaine",
+      "Planning IA hebdo",
+    ],
+    cta: "Passer en Pro",
+    highlighted: true,
+    badge: "Le plus populaire",
+  },
+  {
+    name: "Max",
+    price: "8,99 €",
+    period: "/mois TTC",
+    features: [
+      "30 quizz IA / jour",
+      "50 messages coach / jour",
+      "3 fiches IA / jour",
+      "Planning IA illimité",
+      "Mode Oral 🎤",
+    ],
+    cta: "Devenir Max",
+    highlighted: false,
+  },
 ];
 
 export default function Landing() {
