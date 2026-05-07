@@ -28,6 +28,7 @@ import AiUsage from "./pages/admin/AiUsage";
 import CheckoutReturn from "./pages/app/CheckoutReturn";
 import { AuthProvider } from "./hooks/useAuth";
 import { RequireAuth } from "./components/revix/RequireAuth";
+import { RequireAdmin } from "./components/revix/RequireAdmin";
 import { XpOverlay } from "./components/revix/XpOverlay";
 import { InstallAppPrompt } from "./components/revix/InstallAppPrompt";
 import { ErrorBoundary } from "./components/revix/ErrorBoundary";
@@ -85,7 +86,7 @@ const App = () => (
             <Route path="/app/room/:id" element={<RequireAuth><StudyRoom /></RequireAuth>} />
             <Route path="/app/profil" element={<RequireAuth><Profil /></RequireAuth>} />
             <Route path="/app/checkout/return" element={<RequireAuth><CheckoutReturn /></RequireAuth>} />
-            <Route path="/admin/ai-usage" element={<RequireAuth><AiUsage /></RequireAuth>} />
+            <Route path="/admin/ai-usage" element={<RequireAdmin><AiUsage /></RequireAdmin>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
