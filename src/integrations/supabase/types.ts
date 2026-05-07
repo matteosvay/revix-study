@@ -551,6 +551,27 @@ export type Database = {
           },
         ]
       }
+      processed_webhook_events: {
+        Row: {
+          event_id: string
+          event_type: string | null
+          received_at: string
+          source: string
+        }
+        Insert: {
+          event_id: string
+          event_type?: string | null
+          received_at?: string
+          source?: string
+        }
+        Update: {
+          event_id?: string
+          event_type?: string | null
+          received_at?: string
+          source?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -1339,6 +1360,7 @@ export type Database = {
           status: string
           stripe_customer_id: string
           stripe_subscription_id: string
+          tier: string | null
           updated_at: string | null
           user_id: string
         }
@@ -1354,6 +1376,7 @@ export type Database = {
           status?: string
           stripe_customer_id: string
           stripe_subscription_id: string
+          tier?: string | null
           updated_at?: string | null
           user_id: string
         }
@@ -1369,6 +1392,7 @@ export type Database = {
           status?: string
           stripe_customer_id?: string
           stripe_subscription_id?: string
+          tier?: string | null
           updated_at?: string | null
           user_id?: string
         }
