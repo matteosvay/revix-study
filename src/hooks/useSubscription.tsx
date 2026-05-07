@@ -11,6 +11,7 @@ export interface SubscriptionRow {
   current_period_end: string | null;
   cancel_at_period_end: boolean | null;
   environment: string;
+  tier?: "free" | "pro" | "max" | null;
 }
 
 export function useSubscription() {
@@ -27,7 +28,7 @@ export function useSubscription() {
     setLoading(true);
     const { data } = await supabase
       .from("subscriptions" as any)
-      .select("id, status, price_id, current_period_end, cancel_at_period_end, environment")
+      .select("id, status, price_id, current_period_end, cancel_at_period_end, environment, tier")
       .eq("user_id", user.id)
       .eq("environment", getStripeEnvironment())
       .order("created_at", { ascending: false })
@@ -67,6 +68,7 @@ export function useSubscription() {
 
   const tier: "free" | "pro" | "max" = (() => {
     if (!isActive || !subscription) return "free";
+    if (subscription.tier === "max" || subscription.tier === "pro") return subscription.tier;
     if (subscription.price_id?.startsWith("max")) return "max";
     if (subscription.price_id?.startsWith("pro")) return "pro";
     return "free";

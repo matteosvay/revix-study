@@ -30,6 +30,7 @@ async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
   const productId = item?.price?.product;
   const periodStart = item?.current_period_start ?? subscription.current_period_start;
   const periodEnd = item?.current_period_end ?? subscription.current_period_end;
+  const tier = deriveTier(priceId);
 
   const { error } = await getSupabase().from("subscriptions").upsert(
     {
@@ -38,6 +39,7 @@ async function handleSubscriptionCreated(subscription: any, env: StripeEnv) {
       stripe_customer_id: subscription.customer,
       product_id: productId,
       price_id: priceId,
+      tier,
       status: subscription.status,
       current_period_start: periodStart ? new Date(periodStart * 1000).toISOString() : null,
       current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
@@ -61,6 +63,7 @@ async function handleSubscriptionUpdated(subscription: any, env: StripeEnv) {
   const productId = item?.price?.product;
   const periodStart = item?.current_period_start ?? subscription.current_period_start;
   const periodEnd = item?.current_period_end ?? subscription.current_period_end;
+  const tier = deriveTier(priceId);
 
   const { error } = await getSupabase()
     .from("subscriptions")
@@ -68,6 +71,7 @@ async function handleSubscriptionUpdated(subscription: any, env: StripeEnv) {
       status: subscription.status,
       product_id: productId,
       price_id: priceId,
+      tier,
       current_period_start: periodStart ? new Date(periodStart * 1000).toISOString() : null,
       current_period_end: periodEnd ? new Date(periodEnd * 1000).toISOString() : null,
       cancel_at_period_end: subscription.cancel_at_period_end || false,
@@ -98,6 +102,18 @@ async function handleSubscriptionDeleted(subscription: any, env: StripeEnv) {
 
 async function handleWebhook(req: Request, env: StripeEnv) {
   const event = await verifyWebhook(req, env);
+  // Idempotence : Stripe re-livre les events sur 5xx. On ignore silencieusement
+  // les events déjà traités.
+  const { error: dedupErr } = await getSupabase()
+    .from("processed_webhook_events")
+    .insert({ event_id: event.id, source: "stripe", event_type: event.type });
+  if (dedupErr) {
+    if ((dedupErr as any).code === "23505") {
+      console.log("[webhook] duplicate event ignored:", event.id);
+      return;
+    }
+    console.error("[webhook] dedup insert failed:", dedupErr);
+  }
   switch (event.type) {
     case "customer.subscription.created":
       await handleSubscriptionCreated(event.data.object, env);
@@ -111,6 +127,13 @@ async function handleWebhook(req: Request, env: StripeEnv) {
     default:
       console.log("Unhandled event:", event.type);
   }
+}
+
+function deriveTier(priceId: string | null | undefined): "pro" | "max" | "free" {
+  if (!priceId) return "free";
+  if (priceId.startsWith("max")) return "max";
+  if (priceId.startsWith("pro")) return "pro";
+  return "free";
 }
 
 Deno.serve(async (req) => {
