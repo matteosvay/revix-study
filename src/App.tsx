@@ -85,7 +85,8 @@ const App = () => (
             <Route path="/app/room/:id" element={<RequireAuth><StudyRoom /></RequireAuth>} />
             <Route path="/app/profil" element={<RequireAuth><Profil /></RequireAuth>} />
             <Route path="/app/checkout/return" element={<RequireAuth><CheckoutReturn /></RequireAuth>} />
-            <Route path="/admin/ai-usage" element={<RequireAuth><AiUsage /></RequireAuth>} />
+import { RequireAdmin } from "./components/revix/RequireAdmin";
+            <Route path="/admin/ai-usage" element={<RequireAdmin><AiUsage /></RequireAdmin>} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
