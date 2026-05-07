@@ -3,11 +3,16 @@ import {
   callClaudeVision,
   claudeErrorResponse,
   corsHeaders,
+  enforceLimit,
   jsonResponse,
 } from "../_shared/mod.ts";
 
-// OCR for handwritten/printed notes (and photos of courses) using Claude Haiku 4.5 vision.
-// PDFs continue to be parsed client-side via pdfjs and sent as text directly to generate-fiches.
+// OCR pour notes manuscrites/imprimées et photos de cours via Claude Haiku 4.5 vision.
+// PDF parsés client-side via pdfjs et envoyés en texte directement à generate-fiches.
+//
+// Sécurité : déclenche un appel Claude Vision (coûteux). Doit être rate-limité au même
+// titre que les autres actions IA. On le compte sur le quota 'fiche' car c'est la
+// première étape du pipeline d'upload.
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
   try {
@@ -19,8 +24,9 @@ Deno.serve(async (req) => {
       return jsonResponse({ error: "Image manquante" }, { status: 400 });
     }
 
-    // Note: extract-pdf is not metered as a separate IA action — it is part of the
-    // upload-then-fiche pipeline. The 'fiche' rate limit is enforced in generate-fiches.
+    // ----- Rate limit (quota 'fiche') -----
+    const limit = await enforceLimit(auth.supabase, auth.userId, "fiche");
+    if (!limit.allowed) return limit.response;
 
     try {
       const text = await callClaudeVision({
