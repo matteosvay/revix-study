@@ -19,7 +19,7 @@ import { SUBJECTS } from "@/data/subjects";
 import { AvatarCropper } from "@/components/revix/AvatarCropper";
 import { GENDER_OPTIONS } from "@/lib/gender";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "@/components/ui/dialog";
 import { StripeEmbeddedCheckout } from "@/components/revix/StripeEmbeddedCheckout";
 import { useSubscription } from "@/hooks/useSubscription";
 import { getStripeEnvironment, isPaymentsConfigured } from "@/lib/stripe";
@@ -37,6 +37,9 @@ export default function Profil() {
   const [uploading, setUploading] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [cropOpen, setCropOpen] = useState(false);
+  // RGPD article 17 : suppression de compte
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -98,6 +101,32 @@ export default function Profil() {
   };
 
   const logout = async () => { await supabase.auth.signOut(); nav("/"); };
+
+  /**
+   * Suppression définitive du compte (RGPD article 17).
+   * Appelle l'Edge Function delete-account qui utilise auth.admin.deleteUser ;
+   * tout le contenu de l'utilisateur est cascadé via les FK ON DELETE CASCADE.
+   */
+  const deleteAccount = async () => {
+    setDeleting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("delete-account", {
+        body: { confirm: "DELETE" },
+      });
+      if (error || !data?.success) {
+        throw new Error((error as { message?: string } | null)?.message || (data as { message?: string } | null)?.message || "Échec de la suppression");
+      }
+      // La session est invalidée côté serveur ; on nettoie aussi le client.
+      await supabase.auth.signOut();
+      toast.success("Ton compte a été supprimé. À bientôt 👋");
+      nav("/");
+    } catch (e: unknown) {
+      const msg = e instanceof Error ? e.message : "Impossible de supprimer le compte. Réessaie ou contacte le support.";
+      toast.error(msg);
+      setDeleting(false);
+      setDeleteDialogOpen(false);
+    }
+  };
 
   if (!profile) return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement...</div></AppLayout>;
 
@@ -389,10 +418,63 @@ export default function Profil() {
         <Button
           variant="ghost"
           className="w-full text-destructive"
-          onClick={() => toast.info("Suppression de compte", { description: "Pour supprimer ton compte, écris-nous à support@revix.app — on s'en occupe sous 48h." })}
+          onClick={() => setDeleteDialogOpen(true)}
         >
           <Trash2 className="h-4 w-4 mr-2" /> Supprimer mon compte
         </Button>
+
+        {/* Dialog de confirmation pour la suppression de compte (RGPD art. 17) */}
+        <Dialog open={deleteDialogOpen} onOpenChange={(open) => { if (!deleting) setDeleteDialogOpen(open); }}>
+          <DialogContent className="max-w-md">
+            <DialogHeader>
+              <DialogTitle className="font-serif text-xl text-destructive">
+                Supprimer définitivement ton compte ?
+              </DialogTitle>
+              <DialogDescription className="space-y-2 pt-2">
+                <span className="block">Cette action est <strong>irréversible</strong>. Vont être supprimés :</span>
+                <span className="block text-sm">
+                  • Ton profil et tes statistiques<br />
+                  • Tes cours, fiches et quiz générés<br />
+                  • Ton historique de révisions et planning<br />
+                  • Tes XP, niveau, streak et cosmétiques<br />
+                  • Tes participations à des duels et study rooms
+                </span>
+                {isActive && (
+                  <span className="block text-sm text-amber-600 dark:text-amber-400 pt-2">
+                    ⚠️ Tu as un abonnement actif. Pense à le résilier d'abord depuis « Gérer mon abonnement »
+                    pour ne plus être facturé.
+                  </span>
+                )}
+              </DialogDescription>
+            </DialogHeader>
+            <DialogFooter className="gap-2 sm:gap-2">
+              <Button
+                variant="outline"
+                onClick={() => setDeleteDialogOpen(false)}
+                disabled={deleting}
+                className="rounded-full"
+              >
+                Annuler
+              </Button>
+              <Button
+                variant="destructive"
+                onClick={deleteAccount}
+                disabled={deleting}
+                className="rounded-full"
+              >
+                {deleting ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" /> Suppression…
+                  </>
+                ) : (
+                  <>
+                    <Trash2 className="h-4 w-4 mr-2" /> Supprimer définitivement
+                  </>
+                )}
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
       </div>
     </AppLayout>
   );
