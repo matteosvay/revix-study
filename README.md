@@ -282,7 +282,7 @@ VITE_SUPABASE_PROJECT_ID=…
 
 ## 10. Workflow recommandé pour Claude
 
-1. **Lire d'abord** : `src/App.tsx` (routes), `src/index.css` (design system), `src/integrations/supabase/types.ts` (schéma).
+1. **Lire d'abord** : ce fichier `.claude.md` pour le contexte global, puis `src/App.tsx` (routes), `src/index.css` (design system), `src/integrations/supabase/types.ts` (schéma).
 2. **Avant toute modif DB** : créer un nouveau fichier de migration dans `supabase/migrations/` au format `YYYYMMDDHHMMSS_description.sql`. Ne **jamais** éditer une migration existante.
 3. **Avant toute modif UI** : vérifier les tokens existants dans `index.css` plutôt que d'en créer de nouveaux.
 4. **Tests** : `bun run test` (Vitest). Setup dans `src/test/setup.ts`.
@@ -306,4 +306,4 @@ VITE_SUPABASE_PROJECT_ID=…
 
 ---
 
-*Dernière mise à jour du README : généré automatiquement pour onboarder Claude.*
+*Dernière mise à jour du README : 13 mai 2026 — avec fichier `.claude.md` pour Claude Code.*
