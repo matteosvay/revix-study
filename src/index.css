@@ -150,6 +150,28 @@
     line-height: 0.95;
     text-transform: none;
   }
+
+  /* Curseur correct sur tous les éléments interactifs */
+  button, a, [role="button"], input[type="button"], input[type="submit"], label[for] {
+    cursor: pointer;
+  }
+
+  /* Supprime le délai de 300ms sur mobile + désactive double-tap zoom */
+  button, a, [role="button"] {
+    touch-action: manipulation;
+  }
+
+  /* Skeleton neo-brutalist */
+  .skeleton-brutal {
+    background: hsl(var(--muted));
+    border: 2px solid hsl(var(--foreground) / 0.12);
+    border-radius: var(--radius);
+    animation: skeleton-shimmer 1.5s ease-in-out infinite;
+  }
+  @keyframes skeleton-shimmer {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: 0.45; }
+  }
 }
 
 @layer utilities {
@@ -1236,19 +1258,13 @@
   /* Scroll plus doux iOS-like */
   html, body { scroll-behavior: smooth; }
 
-  /* Respect des préférences utilisateur — désactive si l'utilisateur préfère réduire les animations */
+  /* Respect des préférences utilisateur — couvre TOUTES les animations et transitions */
   @media (prefers-reduced-motion: reduce) {
-    .route-transition,
-    .stagger-in > *,
-    .pop-bounce,
-    .nav-postit-active.is-active::before,
-    .float-slow,
-    .wiggle,
-    .drift-slow {
-      animation: none !important;
-    }
     *, *::before, *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
       transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
     }
   }
 }

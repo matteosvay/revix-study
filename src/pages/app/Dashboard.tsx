@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -32,6 +33,7 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
   const [groups, setGroups] = useState<GroupRow[]>([]);
+  const [dataLoading, setDataLoading] = useState(true);
   const { profile: gam, levelTier, xp } = useGamification();
   useFomoChecks();
 
@@ -59,6 +61,8 @@ export default function Dashboard() {
         setProfile(null);
         setStats({ courses: 0, quizzes: 0, avg: 0 });
         setGroups([]);
+      } finally {
+        if (active) setDataLoading(false);
       }
     })();
     return () => { active = false; };
@@ -93,8 +97,21 @@ export default function Dashboard() {
         <ReviewCard />
         <FlashQuizCard />
 
+        {/* Skeleton XP / streak pendant le chargement */}
+        {dataLoading && (
+          <div className="mb-3 space-y-3">
+            <Skeleton className="h-[72px] w-full rounded-xl border-[2.5px] border-foreground/10" />
+            <Skeleton className="h-[80px] w-full rounded-md border-[2.5px] border-foreground/10" />
+            <div className="grid grid-cols-3 gap-2">
+              <Skeleton className="h-[64px] rounded-xl" />
+              <Skeleton className="h-[64px] rounded-xl" />
+              <Skeleton className="h-[64px] rounded-xl" />
+            </div>
+          </div>
+        )}
+
         {/* XP / niveau bandeau */}
-        {gam && levelTier && xp && (
+        {!dataLoading && gam && levelTier && xp && (
           <Link to="/app/aventure" className="block card-paper p-4 relative mb-3 tilt-l hover:shadow-glow transition-shadow">
             <Tape variant="yellow" position="top-left" />
             <Pin color="purple" className="absolute top-2 right-3 decor-extra" />
@@ -116,7 +133,7 @@ export default function Dashboard() {
           </Link>
         )}
 
-        <Link to="/app/streak" className="block relative overflow-hidden rounded-md border-[2.5px] border-foreground gradient-hero p-5 text-primary-foreground shadow-brutal group hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-brutal-sm transition-all">
+        {!dataLoading && <Link to="/app/streak" className="block relative overflow-hidden rounded-md border-[2.5px] border-foreground gradient-hero p-5 text-primary-foreground shadow-brutal group hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-brutal-sm transition-all">
           <div className="relative flex items-center gap-3">
             <div className="h-14 w-14 rounded-md bg-card text-foreground border-[2.5px] border-foreground flex items-center justify-center shrink-0 shadow-[2px_2px_0_0_hsl(var(--foreground))]">
               <Flame className="h-7 w-7 wiggle" />
@@ -136,7 +153,7 @@ export default function Dashboard() {
                       className="inline-block w-3 h-2 rounded-[1px]"
                       style={{
                         background: i < (profile?.streak_tokens ?? 0) ? "hsl(var(--tape-pink) / 0.95)" : "transparent",
-                        border: i < (profile?.streak_tokens ?? 0) ? "none" : "1px dashed rgba(255,255,255,0.45)",
+                        border: i < (profile?.streak_tokens ?? 0) ? "none" : "1px dashed hsl(0 0% 100% / 0.45)",
                         transform: `rotate(${i % 2 === 0 ? -6 : 5}deg)`,
                       }}
                     />
@@ -147,7 +164,7 @@ export default function Dashboard() {
             </div>
             <ChevronRight className="h-5 w-5 opacity-80 group-hover:translate-x-0.5 transition-transform" />
           </div>
-        </Link>
+        </Link>}
 
         <div className="mt-5 mb-2 px-1">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Vue d'ensemble</p>
@@ -227,7 +244,7 @@ export default function Dashboard() {
         </div>
         <div className="space-y-1">
           {tiles.map((t) => (
-            <Link key={t.to} to={t.to} className="flex items-center gap-3 px-2 py-2.5 rounded-xl notion-row group">
+            <Link key={t.to} to={t.to} className="flex items-center gap-3 px-2 py-3 min-h-[44px] rounded-xl notion-row group">
               <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${t.accent ? "gradient-primary text-primary-foreground shadow-glow" : "bg-muted"}`}>
                 <t.icon className="h-4 w-4" />
               </div>
