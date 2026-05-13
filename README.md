@@ -6,17 +6,19 @@
 
 ## 1. Vue d'ensemble
 
-**Revix** est une PWA d'apprentissage pour étudiants combinant :
-- 📚 **Génération automatique de fiches** à partir de PDF / DOCX uploadés
-- 🧠 **Quiz adaptatifs** (QCM + questions ouvertes notées par IA)
-- 🔁 **Révision espacée** (algorithme SM-2 simplifié)
-- 🎮 **Gamification poussée** : XP, niveaux, streaks, lootboxes, cosmétiques, titres, badges
-- 👥 **Social** : duels temps réel, study rooms collaboratives, groupes d'étude, classements campus
-- 🤖 **Coach IA** personnalisé (chat + tips quotidiens + alertes intelligentes)
-- 📅 **Planning intelligent** généré par IA
-- 🎙️ **Notes vocales** transcrites + feedback oral IA
+**Revix** est une PWA d'apprentissage pour étudiants du supérieur qui transforme n'importe quel cours (PDF, DOCX, photo) en fiches de révision structurées et quiz adaptatifs — le tout gamifié avec un système complet d'XP, niveaux, streaks, lootboxes et cosmétiques.
 
-**Public cible** : étudiants du supérieur (cursus configurable : médecine, droit, ingénierie, etc.).
+### Ce que fait Revix
+- 📚 **Upload intelligent** — Glisse-dépose un PDF ou une photo de cours, l'IA en extrait le texte et génère des fiches claires
+- 🧠 **Quiz adaptatifs** — QCM et questions ouvertes notées automatiquement par IA
+- 🔁 **Révision espacée** — Algorithme SM-2 pour retenir à long terme
+- 🎮 **Gamification complète** — XP, niveaux, streaks quotidiens, lootboxes, cosmétiques, titres, badges
+- 👥 **Social learning** — Duels 1v1 temps réel, salles d'étude collaboratives, groupes d'étude, classements campus
+- 🤖 **Coach IA personnel** — Chat pédagogique, tips quotidiens, alertes intelligentes, techniques de mémorisation
+- 📅 **Planning IA** — Génère un planning de révision personnalisé selon ton emploi du temps
+- 🎙️ **Entraînement oral** — Notes vocales transcrites + feedback oral par IA
+
+**Public cible** : étudiants français du supérieur (médecine, droit, ingénierie, etc.) — cursus configurable à l'inscription.
 
 **Design** : style "néo-brutaliste papier" (bordures épaisses, ombres décalées, grain papier, scribbles dessinés). Tout est en HSL via tokens sémantiques — **ne jamais utiliser de couleurs en dur**.
 
