@@ -104,23 +104,31 @@ export function useGamification() {
 
   useEffect(() => { load(); }, [load]);
 
-  // Re-check quests when the tab regains focus or when the local date rolls over.
+  // Realtime: reload when the user's profile changes (XP awarded, level up, etc.)
+  useEffect(() => {
+    if (authLoading || !user) return;
+    const channel = supabase
+      .channel(`gam:profile:${user.id}`)
+      .on("postgres_changes", {
+        event: "UPDATE",
+        schema: "public",
+        table: "profiles",
+        filter: `id=eq.${user.id}`,
+      }, () => { load(); })
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [authLoading, user, load]);
+
+  // Re-check quests only when the tab regains focus AND the calendar date rolled over.
   useEffect(() => {
     if (authLoading || !user) return;
     let lastDay = todayKey();
     const onFocus = () => {
       const now = todayKey();
-      if (now !== lastDay) {
-        lastDay = now;
-        load();
-      }
+      if (now !== lastDay) { lastDay = now; load(); }
     };
-    const interval = setInterval(onFocus, 60_000);
     window.addEventListener("focus", onFocus);
-    return () => {
-      clearInterval(interval);
-      window.removeEventListener("focus", onFocus);
-    };
+    return () => window.removeEventListener("focus", onFocus);
   }, [authLoading, user, load]);
 
   return { profile, dailyQuests, weeklyQuest, loading, reload: load,

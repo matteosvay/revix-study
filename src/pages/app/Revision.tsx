@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -32,13 +32,17 @@ export default function Revision() {
   const [idx, setIdx] = useState(0);
   const [picked, setPicked] = useState<number | null>(null);
   const [stats, setStats] = useState({ ok: 0, ko: 0 });
+  const [skippedCount, setSkippedCount] = useState(0);
+  const correctCountRef = useRef(0);
 
   useEffect(() => {
     if (!user) return;
     (async () => {
       const { data } = await supabase.rpc("get_due_review_questions", { p_limit: 15 });
-      // Garde uniquement les types supportés ici (QCM / Vrai-Faux).
-      const filtered = ((data as any[]) ?? []).filter((q) => q.type === "qcm" || q.type === "vrai_faux");
+      const all = (data as any[]) ?? [];
+      const filtered = all.filter((q) => q.type === "qcm" || q.type === "vrai_faux");
+      const skipped = all.length - filtered.length;
+      if (skipped > 0) setSkippedCount(skipped);
       setQueue(filtered as any);
       setLoading(false);
     })();
@@ -49,6 +53,7 @@ export default function Revision() {
 
   const recordReview = async (correct: boolean) => {
     if (!current || !user) return;
+    if (correct) correctCountRef.current += 1;
     await supabase.rpc("review_question", { p_question_id: current.question_id, p_correct: correct });
     setStats(s => ({ ok: s.ok + (correct ? 1 : 0), ko: s.ko + (correct ? 0 : 1) }));
   };
@@ -56,12 +61,8 @@ export default function Revision() {
   const next = async () => {
     setPicked(null);
     if (idx + 1 >= queue.length) {
-      // Award XP en fin de session.
-      // stats inclut déjà toutes les questions répondues (recordReview a updaté
-      // stats avant ce next()). On utilise queue.length comme source de vérité
-      // pour le total, et stats.ok pour le bonus.
       const total = queue.length;
-      const xp = 10 * total + Math.max(0, stats.ok * 3);
+      const xp = 10 * total + Math.max(0, correctCountRef.current * 3);
       if (user && total > 0) await awardXp(user.id, xp, "srs_session");
     }
     setIdx(i => i + 1);
@@ -82,6 +83,11 @@ export default function Revision() {
     return (
       <AppLayout>
         <PageHeader emoji="🧠" title="Révision" subtitle="Spaced repetition" />
+        {skippedCount > 0 && (
+          <div className="mx-5 mt-3 px-3 py-2 rounded-md border border-muted bg-muted/40 text-xs text-muted-foreground">
+            {skippedCount} question{skippedCount > 1 ? "s" : ""} de type texte libre ou ordre ne sont pas encore disponibles en révision ciblée.
+          </div>
+        )}
         <div className="px-5 mt-4 text-center">
           <div className="inline-block notebook-card dog-ear p-5 max-w-xs mx-auto">
             <Sparkles className="h-8 w-8 mx-auto text-primary" />

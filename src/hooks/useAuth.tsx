@@ -38,9 +38,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
           const pending = localStorage.getItem("revix_pending_referral");
           if (pending) {
-            supabase.rpc("apply_referral_code", { _code: pending }).then(() => {
-              try { localStorage.removeItem("revix_pending_referral"); } catch {/* noop */}
-            });
+            try { localStorage.removeItem("revix_pending_referral"); } catch {/* noop */}
+            supabase.rpc("apply_referral_code", { _code: pending });
           }
         } catch {/* noop */}
       }

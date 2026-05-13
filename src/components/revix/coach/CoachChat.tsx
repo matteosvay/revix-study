@@ -56,7 +56,16 @@ export function CoachChat({ ctx }: { ctx: CoachContext | null }) {
         plan: m.metadata?.plan,
         created_at: m.created_at,
       })) as Msg[];
-      setMessages(history.length ? history : MOCK_HISTORY);
+      if (history.length) {
+        setMessages(history);
+      } else {
+        setMessages([{
+          id: "welcome",
+          role: "assistant",
+          content: "Salut ! Je suis ton coach Revix 👋 Pose-moi une question sur tes révisions, demande un planning, ou dis-moi comment tu te sens. Je suis là pour t'aider.",
+          created_at: new Date().toISOString(),
+        }]);
+      }
       setHydrated(true);
     })();
   }, [user]);
