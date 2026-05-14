@@ -72,7 +72,15 @@ export function FlashQuizCard() {
       // Mélange et prend 5
       const picked = pool.sort(() => Math.random() - 0.5).slice(0, Math.min(5, pool.length));
 
-      // 3. Crée un quiz éphémère
+      // 3. Crée un quiz éphémère (nettoie les anciens flash quizzes de +24h avant)
+      const yesterday = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+      await supabase
+        .from("quizzes")
+        .delete()
+        .eq("user_id", user.id)
+        .ilike("title", "⚡ Flash%")
+        .lt("created_at", yesterday);
+
       const flashTitle = subject ? `⚡ Flash · ${subject}` : "⚡ Flash 5 min";
       const { data: quiz, error: qErr } = await supabase
         .from("quizzes")

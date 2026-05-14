@@ -52,11 +52,16 @@ export interface UsageEntry {
 const ACTIONS: UsageAction[] = ["fiche", "quiz_ia", "coach", "correction", "planning"];
 
 function todayKey(): string {
-  // Approximation Europe/Paris (UTC+1/+2). Pour le hook d'affichage, c'est suffisant.
-  const now = new Date();
-  const offsetMs = 60 * 60 * 1000; // +1h base ; le serveur fait foi sur la décision réelle
-  const d = new Date(now.getTime() + offsetMs);
-  return d.toISOString().slice(0, 10);
+  return new Intl.DateTimeFormat("fr-FR", {
+    timeZone: "Europe/Paris",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  })
+    .format(new Date())
+    .split("/")
+    .reverse()
+    .join("-");
 }
 
 function isoWeekKey(): string {

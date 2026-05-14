@@ -5,9 +5,11 @@ import { Button } from "@/components/ui/button";
 import { Brain, Trash2, Loader2, ListChecks, CheckSquare, ToggleLeft, ArrowDownUp, Link2, Sparkles } from "lucide-react";
 import { BackButton } from "@/components/revix/BackButton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { CourseSummary, type CourseSummaryData } from "@/components/revix/CourseSummary";
 
@@ -32,6 +34,7 @@ const DIFFICULTIES = [
 export default function CourseDetail() {
   const { id } = useParams();
   const nav = useNavigate();
+  const { user } = useAuth();
   const [course, setCourse] = useState<Course | null>(null);
   const [creatingQuiz, setCreatingQuiz] = useState(false);
   const [quizSheetOpen, setQuizSheetOpen] = useState(false);
@@ -40,15 +43,19 @@ export default function CourseDetail() {
   const [quizDifficulty, setQuizDifficulty] = useState<string>("mixte");
 
   useEffect(() => {
+    if (!user) return;
+    let active = true;
     (async () => {
       const { data: c } = await supabase
         .from("courses")
         .select("id,title,subject,emoji,source_content,summary")
         .eq("id", id!)
+        .eq("user_id", user.id)
         .single();
-      setCourse(c as any);
+      if (active) setCourse(c as any);
     })();
-  }, [id]);
+    return () => { active = false; };
+  }, [id, user]);
 
   const generateQuiz = async (chapterFilter?: string) => {
     if (!course?.source_content) { toast.error("Contenu source indisponible."); return; }
@@ -121,7 +128,6 @@ export default function CourseDetail() {
   };
 
   const remove = async () => {
-    if (!confirm("Supprimer ce cours ?")) return;
     await supabase.from("courses").delete().eq("id", id!);
     nav("/app/fiches");
   };
@@ -133,9 +139,27 @@ export default function CourseDetail() {
       <div className="flex items-center gap-1 pr-3">
         <BackButton fallback="/app/fiches" />
         <div className="flex-1" />
-        <Button onClick={remove} variant="ghost" size="icon" className="rounded-full text-destructive mt-4">
-          <Trash2 className="h-4 w-4" />
-        </Button>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="ghost" size="icon" className="rounded-full text-destructive mt-4">
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Supprimer ce cours ?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Cette action est irréversible. Le cours et ses quizz associés seront supprimés.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Annuler</AlertDialogCancel>
+              <AlertDialogAction onClick={remove} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                Supprimer
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <div className="px-5 pt-2 pb-4">

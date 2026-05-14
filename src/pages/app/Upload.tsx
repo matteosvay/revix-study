@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
@@ -46,6 +46,8 @@ export default function Upload() {
   const [step, setStep] = useState<number>(-1); // -1 idle
   const [dragOver, setDragOver] = useState(false);
   const [userSubjects, setUserSubjects] = useState<string[]>([]);
+
+  const generatingRef = useRef(false);
 
   // Préflight : la limite 'fiche' courante de l'utilisateur, pour bloquer l'upload
   // AVANT de lancer l'OCR/extraction et créer une ligne courses orpheline.
@@ -139,9 +141,10 @@ export default function Upload() {
   };
 
   const generate = async () => {
-    if (!user) return;
+    if (!user || generatingRef.current) return;
     if (files.length === 0 && text.trim().length < 20) { toast.error("Ajoute un fichier ou colle du texte."); return; }
     if (!title.trim()) { toast.error("Donne un titre à ton cours."); return; }
+    generatingRef.current = true;
 
     // ----- Préflight : vérifie la limite 'fiche' avant de lancer le pipeline -----
     // Sans ce check, un utilisateur en dépassement de quota voit son upload échouer
@@ -167,6 +170,7 @@ export default function Upload() {
           tier,
         },
       }));
+      generatingRef.current = false;
       return;
     }
 
@@ -327,6 +331,8 @@ export default function Upload() {
       console.error(e);
       toast.error(e?.message ?? "Une erreur est survenue.");
       setStep(-1);
+    } finally {
+      generatingRef.current = false;
     }
   };
 

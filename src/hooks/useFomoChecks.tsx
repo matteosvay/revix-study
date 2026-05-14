@@ -35,6 +35,7 @@ export function useFomoChecks() {
         .select("type, metadata")
         .eq("user_id", user.id)
         .gte("created_at", startOfDay.toISOString());
+      if (cancelled) return;
       const hasType = (t: string) => (existing ?? []).some((n: any) => n.type === t);
 
       const toInsert: any[] = [];
@@ -61,6 +62,7 @@ export function useFomoChecks() {
         .eq("user_id", user.id)
         .eq("claimed", false)
         .gte("period_end", today);
+      if (cancelled) return;
 
       const almostDone = (quests ?? []).find(
         (q: any) => q.progress / q.target >= 0.8 && q.progress < q.target
