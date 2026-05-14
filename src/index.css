@@ -1144,6 +1144,76 @@
   }
   .vignette-pulse { animation: vignette-pulse 3.5s ease-in-out infinite; }
 
+  /* ===== LOOT BOX v3 — video-game upgrade ===== */
+
+  /* Full-screen camera shake during burst */
+  @keyframes screen-shake {
+    0%, 100% { transform: translate(0, 0); }
+    10%  { transform: translate(-10px, -5px); }
+    20%  { transform: translate(10px, 5px); }
+    30%  { transform: translate(-13px, 4px); }
+    40%  { transform: translate(13px, -4px); }
+    50%  { transform: translate(-8px, -8px); }
+    60%  { transform: translate(8px, 8px); }
+    70%  { transform: translate(-5px, -3px); }
+    80%  { transform: translate(5px, 3px); }
+    90%  { transform: translate(-2px, 0); }
+  }
+  .screen-shake { animation: screen-shake 0.55s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+
+  /* Lid flies off the box during burst */
+  @keyframes lid-fly {
+    0%   { transform: translateY(0) rotate(0deg) scale(1); opacity: 1; }
+    25%  { transform: translateY(-45px) rotate(-22deg) scale(1.05); opacity: 1; }
+    65%  { transform: translateY(-140px) rotate(40deg) scale(0.8); opacity: 0.7; }
+    100% { transform: translateY(-300px) rotate(75deg) scale(0.4); opacity: 0; }
+  }
+  .lid-fly {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: lid-fly 0.65s cubic-bezier(0.17, 0.67, 0.83, 0.67) forwards;
+  }
+
+  /* Extra shockwave ring delays */
+  .shockwave-ring.delay-3 { animation-delay: 0.36s; border-color: hsl(190 100% 65%); }
+  .shockwave-ring.delay-4 { animation-delay: 0.50s; border-color: hsl(0 90% 65%); }
+  .shockwave-ring.delay-5 { animation-delay: 0.64s; border-color: hsl(130 80% 60%); }
+
+  /* Idle floating sparkles on the LootBoxCard button */
+  @keyframes float-sparkle {
+    0%   { transform: translateY(0) scale(0.3); opacity: 0; }
+    20%  { opacity: 1; transform: translateY(-10px) scale(1); }
+    80%  { opacity: 0.8; transform: translateY(-22px) scale(0.7); }
+    100% { transform: translateY(-38px) scale(0.1); opacity: 0; }
+  }
+  .float-sparkle { animation: float-sparkle 2.2s ease-out infinite; }
+
+  /* XP number explosive entrance */
+  @keyframes xp-slam {
+    0%   { transform: scale(0.4) translateY(30px); opacity: 0; filter: blur(6px); }
+    55%  { transform: scale(1.28) translateY(-6px); opacity: 1; filter: blur(0); }
+    75%  { transform: scale(0.95) translateY(2px); }
+    100% { transform: scale(1) translateY(0); opacity: 1; }
+  }
+  .xp-slam { animation: xp-slam 0.9s cubic-bezier(0.34, 1.56, 0.64, 1) forwards; }
+
+  /* Rainbow glow cycle on LootBoxCard icon */
+  @keyframes rainbow-glow {
+    0%   { filter: drop-shadow(0 0 18px hsl(45 100% 65%)); }
+    25%  { filter: drop-shadow(0 0 18px hsl(280 90% 65%)); }
+    50%  { filter: drop-shadow(0 0 18px hsl(190 100% 65%)); }
+    75%  { filter: drop-shadow(0 0 18px hsl(0 90% 65%)); }
+    100% { filter: drop-shadow(0 0 18px hsl(45 100% 65%)); }
+  }
+  .rainbow-glow-pulse { animation: rainbow-glow 3s linear infinite; }
+
+  /* "DISPO" badge pump pulse */
+  @keyframes dispo-pulse {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.1); }
+  }
+  .dispo-pulse { animation: dispo-pulse 1.6s ease-in-out infinite; }
+
   /* ===== Cosmetic premium stickers ===== */
   @keyframes cosmetic-breathe {
     0%, 100% { transform: scale(1); }

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { X, ChevronRight, Sparkles } from "lucide-react";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
 import { BackgroundDecor } from "@/components/revix/cosmetics/BackgroundDecor";
@@ -105,19 +105,38 @@ function highestRarity(cards: Card[]): Rarity {
   return best;
 }
 
+function CountUp({ target, duration = 1400 }: { target: number; duration?: number }) {
+  const [count, setCount] = useState(0);
+  const rafRef = useRef<number>(0);
+  useEffect(() => {
+    let startTime: number | null = null;
+    const animate = (ts: number) => {
+      if (startTime === null) startTime = ts;
+      const progress = Math.min((ts - startTime) / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3);
+      setCount(Math.round(eased * target));
+      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [target, duration]);
+  return <>{count}</>;
+}
+
 function Confetti({ rarity }: { rarity: Rarity }) {
   const colors =
     rarity === "legendary" ? ["#fde047", "#f97316", "#ec4899", "#a855f7", "#22d3ee"] :
     rarity === "epic" ? ["#a855f7", "#ec4899", "#3b82f6", "#fde047"] :
     rarity === "rare" ? ["#3b82f6", "#22d3ee", "#fde047"] :
     ["#cbd5e1", "#94a3b8", "#fde047"];
-  const pieces = useMemo(() => Array.from({ length: 60 }).map((_, i) => ({
+  const pieces = useMemo(() => Array.from({ length: 120 }).map((_, i) => ({
     left: `${Math.random() * 100}%`,
-    delay: `${Math.random() * 0.6}s`,
+    delay: `${Math.random() * 0.8}s`,
     color: colors[i % colors.length],
-    size: 6 + Math.random() * 8,
-    drift: `${(Math.random() - 0.5) * 200}px`,
-    rot: Math.random() > 0.5 ? "circle" : "rect",
+    size: 5 + Math.random() * 9,
+    drift: `${(Math.random() - 0.5) * 260}px`,
+    dur: `${(1.6 + Math.random() * 1.6).toFixed(1)}s`,
+    rot: i % 2 === 0 ? "circle" : "rect",
   })), [rarity]);
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
@@ -132,6 +151,7 @@ function Confetti({ rarity }: { rarity: Rarity }) {
             background: p.color,
             borderRadius: p.rot === "circle" ? "50%" : "2px",
             animationDelay: p.delay,
+            animationDuration: p.dur,
             // @ts-ignore
             "--cf-x": p.drift,
           } as any}
@@ -200,7 +220,7 @@ function CardReveal({ card }: { card: Card }) {
         return <p className={cn("font-mono uppercase tracking-widest text-2xl font-bold", theme.text)}>{card.name}</p>;
       }
     }
-    if (card.kind === "xp") return <p className="text-7xl font-display">+{card.xp}</p>;
+    if (card.kind === "xp") return <p className="text-7xl font-display xp-slam">+<CountUp target={card.xp} /></p>;
     if (card.kind === "token") return <span className="text-8xl">📎</span>;
     if (card.kind === "powerup") return <span className="text-8xl">{POWERUP_LABELS[card.key]?.emoji ?? "⚡"}</span>;
     return null;
@@ -300,7 +320,7 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
     "from-slate-900/95 via-slate-800/95 to-slate-950/98";
 
   return (
-    <div className={cn("fixed inset-0 z-[100] overflow-hidden bg-gradient-to-br animate-fade-in", bgTint)}>
+    <div className={cn("fixed inset-0 z-[100] overflow-hidden bg-gradient-to-br animate-fade-in", bgTint, phase === "burst" && "screen-shake")}>
       {/* Star background */}
       <div className="absolute inset-0 pointer-events-none opacity-60">
         <svg className="w-full h-full">
@@ -354,13 +374,16 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
         </div>
       )}
 
-      {/* Burst phase: chromatic flash + multiple shockwave rings */}
+      {/* Burst phase: chromatic flash + 5 shockwave rings */}
       {phase === "burst" && (
         <>
           <div className="absolute inset-0 flash-chromatic" />
           <div className="shockwave-ring" />
           <div className="shockwave-ring delay-1" />
           <div className="shockwave-ring delay-2" />
+          <div className="shockwave-ring delay-3" />
+          <div className="shockwave-ring delay-4" />
+          <div className="shockwave-ring delay-5" />
         </>
       )}
 
@@ -404,7 +427,7 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
                 phase === "burst" && "box-explode",
               )}
             >
-              <BoxIcon rarity={peakRarity} />
+              <BoxIcon rarity={peakRarity} lidFly={phase === "burst"} />
             </div>
             <p className="font-display text-2xl text-white drop-shadow-lg tracking-wide">
               {phase === "anticipation" && "Préparation..."}
@@ -473,11 +496,11 @@ function RarityBanner({ card }: { card: Card }) {
   );
 }
 
-function BoxIcon({ rarity }: { rarity: Rarity }) {
+function BoxIcon({ rarity, lidFly = false }: { rarity: Rarity; lidFly?: boolean }) {
   const theme = RARITY_THEME[rarity];
   return (
     <div className={cn("relative rounded-2xl", theme.glow)}>
-      <svg viewBox="0 0 120 120" className="w-44 h-44 drop-shadow-2xl">
+      <svg viewBox="0 0 120 120" className="w-44 h-44 drop-shadow-2xl overflow-visible">
         <defs>
           <linearGradient id="box-body" x1="0" y1="0" x2="0" y2="1">
             <stop offset="0%" stopColor="#fde047" />
@@ -494,13 +517,13 @@ function BoxIcon({ rarity }: { rarity: Rarity }) {
         <rect x="20" y="50" width="80" height="55" rx="6" fill="url(#box-body)" stroke="#000" strokeWidth="3" />
         {/* ribbon vertical body */}
         <rect x="55" y="50" width="10" height="55" fill="#ec4899" stroke="#000" strokeWidth="2" />
-        {/* lid */}
-        <rect x="15" y="38" width="90" height="18" rx="4" fill="url(#box-lid)" stroke="#000" strokeWidth="3" />
-        {/* ribbon vertical lid */}
-        <rect x="55" y="38" width="10" height="18" fill="#ec4899" stroke="#000" strokeWidth="2" />
-        {/* bow */}
-        <path d="M40 38 Q 50 18 60 38 Q 70 18 80 38 Z" fill="#ec4899" stroke="#000" strokeWidth="2.5" />
-        <circle cx="60" cy="38" r="4" fill="#fde047" stroke="#000" strokeWidth="2" />
+        {/* lid group — flies off during burst */}
+        <g className={lidFly ? "lid-fly" : ""}>
+          <rect x="15" y="38" width="90" height="18" rx="4" fill="url(#box-lid)" stroke="#000" strokeWidth="3" />
+          <rect x="55" y="38" width="10" height="18" fill="#ec4899" stroke="#000" strokeWidth="2" />
+          <path d="M40 38 Q 50 18 60 38 Q 70 18 80 38 Z" fill="#ec4899" stroke="#000" strokeWidth="2.5" />
+          <circle cx="60" cy="38" r="4" fill="#fde047" stroke="#000" strokeWidth="2" />
+        </g>
         {/* sparkles */}
         <g>
           <circle cx="20" cy="20" r="2" fill="#fff">

@@ -69,12 +69,19 @@ export function LootBoxCard() {
         <button
           onClick={open}
           disabled={opening}
-          className="block w-full card-paper p-4 mb-3 relative overflow-hidden text-left tilt-r hover:shadow-glow transition-all group"
+          className="block w-full card-paper p-4 mb-3 relative overflow-hidden text-left tilt-r hover:shadow-glow transition-all group active:scale-95"
         >
           <span className="tape" />
           <div className="flex items-center gap-3">
-            <div className={`h-14 w-14 rounded-xl gradient-primary flex items-center justify-center text-3xl shadow-glow ${opening ? "" : "loot-bounce"}`}>
-              {opening ? <Loader2 className="h-6 w-6 animate-spin text-primary-foreground" /> : "🎁"}
+            <div className="relative shrink-0">
+              <div className={`h-14 w-14 rounded-xl gradient-primary flex items-center justify-center text-3xl shadow-glow ${opening ? "" : "loot-bounce rainbow-glow-pulse"}`}>
+                {opening ? <Loader2 className="h-6 w-6 animate-spin text-primary-foreground" /> : "🎁"}
+              </div>
+              {!opening && (<>
+                <span className="float-sparkle absolute top-1 left-1 text-yellow-300 text-sm pointer-events-none leading-none" style={{ animationDelay: "0s" }}>✦</span>
+                <span className="float-sparkle absolute top-2 right-0 text-pink-300 text-xs pointer-events-none leading-none" style={{ animationDelay: "0.75s" }}>✦</span>
+                <span className="float-sparkle absolute bottom-1 left-3 text-purple-300 text-xs pointer-events-none leading-none" style={{ animationDelay: "1.4s" }}>✦</span>
+              </>)}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-serif text-lg leading-none flex items-center gap-1.5">
@@ -82,8 +89,8 @@ export function LootBoxCard() {
               </p>
               <p className="text-xs text-muted-foreground mt-1">XP, jetons, power-ups, cosmétiques…</p>
             </div>
-            <span className="font-mono-tag text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-primary/15 text-primary">
-              Ouvrir
+            <span className="dispo-pulse font-mono-tag text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-primary text-primary-foreground">
+              DISPO
             </span>
           </div>
         </button>
