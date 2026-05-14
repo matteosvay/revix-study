@@ -36,15 +36,14 @@ export function QuizBonusLootBoxCard() {
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("quiz_completed_count, quiz_loot_box_claimed_count")
+        .select("quiz_completed_count, quiz_loot_box_pending")
         .eq("id", user.id)
         .maybeSingle();
       if (error) throw error;
       const qc = (data as any)?.quiz_completed_count ?? 0;
-      const claimed = (data as any)?.quiz_loot_box_claimed_count ?? 0;
-      const eligible = Math.max(0, Math.floor(qc / 5) - claimed);
+      const pending = (data as any)?.quiz_loot_box_pending ?? 0;
       setQuizCount(qc);
-      setRemaining(eligible);
+      setRemaining(Math.max(0, pending));
     } catch {
       // En cas d'erreur, on affiche quand même le teaser (état neutre).
       setQuizCount(0);
