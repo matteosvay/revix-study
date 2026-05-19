@@ -33,6 +33,11 @@ import { XpOverlay } from "./components/revix/XpOverlay";
 import { InstallAppPrompt } from "./components/revix/InstallAppPrompt";
 import { ErrorBoundary } from "./components/revix/ErrorBoundary";
 import { AiLimitModal } from "./components/revix/AiLimitModal";
+import { CookieBanner } from "./components/revix/CookieBanner";
+import MentionsLegales from "./pages/legal/MentionsLegales";
+import PolitiqueConfidentialite from "./pages/legal/PolitiqueConfidentialite";
+import CGU from "./pages/legal/CGU";
+import CGV from "./pages/legal/CGV";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -62,6 +67,7 @@ const App = () => (
           <Sonner />
           <XpOverlay />
           <InstallAppPrompt />
+          <CookieBanner />
           <BrowserRouter>
             <AiLimitModal />
             <Routes>
@@ -87,6 +93,11 @@ const App = () => (
             <Route path="/app/profil" element={<RequireAuth><Profil /></RequireAuth>} />
             <Route path="/app/checkout/return" element={<RequireAuth><CheckoutReturn /></RequireAuth>} />
             <Route path="/admin/ai-usage" element={<RequireAdmin><AiUsage /></RequireAdmin>} />
+            {/* Pages légales — accessibles sans authentification */}
+            <Route path="/mentions-legales" element={<MentionsLegales />} />
+            <Route path="/confidentialite" element={<PolitiqueConfidentialite />} />
+            <Route path="/cgu" element={<CGU />} />
+            <Route path="/cgv" element={<CGV />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

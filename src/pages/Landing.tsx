@@ -281,15 +281,22 @@ export default function Landing() {
         <div className="container max-w-6xl">
           <div className="flex flex-col md:flex-row justify-between items-center gap-6">
             <Logo />
-            <nav className="flex flex-wrap gap-6 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-              <a href="#features" className="hover:text-foreground">Fonctionnalités</a>
-              <a href="#pricing" className="hover:text-foreground">Tarifs</a>
-              <a href="#faq" className="hover:text-foreground">FAQ</a>
-              <a href="#" className="hover:text-foreground">CGU</a>
-              <a href="#" className="hover:text-foreground">Confidentialité</a>
+            <nav className="flex flex-wrap gap-x-6 gap-y-2 text-xs font-bold uppercase tracking-wider text-muted-foreground justify-center">
+              <a href="#features" className="hover:text-foreground transition-colors">Fonctionnalités</a>
+              <a href="#pricing" className="hover:text-foreground transition-colors">Tarifs</a>
+              <a href="#faq" className="hover:text-foreground transition-colors">FAQ</a>
+              <Link to="/cgu" className="hover:text-foreground transition-colors">CGU</Link>
+              <Link to="/cgv" className="hover:text-foreground transition-colors">CGV</Link>
+              <Link to="/confidentialite" className="hover:text-foreground transition-colors">Confidentialité</Link>
+              <Link to="/mentions-legales" className="hover:text-foreground transition-colors">Mentions légales</Link>
             </nav>
             <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">
               Fait avec ❤️ en France 🇫🇷
+            </p>
+          </div>
+          <div className="mt-6 pt-6 border-t-[2px] border-foreground/10 text-center">
+            <p className="font-mono-tag text-[10px] text-muted-foreground uppercase tracking-wider">
+              © {new Date().getFullYear()} Revix — Matteo Svay, auto-entrepreneur · SIRET [À COMPLÉTER]
             </p>
           </div>
         </div>
