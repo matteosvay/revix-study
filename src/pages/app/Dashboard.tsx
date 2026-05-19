@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Flame, Plus, BookOpen, Brain, Calendar, Sparkles, ChevronRight, TrendingUp, Users, Target, Shirt } from "lucide-react";
+import { Flame, Plus, BookOpen, Brain, Calendar, Sparkles, ChevronRight, Users, Target, Shirt, School } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
@@ -70,15 +70,14 @@ export default function Dashboard() {
 
   const name = profile?.display_name?.split(" ")[0] ?? "toi";
 
-  const tiles = [
-    { to: "/app/upload", icon: Plus, label: "Nouveau cours", desc: "Upload un PDF ou photo", accent: true },
-    { to: "/app/fiches", icon: BookOpen, label: "Mes cours", desc: `${stats.courses} cours` },
-    { to: "/app/quizz", icon: Brain, label: "Quizz", desc: `Score moyen ${stats.avg}%` },
-    { to: "/app/revision", icon: Target, label: "Révisions ciblées", desc: "Heatmap & boss du jour" },
-    { to: "/app/cosmetics", icon: Shirt, label: "Cosmétiques", desc: "Cadres, stickers, titres" },
-    { to: "/app/aventure", icon: Sparkles, label: "Aventure", desc: levelTier ? `${levelTier.emoji} ${levelTier.name}` : "Quêtes & XP" },
+  // Tiles primaires — actions fréquentes, grille 2 colonnes
+  const primaryTiles = [
+    { to: "/app/upload", icon: Plus, label: "Nouveau cours", desc: "PDF ou photo", accent: true },
+    { to: "/app/revision", icon: Target, label: "Révisions", desc: "Heatmap & boss" },
     { to: "/app/planning", icon: Calendar, label: "Planning", desc: "Organise tes révisions" },
     { to: "/app/streak", icon: Flame, label: "Ma streak", desc: `${profile?.streak_days ?? 0}j d'affilée` },
+    { to: "/app/campus", icon: School, label: "Campus", desc: "Espace communauté" },
+    { to: "/app/cosmetics", icon: Shirt, label: "Cosmétiques", desc: "Cadres, stickers, titres" },
   ];
 
   return (
@@ -112,7 +111,7 @@ export default function Dashboard() {
 
         {/* XP / niveau bandeau */}
         {!dataLoading && gam && levelTier && xp && (
-          <Link to="/app/aventure" className="block card-paper p-4 relative mb-3 tilt-l hover:shadow-glow transition-shadow">
+          <Link to="/app/aventure" className="block card-paper p-4 relative mb-3 tap-press">
             <Tape variant="yellow" position="top-left" />
             <Pin color="purple" className="absolute top-2 right-3 decor-extra" />
             <div className="flex items-center gap-3">
@@ -133,7 +132,7 @@ export default function Dashboard() {
           </Link>
         )}
 
-        {!dataLoading && <Link to="/app/streak" className="block relative overflow-hidden rounded-md border-[2.5px] border-foreground gradient-hero p-5 text-primary-foreground shadow-brutal group hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-brutal-sm transition-all">
+        {!dataLoading && <Link to="/app/streak" className="block relative overflow-hidden rounded-md border-[2.5px] border-foreground gradient-hero p-5 text-primary-foreground shadow-brutal tap-press">
           <div className="relative flex items-center gap-3">
             <div className="h-14 w-14 rounded-md bg-card text-foreground border-[2.5px] border-foreground flex items-center justify-center shrink-0 shadow-[2px_2px_0_0_hsl(var(--foreground))]">
               <Flame className="h-7 w-7 wiggle" />
@@ -206,7 +205,7 @@ export default function Dashboard() {
                 <Link
                   key={g.id}
                   to="/app/groupes"
-                  className="flex items-center gap-3 rounded-md border-[2.5px] border-foreground bg-card p-2.5 shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+                  className="flex items-center gap-3 rounded-md border-[2.5px] border-foreground bg-card p-2.5 shadow-brutal-sm tap-press"
                 >
                   <div className="h-10 w-10 rounded-md border-[2px] border-foreground bg-secondary flex items-center justify-center text-xl shrink-0">
                     {g.emoji ?? "👥"}
@@ -239,20 +238,23 @@ export default function Dashboard() {
           </div>
         )}
 
-        <div className="mt-6 mb-2 px-1">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Raccourcis</p>
+        <div className="mt-6 mb-2.5 px-1 flex items-center justify-between">
+          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Accès rapide</p>
         </div>
-        <div className="space-y-1">
-          {tiles.map((t) => (
-            <Link key={t.to} to={t.to} className="flex items-center gap-3 px-2 py-3 min-h-[44px] rounded-xl notion-row group">
-              <div className={`h-10 w-10 rounded-xl flex items-center justify-center shrink-0 transition-transform group-hover:scale-105 ${t.accent ? "gradient-primary text-primary-foreground shadow-glow" : "bg-muted"}`}>
-                <t.icon className="h-4 w-4" />
+        <div className="grid grid-cols-2 gap-2.5">
+          {primaryTiles.map((t) => (
+            <Link
+              key={t.to}
+              to={t.to}
+              className={`tap-press flex items-center gap-2.5 rounded-xl border-[2.5px] border-foreground p-3 min-h-[60px] shadow-brutal-sm ${t.accent ? "gradient-primary text-primary-foreground" : "bg-card"}`}
+            >
+              <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${t.accent ? "bg-white/15 border border-white/20" : "bg-muted"}`}>
+                <t.icon className={`h-4 w-4 ${t.accent ? "text-primary-foreground" : ""}`} />
               </div>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium">{t.label}</p>
-                <p className="text-xs text-muted-foreground truncate">{t.desc}</p>
+                <p className={`text-sm font-bold leading-tight truncate ${t.accent ? "text-primary-foreground" : ""}`}>{t.label}</p>
+                <p className={`text-[11px] truncate mt-0.5 ${t.accent ? "text-primary-foreground/75" : "text-muted-foreground"}`}>{t.desc}</p>
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
             </Link>
           ))}
         </div>

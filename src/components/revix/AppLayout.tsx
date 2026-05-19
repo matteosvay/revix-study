@@ -10,14 +10,24 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Link } from "react-router-dom";
 
-const nav = [
+// Navigation complète — sidebar desktop
+const navAll = [
   { to: "/app", end: true, label: "Accueil", icon: Home },
   { to: "/app/fiches", label: "Cours", icon: BookOpen },
   { to: "/app/quizz", label: "Quizz", icon: Brain },
   { to: "/app/aventure", label: "Quêtes", icon: Map },
   { to: "/app/campus", label: "Campus", icon: School },
-  { to: "/app/planning", label: "Plan", icon: Calendar },
+  { to: "/app/planning", label: "Planning", icon: Calendar },
   { to: "/app/streak", label: "Streak", icon: Flame },
+  { to: "/app/profil", label: "Profil", icon: User },
+];
+
+// Bottom nav mobile — 5 items pour des tap targets confortables
+const nav = [
+  { to: "/app", end: true, label: "Accueil", icon: Home },
+  { to: "/app/fiches", label: "Cours", icon: BookOpen },
+  { to: "/app/quizz", label: "Quizz", icon: Brain },
+  { to: "/app/aventure", label: "Quêtes", icon: Map },
   { to: "/app/profil", label: "Profil", icon: User },
 ];
 
@@ -59,7 +69,7 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
         </div>
         <nav className="flex-1 overflow-y-auto px-3 py-5 space-y-1" aria-label="Navigation principale">
           <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground px-3 mb-2">Navigation</p>
-          {nav.map((n) => (
+          {navAll.map((n) => (
             <NavLink
               key={n.to}
               to={n.to}
@@ -118,7 +128,7 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
           </Link>
         </header>
 
-        <main id="main-content" className="flex-1 overflow-y-auto overscroll-contain pb-28 lg:pb-0" role="main">
+        <main id="main-content" className="flex-1 overflow-y-auto overscroll-contain pb-24 lg:pb-0" role="main">
           <div
             key={location.pathname}
             className={`route-transition lg:mx-auto lg:px-6 lg:py-6 ${wide ? "lg:max-w-[1400px]" : "lg:max-w-[1200px]"}`}
@@ -128,17 +138,17 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
         </main>
 
         <nav className="lg:hidden absolute bottom-0 inset-x-0 bg-card border-t-[3px] border-foreground z-50" aria-label="Navigation mobile">
-          <div className="grid grid-cols-8 px-1 pt-2 pb-2">
+          <div className="flex items-stretch justify-around px-2 pt-1.5 pb-1">
             {nav.map((n) => (
               <NavLink
                 key={n.to}
                 to={n.to}
                 end={n.end}
-                className="nav-postit-active tap-press flex flex-col items-center justify-center gap-0.5 py-1.5 min-h-[44px] rounded-md text-[9px] font-bold uppercase tracking-wider text-muted-foreground"
-                activeClassName="is-active"
+                className="nav-tab tap-press flex flex-col items-center justify-center gap-0.5 py-1.5 px-3 min-h-[52px] min-w-[56px] rounded-xl text-[11px] font-bold uppercase tracking-wide text-muted-foreground flex-1"
+                activeClassName="nav-tab-active"
               >
-                <n.icon className="h-[20px] w-[20px]" strokeWidth={2.5} />
-                <span className="nav-label">{n.label}</span>
+                <n.icon className="nav-tab-icon h-[22px] w-[22px]" strokeWidth={2} />
+                <span className="nav-tab-label">{n.label}</span>
               </NavLink>
             ))}
           </div>
