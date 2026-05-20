@@ -6,16 +6,35 @@
 
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
-export const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers":
-    "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version",
-};
+const ALLOWED_ORIGINS = [
+  "https://revix-study.lovable.app",
+  "http://localhost:5173",
+  "http://localhost:8080",
+  "http://localhost:3000",
+];
 
-export function jsonResponse(body: unknown, init: ResponseInit = {}) {
+function getAllowedOrigin(req: Request): string {
+  const origin = req.headers.get("Origin") ?? "";
+  return ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+}
+
+const CORS_HEADERS_NAMES =
+  "authorization, x-client-info, apikey, content-type, x-supabase-client-platform, x-supabase-client-platform-version, x-supabase-client-runtime, x-supabase-client-runtime-version";
+
+export function corsHeaders(req: Request): Record<string, string> {
+  return {
+    "Access-Control-Allow-Origin": getAllowedOrigin(req),
+    "Access-Control-Allow-Headers": CORS_HEADERS_NAMES,
+    "Access-Control-Allow-Methods": "POST, OPTIONS",
+    "Vary": "Origin",
+  };
+}
+
+export function jsonResponse(body: unknown, init: ResponseInit = {}, req?: Request) {
+  const cors = req ? corsHeaders(req) : { "Access-Control-Allow-Origin": ALLOWED_ORIGINS[0] };
   return new Response(JSON.stringify(body), {
     ...init,
-    headers: { ...corsHeaders, "Content-Type": "application/json", ...(init.headers ?? {}) },
+    headers: { ...cors, "Content-Type": "application/json", ...(init.headers ?? {}) },
   });
 }
 

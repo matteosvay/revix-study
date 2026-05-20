@@ -60,7 +60,7 @@ const PLAN_TOOL: ClaudeTool = {
 };
 
 Deno.serve(async (req: Request) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders(req) });
 
   try {
     const auth = await authenticate(req);

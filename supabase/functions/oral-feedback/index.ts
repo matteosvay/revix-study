@@ -3,7 +3,7 @@ import { authenticate, corsHeaders, enforceLimit, jsonResponse } from "../_share
 const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders(req) });
   try {
     const auth = await authenticate(req);
     if (!auth.ok) return auth.response;

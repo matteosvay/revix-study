@@ -46,7 +46,7 @@ const QUIZ_TOOL: ClaudeTool = {
 };
 
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders(req) });
   try {
     const auth = await authenticate(req);
     if (!auth.ok) return auth.response;

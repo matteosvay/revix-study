@@ -36,7 +36,7 @@ function detectMimeFromBase64(base64: string): string | null {
 // titre que les autres actions IA. On le compte sur le quota 'fiche' car c'est la
 // première étape du pipeline d'upload.
 Deno.serve(async (req) => {
-  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
+  if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders(req) });
   try {
     const auth = await authenticate(req);
     if (!auth.ok) return auth.response;

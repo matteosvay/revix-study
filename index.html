@@ -3,6 +3,25 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- Content Security Policy — defense in depth contre XSS -->
+    <meta http-equiv="Content-Security-Policy" content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline' 'unsafe-eval' https://js.stripe.com;
+      style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
+      font-src 'self' https://fonts.gstatic.com;
+      img-src 'self' data: blob: https: storage.googleapis.com;
+      connect-src 'self'
+        https://*.supabase.co wss://*.supabase.co
+        https://api.anthropic.com
+        https://api.stripe.com https://js.stripe.com
+        https://storage.googleapis.com;
+      frame-src https://js.stripe.com https://hooks.stripe.com;
+      object-src 'none';
+      base-uri 'self';
+      form-action 'self';
+    " />
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="Referrer-Policy" content="strict-origin-when-cross-origin" />
     <link rel="icon" type="image/png" href="/favicon.png">
     <title>Revix — Fiches, quizz et planning de révision IA pour étudiants</title>
     <meta name="description" content="L'app de révision n°1 des étudiants français : transforme tes PDF et photos de cours en fiches, quizz et plannings IA. Gratuit, BTS, Licence, Prépa.">
