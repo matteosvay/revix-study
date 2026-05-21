@@ -28,7 +28,7 @@ const navAll = [
 const nav = [
   { to: "/app", end: true, label: "Accueil", icon: Home },
   { to: "/app/fiches", label: "Cours", icon: BookOpen },
-  { to: "/app/flashcards", label: "Flashcards", icon: Layers },
+  { to: "/app/aventure", label: "Quêtes", icon: Map },
   { to: "/app/quizz", label: "Quizz", icon: Brain },
   { to: "/app/profil", label: "Profil", icon: User },
 ];
