@@ -3,7 +3,7 @@ import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Plus, LogIn, Users, Flame, Crown, Loader2, Copy, LogOut, Check, X } from "lucide-react";
+import { Plus, LogIn, Users, Flame, Crown, Loader2, Copy, LogOut, Check, X, Pencil, Trash2, UserMinus, Info } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -60,6 +60,10 @@ export default function StudyGroups() {
   const [openGroup, setOpenGroup] = useState<Group | null>(null);
   const [members, setMembers] = useState<Member[]>([]);
   const [loadingMembers, setLoadingMembers] = useState(false);
+  const [renameValue, setRenameValue] = useState("");
+  const [renaming, setRenaming] = useState(false);
+  const [dissolving, setDissolving] = useState(false);
+  const [kicking, setKicking] = useState<string | null>(null);
 
   const load = async () => {
     if (!user) return;
@@ -84,10 +88,44 @@ export default function StudyGroups() {
 
   const loadMembers = async (g: Group) => {
     setOpenGroup(g);
+    setRenameValue(g.name);
     setLoadingMembers(true);
     const { data } = await supabase.rpc("get_group_members", { p_group_id: g.id });
     setMembers((data ?? []) as Member[]);
     setLoadingMembers(false);
+  };
+
+  const renameGroup = async () => {
+    if (!openGroup || !renameValue.trim()) return;
+    setRenaming(true);
+    const { error } = await supabase.from("study_groups").update({ name: renameValue.trim() }).eq("id", openGroup.id);
+    setRenaming(false);
+    if (error) { toast.error(error.message); return; }
+    setOpenGroup({ ...openGroup, name: renameValue.trim() });
+    toast.success("Groupe renommé");
+    load();
+  };
+
+  const dissolveGroup = async () => {
+    if (!openGroup || !confirm(`Dissoudre "${openGroup.name}" ? Tous les membres seront exclus.`)) return;
+    setDissolving(true);
+    const { error } = await supabase.from("study_groups").delete().eq("id", openGroup.id);
+    setDissolving(false);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Groupe dissous");
+    setOpenGroup(null);
+    load();
+  };
+
+  const kickMember = async (userId: string) => {
+    if (!openGroup) return;
+    setKicking(userId);
+    const { error } = await supabase.from("study_group_members").delete().eq("group_id", openGroup.id).eq("user_id", userId);
+    setKicking(null);
+    if (error) { toast.error(error.message); return; }
+    setMembers(prev => prev.filter(m => m.user_id !== userId));
+    setOpenGroup({ ...openGroup, member_count: openGroup.member_count - 1 });
+    toast.success("Membre exclu");
   };
 
   const submitCreate = async () => {
@@ -178,7 +216,7 @@ export default function StudyGroups() {
                 </div>
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
-                    <span>Aujourd'hui</span>
+                    <span className="flex items-center gap-1">Contribution <span className="font-normal normal-case text-muted-foreground">(1 quiz = ✓)</span></span>
                     <span className={g.all_contributed_today ? "text-success" : "text-muted-foreground"}>
                       {g.contributed_today}/{g.member_count}
                     </span>
@@ -234,7 +272,7 @@ export default function StudyGroups() {
 
       {/* MEMBER DETAIL */}
       <Dialog open={!!openGroup} onOpenChange={(o) => !o && setOpenGroup(null)}>
-        <DialogContent>
+        <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>{openGroup?.emoji} {openGroup?.name}</DialogTitle>
             <DialogDescription>
@@ -250,46 +288,75 @@ export default function StudyGroups() {
               </Button>
             </div>
 
+            {/* Contribution info */}
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-primary/5 border border-primary/20">
+              <Info className="h-3 w-3 text-primary shrink-0" />
+              <p className="text-[10px] text-muted-foreground">
+                <span className="font-semibold text-foreground">Contribution</span> = terminer au moins 1 quizz aujourd'hui. ✅ = contribué, — = pas encore.
+              </p>
+            </div>
+
+            {/* Owner : rename */}
+            {openGroup?.is_owner && (
+              <div className="flex items-center gap-2">
+                <Input value={renameValue} onChange={e => setRenameValue(e.target.value)} placeholder="Nouveau nom" className="h-8 text-sm flex-1" maxLength={40} />
+                <Button size="sm" onClick={renameGroup} disabled={renaming || renameValue.trim() === openGroup.name} className="h-8 px-3 rounded border-2 border-foreground font-bold shrink-0">
+                  {renaming ? <Loader2 className="h-3 w-3 animate-spin" /> : <Pencil className="h-3 w-3" />}
+                </Button>
+              </div>
+            )}
+
             {loadingMembers ? (
               <div className="text-center py-6"><Loader2 className="h-5 w-5 mx-auto animate-spin" /></div>
             ) : (
-              <div className="space-y-1 max-h-64 overflow-y-auto">
+              <div className="space-y-1 max-h-56 overflow-y-auto">
                 {members.map((m) => (
-                  <Link key={m.user_id} to={m.user_id === user?.id ? "/app/profil" : `/app/u/${m.user_id}`} className="flex items-center gap-2 p-2 bg-card border border-foreground/30 rounded-md hover:bg-secondary/40 transition-colors">
-                    <CosmeticAvatar
-                      fallback={initials(m.display_name)}
-                      avatarUrl={m.avatar_url}
-                      frame={m.equipped_frame}
-                      sticker={m.sticker_emoji}
-                      size="sm"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <p className="text-xs font-bold truncate flex items-center gap-1">
-                        {m.display_name ?? "—"}
-                        {m.role === "owner" && <Crown className="h-3 w-3 text-accent" />}
-                      </p>
-                      <TitleBadge
-                        itemKey={m.equipped_title}
-                        name={m.title_name}
-                        emoji={m.title_emoji}
-                        rarity={m.title_rarity ?? "common"}
-                        size="text-[9px]"
+                  <div key={m.user_id} className="flex items-center gap-2 p-2 bg-card border border-foreground/30 rounded-md">
+                    <Link to={m.user_id === user?.id ? "/app/profil" : `/app/u/${m.user_id}`} className="flex items-center gap-2 flex-1 min-w-0">
+                      <CosmeticAvatar
+                        fallback={initials(m.display_name)}
+                        avatarUrl={m.avatar_url}
+                        frame={m.equipped_frame}
+                        sticker={m.sticker_emoji}
+                        size="sm"
                       />
-                      <p className="text-[9px] text-muted-foreground">N{m.level} · {m.xp_today} XP today</p>
-                    </div>
-                    {m.contributed_today ? (
-                      <Check className="h-4 w-4 text-success" />
-                    ) : (
-                      <X className="h-4 w-4 text-muted-foreground" />
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-bold truncate flex items-center gap-1">
+                          {m.display_name ?? "—"}
+                          {m.role === "owner" && <Crown className="h-3 w-3 text-accent" />}
+                        </p>
+                        <p className="text-[9px] text-muted-foreground">N{m.level} · {m.xp_today} XP aujourd'hui</p>
+                      </div>
+                      {m.contributed_today ? (
+                        <Check className="h-4 w-4 text-success shrink-0" />
+                      ) : (
+                        <span className="text-[10px] text-muted-foreground shrink-0">—</span>
+                      )}
+                    </Link>
+                    {openGroup?.is_owner && m.role !== "owner" && (
+                      <button
+                        onClick={() => kickMember(m.user_id)}
+                        disabled={kicking === m.user_id}
+                        className="h-7 w-7 rounded flex items-center justify-center text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition shrink-0"
+                        title="Exclure"
+                      >
+                        {kicking === m.user_id ? <Loader2 className="h-3 w-3 animate-spin" /> : <UserMinus className="h-3 w-3" />}
+                      </button>
                     )}
-                  </Link>
+                  </div>
                 ))}
               </div>
             )}
 
-            <Button onClick={() => openGroup && leave(openGroup)} variant="outline" className="w-full rounded-md border-2 border-destructive text-destructive font-bold">
-              <LogOut className="h-3 w-3 mr-1" /> Quitter le groupe
-            </Button>
+            {openGroup?.is_owner ? (
+              <Button onClick={dissolveGroup} disabled={dissolving} variant="outline" className="w-full rounded-md border-2 border-destructive text-destructive font-bold">
+                {dissolving ? <Loader2 className="h-3 w-3 mr-1 animate-spin" /> : <Trash2 className="h-3 w-3 mr-1" />} Dissoudre le groupe
+              </Button>
+            ) : (
+              <Button onClick={() => openGroup && leave(openGroup)} variant="outline" className="w-full rounded-md border-2 border-destructive text-destructive font-bold">
+                <LogOut className="h-3 w-3 mr-1" /> Quitter le groupe
+              </Button>
+            )}
           </div>
         </DialogContent>
       </Dialog>

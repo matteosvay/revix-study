@@ -304,6 +304,12 @@ export default function Streak() {
                 {prestige.next && ` Encore ${prestige.next.days - profile.streak_days}j pour ${prestige.next.name}.`}
               </DialogDescription>
             </DialogHeader>
+            <div className="rounded-xl border-2 border-foreground bg-muted/30 p-3 mb-4 text-sm">
+              <p className="font-semibold mb-1">C'est quoi un prestige ?</p>
+              <p className="text-xs text-muted-foreground leading-relaxed">
+                Les prestiges sont des titres symboliques débloqués automatiquement selon ta streak. Ils n'affectent pas le gameplay — c'est juste la reconnaissance de ta régularité. Plus tu tiens, plus ton titre est rare. Tu ne peux pas les perdre une fois débloqués.
+              </p>
+            </div>
             <ol className="space-y-2">
               {STREAK_PRESTIGES.map((p) => {
                 const reached = profile.streak_days >= p.days;

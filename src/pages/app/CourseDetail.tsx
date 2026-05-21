@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Brain, Trash2, Loader2, ListChecks, CheckSquare, ToggleLeft, ArrowDownUp, Link2, Sparkles, Layers } from "lucide-react";
+import { Brain, Trash2, Loader2, ListChecks, CheckSquare, ToggleLeft, ArrowDownUp, Link2, Sparkles, Layers, FileDown } from "lucide-react";
 import { BackButton } from "@/components/revix/BackButton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -169,6 +169,40 @@ export default function CourseDetail() {
     finally { setCreatingQuiz(false); }
   };
 
+  const exportPdf = () => {
+    if (!course) return;
+    const summary = course.summary;
+    const sections = summary?.sections ?? [];
+    const lines: string[] = [];
+    if (summary?.intro) lines.push(`<p class="intro">${summary.intro}</p>`);
+    sections.forEach(s => {
+      if (s.title) lines.push(`<h2>${s.title}</h2>`);
+      (s.blocks ?? []).forEach((b: any) => {
+        if (b.kind === "paragraph" && b.text) lines.push(`<p>${b.text}</p>`);
+        else if (b.kind === "definition") lines.push(`<p><strong>${b.term ?? ""}</strong>${b.term && b.text ? " — " : ""}${b.text ?? ""}</p>`);
+        else if (b.kind === "key_point" && b.text) lines.push(`<p>⭐ ${b.text}</p>`);
+        else if (b.kind === "example" && b.text) lines.push(`<p><em>Exemple : ${b.text}</em></p>`);
+        else if (b.kind === "tip" && b.text) lines.push(`<p>💡 ${b.text}</p>`);
+        else if (b.kind === "list" && Array.isArray(b.items)) lines.push(`<ul>${b.items.map((i: string) => `<li>${i}</li>`).join("")}</ul>`);
+      });
+    });
+    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${course.title}</title><style>
+      body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 24px;color:#111;line-height:1.6}
+      h1{font-size:2rem;margin-bottom:4px}h2{font-size:1.2rem;margin-top:2rem;border-bottom:2px solid #000;padding-bottom:4px}
+      p{margin:.6rem 0}ul{padding-left:1.4rem}li{margin:.3rem 0}.intro{font-style:italic;color:#444}
+      @media print{body{margin:0}}
+    </style></head><body>
+      <h1>${course.emoji ?? "📘"} ${course.title}</h1>
+      <p style="color:#666;font-size:.85rem;margin-bottom:1.5rem">${course.subject ?? ""} · Généré par Revix</p>
+      ${lines.join("\n")}
+    </body></html>`;
+    const w = window.open("", "_blank");
+    if (!w) return;
+    w.document.write(html);
+    w.document.close();
+    w.print();
+  };
+
   const remove = async () => {
     await supabase.from("courses").delete().eq("id", id!);
     nav("/app/fiches");
@@ -181,6 +215,11 @@ export default function CourseDetail() {
       <div className="flex items-center gap-1 pr-3">
         <BackButton fallback="/app/fiches" />
         <div className="flex-1" />
+        {course.summary && (
+          <Button variant="ghost" size="icon" className="rounded-full mt-4" onClick={exportPdf} title="Exporter PDF">
+            <FileDown className="h-4 w-4" />
+          </Button>
+        )}
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="ghost" size="icon" className="rounded-full text-destructive mt-4">

@@ -24,6 +24,7 @@ import Revision from "./pages/app/Revision";
 import StudyGroups from "./pages/app/StudyGroups";
 import Cosmetics from "./pages/app/Cosmetics";
 import Flashcards from "./pages/app/Flashcards";
+import Stats from "./pages/app/Stats";
 import PublicProfile from "./pages/app/PublicProfile";
 import AiUsage from "./pages/admin/AiUsage";
 import CheckoutReturn from "./pages/app/CheckoutReturn";
@@ -83,6 +84,7 @@ const App = () => (
             <Route path="/app/quizz" element={<RequireAuth><Quizz /></RequireAuth>} />
             <Route path="/app/revision" element={<RequireAuth><Revision /></RequireAuth>} />
             <Route path="/app/flashcards" element={<RequireAuth><Flashcards /></RequireAuth>} />
+            <Route path="/app/stats" element={<RequireAuth><Stats /></RequireAuth>} />
             <Route path="/app/planning" element={<RequireAuth><Planning /></RequireAuth>} />
             <Route path="/app/streak" element={<RequireAuth><Streak /></RequireAuth>} />
             <Route path="/app/aventure" element={<RequireAuth><Aventure /></RequireAuth>} />

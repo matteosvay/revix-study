@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Flame, Plus, BookOpen, Brain, Calendar, Sparkles, ChevronRight, Users, Target, Shirt, School, Layers, ArrowRight } from "lucide-react";
+import { Flame, Plus, BookOpen, Brain, Calendar, Sparkles, ChevronRight, Users, Target, School, Layers, ArrowRight, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
@@ -85,8 +85,8 @@ export default function Dashboard() {
     { to: "/app/revision", icon: Target, label: "Révisions", desc: "Heatmap & boss" },
     { to: "/app/planning", icon: Calendar, label: "Planning", desc: "Organise tes révisions" },
     { to: "/app/streak", icon: Flame, label: "Ma streak", desc: `${profile?.streak_days ?? 0}j d'affilée` },
+    { to: "/app/stats", icon: TrendingUp, label: "Mes stats", desc: "Score & progression" },
     { to: "/app/campus", icon: School, label: "Campus", desc: "Espace communauté" },
-    { to: "/app/cosmetics", icon: Shirt, label: "Cosmétiques", desc: "Cadres, stickers, titres" },
   ];
 
   return (
