@@ -145,7 +145,7 @@ export default function Flashcards() {
     });
 
     // Persist SM-2 update
-    await supabase.from("flashcards" as any).update({
+    await (supabase as any).from("flashcards").update({
       ease: next.ease,
       interval_days: next.intervalDays,
       repetitions: next.repetitions,
