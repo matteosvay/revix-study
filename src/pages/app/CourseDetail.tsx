@@ -62,7 +62,7 @@ export default function CourseDetail() {
   useEffect(() => {
     if (!course || !user) return;
     supabase
-      .from("flashcards")
+      .from("flashcards" as any)
       .select("id", { count: "exact", head: true })
       .eq("course_id", course.id)
       .eq("user_id", user.id)

@@ -67,7 +67,7 @@ export default function Flashcards() {
       const deckList: Deck[] = [];
       for (const c of courses) {
         const { count: total } = await supabase
-          .from("flashcards")
+          .from("flashcards" as any)
           .select("id", { count: "exact", head: true })
           .eq("course_id", c.id)
           .eq("user_id", user.id);
@@ -76,7 +76,7 @@ export default function Flashcards() {
 
         const today = new Date().toISOString().slice(0, 10);
         const { count: due } = await supabase
-          .from("flashcards")
+          .from("flashcards" as any)
           .select("id", { count: "exact", head: true })
           .eq("course_id", c.id)
           .eq("user_id", user.id)
@@ -113,7 +113,7 @@ export default function Flashcards() {
     setActiveDeck(deck);
     const today = new Date().toISOString().slice(0, 10);
     const { data } = await supabase
-      .from("flashcards")
+      .from("flashcards" as any)
       .select("*")
       .eq("course_id", deck.course_id)
       .eq("user_id", user.id)
@@ -145,7 +145,7 @@ export default function Flashcards() {
     });
 
     // Persist SM-2 update
-    await supabase.from("flashcards").update({
+    await supabase.from("flashcards" as any).update({
       ease: next.ease,
       interval_days: next.intervalDays,
       repetitions: next.repetitions,

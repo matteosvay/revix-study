@@ -60,7 +60,7 @@ export default function Dashboard() {
         // Due flashcards (null = new cards = due immediately)
         const today = new Date().toISOString().slice(0, 10);
         const { count: dc } = await supabase
-          .from("flashcards")
+          .from("flashcards" as any)
           .select("id", { count: "exact", head: true })
           .eq("user_id", user.id)
           .or(`due_at.is.null,due_at.lte.${today}`);
