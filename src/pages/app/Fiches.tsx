@@ -34,6 +34,8 @@ function norm(s: string) {
   return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 }
 
+const PAGE_SIZE = 12;
+
 export default function Fiches() {
   const { user } = useAuth();
   const [courses, setCourses] = useState<CourseRow[]>([]);
@@ -42,6 +44,8 @@ export default function Fiches() {
   const [toDelete, setToDelete] = useState<CourseRow | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [toShare, setToShare] = useState<CourseRow | null>(null);
+  const [subjectFilter, setSubjectFilter] = useState<string | null>(null);
+  const [page, setPage] = useState(1);
 
   useEffect(() => {
     if (!user) return;
@@ -56,32 +60,45 @@ export default function Fiches() {
     })();
   }, [user]);
 
-  // Mémoïsation : on évite de re-parser tous les résumés à chaque render
-  // (sinon chaque keystroke ré-analyse tout le texte de tous les cours).
-  const results = useMemo(() => {
-    const q = norm(search.trim());
-    if (!q) {
-      return courses.map(c => ({ course: c, chapters: [] as string[], titleMatch: true }));
+  const subjects = useMemo(() => {
+    const seen = new Set<string>();
+    const out: string[] = [];
+    for (const c of courses) {
+      if (c.subject && !seen.has(c.subject)) { seen.add(c.subject); out.push(c.subject); }
     }
+    return out.sort();
+  }, [courses]);
+
+  const filtered = useMemo(() => {
+    const q = norm(search.trim());
     return courses
+      .filter(c => !subjectFilter || c.subject === subjectFilter)
       .map(c => {
-        const titleMatch = norm(c.title).includes(q) || norm(c.subject ?? "").includes(q);
+        const titleMatch = !q || norm(c.title).includes(q) || norm(c.subject ?? "").includes(q);
         const sections = c.summary?.sections ?? [];
         const chapterHits: string[] = [];
-        for (const s of sections) {
-          const title = s.title ?? "";
-          const body = (s.blocks ?? []).map(blockText).join(" ");
-          if (norm(title).includes(q) || norm(body).includes(q)) {
-            if (title) chapterHits.push(title);
+        if (q) {
+          for (const s of sections) {
+            const title = s.title ?? "";
+            const body = (s.blocks ?? []).map(blockText).join(" ");
+            if (norm(title).includes(q) || norm(body).includes(q)) {
+              if (title) chapterHits.push(title);
+            }
           }
         }
-        if (titleMatch || chapterHits.length) {
+        if (!q || titleMatch || chapterHits.length) {
           return { course: c, chapters: chapterHits.slice(0, 4), titleMatch };
         }
         return null;
       })
       .filter((r): r is { course: CourseRow; chapters: string[]; titleMatch: boolean } => !!r);
-  }, [courses, search]);
+  }, [courses, search, subjectFilter]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const results = filtered.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
+  const applyFilter = (s: string | null) => { setSubjectFilter(s); setPage(1); };
+  const applySearch = (v: string) => { setSearch(v); setPage(1); };
 
   const removeCourse = async () => {
     if (!toDelete) return;
@@ -99,7 +116,7 @@ export default function Fiches() {
       <PageHeader
         emoji="📚"
         title="Mes cours"
-        subtitle={`${courses.length} cours`}
+        subtitle={subjectFilter ? `${filtered.length} cours · ${subjectFilter}` : `${courses.length} cours`}
         action={
           <Button asChild size="sm" className="rounded-full gradient-primary border-0">
             <Link to="/app/upload"><Plus className="h-4 w-4" /></Link>
@@ -107,18 +124,18 @@ export default function Fiches() {
         }
       />
 
-      <div className="px-5 mb-3">
+      <div className="px-5 mb-3 space-y-2">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
             value={search}
-            onChange={(e) => setSearch(e.target.value)}
+            onChange={(e) => applySearch(e.target.value)}
             placeholder="Rechercher un cours, chapitre ou mot-clé…"
             className="pl-9 pr-9 bg-muted/50 border-0"
           />
           {search && (
             <button
-              onClick={() => setSearch("")}
+              onClick={() => applySearch("")}
               aria-label="Effacer la recherche"
               className="absolute right-2 top-1/2 -translate-y-1/2 h-6 w-6 rounded-full flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-muted transition"
             >
@@ -126,9 +143,28 @@ export default function Fiches() {
             </button>
           )}
         </div>
-        {search.trim() && (
-          <p className="text-[11px] text-muted-foreground mt-1.5 px-1 font-mono-tag uppercase tracking-wider">
-            {results.length} résultat{results.length > 1 ? "s" : ""}
+        {subjects.length > 0 && (
+          <div className="flex gap-1.5 flex-wrap">
+            <button
+              onClick={() => applyFilter(null)}
+              className={`text-[11px] px-2.5 py-1 rounded-full border font-semibold transition ${!subjectFilter ? "border-foreground bg-foreground text-background" : "border-border text-muted-foreground hover:border-foreground"}`}
+            >
+              Tous
+            </button>
+            {subjects.map(s => (
+              <button
+                key={s}
+                onClick={() => applyFilter(subjectFilter === s ? null : s)}
+                className={`text-[11px] px-2.5 py-1 rounded-full border font-semibold transition ${subjectFilter === s ? "border-foreground bg-foreground text-background" : "border-border text-muted-foreground hover:border-foreground"}`}
+              >
+                {s}
+              </button>
+            ))}
+          </div>
+        )}
+        {(search.trim() || subjectFilter) && (
+          <p className="text-[11px] text-muted-foreground px-1 font-mono-tag uppercase tracking-wider">
+            {filtered.length} résultat{filtered.length > 1 ? "s" : ""}
           </p>
         )}
       </div>
@@ -161,7 +197,7 @@ export default function Fiches() {
           </div>
         </div>
       ) : (
-        <div className="px-4 space-y-3 pb-4 stagger-in">
+        <div className="px-4 space-y-3 stagger-in">
           {results.map((r, i) => {
             const c = r.course;
             const tape = i % 3 === 0 ? "yellow" : i % 3 === 1 ? "pink" : "mint";
@@ -214,6 +250,25 @@ export default function Fiches() {
               </div>
             );
           })}
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-2 py-4">
+              <button
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="h-8 w-8 rounded-lg border-2 border-foreground flex items-center justify-center font-bold text-sm disabled:opacity-30 shadow-brutal-sm tap-press"
+              >
+                ‹
+              </button>
+              <span className="text-sm font-mono font-semibold px-2">{page} / {totalPages}</span>
+              <button
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="h-8 w-8 rounded-lg border-2 border-foreground flex items-center justify-center font-bold text-sm disabled:opacity-30 shadow-brutal-sm tap-press"
+              >
+                ›
+              </button>
+            </div>
+          )}
         </div>
       )}
 

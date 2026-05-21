@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
-import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles, BarChart3 } from "lucide-react";
+import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles, BarChart3, Layers } from "lucide-react";
 import { ScribbleUnderline } from "./Scribble";
 import { Logo } from "./Logo";
 import { NotificationBell } from "./NotificationBell";
@@ -9,12 +9,14 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Link } from "react-router-dom";
+import { CoachFab } from "./CoachFab";
 
 // Navigation complète — sidebar desktop
 const navAll = [
   { to: "/app", end: true, label: "Accueil", icon: Home },
   { to: "/app/fiches", label: "Cours", icon: BookOpen },
   { to: "/app/quizz", label: "Quizz", icon: Brain },
+  { to: "/app/flashcards", label: "Flashcards", icon: Layers },
   { to: "/app/aventure", label: "Quêtes", icon: Map },
   { to: "/app/campus", label: "Campus", icon: School },
   { to: "/app/planning", label: "Planning", icon: Calendar },
@@ -26,8 +28,8 @@ const navAll = [
 const nav = [
   { to: "/app", end: true, label: "Accueil", icon: Home },
   { to: "/app/fiches", label: "Cours", icon: BookOpen },
+  { to: "/app/flashcards", label: "Flashcards", icon: Layers },
   { to: "/app/quizz", label: "Quizz", icon: Brain },
-  { to: "/app/aventure", label: "Quêtes", icon: Map },
   { to: "/app/profil", label: "Profil", icon: User },
 ];
 
@@ -137,6 +139,7 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
           </div>
         </main>
 
+        <CoachFab />
         <nav className="lg:hidden absolute bottom-0 inset-x-0 bg-card border-t-[3px] border-foreground z-50" aria-label="Navigation mobile">
           <div className="flex items-stretch justify-around px-2 pt-1.5 pb-1">
             {nav.map((n) => (

@@ -37,7 +37,7 @@ const plans = [
     name: "Max",
     price: "8,99 €",
     period: "/mois TTC",
-    features: ["30 quizz IA / jour", "50 messages coach / jour", "3 fiches IA / jour", "Planning IA illimité", "Mode Oral 🎤"],
+    features: ["30 quizz IA / jour", "50 messages coach / jour", "3 fiches IA / jour", "Planning IA illimité", "Flashcards illimitées"],
     cta: "Devenir Max",
     highlighted: false,
   },

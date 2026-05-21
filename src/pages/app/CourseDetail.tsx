@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Brain, Trash2, Loader2, ListChecks, CheckSquare, ToggleLeft, ArrowDownUp, Link2, Sparkles } from "lucide-react";
+import { Brain, Trash2, Loader2, ListChecks, CheckSquare, ToggleLeft, ArrowDownUp, Link2, Sparkles, Layers } from "lucide-react";
 import { BackButton } from "@/components/revix/BackButton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -41,6 +41,8 @@ export default function CourseDetail() {
   const [quizType, setQuizType] = useState<string>("qcm");
   const [quizCount, setQuizCount] = useState<number>(10);
   const [quizDifficulty, setQuizDifficulty] = useState<string>("mixte");
+  const [generatingFlashcards, setGeneratingFlashcards] = useState(false);
+  const [flashcardCount, setFlashcardCount] = useState(0);
 
   useEffect(() => {
     if (!user) return;
@@ -56,6 +58,31 @@ export default function CourseDetail() {
     })();
     return () => { active = false; };
   }, [id, user]);
+
+  useEffect(() => {
+    if (!course || !user) return;
+    supabase
+      .from("flashcards")
+      .select("id", { count: "exact", head: true })
+      .eq("course_id", course.id)
+      .eq("user_id", user.id)
+      .then(({ count }) => setFlashcardCount(count ?? 0));
+  }, [course, user]);
+
+  const generateFlashcards = async () => {
+    if (!course?.source_content) { toast.error("Contenu source indisponible."); return; }
+    setGeneratingFlashcards(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("generate-flashcards", {
+        body: { content: course.source_content, subject: course.subject, title: course.title, courseId: course.id, count: 15 },
+      });
+      if (error) throw error;
+      setFlashcardCount(data?.count ?? 0);
+      toast.success(`${data?.count ?? 0} flashcards générées ✨`);
+      nav(`/app/flashcards?deck=${course.id}`);
+    } catch (e: any) { toast.error(e?.message ?? "Erreur"); }
+    finally { setGeneratingFlashcards(false); }
+  };
 
   const generateQuiz = async (chapterFilter?: string) => {
     if (!course?.source_content) { toast.error("Contenu source indisponible."); return; }
@@ -174,6 +201,21 @@ export default function CourseDetail() {
         ) : (
           <p className="text-sm text-muted-foreground">Aucun résumé pour ce cours.</p>
         )}
+
+        <Button
+          onClick={generateFlashcards}
+          disabled={generatingFlashcards}
+          variant="outline"
+          className="w-full mt-4 rounded-full h-12 border-2 border-foreground shadow-brutal-sm font-semibold"
+        >
+          {generatingFlashcards ? (
+            <><Loader2 className="h-4 w-4 mr-2 animate-spin" /> Génération...</>
+          ) : flashcardCount > 0 ? (
+            <><Layers className="h-4 w-4 mr-2" /> Flashcards ({flashcardCount} cartes)</>
+          ) : (
+            <><Layers className="h-4 w-4 mr-2" /> Générer des flashcards</>
+          )}
+        </Button>
 
         <Sheet open={quizSheetOpen} onOpenChange={setQuizSheetOpen}>
           <SheetTrigger asChild>
