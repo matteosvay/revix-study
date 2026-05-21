@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Flame, Plus, BookOpen, Brain, Calendar, Sparkles, ChevronRight, Users, Target, School, Layers, ArrowRight, TrendingUp } from "lucide-react";
+import { Flame, Plus, BookOpen, Brain, Calendar, Sparkles, ChevronRight, Users, Target, School, ArrowRight, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
@@ -34,7 +34,6 @@ export default function Dashboard() {
   const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
   const [groups, setGroups] = useState<GroupRow[]>([]);
   const [dataLoading, setDataLoading] = useState(true);
-  const [dueCards, setDueCards] = useState(0);
   const { profile: gam, levelTier, xp } = useGamification();
   useFomoChecks();
 
@@ -57,14 +56,6 @@ export default function Dashboard() {
           : 0;
         setStats({ courses: cc ?? 0, quizzes: qc ?? 0, avg });
         setGroups(((gs as any[]) ?? []).slice(0, 3));
-        // Due flashcards (null = new cards = due immediately)
-        const today = new Date().toISOString().slice(0, 10);
-        const { count: dc } = await (supabase as any)
-          .from("flashcards")
-          .select("id", { count: "exact", head: true })
-          .eq("user_id", user.id)
-          .or(`due_at.is.null,due_at.lte.${today}`);
-        if (active) setDueCards(dc ?? 0);
       } catch {
         if (!active) return;
         setProfile(null);
@@ -102,7 +93,7 @@ export default function Dashboard() {
         {/* Focus du jour */}
         {!dataLoading && (
           <Link
-            to={dueCards > 0 ? "/app/flashcards" : stats.courses > 0 ? "/app/quizz" : "/app/upload"}
+            to={stats.courses > 0 ? "/app/quizz" : "/app/upload"}
             className="block mb-4 rounded-2xl border-[2.5px] border-foreground bg-card shadow-brutal tap-press overflow-hidden"
           >
             <div className="gradient-primary px-4 py-2.5 flex items-center justify-between">
@@ -111,14 +102,14 @@ export default function Dashboard() {
             </div>
             <div className="px-4 py-3 flex items-center gap-3">
               <div className="h-11 w-11 rounded-xl gradient-primary flex items-center justify-center shrink-0 border-2 border-foreground shadow-[2px_2px_0_0_hsl(var(--foreground))]">
-                {dueCards > 0 ? <Layers className="h-5 w-5 text-primary-foreground" /> : stats.courses > 0 ? <Brain className="h-5 w-5 text-primary-foreground" /> : <Plus className="h-5 w-5 text-primary-foreground" />}
+                {stats.courses > 0 ? <Brain className="h-5 w-5 text-primary-foreground" /> : <Plus className="h-5 w-5 text-primary-foreground" />}
               </div>
               <div>
                 <p className="font-bold text-base leading-tight">
-                  {dueCards > 0 ? `${dueCards} flashcard${dueCards > 1 ? "s" : ""} à réviser` : stats.courses > 0 ? "Lance un quizz" : "Ajoute ton premier cours"}
+                  {stats.courses > 0 ? "Lance un quizz" : "Ajoute ton premier cours"}
                 </p>
                 <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {dueCards > 0 ? "Répétition espacée — 5 min suffisent" : stats.courses > 0 ? "Teste-toi sur tes cours" : "Upload un PDF ou une photo"}
+                  {stats.courses > 0 ? "Teste-toi sur tes cours" : "Upload un PDF ou une photo"}
                 </p>
               </div>
             </div>

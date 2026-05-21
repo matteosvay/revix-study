@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
-import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles, BarChart3, Layers, TrendingUp } from "lucide-react";
+import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles, BarChart3, TrendingUp } from "lucide-react";
 import { ScribbleUnderline } from "./Scribble";
 import { Logo } from "./Logo";
 import { NotificationBell } from "./NotificationBell";
@@ -16,7 +16,6 @@ const navAll = [
   { to: "/app", end: true, label: "Accueil", icon: Home },
   { to: "/app/fiches", label: "Cours", icon: BookOpen },
   { to: "/app/quizz", label: "Quizz", icon: Brain },
-  { to: "/app/flashcards", label: "Flashcards", icon: Layers },
   { to: "/app/aventure", label: "Quêtes", icon: Map },
   { to: "/app/stats", label: "Stats", icon: TrendingUp },
   { to: "/app/campus", label: "Campus", icon: School },

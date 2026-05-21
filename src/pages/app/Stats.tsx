@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Layers, Brain, BookOpen, TrendingUp } from "lucide-react";
+import { Brain, BookOpen, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
 
 type Attempt = { score: number; total: number; created_at: string };
@@ -12,8 +12,6 @@ export default function Stats() {
   const { user } = useAuth();
   const [attempts, setAttempts] = useState<Attempt[]>([]);
   const [subjects, setSubjects] = useState<SubjectStat[]>([]);
-  const [flashTotal, setFlashTotal] = useState(0);
-  const [flashDue, setFlashDue] = useState(0);
   const [totalQuizzes, setTotalQuizzes] = useState(0);
   const [totalCourses, setTotalCourses] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -21,26 +19,19 @@ export default function Stats() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const today = new Date().toISOString().slice(0, 10);
       const [
         { data: att },
-        { count: ft },
-        { count: fd },
         { count: tq },
         { count: tc },
         { data: courses },
       ] = await Promise.all([
         supabase.from("quiz_attempts").select("score, total, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(30),
-        supabase.from("flashcards").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-        supabase.from("flashcards").select("id", { count: "exact", head: true }).eq("user_id", user.id).or(`due_at.is.null,due_at.lte.${today}`),
         supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("courses").select("id, subject").eq("user_id", user.id),
       ]);
 
       setAttempts((att ?? []) as Attempt[]);
-      setFlashTotal(ft ?? 0);
-      setFlashDue(fd ?? 0);
       setTotalQuizzes(tq ?? 0);
       setTotalCourses(tc ?? 0);
 
@@ -104,7 +95,6 @@ export default function Stats() {
             { icon: BookOpen, label: "Cours", value: totalCourses },
             { icon: Brain, label: "Quizz", value: totalQuizzes },
             { icon: TrendingUp, label: "Moyenne", value: `${globalAvg}%` },
-            { icon: Layers, label: "Flashcards", value: flashTotal },
           ].map(({ icon: Icon, label, value }) => (
             <div key={label} className="rounded-xl border-2 border-foreground bg-card shadow-brutal-sm p-3 text-center">
               <Icon className="h-4 w-4 mx-auto text-primary mb-1" />
@@ -113,22 +103,6 @@ export default function Stats() {
             </div>
           ))}
         </div>
-
-        {/* Flashcards */}
-        {flashTotal > 0 && (
-          <Link to="/app/flashcards" className="block rounded-xl border-2 border-foreground bg-card shadow-brutal-sm p-4">
-            <div className="flex items-center justify-between mb-2">
-              <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground">Flashcards SRS</p>
-              <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${flashDue > 0 ? "bg-primary/15 text-primary" : "bg-success/15 text-success"}`}>
-                {flashDue > 0 ? `${flashDue} à réviser` : "Tout à jour ✓"}
-              </span>
-            </div>
-            <div className="h-2 rounded-full bg-muted overflow-hidden">
-              <div className="h-full bg-success transition-all" style={{ width: `${Math.round(((flashTotal - flashDue) / flashTotal) * 100)}%` }} />
-            </div>
-            <p className="text-[10px] text-muted-foreground mt-1">{flashTotal - flashDue} / {flashTotal} maîtrisées</p>
-          </Link>
-        )}
 
         {/* Score evolution chart */}
         {chartAttempts.length > 0 && (
