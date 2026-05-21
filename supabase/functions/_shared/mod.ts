@@ -242,13 +242,9 @@ export function getLimits(tier: Tier, action: ActionType): Limits {
   return TIER_LIMITS[tier][action];
 }
 
-export function getUserTier(
-  plan: string | null | undefined,
-  trialEndsAt?: string | null,
-): Tier {
+export function getUserTier(plan: string | null | undefined): Tier {
   if (plan === "max" || plan === "ultra") return "max";
   if (plan === "pro") return "pro";
-  if (trialEndsAt && new Date(trialEndsAt) > new Date()) return "pro";
   return "free";
 }
 
@@ -266,10 +262,10 @@ export async function enforceLimit(
   try {
     const { data: profile } = await supabase
       .from("profiles")
-      .select("plan, trial_ends_at")
+      .select("plan")
       .eq("id", userId)
       .maybeSingle();
-    tier = getUserTier(profile?.plan ?? null, (profile as any)?.trial_ends_at ?? null);
+    tier = getUserTier(profile?.plan ?? null);
   } catch (e) {
     console.error("[enforceLimit] profile read failed", e);
   }

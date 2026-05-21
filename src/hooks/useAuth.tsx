@@ -33,16 +33,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(nextSession);
       setUser(nextSession?.user ?? null);
       if (readyRef.current) setLoading(false);
-      // Applique un code de parrainage en attente après login/confirmation email
-      if (nextSession?.user) {
-        try {
-          const pending = localStorage.getItem("revix_pending_referral");
-          if (pending) {
-            try { localStorage.removeItem("revix_pending_referral"); } catch {/* noop */}
-            supabase.rpc("apply_referral_code", { _code: pending });
-          }
-        } catch {/* noop */}
-      }
     });
 
     return () => {

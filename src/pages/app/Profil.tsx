@@ -23,7 +23,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { StripeEmbeddedCheckout } from "@/components/revix/StripeEmbeddedCheckout";
 import { useSubscription } from "@/hooks/useSubscription";
 import { getStripeEnvironment, isPaymentsConfigured } from "@/lib/stripe";
-import { ReferralCard } from "@/components/revix/ReferralCard";
 
 export default function Profil() {
   const { user } = useAuth();
@@ -346,8 +345,6 @@ export default function Profil() {
             </div>
           </DialogContent>
         </Dialog>
-
-        <ReferralCard />
 
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Personnalisation</p>

@@ -88,7 +88,7 @@ export function useUsage() {
     setLoading(true);
     try {
       const [{ data: profile }, { data: counters }] = await Promise.all([
-        supabase.from("profiles").select("plan, trial_ends_at").eq("id", user.id).maybeSingle(),
+        supabase.from("profiles").select("plan").eq("id", user.id).maybeSingle(),
         supabase
           .from("usage_counters")
           .select("action_type, period_type, period_key, count")
@@ -96,12 +96,9 @@ export function useUsage() {
       ]);
 
       const planValue = (profile as any)?.plan;
-      const trialEndsAt: string | null = (profile as any)?.trial_ends_at ?? null;
-      const trialActive = trialEndsAt ? new Date(trialEndsAt) > new Date() : false;
       const t: UsageTier =
         planValue === "max" || planValue === "ultra" ? "max"
         : planValue === "pro" ? "pro"
-        : trialActive ? "pro"
         : "free";
       setTier(t);
 

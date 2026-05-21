@@ -1,5 +1,5 @@
 import { Link, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -25,16 +25,6 @@ export default function SignUp() {
   const [resending, setResending] = useState(false);
   // RGPD : consentement explicite obligatoire avant la création de compte.
   const [acceptedTerms, setAcceptedTerms] = useState(false);
-
-  // Capture ?ref=CODE et le mémorise pour l'appliquer après confirmation email
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const ref = params.get("ref");
-    if (ref) {
-      const code = ref.toUpperCase().slice(0, 7);
-      try { localStorage.setItem("revix_pending_referral", code); } catch {/* noop */}
-    }
-  }, []);
 
   const formationItems = FORMATIONS.map(f => ({
     value: f.name, label: f.abbr ? `${f.abbr} — ${f.name.replace(`${f.abbr} - `, "").replace(`${f.abbr} `, "")}` : f.name, group: f.category,
@@ -73,14 +63,6 @@ export default function SignUp() {
           ...(gender ? { gender } : {}),
         }).eq("id", signUpData.session.user.id);
       }
-      // Applique immédiatement le code de parrainage si présent (sign-up sans confirmation email)
-      try {
-        const pending = localStorage.getItem("revix_pending_referral");
-        if (pending) {
-          await supabase.rpc("apply_referral_code", { _code: pending });
-          localStorage.removeItem("revix_pending_referral");
-        }
-      } catch {/* noop */}
       toast.success("Compte créé ! Bienvenue sur Revix ✨");
       nav("/app");
     } else {
