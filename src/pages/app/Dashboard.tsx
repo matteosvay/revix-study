@@ -59,8 +59,8 @@ export default function Dashboard() {
         setGroups(((gs as any[]) ?? []).slice(0, 3));
         // Due flashcards (null = new cards = due immediately)
         const today = new Date().toISOString().slice(0, 10);
-        const { count: dc } = await supabase
-          .from("flashcards" as any)
+        const { count: dc } = await (supabase as any)
+          .from("flashcards")
           .select("id", { count: "exact", head: true })
           .eq("user_id", user.id)
           .or(`due_at.is.null,due_at.lte.${today}`);
