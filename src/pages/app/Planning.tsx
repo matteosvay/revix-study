@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Sparkles, Loader2, Plus, Target, Trash2, BookOpen, Brain } from "lucide-react";
+import { Sparkles, Loader2, Plus, Target, Trash2, BookOpen, Brain, ChevronLeft, ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -28,12 +28,14 @@ export default function Planning() {
   const [generating, setGenerating] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [weekStats, setWeekStats] = useState({ fiches: 0, quizzes: 0, attempts: 0 });
+  const [weekOffset, setWeekOffset] = useState(0);
   const coachCtx = useCoachContext();
 
-  // Always show the next 7 days starting from today (rolling window).
   const today0 = new Date(); today0.setHours(0, 0, 0, 0);
-  const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(today0); d.setDate(today0.getDate() + i); return d; });
+  const baseDay = new Date(today0); baseDay.setDate(today0.getDate() + weekOffset * 7);
+  const days = Array.from({ length: 7 }, (_, i) => { const d = new Date(baseDay); d.setDate(baseDay.getDate() + i); return d; });
   const week = days[0];
+  const isCurrentWeek = weekOffset === 0;
 
   const load = async () => {
     if (!user) return;
@@ -51,7 +53,7 @@ export default function Planning() {
     setWeekStats({ fiches: fc ?? 0, quizzes: qc ?? 0, attempts: att?.length ?? 0 });
   };
 
-  useEffect(() => { load(); }, [user]);
+  useEffect(() => { load(); }, [user, weekOffset]);
 
   const toggle = async (t: Task) => {
     setTasks(ts => ts.map(x => x.id === t.id ? { ...x, done: !x.done } : x));
@@ -175,11 +177,24 @@ export default function Planning() {
 
         <div className="lg:grid lg:grid-cols-[1fr_minmax(320px,30%)] lg:gap-6">
           <div>
-        {/* Bandeau plage de dates */}
-        <div className="glass rounded-2xl px-3 py-2 mb-4 text-center">
-          <p className="text-xs font-medium">
-            {week.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} – {days[6].toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
-          </p>
+        {/* Bandeau plage de dates avec navigation */}
+        <div className="glass rounded-2xl px-3 py-2 mb-4 flex items-center justify-between gap-2">
+          <button onClick={() => setWeekOffset(o => o - 1)} className="h-7 w-7 rounded-lg border border-border flex items-center justify-center hover:bg-muted transition shrink-0">
+            <ChevronLeft className="h-4 w-4" />
+          </button>
+          <div className="text-center flex-1">
+            <p className="text-xs font-medium">
+              {week.toLocaleDateString("fr-FR", { day: "numeric", month: "short" })} – {days[6].toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+            </p>
+            {!isCurrentWeek && (
+              <button onClick={() => setWeekOffset(0)} className="text-[10px] text-primary font-semibold hover:underline">
+                Aujourd'hui
+              </button>
+            )}
+          </div>
+          <button onClick={() => setWeekOffset(o => o + 1)} className="h-7 w-7 rounded-lg border border-border flex items-center justify-center hover:bg-muted transition shrink-0">
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </div>
 
         <Tabs defaultValue="calendar" className="w-full">
@@ -201,7 +216,7 @@ export default function Planning() {
             )}
             {days.map((d, i) => {
               const dayTasks = tasks.filter(t => t.task_date === fmtDate(d));
-              const isToday = i === 0;
+              const isToday = fmtDate(d) === fmtDate(today0);
               const dowIdx = (d.getDay() + 6) % 7; // Mon=0..Sun=6
               const dayDone = dayTasks.filter(t => t.done).length;
               return (

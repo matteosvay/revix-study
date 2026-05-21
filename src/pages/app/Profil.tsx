@@ -34,6 +34,7 @@ export default function Profil() {
   const [portalLoading, setPortalLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
   const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
+  const [recentAttempts, setRecentAttempts] = useState<{ score: number; total: number; created_at: string; quizTitle: string }[]>([]);
   const [uploading, setUploading] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
   const [cropOpen, setCropOpen] = useState(false);
@@ -44,15 +45,20 @@ export default function Profil() {
   useEffect(() => {
     if (!user) return;
     (async () => {
-      const [{ data: p }, { count: cc }, { count: qc }, { data: attempts }] = await Promise.all([
+      const [{ data: p }, { count: cc }, { count: qc }, { data: attempts }, { data: recent }] = await Promise.all([
         supabase.from("profiles").select("*").eq("id", user.id).single(),
         supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quiz_attempts").select("score, total").eq("user_id", user.id),
+        supabase.from("quiz_attempts").select("score, total, created_at, quiz_id, quizzes(title)").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
       ]);
       setProfile(p);
       const avg = attempts && attempts.length ? Math.round(attempts.reduce((s, a) => s + (a.score / a.total) * 100, 0) / attempts.length) : 0;
       setStats({ courses: cc ?? 0, quizzes: qc ?? 0, avg });
+      setRecentAttempts((recent ?? []).map((r: any) => ({
+        score: r.score, total: r.total, created_at: r.created_at,
+        quizTitle: r.quizzes?.title ?? "Quizz",
+      })));
     })();
   }, [user]);
 
@@ -224,6 +230,31 @@ export default function Profil() {
             </div>
           ))}
         </div>
+
+        {recentAttempts.length > 0 && (
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">Derniers quizz</p>
+            <div className="space-y-1.5">
+              {recentAttempts.map((a, i) => {
+                const pct = Math.round((a.score / a.total) * 100);
+                return (
+                  <div key={i} className="flex items-center gap-3 rounded-xl border-2 border-foreground bg-card px-3 py-2.5 shadow-brutal-sm">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-semibold truncate">{a.quizTitle}</p>
+                      <p className="text-[10px] text-muted-foreground font-mono">
+                        {new Date(a.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
+                      </p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className={`font-serif text-lg leading-none ${pct >= 80 ? "text-success" : pct >= 50 ? "text-foreground" : "text-destructive"}`}>{pct}%</p>
+                      <p className="text-[10px] text-muted-foreground">{a.score}/{a.total}</p>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        )}
 
         {/* Section abonnement */}
         <div className="space-y-3 scroll-mt-20" id="abonnement">

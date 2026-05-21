@@ -97,7 +97,14 @@ export default function Aventure() {
                 <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
                   <Sparkles className="h-3 w-3" /> Quête de la semaine
                 </div>
-                <Stamp>{weeklyQuest.xp_reward} XP</Stamp>
+                <div className="flex items-center gap-2">
+                  {(() => { const day = new Date().getDay(); const left = day === 0 ? 0 : 7 - day; return left > 0 ? (
+                    <span className="text-[10px] text-muted-foreground font-mono">⏳ {left}j</span>
+                  ) : (
+                    <span className="text-[10px] text-destructive font-mono font-bold">Fin aujourd'hui</span>
+                  ); })()}
+                  <Stamp>{weeklyQuest.xp_reward} XP</Stamp>
+                </div>
               </div>
               <p className="font-serif text-xl flex items-center gap-2">
                 <span>{weeklyQuest.emoji}</span>

@@ -154,7 +154,29 @@ export default function Revision() {
           <p className="font-serif text-xl leading-snug mt-2">{q.question}</p>
         </div>
 
-        <div className="mt-5 grid grid-cols-1 gap-3">
+        {q.type === "vrai_faux" ? (
+          <div className="mt-5 grid grid-cols-2 gap-3">
+            {choices.map((a, i) => {
+              const isCorrect = i === q.correct_index;
+              const isPicked = picked === i;
+              let stateCls = "";
+              if (picked !== null) {
+                if (isCorrect) stateCls = "is-correct";
+                else if (isPicked) stateCls = "is-wrong";
+              }
+              return (
+                <button key={i} onClick={() => pickChoice(i)} disabled={picked !== null}
+                  className={`answer-postit ${stateCls} flex flex-col items-center justify-center gap-2 min-h-[80px] text-center text-lg`}>
+                  <span className="text-2xl">{i === 0 ? "✅" : "❌"}</span>
+                  <span className="font-bold">{a}</span>
+                  {picked !== null && isCorrect && <CheckCircle2 className="h-4 w-4 text-success" />}
+                  {picked !== null && isPicked && !isCorrect && <XCircle className="h-4 w-4 text-destructive" />}
+                </button>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="mt-5 grid grid-cols-1 gap-3">
             {choices.map((a, i) => {
               const isCorrect = i === q.correct_index;
               const isPicked = picked === i;
@@ -168,7 +190,7 @@ export default function Revision() {
                 <button key={i} onClick={() => pickChoice(i)} disabled={picked !== null}
                   className={`answer-postit ${i % 2 === 0 ? "tilt-l" : "tilt-r"} ${stateCls} flex items-center gap-3`}>
                   <span className="h-7 w-7 rounded-md bg-foreground/15 flex items-center justify-center font-mono-tag font-bold text-xs shrink-0">
-                    {q.type === "vrai_faux" ? (i === 0 ? "V" : "F") : String.fromCharCode(65 + i)}
+                    {String.fromCharCode(65 + i)}
                   </span>
                   <span className="flex-1">{a}</span>
                   {picked !== null && isCorrect && <CheckCircle2 className="h-5 w-5 text-success" />}
@@ -177,6 +199,7 @@ export default function Revision() {
               );
             })}
           </div>
+        )}
 
         {picked !== null && q.explanation && (
           <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">

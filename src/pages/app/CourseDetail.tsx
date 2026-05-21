@@ -43,6 +43,7 @@ export default function CourseDetail() {
   const [quizDifficulty, setQuizDifficulty] = useState<string>("mixte");
   const [generatingFlashcards, setGeneratingFlashcards] = useState(false);
   const [flashcardCount, setFlashcardCount] = useState(0);
+  const [courseStats, setCourseStats] = useState<{ quizCount: number; avgScore: number } | null>(null);
 
   useEffect(() => {
     if (!user) return;
@@ -67,6 +68,20 @@ export default function CourseDetail() {
       .eq("course_id", course.id)
       .eq("user_id", user.id)
       .then(({ count }) => setFlashcardCount(count ?? 0));
+
+    // Quizz stats for this course
+    (async () => {
+      const { data: quizzes } = await supabase
+        .from("quizzes").select("id").eq("course_id", course.id).eq("user_id", user.id);
+      const ids = (quizzes ?? []).map((q: any) => q.id);
+      if (!ids.length) { setCourseStats({ quizCount: 0, avgScore: 0 }); return; }
+      const { data: attempts } = await supabase
+        .from("quiz_attempts").select("score, total").in("quiz_id", ids);
+      const avg = attempts?.length
+        ? Math.round(attempts.reduce((s: number, a: any) => s + (a.score / a.total) * 100, 0) / attempts.length)
+        : 0;
+      setCourseStats({ quizCount: ids.length, avgScore: avg });
+    })();
   }, [course, user]);
 
   const generateFlashcards = async () => {
@@ -193,6 +208,21 @@ export default function CourseDetail() {
         <div className="text-4xl">{course.emoji ?? "📘"}</div>
         <h1 className="font-serif text-3xl mt-2">{course.title}</h1>
         <p className="text-sm text-muted-foreground mt-1">{course.subject ?? "—"}</p>
+
+        {courseStats !== null && (
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            {[
+              { v: courseStats.quizCount, l: "Quizz" },
+              { v: courseStats.quizCount ? `${courseStats.avgScore}%` : "—", l: "Moyenne" },
+              { v: flashcardCount || "—", l: "Flashcards" },
+            ].map((s) => (
+              <div key={s.l} className="rounded-xl border-2 border-foreground bg-card shadow-brutal-sm p-3 text-center">
+                <p className="font-serif text-2xl leading-none">{s.v}</p>
+                <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider font-mono">{s.l}</p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="px-5 pb-32">

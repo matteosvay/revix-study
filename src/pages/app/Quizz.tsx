@@ -1271,28 +1271,32 @@ export default function Quizz() {
               })()}
               <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground mb-2">À retravailler</p>
               <div className="space-y-2">
-                {wrong.map(i => (
-                  <div key={i} className="text-sm">
-                    <p className="font-medium">{questions[i].question}</p>
-                    <p className="font-hand text-base text-success mt-0.5">
-                      → {(() => {
-                        const qq = questions[i];
-                        if (qq.type === "qcm_multi" && qq.answers) {
-                          const idxs = (qq.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
-                          return idxs.map(n => qq.answers![n]).filter(Boolean).join(" + ");
-                        }
-                        if (qq.type === "ordre" && qq.answers) {
-                          const idxs = (qq.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
-                          return idxs.map((n, k) => `${k + 1}. ${qq.answers![n]}`).join(" → ");
-                        }
-                        if (qq.answers && typeof qq.correct_index === "number") {
-                          return qq.answers[qq.correct_index];
-                        }
-                        return qq.accepted_answers?.[0] ?? qq.explanation;
-                      })()}
-                    </p>
-                  </div>
-                ))}
+                {wrong.map(i => {
+                  const qq = questions[i];
+                  const correctLabel = (() => {
+                    if (qq.type === "qcm_multi" && qq.answers) {
+                      const idxs = (qq.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+                      return idxs.map(n => qq.answers![n]).filter(Boolean).join(" + ");
+                    }
+                    if (qq.type === "ordre" && qq.answers) {
+                      const idxs = (qq.accepted_answers ?? []).map(s => parseInt(s, 10)).filter(n => !isNaN(n));
+                      return idxs.map((n, k) => `${k + 1}. ${qq.answers![n]}`).join(" → ");
+                    }
+                    if (qq.answers && typeof qq.correct_index === "number") return qq.answers[qq.correct_index];
+                    return qq.accepted_answers?.[0] ?? qq.explanation;
+                  })();
+                  return (
+                    <div key={i} className="rounded-xl border-2 border-foreground bg-card p-3 shadow-brutal-sm space-y-1">
+                      <p className="text-sm font-semibold leading-snug">{qq.question}</p>
+                      <p className="font-hand text-base text-success">✓ {correctLabel}</p>
+                      {qq.explanation && (
+                        <p className="text-xs text-muted-foreground border-l-2 border-primary/40 pl-2 italic">
+                          💡 {qq.explanation}
+                        </p>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
