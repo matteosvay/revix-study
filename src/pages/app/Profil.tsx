@@ -40,6 +40,7 @@ export default function Profil() {
   // RGPD article 17 : suppression de compte
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
     if (!user) return;
@@ -49,7 +50,7 @@ export default function Profil() {
         supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("quiz_attempts").select("score, total").eq("user_id", user.id),
-        supabase.from("quiz_attempts").select("score, total, created_at, quiz_id, quizzes(title)").eq("user_id", user.id).order("created_at", { ascending: false }).limit(5),
+        supabase.from("quiz_attempts").select("score, total, created_at, quiz_id, quizzes(title)").eq("user_id", user.id).order("created_at", { ascending: false }).limit(3),
       ]);
       setProfile(p);
       const avg = attempts && attempts.length ? Math.round(attempts.reduce((s, a) => s + (a.score / a.total) * 100, 0) / attempts.length) : 0;
@@ -221,7 +222,6 @@ export default function Profil() {
             { v: stats.quizzes, l: "Quizz" },
             { v: `${stats.avg}%`, l: "Moyenne" },
             { v: `${profile.streak_days ?? 0}j`, l: "Streak" },
-            { v: `${profile.streak_record ?? 0}j`, l: "Record" },
           ].map(s => (
             <div key={s.l} className="rounded-xl border bg-card p-3 text-center">
               <p className="font-serif text-2xl">{s.v}</p>
@@ -383,60 +383,70 @@ export default function Profil() {
         </div>
 
         <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Informations</p>
-          <div className="space-y-1.5"><Label>Prénom</Label><Input value={profile.display_name ?? ""} onChange={(e) => setProfile({ ...profile, display_name: e.target.value })} /></div>
-          <div className="space-y-1.5"><Label>École</Label><Input value={profile.school ?? ""} onChange={(e) => setProfile({ ...profile, school: e.target.value })} /></div>
-          <div className="space-y-1.5">
-            <div className="flex items-center justify-between">
-              <Label>Bio</Label>
-              <span className="text-[10px] text-muted-foreground">{(profile.bio ?? "").length}/200</span>
+          <button
+            onClick={() => setEditOpen((o) => !o)}
+            className="w-full flex items-center justify-between rounded-md border-[2.5px] border-foreground bg-card px-4 py-3 shadow-brutal-sm text-left hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+          >
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Modifier le profil</p>
+            <ChevronRight className={`h-4 w-4 text-muted-foreground transition-transform duration-200 ${editOpen ? "rotate-90" : ""}`} />
+          </button>
+          {editOpen && (
+            <div className="space-y-3 pt-1">
+              <div className="space-y-1.5"><Label>Prénom</Label><Input value={profile.display_name ?? ""} onChange={(e) => setProfile({ ...profile, display_name: e.target.value })} /></div>
+              <div className="space-y-1.5"><Label>École</Label><Input value={profile.school ?? ""} onChange={(e) => setProfile({ ...profile, school: e.target.value })} /></div>
+              <div className="space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <Label>Bio</Label>
+                  <span className="text-[10px] text-muted-foreground">{(profile.bio ?? "").length}/200</span>
+                </div>
+                <Textarea
+                  value={profile.bio ?? ""}
+                  onChange={(e) => setProfile({ ...profile, bio: e.target.value.slice(0, 200) })}
+                  placeholder="Parle un peu de toi, tes objectifs, ta passion..."
+                  rows={3}
+                  maxLength={200}
+                />
+              </div>
+              <div className="space-y-1.5"><Label>Cursus</Label>
+                <select value={profile.cursus ?? ""} onChange={(e) => setProfile({ ...profile, cursus: e.target.value })} className="w-full h-10 rounded-md border bg-background px-3 text-sm">
+                  <option value="">—</option>
+                  {CURSUS_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
+                </select>
+              </div>
+              <div className="space-y-1.5"><Label>Je suis</Label>
+                <select
+                  value={profile.gender ?? ""}
+                  onChange={(e) => setProfile({ ...profile, gender: e.target.value || null })}
+                  className="w-full h-10 rounded-md border bg-background px-3 text-sm"
+                >
+                  <option value="">—</option>
+                  {GENDER_OPTIONS.map(g => (
+                    <option key={g.value} value={g.value}>{g.emoji} {g.label}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="space-y-1.5">
+                <Label>Formation précise</Label>
+                <SearchableCombobox
+                  items={formationItems}
+                  value={profile.formation ?? ""}
+                  onChange={(v) => setProfile({ ...profile, formation: v })}
+                  placeholder="ex : BUT GEA, Licence Droit..."
+                />
+              </div>
+              <div className="space-y-1.5">
+                <Label>Mes matières</Label>
+                <SearchableMultiCombobox
+                  items={subjectItems}
+                  values={(profile.subjects as string[]) ?? []}
+                  onChange={(v) => setProfile({ ...profile, subjects: v })}
+                  placeholder="Ajouter une matière"
+                  max={20}
+                />
+              </div>
+              <Button onClick={save} className="w-full rounded-full gradient-primary border-0">Enregistrer</Button>
             </div>
-            <Textarea
-              value={profile.bio ?? ""}
-              onChange={(e) => setProfile({ ...profile, bio: e.target.value.slice(0, 200) })}
-              placeholder="Parle un peu de toi, tes objectifs, ta passion..."
-              rows={3}
-              maxLength={200}
-            />
-          </div>
-          <div className="space-y-1.5"><Label>Cursus</Label>
-            <select value={profile.cursus ?? ""} onChange={(e) => setProfile({ ...profile, cursus: e.target.value })} className="w-full h-10 rounded-md border bg-background px-3 text-sm">
-              <option value="">—</option>
-              {CURSUS_OPTIONS.map(c => <option key={c} value={c}>{c}</option>)}
-            </select>
-          </div>
-          <div className="space-y-1.5"><Label>Je suis</Label>
-            <select
-              value={profile.gender ?? ""}
-              onChange={(e) => setProfile({ ...profile, gender: e.target.value || null })}
-              className="w-full h-10 rounded-md border bg-background px-3 text-sm"
-            >
-              <option value="">—</option>
-              {GENDER_OPTIONS.map(g => (
-                <option key={g.value} value={g.value}>{g.emoji} {g.label}</option>
-              ))}
-            </select>
-          </div>
-          <div className="space-y-1.5">
-            <Label>Formation précise</Label>
-            <SearchableCombobox
-              items={formationItems}
-              value={profile.formation ?? ""}
-              onChange={(v) => setProfile({ ...profile, formation: v })}
-              placeholder="ex : BUT GEA, Licence Droit..."
-            />
-          </div>
-          <div className="space-y-1.5">
-            <Label>Mes matières</Label>
-            <SearchableMultiCombobox
-              items={subjectItems}
-              values={(profile.subjects as string[]) ?? []}
-              onChange={(v) => setProfile({ ...profile, subjects: v })}
-              placeholder="Ajouter une matière"
-              max={20}
-            />
-          </div>
-          <Button onClick={save} className="w-full rounded-full gradient-primary border-0">Enregistrer</Button>
+          )}
         </div>
 
         <Button onClick={logout} variant="outline" className="w-full rounded-full">
