@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { NavLink } from "@/components/NavLink";
 import { useLocation } from "react-router-dom";
-import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles, BarChart3, TrendingUp } from "lucide-react";
+import { Home, BookOpen, Brain, Calendar, Flame, User, Map, School, Sparkles, BarChart3, TrendingUp, Zap } from "lucide-react";
 import { ScribbleUnderline } from "./Scribble";
 import { Logo } from "./Logo";
 import { NotificationBell } from "./NotificationBell";
@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Link } from "react-router-dom";
 import { CoachFab } from "./CoachFab";
+import { useTrial } from "@/hooks/useTrial";
 
 // Navigation complète — sidebar desktop
 const navAll = [
@@ -42,6 +43,7 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
   const { user } = useAuth();
   const { data: isAdmin } = useIsAdmin();
   const location = useLocation();
+  const trial = useTrial();
   const rawDisplayName = user?.user_metadata?.display_name;
   const displayName = typeof rawDisplayName === "string" && rawDisplayName.trim()
     ? rawDisplayName
@@ -131,6 +133,30 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
         </header>
 
         <main id="main-content" className="flex-1 overflow-y-auto overscroll-contain pb-24 lg:pb-0" role="main">
+          {/* Bannière essai Pro */}
+          {!trial.loading && trial.active && (
+            <div className="mx-3 mt-3 rounded-xl border-2 border-foreground bg-card shadow-brutal-sm overflow-hidden">
+              <div className="gradient-primary px-4 py-2.5 flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <Zap className="h-3.5 w-3.5 text-primary-foreground shrink-0" />
+                  <p className="text-[11px] font-bold text-primary-foreground">
+                    Essai Pro — {trial.daysLeft} jour{trial.daysLeft > 1 ? "s" : ""} restant{trial.daysLeft > 1 ? "s" : ""}
+                  </p>
+                </div>
+                <Link to="/app/profil" className="text-[10px] font-mono uppercase tracking-wider text-primary-foreground/80 hover:text-primary-foreground underline shrink-0">
+                  Passer Pro →
+                </Link>
+              </div>
+            </div>
+          )}
+          {!trial.loading && !trial.active && trial.endsAt !== null && (
+            <div className="mx-3 mt-3 rounded-xl border-2 border-destructive bg-destructive/5 px-4 py-2.5 flex items-center justify-between gap-2">
+              <p className="text-[11px] font-bold text-destructive">Essai Pro terminé</p>
+              <Link to="/app/profil" className="text-[10px] font-mono uppercase tracking-wider text-destructive hover:underline shrink-0">
+                Passer Pro →
+              </Link>
+            </div>
+          )}
           <div
             key={location.pathname}
             className={`route-transition lg:mx-auto lg:px-6 lg:py-6 ${wide ? "lg:max-w-[1400px]" : "lg:max-w-[1200px]"}`}
