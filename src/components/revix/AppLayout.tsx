@@ -30,6 +30,7 @@ const nav = [
   { to: "/app/fiches", label: "Cours", icon: BookOpen },
   { to: "/app/aventure", label: "Quêtes", icon: Map },
   { to: "/app/quizz", label: "Quizz", icon: Brain },
+  { to: "/app/campus", label: "Campus", icon: School },
   { to: "/app/profil", label: "Profil", icon: User },
 ];
 
