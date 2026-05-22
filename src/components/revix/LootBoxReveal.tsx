@@ -1,15 +1,15 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { X, ChevronRight, Sparkles } from "lucide-react";
+import { X, ChevronRight } from "lucide-react";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
 import { BackgroundDecor } from "@/components/revix/cosmetics/BackgroundDecor";
 import { StickerDecor, hasCustomSticker } from "@/components/revix/cosmetics/StickerDecor";
-import { backgroundStyle, RARITY_LABEL, RARITY_ORDER, RARITY_TEXT, type Rarity } from "@/lib/cosmetics";
+import { backgroundStyle, RARITY_LABEL, RARITY_ORDER, type Rarity } from "@/lib/cosmetics";
 import { cn } from "@/lib/utils";
 
 const POWERUP_LABELS: Record<string, { name: string; emoji: string }> = {
   power_5050: { name: "50 / 50", emoji: "✂️" },
-  power_skip: { name: "Skip question", emoji: "⏭️" },
-  power_time: { name: "+30 sec", emoji: "⏱️" },
+  power_skip:  { name: "Skip question", emoji: "⏭️" },
+  power_time:  { name: "+30 sec", emoji: "⏱️" },
 };
 
 type Reward = {
@@ -17,7 +17,6 @@ type Reward = {
   streak_token: boolean;
   powerup: string | null;
   cosmetic: { key: string; name: string; emoji: string | null; rarity: string; category: string } | null;
-  /** Optional additional cosmetics (e.g. queen lootbox grants both a frame AND a background). */
   extras?: Array<{ key: string; name: string; emoji: string | null; rarity: string; category: string }>;
 };
 
@@ -27,67 +26,37 @@ type Card =
   | { kind: "powerup"; key: string }
   | { kind: "cosmetic"; key: string; name: string; emoji: string | null; rarity: Rarity; category: string };
 
-const RARITY_THEME: Record<Rarity, { ring: string; glow: string; aura: string; label: string; text: string; gradient: string }> = {
-  common: {
-    ring: "ring-muted-foreground",
-    glow: "shadow-[0_0_30px_hsl(0_0%_70%/0.6)]",
-    aura: "rare-aura",
-    label: "bg-muted text-foreground",
-    text: "text-foreground",
-    gradient: "from-slate-300 to-slate-500",
-  },
-  rare: {
-    ring: "ring-blue-400",
-    glow: "shadow-[0_0_45px_hsl(220_100%_60%/0.7)]",
-    aura: "rare-aura",
-    label: "bg-blue-500 text-white",
-    text: "text-blue-500",
-    gradient: "from-sky-300 to-blue-600",
-  },
-  epic: {
-    ring: "ring-purple-500",
-    glow: "shadow-[0_0_55px_hsl(280_100%_60%/0.8)]",
-    aura: "epic-aura",
-    label: "bg-purple-600 text-white",
-    text: "text-purple-500",
-    gradient: "from-fuchsia-400 to-purple-700",
-  },
-  legendary: {
-    ring: "ring-yellow-400",
-    glow: "shadow-[0_0_70px_hsl(45_100%_55%/0.9)]",
-    aura: "legendary-aura",
-    label: "bg-gradient-to-r from-yellow-400 to-orange-500 text-white",
-    text: "text-yellow-500",
-    gradient: "from-yellow-300 via-orange-400 to-rose-500",
-  },
-  creator: {
-    ring: "ring-amber-300",
-    glow: "shadow-[0_0_80px_hsl(45_100%_60%/0.95)]",
-    aura: "legendary-aura",
-    label: "bg-gradient-to-r from-amber-200 via-yellow-400 to-amber-500 text-black",
-    text: "text-amber-400",
-    gradient: "from-amber-200 via-yellow-400 to-amber-600",
-  },
-  queen: {
-    ring: "ring-pink-300",
-    glow: "shadow-[0_0_90px_hsl(330_100%_75%/0.95)]",
-    aura: "legendary-aura",
-    label: "bg-gradient-to-r from-pink-300 via-rose-400 to-amber-300 text-white",
-    text: "text-pink-500",
-    gradient: "from-pink-300 via-rose-400 to-amber-300",
-  },
+/* ─── Rarity themes ─────────────────────────────────────────────────────── */
+
+// Card display (ring / glow / aura on dark cinematic bg)
+const RARITY_THEME: Record<Rarity, { ring: string; glow: string; aura: string; label: string; text: string }> = {
+  common:    { ring: "ring-slate-400",    glow: "shadow-[0_0_30px_hsl(0_0%_70%/0.55)]",    aura: "rare-aura",      label: "bg-slate-500 text-white",    text: "text-slate-300" },
+  rare:      { ring: "ring-blue-400",     glow: "shadow-[0_0_45px_hsl(220_100%_60%/0.65)]", aura: "rare-aura",      label: "bg-blue-500 text-white",     text: "text-blue-400" },
+  epic:      { ring: "ring-purple-500",   glow: "shadow-[0_0_55px_hsl(280_100%_60%/0.75)]", aura: "epic-aura",      label: "bg-purple-600 text-white",   text: "text-purple-400" },
+  legendary: { ring: "ring-yellow-400",   glow: "shadow-[0_0_70px_hsl(45_100%_55%/0.85)]",  aura: "legendary-aura", label: "bg-amber-500 text-white",    text: "text-yellow-400" },
+  creator:   { ring: "ring-amber-300",    glow: "shadow-[0_0_80px_hsl(38_100%_58%/0.90)]",  aura: "legendary-aura", label: "bg-amber-400 text-black",    text: "text-amber-400" },
+  queen:     { ring: "ring-pink-400",     glow: "shadow-[0_0_90px_hsl(335_90%_68%/0.92)]",  aura: "legendary-aura", label: "bg-pink-500 text-white",     text: "text-pink-400" },
 };
+
+// Solid colors for the rarity banner — shown on dark backgrounds, no gradient text
+const BANNER: Record<Rarity, { color: string; glow: string }> = {
+  common:    { color: "hsl(0 0% 82%)",    glow: "rgba(200,210,220,0.40)" },
+  rare:      { color: "hsl(217 91% 72%)", glow: "rgba(96,165,250,0.42)" },
+  epic:      { color: "hsl(276 85% 76%)", glow: "rgba(167,139,250,0.42)" },
+  legendary: { color: "hsl(45 96% 64%)",  glow: "rgba(252,211,77,0.48)" },
+  creator:   { color: "hsl(38 96% 64%)",  glow: "rgba(251,191,36,0.48)" },
+  queen:     { color: "hsl(335 90% 76%)", glow: "rgba(244,114,182,0.48)" },
+};
+
+/* ─── Helpers ────────────────────────────────────────────────────────────── */
 
 function rewardToCards(r: Reward): Card[] {
   const cards: Card[] = [];
-  if (r.cosmetic) {
+  if (r.cosmetic)
     cards.push({ kind: "cosmetic", key: r.cosmetic.key, name: r.cosmetic.name, emoji: r.cosmetic.emoji, rarity: (r.cosmetic.rarity as Rarity) ?? "common", category: r.cosmetic.category });
-  }
-  if (Array.isArray(r.extras)) {
-    for (const e of r.extras) {
+  if (Array.isArray(r.extras))
+    for (const e of r.extras)
       cards.push({ kind: "cosmetic", key: e.key, name: e.name, emoji: e.emoji, rarity: (e.rarity as Rarity) ?? "common", category: e.category });
-    }
-  }
   if (r.powerup) cards.push({ kind: "powerup", key: r.powerup });
   if (r.streak_token) cards.push({ kind: "token" });
   if (r.xp > 0) cards.push({ kind: "xp", xp: r.xp });
@@ -95,92 +64,75 @@ function rewardToCards(r: Reward): Card[] {
 }
 
 function highestRarity(cards: Card[]): Rarity {
-  const order = RARITY_ORDER;
   let best: Rarity = "common";
   for (const c of cards) {
-    if (c.kind === "cosmetic" && order.indexOf(c.rarity) > order.indexOf(best)) best = c.rarity;
-    if (c.kind === "powerup" && order.indexOf("rare") > order.indexOf(best)) best = "rare";
-    if (c.kind === "token" && order.indexOf("rare") > order.indexOf(best)) best = "rare";
+    if (c.kind === "cosmetic" && RARITY_ORDER.indexOf(c.rarity) > RARITY_ORDER.indexOf(best)) best = c.rarity;
+    if ((c.kind === "powerup" || c.kind === "token") && RARITY_ORDER.indexOf("rare") > RARITY_ORDER.indexOf(best)) best = "rare";
   }
   return best;
 }
 
-function CountUp({ target, duration = 1400 }: { target: number; duration?: number }) {
+/* ─── Sub-components ─────────────────────────────────────────────────────── */
+
+function CountUp({ target, duration = 1300 }: { target: number; duration?: number }) {
   const [count, setCount] = useState(0);
   const rafRef = useRef<number>(0);
   useEffect(() => {
-    let startTime: number | null = null;
-    const animate = (ts: number) => {
-      if (startTime === null) startTime = ts;
-      const progress = Math.min((ts - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setCount(Math.round(eased * target));
-      if (progress < 1) rafRef.current = requestAnimationFrame(animate);
+    let t0: number | null = null;
+    const tick = (ts: number) => {
+      if (t0 === null) t0 = ts;
+      const p = Math.min((ts - t0) / duration, 1);
+      setCount(Math.round((1 - Math.pow(1 - p, 3)) * target));
+      if (p < 1) rafRef.current = requestAnimationFrame(tick);
     };
-    rafRef.current = requestAnimationFrame(animate);
+    rafRef.current = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(rafRef.current);
   }, [target, duration]);
   return <>{count}</>;
 }
 
 function Confetti({ rarity }: { rarity: Rarity }) {
-  const colors =
-    rarity === "legendary" ? ["#fde047", "#f97316", "#ec4899", "#a855f7", "#22d3ee"] :
-    rarity === "epic" ? ["#a855f7", "#ec4899", "#3b82f6", "#fde047"] :
-    rarity === "rare" ? ["#3b82f6", "#22d3ee", "#fde047"] :
-    ["#cbd5e1", "#94a3b8", "#fde047"];
-  const pieces = useMemo(() => Array.from({ length: 120 }).map((_, i) => ({
-    left: `${Math.random() * 100}%`,
-    delay: `${Math.random() * 0.8}s`,
-    color: colors[i % colors.length],
-    size: 5 + Math.random() * 9,
-    drift: `${(Math.random() - 0.5) * 260}px`,
-    dur: `${(1.6 + Math.random() * 1.6).toFixed(1)}s`,
-    rot: i % 2 === 0 ? "circle" : "rect",
+  const palette =
+    rarity === "legendary" || rarity === "creator" || rarity === "queen"
+      ? ["#fde047", "#f97316", "#ec4899", "#a855f7", "#22d3ee", "#ffffff"]
+      : rarity === "epic"   ? ["#a855f7", "#ec4899", "#3b82f6", "#fde047"]
+      : rarity === "rare"   ? ["#3b82f6", "#22d3ee", "#fde047", "#ffffff"]
+      : ["#cbd5e1", "#94a3b8", "#fde047", "#ffffff"];
+
+  const pieces = useMemo(() => Array.from({ length: 90 }).map((_, i) => ({
+    left:  `${(i * 14 + Math.random() * 6) % 100}%`,
+    delay: `${Math.random() * 0.55}s`,
+    color: palette[i % palette.length],
+    size:  5 + Math.random() * 7,
+    drift: `${(Math.random() - 0.5) * 230}px`,
+    dur:   `${(1.9 + Math.random() * 1.2).toFixed(1)}s`,
+    shape: i % 3 === 0 ? "50%" : "2px",
   })), [rarity]);
+
   return (
     <div className="pointer-events-none absolute inset-0 overflow-hidden">
       {pieces.map((p, i) => (
-        <span
-          key={i}
-          className="confetti-piece absolute top-0"
-          style={{
-            left: p.left,
-            width: p.size,
-            height: p.size,
-            background: p.color,
-            borderRadius: p.rot === "circle" ? "50%" : "2px",
-            animationDelay: p.delay,
-            animationDuration: p.dur,
-            // @ts-ignore
-            "--cf-x": p.drift,
-          } as any}
-        />
+        <span key={i} className="confetti-piece absolute top-0" style={{
+          left: p.left, width: p.size, height: p.size,
+          background: p.color, borderRadius: p.shape,
+          animationDelay: p.delay, animationDuration: p.dur,
+          "--cf-x": p.drift,
+        } as React.CSSProperties & { "--cf-x": string }} />
       ))}
     </div>
   );
 }
 
 function Rays({ rarity }: { rarity: Rarity }) {
-  const color =
-    rarity === "queen" ? "hsl(330 100% 70%)" :
-    rarity === "creator" ? "hsl(40 100% 60%)" :
-    rarity === "legendary" ? "hsl(45 100% 60%)" :
-    rarity === "epic" ? "hsl(280 90% 65%)" :
-    rarity === "rare" ? "hsl(220 90% 60%)" :
-    "hsl(0 0% 70%)";
+  const color = BANNER[rarity].color;
   return (
     <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
       <div className="ray-spin">
-        <svg viewBox="-100 -100 200 200" className="w-[140vw] h-[140vw] max-w-[1200px] max-h-[1200px] ray-pulse">
+        <svg viewBox="-100 -100 200 200" className="w-[140vw] h-[140vw] max-w-[1100px] max-h-[1100px] ray-pulse">
           {Array.from({ length: 16 }).map((_, i) => (
-            <polygon
-              key={i}
-              points="0,0 -8,-100 8,-100"
-              fill={color}
-              opacity={i % 2 ? 0.45 : 0.7}
-              transform={`rotate(${(360 / 16) * i})`}
-            />
+            <polygon key={i} points="0,0 -8,-100 8,-100"
+              fill={color} opacity={i % 2 ? 0.28 : 0.52}
+              transform={`rotate(${(360 / 16) * i})`} />
           ))}
         </svg>
       </div>
@@ -188,74 +140,161 @@ function Rays({ rarity }: { rarity: Rarity }) {
   );
 }
 
+// The mystery box — stays yellow/orange to preserve surprise until burst
+function BoxIcon({ lidFly = false, showSeamGlow = false }: { lidFly?: boolean; showSeamGlow?: boolean }) {
+  return (
+    <div className="relative">
+      {/* Seam light leak — energy escaping from inside before burst */}
+      {showSeamGlow && (
+        <div
+          className="seam-leak absolute pointer-events-none"
+          style={{
+            top: "41%",
+            left: "12%",
+            right: "12%",
+            height: "3px",
+            background: "hsl(45 100% 78%)",
+            filter: "blur(10px)",
+            boxShadow: "0 0 30px 16px hsl(45 100% 62% / 0.85)",
+          }}
+        />
+      )}
+      <svg viewBox="0 0 120 120" className="w-44 h-44 drop-shadow-2xl overflow-visible">
+        <defs>
+          <linearGradient id="lb-body" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#fde047" />
+            <stop offset="100%" stopColor="#f97316" />
+          </linearGradient>
+          <linearGradient id="lb-lid" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#fef9c3" />
+            <stop offset="100%" stopColor="#fde047" />
+          </linearGradient>
+        </defs>
+        {/* Drop shadow */}
+        <ellipse cx="60" cy="112" rx="34" ry="4" fill="#000" opacity="0.32" />
+        {/* Body */}
+        <rect x="20" y="50" width="80" height="55" rx="6" fill="url(#lb-body)" stroke="#000" strokeWidth="3" />
+        {/* Ribbon on body */}
+        <rect x="55" y="50" width="10" height="55" fill="#ec4899" stroke="#000" strokeWidth="2" />
+        {/* Lid group (flies off during burst) */}
+        <g className={lidFly ? "lid-fly" : ""}>
+          <rect x="15" y="38" width="90" height="18" rx="4" fill="url(#lb-lid)" stroke="#000" strokeWidth="3" />
+          <rect x="55" y="38" width="10" height="18" fill="#ec4899" stroke="#000" strokeWidth="2" />
+          <path d="M40 38 Q50 16 60 38 Q70 16 80 38 Z" fill="#ec4899" stroke="#000" strokeWidth="2.5" />
+          <circle cx="60" cy="38" r="4" fill="#fde047" stroke="#000" strokeWidth="2" />
+        </g>
+        {/* Ambient sparkle dots */}
+        <circle cx="18" cy="20" r="2" fill="#fff">
+          <animate attributeName="opacity" values="0;0.9;0" dur="1.3s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="103" cy="28" r="1.8" fill="#fff">
+          <animate attributeName="opacity" values="0;0.9;0" dur="1.5s" begin="0.45s" repeatCount="indefinite" />
+        </circle>
+        <circle cx="107" cy="82" r="1.5" fill="#fff">
+          <animate attributeName="opacity" values="0;0.9;0" dur="1.1s" begin="0.85s" repeatCount="indefinite" />
+        </circle>
+      </svg>
+    </div>
+  );
+}
+
+function RarityBanner({ card }: { card: Card }) {
+  const rarity: Rarity =
+    card.kind === "cosmetic" ? card.rarity :
+    card.kind === "powerup" || card.kind === "token" ? "rare" : "common";
+  const isBig = rarity === "epic" || rarity === "legendary" || rarity === "creator" || rarity === "queen";
+  const { color, glow } = BANNER[rarity];
+
+  return (
+    <div className="flex flex-col items-center gap-3">
+      {/* Solid Archivo Black — no gradient text (design ban) */}
+      <p
+        className="font-display uppercase rarity-slam leading-none tracking-[0.06em] text-center"
+        style={{
+          fontSize: isBig ? "clamp(3rem, 13vw, 4.5rem)" : "clamp(2.2rem, 10vw, 3.2rem)",
+          color,
+          textShadow: `0 0 55px ${glow}, 0 3px 0 rgba(0,0,0,0.65)`,
+        }}
+      >
+        {RARITY_LABEL[rarity]}
+      </p>
+      {/* Expanding underbar */}
+      <div className="rarity-bar-in h-[3px] rounded-full" style={{ background: color }} />
+      {isBig && (
+        <p className="text-white/50 font-mono text-[10px] uppercase tracking-[0.35em] animate-fade-in">
+          Récompense obtenue
+        </p>
+      )}
+    </div>
+  );
+}
+
 function CardReveal({ card }: { card: Card }) {
   const rarity: Rarity =
     card.kind === "cosmetic" ? card.rarity :
-    card.kind === "powerup" ? "rare" :
-    card.kind === "token" ? "rare" :
-    "common";
+    card.kind === "powerup" || card.kind === "token" ? "rare" : "common";
   const theme = RARITY_THEME[rarity];
+  const isHigh = rarity === "epic" || rarity === "legendary" || rarity === "creator" || rarity === "queen";
 
   const renderVisual = () => {
     if (card.kind === "cosmetic") {
-      if (card.category === "frame") {
+      if (card.category === "frame")
         return <CosmeticAvatar fallback="✨" frame={card.key} size="xl" />;
-      }
-      if (card.category === "background") {
+      if (card.category === "background")
         return (
           <div className="w-40 h-28 rounded-md border-[2.5px] border-foreground overflow-hidden relative" style={backgroundStyle(card.key)}>
             <BackgroundDecor itemKey={card.key} />
           </div>
         );
-      }
-      if (card.category === "sticker") {
+      if (card.category === "sticker")
         return hasCustomSticker(card.key)
           ? <StickerDecor itemKey={card.key} className="block w-32 h-32" />
           : <span className="text-8xl drop-shadow-lg">{card.emoji ?? "✨"}</span>;
-      }
-      if (card.category === "title") {
-        if (card.key === "title_owner") {
-          return <p className="owner-title text-3xl">{card.name}</p>;
-        }
-        return <p className={cn("font-mono uppercase tracking-widest text-2xl font-bold", theme.text)}>{card.name}</p>;
-      }
+      if (card.category === "title")
+        return card.key === "title_owner"
+          ? <p className="owner-title text-3xl">{card.name}</p>
+          : <p className={cn("font-mono uppercase tracking-widest text-2xl font-bold", theme.text)}>{card.name}</p>;
     }
-    if (card.kind === "xp") return <p className="text-7xl font-display xp-slam">+<CountUp target={card.xp} /></p>;
-    if (card.kind === "token") return <span className="text-8xl">📎</span>;
+    if (card.kind === "xp")      return <p className="text-7xl font-display xp-slam">+<CountUp target={card.xp} /></p>;
+    if (card.kind === "token")   return <span className="text-8xl">📎</span>;
     if (card.kind === "powerup") return <span className="text-8xl">{POWERUP_LABELS[card.key]?.emoji ?? "⚡"}</span>;
     return null;
   };
 
   const title =
     card.kind === "cosmetic" ? card.name :
-    card.kind === "xp" ? "Bonus XP" :
-    card.kind === "token" ? "Pass de streak" :
-    card.kind === "powerup" ? POWERUP_LABELS[card.key]?.name ?? "Power-up" :
-    "";
+    card.kind === "xp"      ? "Bonus XP" :
+    card.kind === "token"   ? "Pass de streak" :
+    POWERUP_LABELS[(card as any).key]?.name ?? "Power-up";
 
   const subtitle =
     card.kind === "cosmetic" ? `${RARITY_LABEL[rarity]} · ${card.category}` :
-    card.kind === "xp" ? "Expérience gagnée" :
-    card.kind === "token" ? "Protège ton streak" :
-    card.kind === "powerup" ? "Pouvoir spécial" :
-    "";
+    card.kind === "xp"      ? "Expérience gagnée" :
+    card.kind === "token"   ? "Protège ton streak" : "Pouvoir spécial";
 
   return (
-    <div className="card-grand-reveal relative">
+    <div className="card-rise-in relative">
       <div className={cn("relative rounded-2xl border-[3px] border-foreground bg-card p-6 w-72 sm:w-80 card-idle-float", theme.glow)}>
         <div className={cn("absolute inset-0 rounded-2xl pointer-events-none", theme.aura)} />
-        {/* Sparkles around premium cards */}
-        {(rarity === "legendary" || rarity === "epic" || rarity === "creator" || rarity === "queen") && (
+
+        {/* Corner sparkles on rare+ */}
+        {isHigh && (
           <>
-            <Sparkles className="absolute -top-3 -left-3 h-6 w-6 text-yellow-300 sparkle-twinkle" style={{ animationDelay: "0s" }} />
-            <Sparkles className="absolute -top-2 -right-4 h-5 w-5 text-pink-300 sparkle-twinkle" style={{ animationDelay: "0.4s" }} />
-            <Sparkles className="absolute -bottom-3 -left-2 h-5 w-5 text-purple-300 sparkle-twinkle" style={{ animationDelay: "0.7s" }} />
-            <Sparkles className="absolute -bottom-2 -right-3 h-6 w-6 text-amber-300 sparkle-twinkle" style={{ animationDelay: "1s" }} />
+            <div className="absolute -top-3 -left-3 w-4 h-4 rounded-full bg-yellow-300 sparkle-twinkle" style={{ animationDelay: "0s" }} />
+            <div className="absolute -top-2 -right-4 w-3.5 h-3.5 rounded-full bg-pink-300 sparkle-twinkle" style={{ animationDelay: "0.4s" }} />
+            <div className="absolute -bottom-3 -left-2 w-3.5 h-3.5 rounded-full bg-purple-300 sparkle-twinkle" style={{ animationDelay: "0.72s" }} />
+            <div className="absolute -bottom-2 -right-3 w-4 h-4 rounded-full bg-amber-300 sparkle-twinkle" style={{ animationDelay: "1.05s" }} />
           </>
         )}
-        <div className={cn("absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest border-2 border-foreground", theme.label)}>
+
+        {/* Rarity pill */}
+        <div className={cn(
+          "absolute -top-3 left-1/2 -translate-x-1/2 px-3 py-1 rounded-full text-[10px] font-mono uppercase tracking-widest border-2 border-foreground",
+          theme.label
+        )}>
           {RARITY_LABEL[rarity]}
         </div>
+
         <div className="relative h-44 flex items-center justify-center">
           {renderVisual()}
         </div>
@@ -266,118 +305,89 @@ function CardReveal({ card }: { card: Card }) {
   );
 }
 
-export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: () => void }) {
-  const cards = useMemo(() => rewardToCards(reward), [reward]);
-  const peakRarity = useMemo(() => {
-    const order = RARITY_ORDER;
-    let best: Rarity = "common";
-    for (const c of cards) {
-      if (c.kind === "cosmetic" && order.indexOf(c.rarity) > order.indexOf(best)) best = c.rarity;
-    }
-    if (best === "common" && cards.some(c => c.kind === "powerup" || c.kind === "token")) best = "rare";
-    return best;
-  }, [cards]);
+/* ─── Main reveal component ──────────────────────────────────────────────── */
 
-  // Phases: anticipation → shake → charge → burst → reveal → (per-card: rarityCard → card)
-  type Phase = "anticipation" | "shake" | "charge" | "burst" | "reveal";
-  const [phase, setPhase] = useState<Phase>("anticipation");
-  const [revealIdx, setRevealIdx] = useState(0);
-  const [showRarityBanner, setShowRarityBanner] = useState(true);
+export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: () => void }) {
+  const cards      = useMemo(() => rewardToCards(reward), [reward]);
+  const peakRarity = useMemo(() => highestRarity(cards), [cards]);
+
+  type Phase    = "enter" | "glow" | "burst" | "reveal";
+  type SubPhase = "banner" | "card";
+
+  const [phase,       setPhase]       = useState<Phase>("enter");
+  const [revealIdx,   setRevealIdx]   = useState(0);
+  const [subPhase,    setSubPhase]    = useState<SubPhase>("banner");
   const [showConfetti, setShowConfetti] = useState(false);
 
+  // ── Main cinematic timeline: 1.2 s to first card (was 3.3 s) ──────────
   useEffect(() => {
-    // Cinematic timeline
-    const t1 = setTimeout(() => setPhase("shake"),        900);   // tension build
-    const t2 = setTimeout(() => setPhase("charge"),       2100);  // pull-in streaks
-    const t3 = setTimeout(() => setPhase("burst"),        2750);  // explosion
-    const t4 = setTimeout(() => {
+    const t1 = setTimeout(() => setPhase("glow"),  380);
+    const t2 = setTimeout(() => setPhase("burst"), 930);
+    const t3 = setTimeout(() => {
       setPhase("reveal");
       setShowConfetti(true);
-    }, 3300);
-    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); };
+    }, 1200);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
   }, []);
 
-  // When switching to a new card, briefly show rarity banner first
+  // ── Banner → card transition on each reveal ────────────────────────────
   useEffect(() => {
     if (phase !== "reveal") return;
-    setShowRarityBanner(true);
-    const t = setTimeout(() => setShowRarityBanner(false), 750);
+    setSubPhase("banner");
+    const t = setTimeout(() => setSubPhase("card"), 680);
     return () => clearTimeout(t);
   }, [revealIdx, phase]);
 
   const next = () => {
-    if (revealIdx < cards.length - 1) setRevealIdx((i) => i + 1);
+    if (revealIdx < cards.length - 1) setRevealIdx(i => i + 1);
     else onClose();
   };
 
-  // Background tint by rarity
   const bgTint =
-    peakRarity === "queen" ? "from-pink-900/95 via-rose-900/95 to-amber-950/98" :
-    peakRarity === "creator" ? "from-amber-900/95 via-yellow-900/95 to-rose-950/98" :
-    peakRarity === "legendary" ? "from-amber-900/95 via-rose-900/95 to-purple-950/98" :
-    peakRarity === "epic" ? "from-purple-950/95 via-fuchsia-900/95 to-indigo-950/98" :
-    peakRarity === "rare" ? "from-blue-950/95 via-indigo-900/95 to-slate-950/98" :
+    peakRarity === "queen"     ? "from-pink-900/95 via-rose-900/95 to-amber-950/98"    :
+    peakRarity === "creator"   ? "from-amber-900/95 via-yellow-900/95 to-rose-950/98"  :
+    peakRarity === "legendary" ? "from-amber-900/95 via-rose-900/95 to-purple-950/98"  :
+    peakRarity === "epic"      ? "from-purple-950/95 via-fuchsia-900/95 to-indigo-950/98" :
+    peakRarity === "rare"      ? "from-blue-950/95 via-indigo-900/95 to-slate-950/98"  :
     "from-slate-900/95 via-slate-800/95 to-slate-950/98";
 
   return (
-    <div className={cn("fixed inset-0 z-[100] overflow-hidden bg-gradient-to-br animate-fade-in", bgTint, phase === "burst" && "screen-shake")}>
-      {/* Star background */}
-      <div className="absolute inset-0 pointer-events-none opacity-60">
+    <div className={cn(
+      "fixed inset-0 z-[100] overflow-hidden bg-gradient-to-br animate-fade-in",
+      bgTint,
+      phase === "burst" && "screen-shake"
+    )}>
+
+      {/* ── Star field ──────────────────────────────────────────────────── */}
+      <div className="absolute inset-0 pointer-events-none opacity-45">
         <svg className="w-full h-full">
-          {Array.from({ length: 80 }).map((_, i) => (
-            <circle key={i} cx={`${(i * 13) % 100}%`} cy={`${(i * 17) % 100}%`} r={i % 6 === 0 ? 2 : 1} fill="#fff" opacity={0.4 + (i % 4) * 0.15}>
-              <animate attributeName="opacity" values="0.2;1;0.2" dur={`${1 + (i % 5) * 0.4}s`} repeatCount="indefinite" />
+          {Array.from({ length: 55 }).map((_, i) => (
+            <circle key={i}
+              cx={`${(i * 17 + 5) % 100}%`} cy={`${(i * 13 + 8) % 100}%`}
+              r={i % 7 === 0 ? 1.8 : 1} fill="#fff" opacity={0.25 + (i % 4) * 0.18}>
+              <animate attributeName="opacity" values="0.1;0.95;0.1"
+                dur={`${1.2 + (i % 5) * 0.32}s`} repeatCount="indefinite" />
             </circle>
           ))}
         </svg>
       </div>
 
-      {/* Vignette during anticipation/shake/charge — keeps focus on the box */}
-      {phase !== "reveal" && (
-        <div className="absolute inset-0 pointer-events-none vignette-pulse" />
-      )}
-
-      {/* Close button */}
+      {/* ── Close ───────────────────────────────────────────────────────── */}
       <button
         onClick={onClose}
-        className="absolute top-4 right-4 z-50 h-10 w-10 rounded-full bg-background/20 hover:bg-background/40 backdrop-blur-sm flex items-center justify-center text-white"
+        className="absolute top-4 right-4 z-50 h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-sm flex items-center justify-center text-white transition-colors"
         aria-label="Fermer"
       >
         <X className="h-5 w-5" />
       </button>
 
-      {/* Light rays during reveal */}
+      {/* ── Reveal: rotating light rays ─────────────────────────────────── */}
       {phase === "reveal" && <Rays rarity={peakRarity} />}
 
-      {/* Charge-phase: magnetic pull streaks converging on box */}
-      {phase === "charge" && (
-        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-          {Array.from({ length: 12 }).map((_, i) => {
-            const angle = (i / 12) * 2 * Math.PI;
-            const dist = 280;
-            const sx = Math.cos(angle) * dist;
-            const sy = Math.sin(angle) * dist;
-            return (
-              <span
-                key={i}
-                className="streak-pull"
-                style={{
-                  // @ts-ignore
-                  "--sx": `${sx}px`,
-                  "--sy": `${sy}px`,
-                  transform: `translate(${sx}px, ${sy}px) rotate(${(angle * 180) / Math.PI + 90}deg)`,
-                  animationDelay: `${i * 0.04}s`,
-                } as any}
-              />
-            );
-          })}
-        </div>
-      )}
-
-      {/* Burst phase: chromatic flash + 5 shockwave rings */}
+      {/* ── Burst effects ───────────────────────────────────────────────── */}
       {phase === "burst" && (
         <>
-          <div className="absolute inset-0 flash-chromatic" />
+          <div className="absolute inset-0 flash-chromatic pointer-events-none" />
           <div className="shockwave-ring" />
           <div className="shockwave-ring delay-1" />
           <div className="shockwave-ring delay-2" />
@@ -387,156 +397,104 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
         </>
       )}
 
+      {/* ── Main content area ───────────────────────────────────────────── */}
       <div className="relative z-20 h-full w-full flex flex-col items-center justify-center px-5">
+
         {/* Pre-reveal: box stages */}
         {phase !== "reveal" && (
-          <div className="flex flex-col items-center gap-5 relative">
-            {/* Orbiting particles during shake/charge — energy build-up */}
-            {(phase === "shake" || phase === "charge") && (
+          <div className="flex flex-col items-center gap-6 relative">
+
+            {/* Orbital energy particles during glow phase */}
+            {phase === "glow" && (
               <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
-                {Array.from({ length: 10 }).map((_, i) => (
-                  <span
-                    key={i}
-                    className="particle-orbit"
-                    style={{
-                      // @ts-ignore
-                      "--orbit-r": `${70 + (i % 3) * 20}px`,
-                      animationDelay: `${i * 0.12}s`,
-                      animationDuration: `${1.4 + (i % 3) * 0.3}s`,
-                    } as any}
-                  >
-                    <span
-                      className="block w-3 h-3 rounded-full"
-                      style={{
-                        background:
-                          i % 3 === 0 ? "hsl(45 100% 65%)" :
-                          i % 3 === 1 ? "hsl(280 90% 70%)" :
-                          "hsl(220 90% 65%)",
-                        boxShadow: "0 0 12px currentColor",
-                      }}
-                    />
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <span key={i} className="particle-orbit" style={{
+                    "--orbit-r": `${66 + (i % 3) * 18}px`,
+                    animationDelay: `${i * 0.14}s`,
+                    animationDuration: `${1.45 + (i % 3) * 0.22}s`,
+                  } as React.CSSProperties & { "--orbit-r": string }}>
+                    <span className="block w-2.5 h-2.5 rounded-full" style={{
+                      background:
+                        i % 3 === 0 ? "hsl(45 100% 65%)"  :
+                        i % 3 === 1 ? "hsl(280 90% 70%)"  :
+                                      "hsl(220 90% 65%)",
+                      boxShadow: "0 0 10px currentColor",
+                    }} />
                   </span>
                 ))}
               </div>
             )}
-            <div
-              className={cn(
-                phase === "anticipation" && "anticipation-zoom heartbeat",
-                phase === "shake" && "box-shake-intense",
-                phase === "charge" && "box-charge",
-                phase === "burst" && "box-explode",
-              )}
-            >
-              <BoxIcon rarity={peakRarity} lidFly={phase === "burst"} />
+
+            {/* Box — enters from below, glows, explodes */}
+            <div className={cn(
+              phase === "enter" && "box-enter",
+              phase === "glow"  && "heartbeat",
+              phase === "burst" && "box-explode",
+            )}>
+              <BoxIcon lidFly={phase === "burst"} showSeamGlow={phase === "glow"} />
             </div>
-            <p className="font-display text-2xl text-white drop-shadow-lg tracking-wide">
-              {phase === "anticipation" && "Préparation..."}
-              {phase === "shake" && "Ouverture..."}
-              {phase === "charge" && "⚡️ ⚡️ ⚡️"}
-              {phase === "burst" && ""}
+
+            {/* Status copy */}
+            <p className={cn(
+              "font-display text-xl text-white/90 tracking-wide transition-opacity duration-150",
+              phase === "burst" ? "opacity-0" : "opacity-100"
+            )}>
+              {phase === "enter" && "Boîte mystère"}
+              {phase === "glow"  && "⚡ Ouverture…"}
             </p>
           </div>
         )}
 
-        {/* Reveal: rarity title-card slams in, then prize card drops */}
+        {/* Reveal stage */}
         {phase === "reveal" && cards[revealIdx] && (
-          <>
-            {showRarityBanner ? (
-              <RarityBanner card={cards[revealIdx]} />
-            ) : (
-              <CardReveal key={revealIdx} card={cards[revealIdx]} />
-            )}
-            <div className="mt-8 flex flex-col items-center gap-3">
-              <p className="text-xs font-mono uppercase tracking-widest text-white/70">
-                {revealIdx + 1} / {cards.length}
-              </p>
-              {!showRarityBanner && (
+          <div className="flex flex-col items-center">
+
+            {/* Rarity banner (solid color text, no gradient-text ban violation) */}
+            {subPhase === "banner" && <RarityBanner card={cards[revealIdx]} />}
+
+            {/* Card rise-in (spring up from below, no nauseating rotateY) */}
+            {subPhase === "card" && <CardReveal key={revealIdx} card={cards[revealIdx]} />}
+
+            {/* Progress + action */}
+            {subPhase === "card" && (
+              <div className="mt-7 flex flex-col items-center gap-3.5">
+
+                {/* Dot progress indicators (replaces "1 / N" text) */}
+                {cards.length > 1 && (
+                  <div className="flex items-center gap-2">
+                    {cards.map((_, i) => (
+                      <div
+                        key={i}
+                        className={cn(
+                          "rounded-full h-1.5 transition-all duration-300",
+                          i === revealIdx
+                            ? "w-6 bg-white dot-pill-in"
+                            : i < revealIdx
+                            ? "w-1.5 bg-white/40"
+                            : "w-1.5 bg-white/20"
+                        )}
+                      />
+                    ))}
+                  </div>
+                )}
+
+                {/* Action button — bounces in from below */}
                 <button
                   onClick={next}
-                  className="px-6 py-3 rounded-md border-[2.5px] border-foreground bg-white text-foreground font-bold uppercase tracking-wide text-sm shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-sm transition-all flex items-center gap-2 animate-fade-in"
+                  className="btn-bounce-in px-7 py-3 rounded-md border-[2.5px] border-foreground bg-white text-foreground font-bold uppercase tracking-wide text-sm shadow-brutal hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-brutal-sm transition-all flex items-center gap-2"
                 >
-                  {revealIdx < cards.length - 1 ? <>Suivant <ChevronRight className="h-4 w-4" /></> : "Terminer ✨"}
+                  {revealIdx < cards.length - 1
+                    ? <>Suivant <ChevronRight className="h-4 w-4" /></>
+                    : "Terminer ✨"
+                  }
                 </button>
-              )}
-            </div>
-          </>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
       {showConfetti && <Confetti rarity={peakRarity} />}
-    </div>
-  );
-}
-
-/** Big rarity announcement that slams in before each card. */
-function RarityBanner({ card }: { card: Card }) {
-  const rarity: Rarity =
-    card.kind === "cosmetic" ? card.rarity :
-    card.kind === "powerup" ? "rare" :
-    card.kind === "token" ? "rare" :
-    "common";
-  const theme = RARITY_THEME[rarity];
-  const isBig = rarity === "epic" || rarity === "legendary" || rarity === "creator" || rarity === "queen";
-  return (
-    <div className="flex flex-col items-center gap-3">
-      <div className={cn("rarity-slam font-display tracking-widest uppercase text-center", isBig ? "text-6xl sm:text-7xl" : "text-4xl sm:text-5xl")}>
-        <span
-          className={cn("bg-clip-text text-transparent bg-gradient-to-r drop-shadow-[0_4px_24px_rgba(0,0,0,0.6)]", theme.gradient)}
-          style={{ WebkitBackgroundClip: "text" }}
-        >
-          {RARITY_LABEL[rarity]}
-        </span>
-      </div>
-      {isBig && (
-        <div className="flex items-center gap-2 text-white/90 font-mono text-xs uppercase tracking-[0.3em] animate-fade-in">
-          <Sparkles className="h-3.5 w-3.5" /> Récompense rare <Sparkles className="h-3.5 w-3.5" />
-        </div>
-      )}
-    </div>
-  );
-}
-
-function BoxIcon({ rarity, lidFly = false }: { rarity: Rarity; lidFly?: boolean }) {
-  const theme = RARITY_THEME[rarity];
-  return (
-    <div className={cn("relative rounded-2xl", theme.glow)}>
-      <svg viewBox="0 0 120 120" className="w-44 h-44 drop-shadow-2xl overflow-visible">
-        <defs>
-          <linearGradient id="box-body" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#fde047" />
-            <stop offset="100%" stopColor="#f97316" />
-          </linearGradient>
-          <linearGradient id="box-lid" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor="#fef9c3" />
-            <stop offset="100%" stopColor="#fde047" />
-          </linearGradient>
-        </defs>
-        {/* shadow */}
-        <ellipse cx="60" cy="110" rx="38" ry="4" fill="#000" opacity="0.4" />
-        {/* body */}
-        <rect x="20" y="50" width="80" height="55" rx="6" fill="url(#box-body)" stroke="#000" strokeWidth="3" />
-        {/* ribbon vertical body */}
-        <rect x="55" y="50" width="10" height="55" fill="#ec4899" stroke="#000" strokeWidth="2" />
-        {/* lid group — flies off during burst */}
-        <g className={lidFly ? "lid-fly" : ""}>
-          <rect x="15" y="38" width="90" height="18" rx="4" fill="url(#box-lid)" stroke="#000" strokeWidth="3" />
-          <rect x="55" y="38" width="10" height="18" fill="#ec4899" stroke="#000" strokeWidth="2" />
-          <path d="M40 38 Q 50 18 60 38 Q 70 18 80 38 Z" fill="#ec4899" stroke="#000" strokeWidth="2.5" />
-          <circle cx="60" cy="38" r="4" fill="#fde047" stroke="#000" strokeWidth="2" />
-        </g>
-        {/* sparkles */}
-        <g>
-          <circle cx="20" cy="20" r="2" fill="#fff">
-            <animate attributeName="opacity" values="0;1;0" dur="1.2s" repeatCount="indefinite" />
-          </circle>
-          <circle cx="100" cy="30" r="2" fill="#fff">
-            <animate attributeName="opacity" values="0;1;0" dur="1.4s" begin="0.4s" repeatCount="indefinite" />
-          </circle>
-          <circle cx="105" cy="80" r="1.6" fill="#fff">
-            <animate attributeName="opacity" values="0;1;0" dur="1.1s" begin="0.7s" repeatCount="indefinite" />
-          </circle>
-        </g>
-      </svg>
     </div>
   );
 }

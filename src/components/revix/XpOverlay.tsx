@@ -41,7 +41,7 @@ export function XpOverlay() {
 
       {levelup !== null && (
         <div className="fixed inset-0 z-[80] flex items-center justify-center bg-foreground/40 backdrop-blur-sm animate-fade-in">
-          <div className="card-paper p-8 max-w-sm mx-4 text-center relative animate-scale-in">
+          <div className="card-paper p-8 max-w-sm mx-4 text-center relative animate-pop-in">
             <span className="tape" />
             <Trophy className="h-12 w-12 mx-auto text-primary float-slow" />
             <p className="text-xs uppercase tracking-widest text-muted-foreground mt-3">Level up</p>

@@ -117,7 +117,7 @@ export function FlashQuizCard() {
     <button
       onClick={openPicker}
       disabled={loading}
-      className="block w-full card-paper p-3 mb-3 text-left hover:shadow-glow transition-all tilt-l relative"
+      className="block w-full card-paper p-3 mb-3 text-left hover:shadow-glow transition-all tilt-l relative tap-press"
     >
       <div className="flex items-center gap-3">
         <div className="h-11 w-11 rounded-xl bg-accent text-accent-foreground border-[2.5px] border-foreground flex items-center justify-center shrink-0 shadow-brutal-sm">

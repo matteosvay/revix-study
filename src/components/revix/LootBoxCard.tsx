@@ -69,7 +69,7 @@ export function LootBoxCard() {
         <button
           onClick={open}
           disabled={opening}
-          className="block w-full card-paper p-4 mb-3 relative overflow-hidden text-left tilt-r hover:shadow-glow transition-all group active:scale-95"
+          className="block w-full card-paper p-4 mb-3 relative overflow-hidden text-left tilt-r hover:shadow-glow transition-all group tap-press"
         >
           <span className="tape" />
           <div className="flex items-center gap-3">

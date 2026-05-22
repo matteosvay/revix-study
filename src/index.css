@@ -396,13 +396,14 @@
   }
   .scribble path { stroke-dasharray: 200; animation: scribble-in 1.2s ease-out forwards; }
 
-  /* XP gain pill */
+  /* XP gain pill — punchy entrance then floats up */
   @keyframes xp-rise {
-    0% { transform: translateY(0) scale(0.9); opacity: 0; }
-    20% { opacity: 1; transform: translateY(-10px) scale(1); }
-    100% { transform: translateY(-60px) scale(1); opacity: 0; }
+    0%   { transform: translateY(0) scale(0.65); opacity: 0; }
+    18%  { transform: translateY(-10px) scale(1.12); opacity: 1; }
+    32%  { transform: translateY(-14px) scale(0.98); opacity: 1; }
+    100% { transform: translateY(-68px) scale(0.94); opacity: 0; }
   }
-  .xp-pill { animation: xp-rise 1.6s ease-out forwards; }
+  .xp-pill { animation: xp-rise 1.55s cubic-bezier(0.22, 1, 0.36, 1) forwards; will-change: transform, opacity; }
 
   /* Étiquette adhésive brutaliste */
   .label-tape {
@@ -772,16 +773,17 @@
   .answer-postit.is-faded { opacity: 0.4; transform: scale(0.97); }
 
   @keyframes correct-pulse {
-    0%   { transform: scale(1); }
-    40%  { transform: scale(1.06); box-shadow: 6px 6px 0 0 hsl(var(--success)); }
-    100% { transform: scale(1); }
+    0%   { transform: scale(1) translateY(0); }
+    38%  { transform: scale(1.08) translateY(-3px); }
+    100% { transform: scale(1) translateY(0); }
   }
   @keyframes wrong-shake {
-    0%, 100% { transform: translateX(0); }
-    20% { transform: translateX(-6px); }
-    40% { transform: translateX(6px); }
-    60% { transform: translateX(-4px); }
-    80% { transform: translateX(4px); }
+    0%, 100% { transform: translateX(0) rotate(0); }
+    16% { transform: translateX(-8px) rotate(-1.5deg); }
+    33% { transform: translateX(8px) rotate(1.5deg); }
+    50% { transform: translateX(-5px) rotate(-0.8deg); }
+    67% { transform: translateX(5px) rotate(0.8deg); }
+    84% { transform: translateX(-2px); }
   }
 
   /* Étoiles dessinées */
@@ -1138,16 +1140,17 @@
     border-radius: 2px;
   }
 
-  /* Rarity reveal "title card" — slams in from sides */
+  /* Rarity reveal "title card" — punchy scale slam, no blur (perf) */
   @keyframes rarity-slam-in {
-    0%   { transform: scale(3) translateY(-30px); opacity: 0; letter-spacing: 1em; filter: blur(20px); }
-    60%  { transform: scale(0.9); opacity: 1; letter-spacing: 0.05em; filter: blur(0); }
-    80%  { transform: scale(1.05); }
-    100% { transform: scale(1); opacity: 1; letter-spacing: 0.1em; filter: blur(0); }
+    0%   { transform: scale(2.8) translateY(-16px); opacity: 0; }
+    56%  { transform: scale(0.93) translateY(0); opacity: 1; }
+    76%  { transform: scale(1.06); }
+    100% { transform: scale(1); opacity: 1; }
   }
   .rarity-slam {
-    animation: rarity-slam-in 0.65s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+    animation: rarity-slam-in 0.58s cubic-bezier(0.22, 1, 0.36, 1) forwards;
     display: inline-block;
+    will-change: transform, opacity;
   }
 
   /* Card reveal — flip + zoom dramatic */
@@ -1163,12 +1166,12 @@
     transform-style: preserve-3d;
   }
 
-  /* Constant subtle float after reveal — keeps eye engaged */
+  /* Constant subtle float after reveal — translate only, no rotate (avoids GPU layer churn) */
   @keyframes card-idle-float {
-    0%, 100% { transform: translateY(0) rotate(0); }
-    50%      { transform: translateY(-6px) rotate(0.5deg); }
+    0%, 100% { transform: translateY(0); }
+    50%       { transform: translateY(-7px); }
   }
-  .card-idle-float { animation: card-idle-float 3s ease-in-out infinite; }
+  .card-idle-float { animation: card-idle-float 3s ease-in-out infinite; will-change: transform; }
 
   /* Sparkle bursts around legendary cards */
   @keyframes sparkle-twinkle {
@@ -1296,7 +1299,7 @@
 @layer utilities {
   /* Transition de page — légère, rapide, ne gêne pas le flux */
   .route-transition {
-    animation: page-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: page-in 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
     will-change: transform, opacity;
   }
 
@@ -1316,11 +1319,11 @@
   .stagger-in > *:nth-child(n+9){ animation-delay: 265ms; }
 
   @keyframes slide-up-fade {
-    0%   { opacity: 0; transform: translateY(10px); }
+    0%   { opacity: 0; transform: translateY(18px); }
     100% { opacity: 1; transform: translateY(0); }
   }
   @keyframes page-in {
-    0%   { opacity: 0; transform: translateY(8px) scale(0.995); }
+    0%   { opacity: 0; transform: translateY(10px) scale(0.993); }
     100% { opacity: 1; transform: translateY(0) scale(1); }
   }
   @keyframes pop-bounce {
@@ -1330,16 +1333,16 @@
   }
   .pop-bounce { animation: pop-bounce 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-  /* Tap : feedback haptique-like — scale plutôt que translate pour le mobile */
+  /* Tap : pression immédiate, relâche avec micro-spring */
   .tap-press {
     -webkit-tap-highlight-color: transparent;
-    transition: transform 0.12s cubic-bezier(0.22, 1, 0.36, 1),
-                opacity 0.12s ease;
+    transition: transform 0.24s cubic-bezier(0.34, 1.56, 0.64, 1),
+                opacity 0.18s ease;
   }
   .tap-press:active {
-    transform: scale(0.95);
-    opacity: 0.85;
-    transition-duration: 0.05s;
+    transform: scale(0.93);
+    opacity: 0.84;
+    transition: transform 0.04s ease, opacity 0.04s ease;
   }
 
   /* Card interactive — press fluide sans translate pixel */
@@ -1389,6 +1392,89 @@
       transition-duration: 0.01ms !important;
       scroll-behavior: auto !important;
     }
+  }
+}
+
+/* ====== Loot box v4 — new enter/glow/card animations ====== */
+@layer utilities {
+  /* Box slides up from below on enter */
+  @keyframes box-enter {
+    0%   { transform: translateY(110px) scale(0.70); opacity: 0; filter: blur(6px); }
+    62%  { transform: translateY(-14px) scale(1.06); opacity: 1; filter: blur(0); }
+    80%  { transform: translateY(5px) scale(0.97); }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  .box-enter {
+    animation: box-enter 0.52s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    will-change: transform, opacity;
+  }
+
+  /* Seam light leak slides open during glow phase */
+  @keyframes seam-leak {
+    0%   { opacity: 0; transform: translateX(-50%) scaleX(0.08); }
+    100% { opacity: 1; transform: translateX(-50%) scaleX(1); }
+  }
+  .seam-leak {
+    animation: seam-leak 0.48s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    transform-origin: center;
+    will-change: transform, opacity;
+  }
+
+  /* Card rises from below with spring — replaces rotateY card-grand-reveal */
+  @keyframes card-rise-in {
+    0%   { transform: translateY(90px) scale(0.70); opacity: 0; filter: blur(5px); }
+    57%  { transform: translateY(-15px) scale(1.06); opacity: 1; filter: blur(0); }
+    76%  { transform: translateY(5px) scale(0.98); }
+    88%  { transform: translateY(-3px) scale(1.01); }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  .card-rise-in {
+    animation: card-rise-in 0.72s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    will-change: transform, opacity;
+  }
+
+  /* Rarity bar expands from center below the rarity text */
+  @keyframes rarity-bar-in {
+    from { width: 0; opacity: 0; }
+    to   { width: 80px; opacity: 1; }
+  }
+  .rarity-bar-in {
+    animation: rarity-bar-in 0.40s cubic-bezier(0.22, 1, 0.36, 1) 0.28s both;
+    transform-origin: center;
+  }
+
+  /* Action button bounces in from below */
+  @keyframes btn-bounce-in {
+    0%   { transform: translateY(20px) scale(0.82); opacity: 0; }
+    58%  { transform: translateY(-4px) scale(1.04); opacity: 1; }
+    78%  { transform: translateY(2px) scale(0.98); }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+  }
+  .btn-bounce-in {
+    animation: btn-bounce-in 0.40s cubic-bezier(0.22, 1, 0.36, 1) 0.28s both;
+    will-change: transform, opacity;
+  }
+
+  /* Progress dot pill */
+  @keyframes dot-pill-in {
+    from { transform: scaleX(0.2); opacity: 0.4; }
+    to   { transform: scaleX(1); opacity: 1; }
+  }
+  .dot-pill-in {
+    animation: dot-pill-in 0.28s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    transform-origin: left center;
+  }
+
+  /* General-purpose bounce-in for newly appearing UI elements */
+  @keyframes bounce-in {
+    0%   { transform: scale(0.72); opacity: 0; }
+    58%  { transform: scale(1.06); opacity: 1; }
+    78%  { transform: scale(0.97); }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  .bounce-in {
+    animation: bounce-in 0.36s cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: transform, opacity;
   }
 }
 
