@@ -35,6 +35,7 @@ import { InstallAppPrompt } from "./components/revix/InstallAppPrompt";
 import { ErrorBoundary } from "./components/revix/ErrorBoundary";
 import { AiLimitModal } from "./components/revix/AiLimitModal";
 import { CookieBanner } from "./components/revix/CookieBanner";
+import { SplashScreen } from "./components/revix/SplashScreen";
 import MentionsLegales from "./pages/legal/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/legal/PolitiqueConfidentialite";
 import CGU from "./pages/legal/CGU";
@@ -64,6 +65,7 @@ const App = () => (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
+          <SplashScreen />
           <Toaster />
           <Sonner />
           <XpOverlay />
