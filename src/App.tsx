@@ -68,7 +68,7 @@ const App = () => (
           <Sonner />
           <XpOverlay />
           <InstallAppPrompt />
-          <BrowserRouter>
+          <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <AiLimitModal />
             <CookieBanner />
             <Routes>

@@ -161,10 +161,18 @@ export default function Stats() {
         )}
 
         {attempts.length === 0 && (
-          <div className="text-center py-10 text-muted-foreground">
-            <Brain className="h-10 w-10 mx-auto mb-2 opacity-30" />
-            <p className="font-serif text-lg">Aucun quizz terminé</p>
-            <p className="text-xs mt-1">Lance ton premier quizz pour voir ta progression ici.</p>
+          <div className="text-center py-12 flex flex-col items-center gap-3">
+            <Brain className="h-12 w-12 opacity-20" />
+            <div>
+              <p className="font-serif text-lg text-foreground">Aucun quizz terminé</p>
+              <p className="text-xs text-muted-foreground mt-1">Fais ton premier quizz pour voir ta progression ici.</p>
+            </div>
+            <Link
+              to="/app/quizz"
+              className="mt-1 inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-foreground bg-primary text-primary-foreground font-serif text-sm shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition"
+            >
+              <BookOpen className="h-4 w-4" /> Lancer un quizz
+            </Link>
           </div>
         )}
       </div>
