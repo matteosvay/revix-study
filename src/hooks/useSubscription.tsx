@@ -67,12 +67,9 @@ export function useSubscription() {
   })();
 
   const tier: "free" | "pro" | "max" = (() => {
-    if (!isActive || !subscription) return "free";
-    if (subscription.tier === "max" || subscription.tier === "pro") return subscription.tier;
-    if (subscription.price_id?.startsWith("max")) return "max";
-    if (subscription.price_id?.startsWith("pro")) return "pro";
-    return "free";
+    // 🧪 PHASE DE TEST : tout le monde a accès aux fonctionnalités "max".
+    return "max";
   })();
 
-  return { subscription, isActive, tier, loading, refresh: load };
+  return { subscription, isActive: true, tier, loading, refresh: load };
 }
