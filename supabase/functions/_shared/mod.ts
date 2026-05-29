@@ -257,6 +257,11 @@ export async function enforceLimit(
   userId: string,
   action: ActionType,
 ): Promise<{ allowed: true; usage: any } | { allowed: false; response: Response }> {
+  // 🧪 PHASE DE TEST : toutes les fonctionnalités IA sont accessibles à tous,
+  // sans quota ni vérification de plan. À retirer pour réactiver les limites.
+  return { allowed: true, usage: { tier: "max", action, bypass: true } };
+
+  // eslint-disable-next-line @typescript-eslint/no-unreachable
   // Resolve user tier from profiles.plan
   let tier: Tier = "free";
   try {
