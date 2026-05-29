@@ -95,11 +95,8 @@ export function useUsage() {
           .eq("user_id", user.id),
       ]);
 
-      const planValue = (profile as any)?.plan;
-      const t: UsageTier =
-        planValue === "max" || planValue === "ultra" ? "max"
-        : planValue === "pro" ? "pro"
-        : "free";
+      // 🧪 PHASE DE TEST : tout le monde est considéré "max" (accès illimité).
+      const t: UsageTier = "max";
       setTier(t);
 
       const today = todayKey();
