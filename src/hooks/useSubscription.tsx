@@ -66,10 +66,8 @@ export function useSubscription() {
     return false;
   })();
 
-  const tier: "free" | "pro" | "max" = (() => {
-    // 🧪 PHASE DE TEST : tout le monde a accès aux fonctionnalités "max".
-    return "max";
-  })();
+  // 🧪 PHASE DE TEST : tout le monde a accès aux fonctionnalités "max".
+  const tier: "free" | "pro" | "max" = "max";
 
   return { subscription, isActive: true, tier, loading, refresh: load };
 }
