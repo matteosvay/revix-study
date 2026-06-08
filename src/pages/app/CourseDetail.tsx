@@ -146,70 +146,114 @@ export default function CourseDetail() {
 
   const exportPdf = async () => {
     if (!course) return;
-    const summary = course.summary;
-    const sections = summary?.sections ?? [];
-    const lines: string[] = [];
-    if (summary?.intro) lines.push(`<p class="intro">${summary.intro}</p>`);
-    sections.forEach(s => {
-      if (s.title) lines.push(`<h2>${s.title}</h2>`);
-      (s.blocks ?? []).forEach((b: any) => {
-        if (b.kind === "paragraph" && b.text) lines.push(`<p>${b.text}</p>`);
-        else if (b.kind === "definition") lines.push(`<p><strong>${b.term ?? ""}</strong>${b.term && b.text ? " — " : ""}${b.text ?? ""}</p>`);
-        else if (b.kind === "key_point" && b.text) lines.push(`<p>⭐ ${b.text}</p>`);
-        else if (b.kind === "example" && b.text) lines.push(`<p><em>Exemple : ${b.text}</em></p>`);
-        else if (b.kind === "tip" && b.text) lines.push(`<p>💡 ${b.text}</p>`);
-        else if (b.kind === "list" && Array.isArray(b.items)) lines.push(`<ul>${b.items.map((i: string) => `<li>${i}</li>`).join("")}</ul>`);
-      });
-    });
-    const innerHtml = `
-      <h1>${course.emoji ?? "📘"} ${course.title}</h1>
-      <p class="meta">${course.subject ?? ""} · Généré par Revix</p>
-      ${lines.join("\n")}
-    `;
-    // Conteneur off-screen pour rasterisation propre
-    const container = document.createElement("div");
-    container.style.cssText = "position:fixed;left:-10000px;top:0;width:700px;background:#fff;color:#111;font-family:Georgia,serif;line-height:1.6;padding:40px;";
-    container.innerHTML = `
-      <style>
-        h1{font-size:2rem;margin:0 0 4px}
-        h2{font-size:1.2rem;margin-top:1.6rem;border-bottom:2px solid #000;padding-bottom:4px}
-        p{margin:.6rem 0}ul{padding-left:1.4rem}li{margin:.3rem 0}
-        .intro{font-style:italic;color:#444}
-        .meta{color:#666;font-size:.85rem;margin-bottom:1.2rem}
-      </style>
-      ${innerHtml}
-    `;
-    document.body.appendChild(container);
     try {
-      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
-        import("jspdf"),
-        import("html2canvas"),
-      ]);
-      const canvas = await html2canvas(container, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
+      const { default: jsPDF } = await import("jspdf");
       const pdf = new jsPDF({ unit: "pt", format: "a4" });
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pageWidth;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-      const imgData = canvas.toDataURL("image/jpeg", 0.92);
-      let heightLeft = imgHeight;
-      let position = 0;
-      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-      heightLeft -= pageHeight;
-      while (heightLeft > 0) {
-        position -= pageHeight;
-        pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
-        heightLeft -= pageHeight;
+      const marginX = 48;
+      const marginTop = 56;
+      const marginBottom = 56;
+      const maxWidth = pageWidth - marginX * 2;
+      let y = marginTop;
+
+      // Sanitize: jsPDF standard fonts (helvetica) ne supportent pas les emojis/glyphes non-latins → on les retire
+      const clean = (s: string) =>
+        (s ?? "")
+          .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F000}-\u{1F2FF}]/gu, "")
+          .replace(/\s+/g, " ")
+          .trim();
+
+      const ensureSpace = (h: number) => {
+        if (y + h > pageHeight - marginBottom) {
+          pdf.addPage();
+          y = marginTop;
+        }
+      };
+
+      const writeText = (
+        text: string,
+        opts: { size?: number; style?: "normal" | "bold" | "italic"; color?: [number, number, number]; indent?: number; gap?: number } = {}
+      ) => {
+        const { size = 11, style = "normal", color = [20, 20, 20], indent = 0, gap = 4 } = opts;
+        const txt = clean(text);
+        if (!txt) return;
+        pdf.setFont("helvetica", style);
+        pdf.setFontSize(size);
+        pdf.setTextColor(color[0], color[1], color[2]);
+        const lineHeight = size * 1.35;
+        const lines = pdf.splitTextToSize(txt, maxWidth - indent);
+        for (const line of lines) {
+          ensureSpace(lineHeight);
+          pdf.text(line, marginX + indent, y);
+          y += lineHeight;
+        }
+        y += gap;
+      };
+
+      const drawSeparator = () => {
+        ensureSpace(10);
+        pdf.setDrawColor(180, 180, 180);
+        pdf.setLineWidth(0.5);
+        pdf.line(marginX, y, pageWidth - marginX, y);
+        y += 10;
+      };
+
+      // Titre
+      writeText(course.title, { size: 22, style: "bold", gap: 6 });
+      if (course.subject) writeText(`${course.subject} · Généré par Revix`, { size: 10, color: [120, 120, 120], gap: 10 });
+      drawSeparator();
+
+      const summary = course.summary;
+      if (summary?.intro) writeText(summary.intro, { size: 11, style: "italic", color: [80, 80, 80], gap: 10 });
+
+      (summary?.sections ?? []).forEach((s) => {
+        if (s.title) {
+          y += 6;
+          ensureSpace(24);
+          writeText(s.title, { size: 15, style: "bold", gap: 4 });
+          ensureSpace(6);
+          pdf.setDrawColor(0, 0, 0);
+          pdf.setLineWidth(1);
+          pdf.line(marginX, y - 2, marginX + 60, y - 2);
+          y += 6;
+        }
+        (s.blocks ?? []).forEach((b: any) => {
+          if (b.kind === "paragraph" && b.text) {
+            writeText(b.text);
+          } else if (b.kind === "definition") {
+            const term = clean(b.term ?? "");
+            const text = clean(b.text ?? "");
+            if (term || text) writeText(term && text ? `${term} — ${text}` : term || text, { style: term ? "bold" : "normal" });
+          } else if (b.kind === "key_point" && b.text) {
+            writeText(`• Point clé : ${b.text}`, { style: "bold" });
+          } else if (b.kind === "example" && b.text) {
+            writeText(`Exemple : ${b.text}`, { style: "italic", color: [70, 70, 70] });
+          } else if (b.kind === "tip" && b.text) {
+            writeText(`Astuce : ${b.text}`, { color: [70, 70, 70] });
+          } else if (b.kind === "list" && Array.isArray(b.items)) {
+            b.items.forEach((item: string) => writeText(`• ${item}`, { indent: 12, gap: 2 }));
+            y += 4;
+          }
+        });
+      });
+
+      // Pagination
+      const pageCount = pdf.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(9);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text(`${i} / ${pageCount}`, pageWidth - marginX, pageHeight - 24, { align: "right" });
       }
+
       const safeTitle = course.title.replace(/[^\w\-]+/g, "_").slice(0, 60) || "cours";
       pdf.save(`${safeTitle}.pdf`);
       toast.success("PDF téléchargé 📄");
     } catch (e: any) {
       console.error("[exportPdf]", e);
       toast.error("Erreur lors de l'export PDF");
-    } finally {
-      document.body.removeChild(container);
     }
   };
 
