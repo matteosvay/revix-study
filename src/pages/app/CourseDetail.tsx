@@ -144,7 +144,7 @@ export default function CourseDetail() {
     finally { setCreatingQuiz(false); }
   };
 
-  const exportPdf = () => {
+  const exportPdf = async () => {
     if (!course) return;
     const summary = course.summary;
     const sections = summary?.sections ?? [];
@@ -161,21 +161,56 @@ export default function CourseDetail() {
         else if (b.kind === "list" && Array.isArray(b.items)) lines.push(`<ul>${b.items.map((i: string) => `<li>${i}</li>`).join("")}</ul>`);
       });
     });
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${course.title}</title><style>
-      body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 24px;color:#111;line-height:1.6}
-      h1{font-size:2rem;margin-bottom:4px}h2{font-size:1.2rem;margin-top:2rem;border-bottom:2px solid #000;padding-bottom:4px}
-      p{margin:.6rem 0}ul{padding-left:1.4rem}li{margin:.3rem 0}.intro{font-style:italic;color:#444}
-      @media print{body{margin:0}}
-    </style></head><body>
+    const innerHtml = `
       <h1>${course.emoji ?? "📘"} ${course.title}</h1>
-      <p style="color:#666;font-size:.85rem;margin-bottom:1.5rem">${course.subject ?? ""} · Généré par Revix</p>
+      <p class="meta">${course.subject ?? ""} · Généré par Revix</p>
       ${lines.join("\n")}
-    </body></html>`;
-    const w = window.open("", "_blank");
-    if (!w) return;
-    w.document.write(html);
-    w.document.close();
-    w.print();
+    `;
+    // Conteneur off-screen pour rasterisation propre
+    const container = document.createElement("div");
+    container.style.cssText = "position:fixed;left:-10000px;top:0;width:700px;background:#fff;color:#111;font-family:Georgia,serif;line-height:1.6;padding:40px;";
+    container.innerHTML = `
+      <style>
+        h1{font-size:2rem;margin:0 0 4px}
+        h2{font-size:1.2rem;margin-top:1.6rem;border-bottom:2px solid #000;padding-bottom:4px}
+        p{margin:.6rem 0}ul{padding-left:1.4rem}li{margin:.3rem 0}
+        .intro{font-style:italic;color:#444}
+        .meta{color:#666;font-size:.85rem;margin-bottom:1.2rem}
+      </style>
+      ${innerHtml}
+    `;
+    document.body.appendChild(container);
+    try {
+      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+        import("jspdf"),
+        import("html2canvas"),
+      ]);
+      const canvas = await html2canvas(container, { scale: 2, backgroundColor: "#ffffff", useCORS: true });
+      const pdf = new jsPDF({ unit: "pt", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pageWidth;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      const imgData = canvas.toDataURL("image/jpeg", 0.92);
+      let heightLeft = imgHeight;
+      let position = 0;
+      pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight;
+      while (heightLeft > 0) {
+        position -= pageHeight;
+        pdf.addPage();
+        pdf.addImage(imgData, "JPEG", 0, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight;
+      }
+      const safeTitle = course.title.replace(/[^\w\-]+/g, "_").slice(0, 60) || "cours";
+      pdf.save(`${safeTitle}.pdf`);
+      toast.success("PDF téléchargé 📄");
+    } catch (e: any) {
+      console.error("[exportPdf]", e);
+      toast.error("Erreur lors de l'export PDF");
+    } finally {
+      document.body.removeChild(container);
+    }
   };
 
   const remove = async () => {
