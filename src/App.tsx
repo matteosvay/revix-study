@@ -40,6 +40,10 @@ import MentionsLegales from "./pages/legal/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/legal/PolitiqueConfidentialite";
 import CGU from "./pages/legal/CGU";
 import CGV from "./pages/legal/CGV";
+import FichesRevisionIA from "./pages/landings/FichesRevisionIA";
+import QuizIA from "./pages/landings/QuizIA";
+import PlanningRevision from "./pages/landings/PlanningRevision";
+import FlashcardsIA from "./pages/landings/FlashcardsIA";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -102,6 +106,11 @@ const App = () => (
             <Route path="/confidentialite" element={<PolitiqueConfidentialite />} />
             <Route path="/cgu" element={<CGU />} />
             <Route path="/cgv" element={<CGV />} />
+            {/* Landings SEO publiques */}
+            <Route path="/fiches-de-revision-ia" element={<FichesRevisionIA />} />
+            <Route path="/quiz-ia" element={<QuizIA />} />
+            <Route path="/planning-de-revision" element={<PlanningRevision />} />
+            <Route path="/flashcards-ia" element={<FlashcardsIA />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

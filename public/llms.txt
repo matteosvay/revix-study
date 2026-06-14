@@ -1,0 +1,22 @@
+# Revix
+
+> Revix est une app de révision boostée à l'IA pour étudiants francophones (BTS, Licence, Prépa, lycée). Elle transforme tes PDF et photos de cours en fiches, quizz, flashcards et plannings de révision personnalisés.
+
+Revix combine génération de contenu par IA, suivi de progression (XP, streaks, quêtes) et révisions espacées pour rendre l'apprentissage plus rapide et plus durable. Plans gratuits et payants (Pro 4,99 €/mois, Max 8,99 €/mois). Données hébergées en Europe.
+
+## Pages
+
+- [Accueil](/): présentation de Revix, fonctionnalités, tarifs et FAQ.
+- [Fiches de révision IA](/fiches-de-revision-ia): générer une fiche de révision à partir d'un PDF ou de photos de cours.
+- [Quiz IA](/quiz-ia): créer un quiz personnalisé (QCM, vrai/faux, questions ouvertes) depuis tes cours.
+- [Planning de révision](/planning-de-revision): planning de révisions automatique selon ta deadline d'examen.
+- [Flashcards IA](/flashcards-ia): flashcards avec révisions espacées (SM-2) générées depuis tes cours.
+- [Inscription](/signup): créer un compte gratuit.
+- [Connexion](/login): se connecter à son compte Revix.
+
+## Optional
+
+- [Mentions légales](/mentions-legales)
+- [Politique de confidentialité](/confidentialite)
+- [Conditions générales d'utilisation](/cgu)
+- [Conditions générales de vente](/cgv)

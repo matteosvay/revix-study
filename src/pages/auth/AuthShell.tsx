@@ -1,8 +1,17 @@
 import { ReactNode } from "react";
 import { Logo } from "@/components/revix/Logo";
+import { PageHead } from "@/components/seo/PageHead";
 
-export const AuthShell = ({ children, title, subtitle }: { children: ReactNode; title: string; subtitle: string }) => (
+interface AuthShellProps {
+  children: ReactNode;
+  title: string;
+  subtitle: string;
+  seo?: { title: string; description: string; path: string };
+}
+
+export const AuthShell = ({ children, title, subtitle, seo }: AuthShellProps) => (
   <div className="min-h-screen grid lg:grid-cols-2 paper-grain relative overflow-hidden">
+    {seo && <PageHead title={seo.title} description={seo.description} path={seo.path} />}
     {/* Post-its décoratifs flottants */}
     <div className="absolute top-10 left-10 h-20 w-20 postit p-2 hidden lg:block drift-slow font-hand text-sm">
       Pense à<br/>réviser !

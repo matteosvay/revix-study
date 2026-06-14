@@ -1,50 +1,67 @@
-## Contexte
+## Plan SEO Revix — du fix technique à la croissance organique
 
-Tu as validé la DA sur les 6 échantillons :
-- ✅ Sticker fusée (puffy, contour blanc, accent couleur)
-- ✅ Fond océan (illustration calme, painterly)
-- ✅ Cadre or 3D (anneau premium)
-- ❌ Fond phénix « trop abusé » → à refaire en version plus calme/cohérente avec l'app
+### Phase 1 — Corriger les 5 findings SEO actuels (quick wins)
 
-Les assets générés à la session précédente n'ont pas été persistés dans le repo (seuls les 6 samples sont là). Je relance donc la génération complète + l'intégration.
+**1. Sitemap manquant** (`/sitemap.xml` → 404)
+- Créer `scripts/generate-sitemap.ts` + hooks `predev`/`prebuild`.
+- Inclure uniquement les routes publiques indexables : `/`, `/login`, `/signup`, `/reset-password`, `/mentions-legales`, `/confidentialite`, `/cgu`, `/cgv` + futures landings (phase 3).
+- Exclure `/app/*`, `/admin/*`, `*`.
 
-## Ajustements DA suite à ton retour
+**2. `/llms.txt` manquant** (lisibilité IA — ChatGPT, Perplexity, Claude)
+- Créer `public/llms.txt` avec pitch Revix + liens vers pages publiques.
 
-- **Tous les fonds légendaires** : on reste sur des illustrations *painterly calmes* (style océan), pas de scènes dramatiques pleines de flammes/éclairs. La rareté se traduit par la richesse de la lumière et de la composition, pas par l'intensité du sujet. Ex: `bg_phoenix_fire` → ciel d'aube avec silhouette d'oiseau lumineux et plumes douces, pas un brasier.
-- **Stickers** : tous au style fusée (puffy 3D, contour blanc 6-8px, ombre douce). Hiérarchie par rareté = matériaux (ambre simple → coloré → glossy → or/cristal/glow).
-- **Cadres** : tous en anneau 3D premium (style or validé), variation par matière selon rareté.
+**3. Title trop long + métadonnées dupliquées sur toutes les routes**
+- Raccourcir le `<title>` global à <60 caractères : `Revix — Fiches, quizz & planning IA pour étudiants` (52 car.).
+- Installer `react-helmet-async`, ajouter `HelmetProvider` dans `main.tsx`.
+- Ajouter `<Helmet>` par page (Landing, Login, SignUp, légal, futures landings) avec **title, description, canonical et og:url propres à chaque route**.
+- Retirer `<link rel="canonical">` statique de `index.html` (chaque route gérera le sien).
 
-## Étapes
+**4. Previews sociaux non spécifiques**
+- Les mêmes `<Helmet>` couvriront `og:title`, `og:description`, `og:url`, `twitter:*` par page.
 
-### 1. Génération (~145 visuels)
-- Script `/tmp/run_gen.py` (déjà écrit) appelle `openai/gpt-image-2` via AI Gateway, 6 workers parallèles.
-- `quality: "low"` pour commun/rare/épique, `medium` pour légendaire.
-- Prompts construits depuis `/tmp/build_prompts.py` (mapping `item_key` → sujet + modulateur rareté).
-- Sortie brute → `/tmp/cosmetics_raw/{category}/{item_key}.png`.
+**5. FAQ structured data manquante**
+- Ajouter un JSON-LD `FAQPage` dans la Landing reprenant les questions/réponses du composant FAQ existant.
 
-### 2. Post-traitement (`/tmp/process.py`)
-- Stickers + frames : flood-fill depuis les bords pour rendre le fond blanc transparent.
-- Resize stickers/frames → 512px, fonds → 1280×720.
-- Compression WebP (qualité 88).
-- Sortie finale → `src/assets/cosmetics/gen/{category}/{item_key}.webp`.
+### Phase 2 — Boost technique SEO
 
-### 3. Refactor des composants
-- `src/lib/cosmetics.ts` : maps `STICKER_SRC`, `FRAME_SRC`, `BG_SRC` (item_key → URL importée). Les helpers `frameStyle/backgroundStyle` retournent l'URL au lieu du CSS.
-- `StickerDecor.tsx` (882 l.) → ~50 l. : juste un `<img>` + glow conditionnel par rareté.
-- `FrameDecor.tsx` (1077 l.) → ~80 l. : `<img>` anneau + halo CSS selon rareté.
-- `BackgroundDecor.tsx` (1285 l.) → ~30 l. : `<img>` plein cadre + overlay sombre léger pour lisibilité.
-- Préservés tels quels : `*_origine`, `*_reine` (créateur/queen — déjà premium).
+- Ajouter un JSON-LD `WebSite` avec `SearchAction` (sitelinks search box).
+- Préciser `og:image:width/height` et garantir image OG 1200x630 servie via le domaine du site (pas storage.googleapis).
+- Renforcer `index.html` avec `<meta name="keywords">` ciblé + hreflang `fr-FR`.
 
-### 4. QA
-- `/app/cosmetics` : onglets Cadres / Fonds / Stickers, preview de l'avatar équipé.
-- `PublicProfile`, `LeaderboardTabs`, `LootBoxReveal`, `StudyRoom` : vérifier rendu.
-- Console + network : pas d'erreurs 404 sur les imports d'images.
+### Phase 3 — Landings produit SEO (le vrai levier trafic)
 
-## Hors scope
-- Titres (texte stylé, inchangés).
-- DB / RPC / loot box (aucun changement de schéma ni de logique métier).
-- Cosmétiques `*_origine` / `*_reine` (conservés).
+D'après l'analyse Semrush, c'est ce qui fait décoller StudySmarter & Knowunity. Créer 4 landings publiques, chacune avec head, contenu unique, FAQ, JSON-LD et CTA vers signup :
 
-## Coût / durée estimés
-- ~10 min de génération (145 images × ~4s avec 6 workers).
-- Crédits modérés (low quality majoritaire).
+| Route | Cible mots-clés |
+|---|---|
+| `/fiches-de-revision-ia` | « fiche de révision », « fiche de révision IA », « créer fiche de révision PDF » |
+| `/quiz-ia` | « quiz révision IA », « générateur quiz cours », « QCM bac » |
+| `/planning-de-revision` | « planning de révision », « organiser ses révisions », « rétroplanning bac » |
+| `/flashcards-ia` | « flashcards », « flashcards IA », « apprendre avec flashcards » |
+
+Chaque landing : H1 unique, 600-1000 mots, section "comment ça marche", captures, FAQ, JSON-LD `SoftwareApplication` + `FAQPage`, lien vers `/signup`.
+
+### Phase 4 — Préparer le SEO long terme
+
+- **Recommandation domaine custom** : `revix-study.lovable.app` est un sous-domaine partagé `lovable.app` → Google ne traite jamais sérieusement le contenu d'un sous-domaine partagé. Acheter `revix.app` / `revix.fr` (faisable depuis Project Settings → Domains) est *le* prérequis pour ranker. Je le mentionne dans le résultat sans bloquer la phase 1-3.
+- Préparer la structure pour une future section `/blog` (fiches de cours, méthodos) — c'est ce qui fait 90% du trafic Knowunity. Pas créé maintenant, juste évoqué.
+
+### Détails techniques
+
+- **Dépendance ajoutée** : `react-helmet-async`.
+- **Fichiers créés** : `scripts/generate-sitemap.ts`, `public/llms.txt`, `src/components/seo/PageHead.tsx` (wrapper Helmet réutilisable), 4 fichiers de landings dans `src/pages/landings/`, route entries dans `src/App.tsx`.
+- **Fichiers modifiés** : `index.html` (title raccourci, suppression canonical), `src/main.tsx` (HelmetProvider), `package.json` (hooks predev/prebuild), `src/pages/Landing.tsx` (ajout JSON-LD FAQ + Helmet), pages `/login`, `/signup`, légales (Helmet).
+- **Pas touché** : routes `/app/*` et `/admin/*` (gated, déjà exclues robots).
+
+### Ce que tu obtiens à la fin
+
+- 5 findings SEO actuels → fixés.
+- Score lisibilité IA OK (llms.txt).
+- Chaque page publique a son propre titre/description/preview social → fin des duplicats.
+- 4 nouvelles landings ciblant des mots-clés à fort volume.
+- Sitemap auto-généré qui suivra l'ajout de futures pages.
+
+### Hors scope (à décider après)
+- Création d'un blog/section contenu (gros chantier).
+- Achat domaine custom (action utilisateur).
+- Configuration Google Search Console (peut être enchaînée après).
