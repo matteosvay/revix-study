@@ -596,7 +596,7 @@ export default function Campus() {
             </div>
             {rooms.length === 0 ? (
               <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
- <p className="text-4xl mb-2"></p>
+                <img src={illu.campus} alt="" className="w-12 h-12 mx-auto mb-2 object-contain" />
                 <p className="font-display text-base">Aucune salle active</p>
                 <p className="text-xs text-muted-foreground mt-2">Crée une salle pour réviser ensemble.</p>
               </div>
