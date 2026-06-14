@@ -114,7 +114,7 @@ export default function Fiches() {
   return (
     <AppLayout>
       <PageHeader
-        emoji="📚"
+        illustration={(await import("@/assets/illu")).illu.notebook}
         title="Mes cours"
         subtitle={subjectFilter ? `${filtered.length} cours · ${subjectFilter}` : `${courses.length} cours`}
         action={

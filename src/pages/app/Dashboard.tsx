@@ -12,6 +12,7 @@ import { LootBoxCard } from "@/components/revix/LootBoxCard";
 import { FlashQuizCard } from "@/components/revix/FlashQuizCard";
 import { useFomoChecks } from "@/hooks/useFomoChecks";
 import { UsageMeter } from "@/components/revix/UsageMeter";
+import { illu } from "@/assets/illu";
 
 type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
 
@@ -58,7 +59,7 @@ export default function Dashboard() {
   return (
     <AppLayout>
       <PageHeader
-        emoji="✨"
+        illustration={illu.desk}
         title={`Salut ${name}`}
         subtitle="Reprends là où tu t'es arrêté."
         action={<div className="lg:hidden"><NotificationBell /></div>}
