@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
+import { illu } from "@/assets/illu";
 import { XP_REWARDS } from "@/lib/gamification";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 import { localDateKey } from "@/lib/date";
@@ -613,7 +614,7 @@ export default function Quizz() {
     return (
       <AppLayout>
         <PageHeader
-          emoji="🧠"
+          illustration={illu.quiz}
           title="Quizz"
           subtitle="Choisis un quizz pour t'entraîner."
           action={

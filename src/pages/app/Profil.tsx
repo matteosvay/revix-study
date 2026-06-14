@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { CURSUS_OPTIONS } from "@/data/cursus";
+import { illu } from "@/assets/illu";
 import { SearchableCombobox, SearchableMultiCombobox } from "@/components/revix/SearchableCombobox";
 import { FORMATIONS } from "@/data/formations";
 import { SUBJECTS } from "@/data/subjects";
@@ -188,7 +189,7 @@ export default function Profil() {
 
   return (
     <AppLayout>
-      <PageHeader emoji="👤" title="Profil" />
+      <PageHeader illustration={illu.backpack} title="Profil" />
 
       <AvatarCropper
         file={pendingFile}

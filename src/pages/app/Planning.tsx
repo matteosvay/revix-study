@@ -13,6 +13,7 @@ import { Progress } from "@/components/ui/progress";
 import { bumpQuest } from "@/hooks/useGamification";
 import { localDateKey } from "@/lib/date";
 import { CoachPanel, useCoachContext } from "@/components/revix/coach/CoachPanel";
+import { illu } from "@/assets/illu";
 import { SmartAlertBanner } from "@/components/revix/coach/SmartAlertBanner";
 
 type Task = { id: string; task_date: string; start_time: string | null; end_time: string | null; subject: string; title: string | null; done: boolean };
@@ -123,7 +124,7 @@ export default function Planning() {
   return (
     <AppLayout>
       <PageHeader
-        emoji="🗓️"
+        illustration={illu.planning}
         title="Planning"
         subtitle="Les 7 prochains jours"
         action={
