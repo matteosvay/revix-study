@@ -6,6 +6,11 @@ export default function CGU() {
       title="Conditions Générales d'Utilisation"
       subtitle="En créant un compte sur Revix, vous acceptez les présentes Conditions Générales d'Utilisation (CGU). Veuillez les lire attentivement."
       updatedAt="19 mai 2026"
+      seo={{
+        title: "Conditions Générales d'Utilisation — Revix",
+        description: "Conditions Générales d'Utilisation (CGU) de l'application Revix : règles d'usage, compte utilisateur et responsabilités.",
+        path: "/cgu",
+      }}
     >
       <LegalHighlight>
         <p className="text-sm">

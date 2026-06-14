@@ -6,6 +6,11 @@ export default function PolitiqueConfidentialite() {
       title="Politique de confidentialité"
       subtitle="Comment Revix collecte, utilise et protège vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD — UE 2016/679) et à la loi Informatique et Libertés."
       updatedAt="19 mai 2026"
+      seo={{
+        title: "Politique de confidentialité — Revix",
+        description: "Comment Revix collecte, utilise et protège vos données personnelles dans le respect du RGPD.",
+        path: "/confidentialite",
+      }}
     >
       <LegalHighlight>
         <p className="text-sm font-bold mb-1">En résumé</p>

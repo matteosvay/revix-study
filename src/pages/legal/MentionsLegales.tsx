@@ -6,6 +6,11 @@ export default function MentionsLegales() {
       title="Mentions légales"
       subtitle="Informations obligatoires conformément à la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN)."
       updatedAt="19 mai 2026"
+      seo={{
+        title: "Mentions légales — Revix",
+        description: "Mentions légales de Revix : éditeur, hébergeur et coordonnées de contact.",
+        path: "/mentions-legales",
+      }}
     >
       <LegalSection number="1" title="Éditeur de l'application">
         <LegalTable rows={[
