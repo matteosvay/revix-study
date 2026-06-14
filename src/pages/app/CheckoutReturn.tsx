@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle2, Loader2, Mail } from "lucide-react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/hooks/useSubscription";
 
@@ -42,7 +43,7 @@ export default function CheckoutReturn() {
 
   return (
     <AppLayout>
-      <PageHeader emoji="💳" title="Paiement" />
+      <PageHeader illustration={illu.card} title="Paiement" />
       <div className="px-5 py-6 flex flex-col items-center text-center gap-4">
         {isActive ? (
           <>

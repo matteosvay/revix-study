@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -139,7 +140,7 @@ export default function DuelPlay() {
     const other = isChall ? opponent : challenger;
     return (
       <AppLayout>
-        <PageHeader emoji="⚔️" title="Salle d'attente" />
+        <PageHeader illustration={illu.duel} title="Salle d'attente" />
         <div className="px-5 pt-8 pb-6 text-center space-y-4">
           <Loader2 className="h-10 w-10 mx-auto animate-spin text-primary" />
           <p className="font-display text-lg">
@@ -168,7 +169,7 @@ export default function DuelPlay() {
     const lost = isCompleted && duel.winner_id && duel.winner_id !== user?.id;
     return (
       <AppLayout>
-        <PageHeader emoji="⚔️" title="Duel terminé" />
+        <PageHeader illustration={illu.duel} title="Duel terminé" />
         <div className="px-5 pt-6 pb-6 space-y-5">
           <div className="text-center">
             {isCompleted ? (

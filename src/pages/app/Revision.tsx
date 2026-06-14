@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Brain, CheckCircle2, XCircle, Repeat, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -82,7 +83,7 @@ export default function Revision() {
   if (queue.length === 0) {
     return (
       <AppLayout>
-        <PageHeader emoji="🧠" title="Révision" subtitle="Spaced repetition" />
+        <PageHeader illustration={illu.brain} title="Révision" subtitle="Spaced repetition" />
         {skippedCount > 0 && (
           <div className="mx-5 mt-3 px-3 py-2 rounded-md border border-muted bg-muted/40 text-xs text-muted-foreground">
             {skippedCount} question{skippedCount > 1 ? "s" : ""} de type texte libre ou ordre ne sont pas encore disponibles en révision ciblée.

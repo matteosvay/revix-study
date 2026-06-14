@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
@@ -332,7 +333,7 @@ export default function StudyRoom() {
   return (
     <AppLayout>
       <BackButton fallback="/app/groupes" />
-      <PageHeader emoji="📚" title={room.name} action={
+      <PageHeader illustration={illu.books} title={room.name} action={
         <Button variant="ghost" size="sm" onClick={leaveRoom} className="text-destructive font-bold text-xs h-8">
           <LogOut className="h-3 w-3 mr-1" /> Quitter
         </Button>

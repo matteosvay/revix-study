@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
@@ -383,7 +384,7 @@ export default function Upload() {
 
   return (
     <AppLayout>
-      <PageHeader emoji="📥" title="Nouveau cours" subtitle="Upload un PDF ou une photo, l'IA s'occupe du reste." />
+      <PageHeader illustration={illu.upload} title="Nouveau cours" subtitle="Upload un PDF ou une photo, l'IA s'occupe du reste." />
 
       <div className="px-5 space-y-5 pb-6">
         <label

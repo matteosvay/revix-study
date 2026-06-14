@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ArrowLeft, Check, Loader2, Sparkles } from "lucide-react";
@@ -136,7 +137,7 @@ export default function Cosmetics() {
         </Button>
         <p className="text-xs text-muted-foreground">Cosmétiques</p>
       </div>
-      <PageHeader emoji="✨" title="Mes cosmétiques" subtitle={`${items.length} items`} />
+      <PageHeader illustration={illu.sparkle} title="Mes cosmétiques" subtitle={`${items.length} items`} />
 
       <div className="px-5">
         {/* Live preview */}

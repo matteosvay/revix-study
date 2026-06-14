@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
@@ -171,7 +172,7 @@ export default function StudyGroups() {
 
   return (
     <AppLayout>
-      <PageHeader emoji="👥" title="Groupes d'étude" subtitle="Streak partagée · entraidez-vous" />
+      <PageHeader illustration={illu.group} title="Groupes d'étude" subtitle="Streak partagée · entraidez-vous" />
 
       <div className="px-5 pb-6 space-y-4">
         <div className="grid grid-cols-2 gap-2">
