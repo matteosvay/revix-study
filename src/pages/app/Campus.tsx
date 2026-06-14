@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -308,7 +309,7 @@ export default function Campus() {
 
   return (
     <AppLayout>
-      <PageHeader emoji="🏫" title="Le Campus" subtitle="Tes amis · ton classement" />
+      <PageHeader illustration={illu.campus} title="Le Campus" subtitle="Tes amis · ton classement" />
 
       <div className="px-5 pb-6">
         <Tabs value={tab} onValueChange={setTab} className="w-full">

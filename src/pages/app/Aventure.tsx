@@ -5,7 +5,7 @@ import { Tape, Pin, ScribbleUnderline, Stamp } from "@/components/revix/Academic
 import { Flame, Sparkles, Trophy, Target, Zap, Lock, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { levelInfo, xpForLevel, LEVEL_NAMES, LEAGUES, leagueInfo } from "@/lib/gamification";
+import { levelInfo, xpForLevel, LEVEL_NAMES, LEAGUES, leagueInfo, questIcon } from "@/lib/gamification";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { illu } from "@/assets/illu";
 
@@ -37,8 +37,8 @@ export default function Aventure() {
           <ChevronRight className="absolute bottom-3 right-3 h-4 w-4 text-muted-foreground" />
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center text-3xl shadow-glow">
-                {levelTier.emoji}
+              <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center shadow-glow">
+                <img src={levelTier.icon} alt="" width={48} height={48} className="h-12 w-12 object-contain" />
               </div>
               <span className="rubber-stamp-purple rubber-stamp absolute -bottom-2 -right-3 text-[8px] !px-1.5 !py-0.5 stamp-pop">
                 Lv {profile.level}
@@ -81,7 +81,7 @@ export default function Aventure() {
           >
             <Tape variant="mint" position="top" />
             <div className="flex items-center gap-2.5 mt-1">
-              <span className="text-2xl leading-none">{league.current.emoji}</span>
+              <img src={league.current.icon} alt="" width={28} height={28} className="h-7 w-7 object-contain" />
               <div>
                 <p className="font-serif text-2xl leading-none">{league.current.name}</p>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">Ligue · {profile.xp_week} XP</p>
@@ -108,7 +108,11 @@ export default function Aventure() {
                 </div>
               </div>
               <p className="font-serif text-xl flex items-center gap-2">
-                <span>{weeklyQuest.emoji}</span>
+                {questIcon(weeklyQuest.quest_key) ? (
+                  <img src={questIcon(weeklyQuest.quest_key)} alt="" width={24} height={24} className="h-6 w-6 object-contain" />
+                ) : (
+                  <span>{weeklyQuest.emoji}</span>
+                )}
                 {weeklyQuest.title}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">{weeklyQuest.description}</p>
@@ -146,8 +150,12 @@ export default function Aventure() {
                 <div key={q.id} className={`card-paper p-3.5 relative ${i % 2 === 0 ? "tilt-l" : "tilt-r"} hover:shadow-glow transition-shadow`}>
                   <Pin color={i % 3 === 0 ? "red" : i % 3 === 1 ? "blue" : "purple"} className="absolute -top-1 left-1/2 -translate-x-1/2 decor-extra" />
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-lg shrink-0">
-                      {q.emoji}
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      {questIcon(q.quest_key) ? (
+                        <img src={questIcon(q.quest_key)} alt="" width={28} height={28} className="h-7 w-7 object-contain" />
+                      ) : (
+                        <span className="text-lg">{q.emoji}</span>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
@@ -208,7 +216,7 @@ export default function Aventure() {
                         : "border-muted-foreground/30 bg-muted"
                     }`}
                   >
-                    {reached ? tier.emoji : <Lock className="h-4 w-4 text-muted-foreground" />}
+                    {reached ? <img src={tier.icon} alt="" width={28} height={28} className="h-7 w-7 object-contain" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -256,8 +264,8 @@ export default function Aventure() {
                       : "border-dashed border-muted-foreground/30 bg-muted/30 opacity-70"
                   }`}
                 >
-                  <div className="h-10 w-10 shrink-0 rounded-lg flex items-center justify-center text-xl border-2 border-foreground/80 bg-secondary">
-                    {reached ? l.emoji : <Lock className="h-4 w-4 text-muted-foreground" />}
+                  <div className="h-10 w-10 shrink-0 rounded-lg flex items-center justify-center border-2 border-foreground/80 bg-secondary">
+                    {reached ? <img src={l.icon} alt="" width={28} height={28} className="h-7 w-7 object-contain" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
