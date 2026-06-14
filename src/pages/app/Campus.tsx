@@ -606,7 +606,7 @@ export default function Campus() {
                 <div className="flex-1 min-w-0">
                   <p className="font-hand text-lg truncate">{r.name}</p>
                   <p className="text-[10px] font-mono text-muted-foreground">
- {r.timer_phase === "focus"? " Focus en cours": r.timer_phase === "pause"? " Pause": "⏸ Idle"} · code {r.invite_code}
+                  {r.timer_phase === "focus" ? "Focus en cours" : r.timer_phase === "pause" ? "Pause" : "Idle"} · code {r.invite_code}
                   </p>
                 </div>
                 <Button size="sm" onClick={() => nav(`/app/room/${r.id}`)} className="rounded-md gradient-primary border-2 border-foreground text-xs h-8 font-bold">Rejoindre</Button>
