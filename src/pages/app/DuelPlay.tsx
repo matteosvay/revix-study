@@ -174,7 +174,11 @@ export default function DuelPlay() {
           <div className="text-center">
             {isCompleted ? (
               <>
- <p className="text-5xl mb-2">{won? "": tie? "": ""}</p>
+                <img
+                  src={won ? illu.trophy : tie ? illu.group : illu.heartFire}
+                  alt=""
+                  className="w-16 h-16 mx-auto mb-2 object-contain"
+                />
                 <p className="font-display text-2xl">
                   {won ? "Victoire !" : tie ? "Égalité" : "Défaite"}
                 </p>

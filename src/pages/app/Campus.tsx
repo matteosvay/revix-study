@@ -462,7 +462,7 @@ export default function Campus() {
                 <p className="text-xs text-muted-foreground">Chargement...</p>
               ) : accepted.length === 0 ? (
                 <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
- <p className="text-4xl mb-2"></p>
+                  <img src={illu.group} alt="" className="w-12 h-12 mx-auto mb-2 object-contain" />
                   <p className="font-display text-base">Ton campus est vide</p>
                   <p className="text-xs text-muted-foreground mt-2">Partage ton code à tes amis de promo. En groupe, on retient 40% de plus.</p>
                   <Button onClick={copyCode} className="mt-3 rounded-md gradient-primary border-2 border-foreground font-bold text-xs h-8">
@@ -543,9 +543,9 @@ export default function Campus() {
               <Swords className="h-4 w-4 mr-2" /> Lancer un duel
             </Button>
             {duels.length === 0 ? (
-              <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
- <p className="text-4xl mb-2"></p>
-                <p className="font-display text-base">Aucun duel</p>
+             <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
+                 <img src={illu.duel} alt="" className="w-12 h-12 mx-auto mb-2 object-contain" />
+                 <p className="font-display text-base">Aucun duel</p>
                 <p className="text-xs text-muted-foreground mt-2">Défie un ami sur un de tes cours.</p>
               </div>
             ) : duels.map(d => {
