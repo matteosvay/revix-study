@@ -5,6 +5,7 @@ import { Gift, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { emitXp } from "@/hooks/useGamification";
 import { LootBoxReveal } from "@/components/revix/LootBoxReveal";
+import { illu } from "@/assets/illu";
 
 type Reward = {
   xp: number;
