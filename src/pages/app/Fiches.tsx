@@ -13,6 +13,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { SendCourseDialog } from "@/components/revix/SendCourseDialog";
+import { illu } from "@/assets/illu";
 
 type SummarySection = { title?: string; blocks?: any[] };
 type SummaryData = { intro?: string; sections?: SummarySection[] } | null;
@@ -114,7 +115,7 @@ export default function Fiches() {
   return (
     <AppLayout>
       <PageHeader
-        emoji="📚"
+        illustration={illu.notebook}
         title="Mes cours"
         subtitle={subjectFilter ? `${filtered.length} cours · ${subjectFilter}` : `${courses.length} cours`}
         action={

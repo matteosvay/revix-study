@@ -16,31 +16,35 @@
 
 @layer base {
   :root {
-    /* Papier crème doux */
-    --background: 45 50% 94%;        /* crème chaud */
-    --foreground: 0 0% 4%;           /* encre noire */
+    /* AMBRE ACADÉMIQUE — papier kraft + ambre profond
+       Ivoire papier  #faf6ee → 42 56% 95%
+       Kraft           #e8d9b8 → 40 51% 82%
+       Ambre primaire #c2691a → 27 76% 43%
+       Café profond   #3d2a14 → 28 49% 16%   */
+    --background: 42 56% 95%;
+    --foreground: 28 49% 16%;
 
-    --card: 0 0% 100%;               /* blanc franc — contraste maximal */
-    --card-foreground: 0 0% 4%;
+    --card: 40 60% 98%;
+    --card-foreground: 28 49% 16%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
+    --popover: 40 60% 98%;
+    --popover-foreground: 28 49% 16%;
 
-    /* Violet électrique #7c3aed */
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 262 90% 72%;
+    /* Ambre profond — couleur principale (remplace violet/encre) */
+    --primary: 27 76% 43%;
+    --primary-foreground: 40 60% 98%;
+    --primary-glow: 30 85% 60%;
 
-    /* Crème jaune un ton plus sombre */
-    --secondary: 51 94% 78%;
-    --secondary-foreground: 0 0% 4%;
+    /* Kraft chaud */
+    --secondary: 40 51% 82%;
+    --secondary-foreground: 28 49% 16%;
 
-    --muted: 50 90% 92%;
-    --muted-foreground: 0 0% 32%;
+    --muted: 40 45% 88%;
+    --muted-foreground: 28 30% 32%;
 
-    /* Orange vif #f97316 — accent énergique */
-    --accent: 24 95% 53%;
-    --accent-foreground: 0 0% 100%;
+    /* Or feutre — accent chaleureux */
+    --accent: 35 92% 55%;
+    --accent-foreground: 28 49% 16%;
 
     /* Vert bloc */
     --success: 142 76% 36%;
@@ -50,39 +54,39 @@
     --destructive: 358 86% 53%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Bordure noire pure — la signature brutaliste */
-    --border: 0 0% 4%;
-    --input: 0 0% 4%;
-    --ring: 262 83% 58%;
+    /* Bordure café profond — plus chaude que le noir pur */
+    --border: 28 49% 16%;
+    --input: 28 49% 16%;
+    --ring: 27 76% 43%;
 
-    /* Univers académique réinterprété */
-    --paper: 45 50% 94%;
-    --paper-line: 0 0% 4%;
-    --ink: 0 0% 4%;
-    --highlight-yellow: 51 100% 60%;
-    --highlight-pink: 340 100% 70%;
-    --highlight-green: 142 76% 60%;
-    --tape: 51 100% 60%;             /* jaune vif */
-    --tape-pink: 340 100% 70%;       /* rose flashy */
-    --tape-mint: 162 73% 60%;        /* mint vif */
-    --postit: 51 100% 70%;           /* jaune fluo */
-    --postit-pink: 340 100% 80%;
+    /* Univers académique — accents ambre/ocre */
+    --paper: 42 56% 95%;
+    --paper-line: 220 60% 55%;
+    --ink: 28 49% 16%;
+    --highlight-yellow: 45 100% 65%;
+    --highlight-pink: 12 85% 70%;
+    --highlight-green: 75 50% 55%;
+    --tape: 35 92% 65%;
+    --tape-pink: 12 75% 72%;
+    --tape-mint: 75 45% 65%;
+    --postit: 45 95% 75%;
+    --postit-pink: 12 80% 80%;
 
     --radius: 0.5rem;                /* moins arrondi */
 
-    /* Plus de gradients mous : on garde "gradient-primary" comme alias bloc violet */
-    --gradient-primary: hsl(262 83% 58%);
-    --gradient-hero: hsl(262 83% 58%);
-    --gradient-dark: hsl(0 0% 4%);
-    --gradient-gold: hsl(51 100% 60%);
+    /* Aliases blocs unis */
+    --gradient-primary: hsl(27 76% 43%);
+    --gradient-hero: hsl(27 76% 43%);
+    --gradient-dark: hsl(28 49% 16%);
+    --gradient-gold: hsl(35 92% 55%);
 
-    /* OMBRES DURES — la signature néo-brutaliste */
-    --shadow-brutal: 4px 4px 0 0 hsl(0 0% 4%);
-    --shadow-brutal-sm: 2px 2px 0 0 hsl(0 0% 4%);
-    --shadow-brutal-lg: 6px 6px 0 0 hsl(0 0% 4%);
-    --shadow-brutal-xl: 8px 8px 0 0 hsl(0 0% 4%);
-    --shadow-brutal-primary: 4px 4px 0 0 hsl(262 83% 58%);
-    --shadow-brutal-accent: 4px 4px 0 0 hsl(24 95% 53%);
+    /* OMBRES DURES — café profond */
+    --shadow-brutal: 4px 4px 0 0 hsl(28 49% 16%);
+    --shadow-brutal-sm: 2px 2px 0 0 hsl(28 49% 16%);
+    --shadow-brutal-lg: 6px 6px 0 0 hsl(28 49% 16%);
+    --shadow-brutal-xl: 8px 8px 0 0 hsl(28 49% 16%);
+    --shadow-brutal-primary: 4px 4px 0 0 hsl(27 76% 43%);
+    --shadow-brutal-accent: 4px 4px 0 0 hsl(35 92% 55%);
 
     /* Aliases (compat) */
     --shadow-soft: var(--shadow-brutal-sm);
@@ -97,14 +101,14 @@
     --font-marker: 'Architects Daughter', 'Caveat', cursive;
     --font-display: 'Archivo Black', sans-serif;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 4%;
-    --sidebar-primary: 262 83% 58%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 51 100% 70%;
-    --sidebar-accent-foreground: 0 0% 4%;
-    --sidebar-border: 0 0% 4%;
-    --sidebar-ring: 262 83% 58%;
+    --sidebar-background: 40 60% 98%;
+    --sidebar-foreground: 28 49% 16%;
+    --sidebar-primary: 27 76% 43%;
+    --sidebar-primary-foreground: 40 60% 98%;
+    --sidebar-accent: 45 95% 75%;
+    --sidebar-accent-foreground: 28 49% 16%;
+    --sidebar-border: 28 49% 16%;
+    --sidebar-ring: 27 76% 43%;
   }
 
   .dark {
@@ -278,6 +282,42 @@
       radial-gradient(hsl(0 0% 4% / 0.03) 1px, transparent 1.5px);
     background-size: 16px 16px, 24px 24px;
     background-position: 0 0, 8px 12px;
+  }
+
+  /* ===== Seyès — cahier français traditionnel ===== */
+  .paper-seyes {
+    background-color: hsl(var(--card));
+    background-image:
+      /* lignes horizontales fines */
+      linear-gradient(to bottom,
+        hsl(var(--paper-line) / 0.35) 0,
+        hsl(var(--paper-line) / 0.35) 1px,
+        transparent 1px),
+      /* lignes verticales fines */
+      linear-gradient(to right,
+        hsl(var(--paper-line) / 0.18) 0,
+        hsl(var(--paper-line) / 0.18) 1px,
+        transparent 1px),
+      /* ligne rouge marge gauche */
+      linear-gradient(to right,
+        transparent 35px,
+        hsl(var(--destructive) / 0.55) 35px,
+        hsl(var(--destructive) / 0.55) 36px,
+        transparent 36px);
+    background-size: 100% 8px, 8px 100%, 100% 100%;
+  }
+  .paper-seyes-soft {
+    background-color: hsl(var(--card));
+    background-image:
+      linear-gradient(to bottom,
+        hsl(var(--paper-line) / 0.12) 0,
+        hsl(var(--paper-line) / 0.12) 1px,
+        transparent 1px),
+      linear-gradient(to right,
+        hsl(var(--paper-line) / 0.07) 0,
+        hsl(var(--paper-line) / 0.07) 1px,
+        transparent 1px);
+    background-size: 100% 10px, 10px 100%;
   }
 
   /* Scotch / washi tape — bloc opaque noir-bordé, très saturé */

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { levelInfo, xpForLevel, LEVEL_NAMES, LEAGUES, leagueInfo } from "@/lib/gamification";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { illu } from "@/assets/illu";
 
 export default function Aventure() {
   const { profile, dailyQuests, weeklyQuest, xp, levelTier, loading } = useGamification();
@@ -22,7 +23,7 @@ export default function Aventure() {
 
   return (
     <AppLayout>
-      <PageHeader emoji="🗺️" title="Aventure" subtitle="Quêtes, niveaux & récompenses." />
+      <PageHeader illustration={illu.adventure} title="Aventure" subtitle="Quêtes, niveaux & récompenses." />
 
       <div className="px-5 space-y-5 pb-6">
         {/* Niveau hero */}

@@ -10,6 +10,7 @@ import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 import { addDays, localDateKey, startOfLocalWeek } from "@/lib/date";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { STREAK_PRESTIGES, streakPrestige } from "@/lib/gamification";
+import { illu } from "@/assets/illu";
 
 type Profile = {
   streak_days: number;
@@ -116,7 +117,7 @@ export default function Streak() {
 
   return (
     <AppLayout>
-      <PageHeader emoji="🔥" title="Streak" subtitle="Chaque jour compte." />
+      <PageHeader illustration={illu.streak} title="Streak" subtitle="Chaque jour compte." />
 
       <div className="px-5 space-y-5 pb-6">
         {/* Hero — clic ouvre les prestiges */}
