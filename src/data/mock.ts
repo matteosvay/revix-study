@@ -65,7 +65,7 @@ export const courses: Course[] = [
 export const recentActivity = [
   { id: 1, text: "Quizz terminé : Droit des contrats — 82%", time: "il y a 2h", icon: "trophy" },
   { id: 2, text: "Nouveau cours uploadé : Marketing Mix", time: "hier", icon: "upload" },
-  { id: 3, text: "Streak de 7 jours atteint 🔥", time: "hier", icon: "flame" },
+ { id: 3, text: "Streak de 7 jours atteint ", time: "hier", icon: "flame" },
   { id: 4, text: "Fiches générées : Baudelaire (5 cartes)", time: "il y a 2j", icon: "sparkles" },
 ];
 

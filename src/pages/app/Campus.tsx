@@ -158,7 +158,7 @@ export default function Campus() {
           row.challenger_id === user.id &&
           payload.old?.status === "pending"
         ) {
-          toast.success("Ton adversaire a accepté ⚔️ Le duel commence !");
+ toast.success("Ton adversaire a accepté Le duel commence!");
           nav(`/app/duel/${row.id}`);
         }
       })
@@ -204,7 +204,7 @@ export default function Campus() {
       if (error.code === "23505") toast.error("Demande déjà envoyée");
       else toast.error(error.message);
     } else {
-      toast.success("Demande envoyée 📨");
+ toast.success("Demande envoyée ");
       loadAll();
     }
   };
@@ -212,7 +212,7 @@ export default function Campus() {
   const acceptRequest = async (id: string) => {
     const { error } = await supabase.from("friendships").update({ status: "accepted" }).eq("id", id);
     if (error) toast.error(error.message);
-    else { toast.success("Ami ajouté ✨ +15 XP"); loadAll(); }
+ else { toast.success("Ami ajouté +15 XP"); loadAll(); }
   };
 
   const rejectRequest = async (id: string) => {
@@ -246,7 +246,7 @@ export default function Campus() {
       toast.error(msg);
       return;
     }
-    toast.success("Défi envoyé ⚔️");
+ toast.success("Défi envoyé ");
     setCreateDuelOpen(false);
     loadAll();
   };
@@ -264,7 +264,7 @@ export default function Campus() {
       timer_preset: roomPreset, max_members: roomMax, privacy: "open",
     }).select().single();
     if (error) { toast.error(error.message); return; }
-    toast.success("Salle créée 📚");
+ toast.success("Salle créée ");
     setCreateRoomOpen(false);
     setRoomName("");
     nav(`/app/room/${data.id}`);
@@ -318,13 +318,13 @@ export default function Campus() {
               Amis
             </TabsTrigger>
             <TabsTrigger value="duels" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
-              Duels ⚔️
+ Duels 
             </TabsTrigger>
             <TabsTrigger value="salles" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
-              Salles 📚
+ Salles 
             </TabsTrigger>
             <TabsTrigger value="classement" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
-              Top 🏆
+ Top 
             </TabsTrigger>
           </TabsList>
 
@@ -409,7 +409,7 @@ export default function Campus() {
                           </p>
                         </Link>
                         {isFriend ? (
-                          <span className="text-[10px] font-bold uppercase text-success px-2">Ami ✓</span>
+ <span className="text-[10px] font-bold uppercase text-success px-2">Ami </span>
                         ) : isPending ? (
                           <span className="text-[10px] font-bold uppercase text-muted-foreground px-2">En attente</span>
                         ) : (
@@ -462,7 +462,7 @@ export default function Campus() {
                 <p className="text-xs text-muted-foreground">Chargement...</p>
               ) : accepted.length === 0 ? (
                 <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
-                  <p className="text-4xl mb-2">👀</p>
+ <p className="text-4xl mb-2"></p>
                   <p className="font-display text-base">Ton campus est vide</p>
                   <p className="text-xs text-muted-foreground mt-2">Partage ton code à tes amis de promo. En groupe, on retient 40% de plus.</p>
                   <Button onClick={copyCode} className="mt-3 rounded-md gradient-primary border-2 border-foreground font-bold text-xs h-8">
@@ -501,7 +501,7 @@ export default function Campus() {
                           {p.username ? `@${p.username}` : `#${p.student_code}`}
                         </p>
                         <div className="flex gap-2 mt-1 text-[10px] font-bold">
-                          <span className="flex items-center gap-0.5">🔥{p.streak_days ?? 0}</span>
+ <span className="flex items-center gap-0.5">{p.streak_days?? 0}</span>
                           <span className="flex items-center gap-0.5">⭐{p.xp_total ?? 0}</span>
                         </div>
                       </Link>
@@ -544,7 +544,7 @@ export default function Campus() {
             </Button>
             {duels.length === 0 ? (
               <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
-                <p className="text-4xl mb-2">⚔️</p>
+ <p className="text-4xl mb-2"></p>
                 <p className="font-display text-base">Aucun duel</p>
                 <p className="text-xs text-muted-foreground mt-2">Défie un ami sur un de tes cours.</p>
               </div>
@@ -571,7 +571,7 @@ export default function Campus() {
                       <p className="text-[10px] font-mono text-muted-foreground">{d.subject ?? "—"} · {d.num_questions}Q · {d.seconds_per_question}s</p>
                       {d.status === "completed" && (
                         <p className="text-[11px] font-bold mt-0.5">
-                          {won ? "🏆 Victoire" : lost ? "Défaite" : "Égalité"} — {d.challenger_score ?? "?"} vs {d.opponent_score ?? "?"}
+ {won? " Victoire": lost? "Défaite": "Égalité"} — {d.challenger_score?? "?"} vs {d.opponent_score?? "?"}
                         </p>
                       )}
                     </div>
@@ -596,7 +596,7 @@ export default function Campus() {
             </div>
             {rooms.length === 0 ? (
               <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
-                <p className="text-4xl mb-2">📚</p>
+ <p className="text-4xl mb-2"></p>
                 <p className="font-display text-base">Aucune salle active</p>
                 <p className="text-xs text-muted-foreground mt-2">Crée une salle pour réviser ensemble.</p>
               </div>
@@ -606,7 +606,7 @@ export default function Campus() {
                 <div className="flex-1 min-w-0">
                   <p className="font-hand text-lg truncate">{r.name}</p>
                   <p className="text-[10px] font-mono text-muted-foreground">
-                    {r.timer_phase === "focus" ? "🍅 Focus en cours" : r.timer_phase === "pause" ? "☕ Pause" : "⏸ Idle"} · code {r.invite_code}
+ {r.timer_phase === "focus"? " Focus en cours": r.timer_phase === "pause"? " Pause": "⏸ Idle"} · code {r.invite_code}
                   </p>
                 </div>
                 <Button size="sm" onClick={() => nav(`/app/room/${r.id}`)} className="rounded-md gradient-primary border-2 border-foreground text-xs h-8 font-bold">Rejoindre</Button>
@@ -628,7 +628,7 @@ export default function Campus() {
       {/* DUELS et SALLES rendus hors Tabs ? Non, on les a omis. Les modals : */}
       <Dialog open={createDuelOpen} onOpenChange={setCreateDuelOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Lancer un duel ⚔️</DialogTitle><DialogDescription>Choisis un cours, un ami et la durée.</DialogDescription></DialogHeader>
+ <DialogHeader><DialogTitle>Lancer un duel </DialogTitle><DialogDescription>Choisis un cours, un ami et la durée.</DialogDescription></DialogHeader>
           <div className="space-y-3">
             <div>
               <label className="text-[10px] font-bold uppercase">Adversaire</label>
@@ -655,15 +655,15 @@ export default function Campus() {
               </div>
             </div>
           </div>
-          <DialogFooter><Button onClick={submitCreateDuel} className="rounded-md gradient-primary border-2 border-foreground font-bold w-full">Envoyer le défi ⚔️</Button></DialogFooter>
+ <DialogFooter><Button onClick={submitCreateDuel} className="rounded-md gradient-primary border-2 border-foreground font-bold w-full">Envoyer le défi </Button></DialogFooter>
         </DialogContent>
       </Dialog>
 
       <Dialog open={createRoomOpen} onOpenChange={setCreateRoomOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Créer une salle 📚</DialogTitle></DialogHeader>
+ <DialogHeader><DialogTitle>Créer une salle </DialogTitle></DialogHeader>
           <div className="space-y-3">
-            <Input value={roomName} onChange={(e) => setRoomName(e.target.value)} placeholder="Ex: Révisions BTS Marketing 🔥" />
+ <Input value={roomName} onChange={(e) => setRoomName(e.target.value)} placeholder="Ex: Révisions BTS Marketing " />
             <div>
               <label className="text-[10px] font-bold uppercase">Timer</label>
               <div className="flex gap-1">
@@ -677,7 +677,7 @@ export default function Campus() {
               <input type="range" min={2} max={6} value={roomMax} onChange={(e) => setRoomMax(parseInt(e.target.value))} className="w-full" />
             </div>
           </div>
-          <DialogFooter><Button onClick={submitCreateRoom} className="rounded-md gradient-primary border-2 border-foreground font-bold w-full">Créer la salle 📚</Button></DialogFooter>
+ <DialogFooter><Button onClick={submitCreateRoom} className="rounded-md gradient-primary border-2 border-foreground font-bold w-full">Créer la salle </Button></DialogFooter>
         </DialogContent>
       </Dialog>
 

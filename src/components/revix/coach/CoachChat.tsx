@@ -17,15 +17,15 @@ type Msg = {
 };
 
 const SUGGESTIONS = [
-  { label: "📅 Fais-moi un planning", text: "Fais-moi un planning de révision pour les 5 prochains jours.", isPlan: true },
-  { label: "😰 J'ai un exam demain", text: "J'ai un exam demain, qu'est-ce que je fais ?", isPlan: false },
-  { label: "🧠 Je comprends rien à ce cours", text: "Je comprends rien à mon cours, comment je fais ?", isPlan: false },
-  { label: "🔥 Motive-moi", text: "J'ai pas envie de réviser, motive-moi !", isPlan: false },
+ { label: " Fais-moi un planning", text: "Fais-moi un planning de révision pour les 5 prochains jours.", isPlan: true },
+ { label: " J'ai un exam demain", text: "J'ai un exam demain, qu'est-ce que je fais?", isPlan: false },
+ { label: " Je comprends rien à ce cours", text: "Je comprends rien à mon cours, comment je fais?", isPlan: false },
+ { label: " Motive-moi", text: "J'ai pas envie de réviser, motive-moi!", isPlan: false },
 ];
 
 const MOCK_HISTORY: Msg[] = [
   { id: "m1", role: "user", content: "Comment je révise le marketing mix efficacement ?", created_at: new Date().toISOString() },
-  { id: "m2", role: "assistant", content: "Le mix marketing (4P) c'est du par cœur pur. Fiche par P, puis restitution à blanc le lendemain. Ton quizz Revix est parfait pour ça — lance-le après ce soir. 🎯", created_at: new Date().toISOString() },
+ { id: "m2", role: "assistant", content: "Le mix marketing (4P) c'est du par cœur pur. Fiche par P, puis restitution à blanc le lendemain. Ton quizz Revix est parfait pour ça — lance-le après ce soir. ", created_at: new Date().toISOString() },
   { id: "m3", role: "user", content: "Et si j'ai la flemme ?", created_at: new Date().toISOString() },
   { id: "m4", role: "assistant", content: "Commence par 5 min. Juste 5. Le cerveau déteste commencer, pas continuer. Lance le timer et après t'arrêtes si tu veux — spoiler: tu t'arrêteras pas.", created_at: new Date().toISOString() },
 ];
@@ -62,7 +62,7 @@ export function CoachChat({ ctx }: { ctx: CoachContext | null }) {
         setMessages([{
           id: "welcome",
           role: "assistant",
-          content: "Salut ! Je suis ton coach Revix 👋 Pose-moi une question sur tes révisions, demande un planning, ou dis-moi comment tu te sens. Je suis là pour t'aider.",
+ content: "Salut! Je suis ton coach Revix Pose-moi une question sur tes révisions, demande un planning, ou dis-moi comment tu te sens. Je suis là pour t'aider.",
           created_at: new Date().toISOString(),
         }]);
       }
@@ -142,7 +142,7 @@ export function CoachChat({ ctx }: { ctx: CoachContext | null }) {
         const aiMsg: Msg = {
           id: `tmp-${Date.now() + 1}`,
           role: "assistant",
-          content: data.plan.coach_note ?? "Voici ton plan 👇",
+ content: data.plan.coach_note?? "Voici ton plan ",
           plan: data.plan,
           created_at: new Date().toISOString(),
         };
@@ -175,7 +175,7 @@ export function CoachChat({ ctx }: { ctx: CoachContext | null }) {
     });
     if (error) return toast.error(error.message);
     await awardXp(user.id, 10, "coach:tip_saved");
-    toast.success("Conseil sauvegardé 🔖");
+ toast.success("Conseil sauvegardé ");
   };
 
   const addToPlanning = async (content: string) => {
@@ -188,12 +188,12 @@ export function CoachChat({ ctx }: { ctx: CoachContext | null }) {
     });
     if (error) return toast.error(error.message);
     await bumpQuest(user.id, "task_added", 1);
-    toast.success("Ajouté au planning du jour 📅");
+ toast.success("Ajouté au planning du jour ");
   };
 
   return (
     <div className="notebook-card p-3">
-      <p className="font-hand text-xl text-foreground mb-2">💬 Pose ta question à Revix</p>
+ <p className="font-hand text-xl text-foreground mb-2"> Pose ta question à Revix</p>
 
       <div ref={scrollRef} className="max-h-[340px] overflow-y-auto space-y-2.5 pr-1 mb-3">
         {!hydrated && (

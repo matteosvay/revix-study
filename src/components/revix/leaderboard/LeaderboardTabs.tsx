@@ -35,7 +35,7 @@ const initialsOf = (n?: string | null) => (n ?? "U").split(" ").map(s => s[0]).f
 function Podium({ rows }: { rows: Row[] }) {
   if (rows.length < 3) return null;
   const order = [1, 0, 2];
-  const medals = ["🥇", "🥈", "🥉"];
+ const medals = ["", "", ""];
   const heights = ["h-32", "h-24", "h-20"];
   const stamps = ["MAJOR", "MENTION TB", "MENTION B"];
   return (
@@ -181,7 +181,7 @@ export function LeaderboardTabs({ initialScope = "amis" }: { initialScope?: stri
           <GraduationCap className="h-3 w-3 mr-1" />École
         </TabsTrigger>
         <TabsTrigger value="cursus" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
-          🎓 Cursus
+ Cursus
         </TabsTrigger>
         <TabsTrigger value="global" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
           <Globe className="h-3 w-3 mr-1" />Top

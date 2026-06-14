@@ -58,7 +58,7 @@ export async function bumpQuest(userId: string, questKey: string, inc = 1) {
   });
   const res = data as any;
   if (res?.completed && res?.xp) {
-    toast.success(`Quête complétée ! +${res.xp.xp_total ? "" : ""}`, { description: "Nouvelle XP gagnée 🎉" });
+ toast.success(`Quête complétée! +${res.xp.xp_total? "": ""}`, { description: "Nouvelle XP gagnée " });
   }
   return res;
 }

@@ -276,7 +276,7 @@ export default function Upload() {
           await bumpQuest(user.id, "w_7_streak", 1);
         }
         await bumpQuest(user.id, "w_4_uploads", 1);
-        toast.success("Ta fiche est prête ✨ (déjà disponible dans Revix)");
+ toast.success("Ta fiche est prête (déjà disponible dans Revix)");
         nav(`/app/fiches/${clonedId}`);
         return;
       }
@@ -326,7 +326,7 @@ export default function Upload() {
       }
       await bumpQuest(user.id, "w_4_uploads", 1);
 
-      toast.success("Ta fiche de cours est prête ✨");
+ toast.success("Ta fiche de cours est prête ");
       nav(`/app/fiches/${course.id}`);
     } catch (e: any) {
       console.error(e);
@@ -416,7 +416,7 @@ export default function Upload() {
           ) : (
             <>
               <UploadCloud className="h-10 w-10 mx-auto text-primary" />
-              <p className="mt-3 font-hand text-xl">📷 Photo · 📄 PDF · 📝 Word</p>
+ <p className="mt-3 font-hand text-xl"> Photo · PDF · Word</p>
               <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Glisse ou clique ici (plusieurs fichiers acceptés)</p>
               <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-1">
                 Max 3 images · 1 seul PDF ou Word
@@ -460,7 +460,7 @@ export default function Upload() {
         <div className="clip-divider"><span className="font-mono-tag text-[10px] uppercase">ou</span></div>
 
         <div className="space-y-1.5">
-          <Label className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">✍️ Coller du texte</Label>
+ <Label className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground"> Coller du texte</Label>
           <Textarea value={text} onChange={(e) => setText(e.target.value)} placeholder="Tape ou colle tes notes ici..." rows={4} className="resize-none notebook-card !pl-12 font-hand !text-lg" />
         </div>
 

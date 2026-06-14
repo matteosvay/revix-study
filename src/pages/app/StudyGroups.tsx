@@ -45,7 +45,7 @@ type Member = {
 };
 
 const initials = (n?: string | null) => (n ?? "U").split(" ").map(s => s[0]).filter(Boolean).join("").slice(0, 2).toUpperCase();
-const EMOJIS = ["👥", "🔥", "🎯", "🏆", "💪", "🚀", "🧠", "⚡", "🦄", "🌟"];
+const EMOJIS = ["", "", "", "", "", "", "", "", "", ""];
 
 export default function StudyGroups() {
   const { user } = useAuth();
@@ -54,7 +54,7 @@ export default function StudyGroups() {
   const [createOpen, setCreateOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
   const [name, setName] = useState("");
-  const [emoji, setEmoji] = useState("👥");
+ const [emoji, setEmoji] = useState("");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -136,7 +136,7 @@ export default function StudyGroups() {
     setBusy(false);
     if (error) { toast.error(error.message); return; }
     toast.success(`Groupe créé ${emoji} — partage le code à tes potes !`);
-    setCreateOpen(false); setName(""); setEmoji("👥");
+ setCreateOpen(false); setName(""); setEmoji("");
     load();
   };
 
@@ -151,7 +151,7 @@ export default function StudyGroups() {
           : error.message;
       toast.error(msg); return;
     }
-    toast.success("Bienvenue dans le groupe 🎉");
+ toast.success("Bienvenue dans le groupe ");
     setJoinOpen(false); setCode("");
     load();
   };
@@ -188,7 +188,7 @@ export default function StudyGroups() {
           <div className="text-center py-12"><Loader2 className="h-6 w-6 mx-auto animate-spin text-primary" /></div>
         ) : groups.length === 0 ? (
           <div className="text-center py-10 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
-            <p className="text-5xl mb-2">👥</p>
+ <p className="text-5xl mb-2"></p>
             <p className="font-display text-lg">Aucun groupe pour l'instant</p>
             <p className="text-xs text-muted-foreground mt-2">Crée un groupe avec tes potes pour booster vos streaks ensemble.</p>
           </div>
@@ -217,7 +217,7 @@ export default function StudyGroups() {
                 </div>
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
-                    <span className="flex items-center gap-1">Contribution <span className="font-normal normal-case text-muted-foreground">(1 quiz = ✓)</span></span>
+ <span className="flex items-center gap-1">Contribution <span className="font-normal normal-case text-muted-foreground">(1 quiz =)</span></span>
                     <span className={g.all_contributed_today ? "text-success" : "text-muted-foreground"}>
                       {g.contributed_today}/{g.member_count}
                     </span>
@@ -226,7 +226,7 @@ export default function StudyGroups() {
                     <div className={`h-full transition-all ${g.all_contributed_today ? "bg-success" : "bg-accent"}`} style={{ width: `${g.member_count > 0 ? (g.contributed_today / g.member_count) * 100 : 0}%` }} />
                   </div>
                   {g.all_contributed_today && (
-                    <p className="text-[10px] font-bold text-success mt-1">✓ Streak validée pour aujourd'hui !</p>
+ <p className="text-[10px] font-bold text-success mt-1"> Streak validée pour aujourd'hui!</p>
                   )}
                 </div>
               </button>
@@ -293,7 +293,7 @@ export default function StudyGroups() {
             <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-primary/5 border border-primary/20">
               <Info className="h-3 w-3 text-primary shrink-0" />
               <p className="text-[10px] text-muted-foreground">
-                <span className="font-semibold text-foreground">Contribution</span> = terminer au moins 1 quizz aujourd'hui. ✅ = contribué, — = pas encore.
+ <span className="font-semibold text-foreground">Contribution</span> = terminer au moins 1 quizz aujourd'hui. = contribué, — = pas encore.
               </p>
             </div>
 

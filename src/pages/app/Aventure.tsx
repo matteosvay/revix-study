@@ -126,7 +126,7 @@ export default function Aventure() {
                 </div>
               </div>
               {weeklyQuest.completed && (
-                <p className="font-hand text-primary text-lg mt-3">Complétée ! 🎉</p>
+ <p className="font-hand text-primary text-lg mt-3">Complétée! </p>
               )}
             </div>
           </div>
@@ -140,7 +140,7 @@ export default function Aventure() {
             <div>
               <p className="font-mono-tag text-xs font-bold uppercase tracking-wider text-white/95 drop-shadow-sm">Quêtes du jour</p>
             </div>
-            {allDailyDone && <span className="font-hand text-white text-lg drop-shadow">tout fait ! 🎉</span>}
+ {allDailyDone && <span className="font-hand text-white text-lg drop-shadow">tout fait! </span>}
           </div>
 
           <div className="space-y-2.5">
@@ -168,7 +168,7 @@ export default function Aventure() {
                       <div className="mt-2">
                         <div className="flex items-center justify-between text-[10px] mb-1">
                           <span className="font-mono-tag text-muted-foreground">{q.progress} / {q.target}</span>
-                          {q.completed && <span className="font-hand text-primary">fait ✓</span>}
+ {q.completed && <span className="font-hand text-primary">fait </span>}
                         </div>
                         <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                           <div className={`h-full transition-all duration-700 ${q.completed ? "bg-success" : "gradient-primary"}`} style={{ width: `${pct}%` }} />
@@ -188,7 +188,7 @@ export default function Aventure() {
       <Dialog open={openLevels} onOpenChange={setOpenLevels}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Chemin des titres 🎓</DialogTitle>
+ <DialogTitle>Chemin des titres </DialogTitle>
             <DialogDescription>Tous les paliers de Bizuth à Légende Revix.</DialogDescription>
           </DialogHeader>
           <ol className="space-y-2">
@@ -231,7 +231,7 @@ export default function Aventure() {
                       Niv. {tier.min}–{tier.max} · {xpToReach} XP
                     </p>
                   </div>
-                  {reached && !current && <span className="font-hand text-success text-sm shrink-0">✓</span>}
+ {reached &&!current && <span className="font-hand text-success text-sm shrink-0"></span>}
                 </li>
               );
             })}
@@ -243,7 +243,7 @@ export default function Aventure() {
       <Dialog open={openLeagues} onOpenChange={setOpenLeagues}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Ligues hebdo 🏆</DialogTitle>
+ <DialogTitle>Ligues hebdo </DialogTitle>
             <DialogDescription>
               Tu es <strong>{league.current.name}</strong> avec {profile.xp_week} XP cette semaine.
               {league.next && ` Encore ${league.next.minWeekXp - profile.xp_week} XP pour passer ${league.next.name}.`}

@@ -146,7 +146,7 @@ export default function Revision() {
 
         <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
           <Repeat className="h-3.5 w-3.5" />
-          <span>{q.course_emoji ?? "📘"} {q.course_title ?? "Cours"}</span>
+ <span>{q.course_emoji?? ""} {q.course_title?? "Cours"}</span>
           {q.chapter && <><span>·</span><span className="truncate">{q.chapter}</span></>}
         </div>
 
@@ -168,7 +168,7 @@ export default function Revision() {
               return (
                 <button key={i} onClick={() => pickChoice(i)} disabled={picked !== null}
                   className={`answer-postit ${stateCls} flex flex-col items-center justify-center gap-2 min-h-[80px] text-center text-lg`}>
-                  <span className="text-2xl">{i === 0 ? "✅" : "❌"}</span>
+ <span className="text-2xl">{i === 0? "": ""}</span>
                   <span className="font-bold">{a}</span>
                   {picked !== null && isCorrect && <CheckCircle2 className="h-4 w-4 text-success" />}
                   {picked !== null && isPicked && !isCorrect && <XCircle className="h-4 w-4 text-destructive" />}
@@ -204,7 +204,7 @@ export default function Revision() {
 
         {picked !== null && q.explanation && (
           <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
-            💡 {q.explanation}
+ {q.explanation}
           </div>
         )}
 

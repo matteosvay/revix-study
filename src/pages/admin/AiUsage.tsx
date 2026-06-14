@@ -128,7 +128,7 @@ export default function AiUsage() {
             <Button variant="ghost" size="sm" onClick={() => navigate("/app")} className="mb-2">
               <ArrowLeft className="h-4 w-4 mr-1" /> Retour
             </Button>
-            <h1 className="text-3xl font-black">📊 Suivi IA Claude</h1>
+ <h1 className="text-3xl font-black"> Suivi IA Claude</h1>
             <p className="text-muted-foreground text-sm">
               Consommation des appels IA et estimation des coûts
             </p>
@@ -175,7 +175,7 @@ export default function AiUsage() {
 
             {/* Activité par jour */}
             <Card className="p-4 border-2 border-foreground">
-              <h2 className="font-black text-lg mb-3">📈 Activité par jour</h2>
+ <h2 className="font-black text-lg mb-3"> Activité par jour</h2>
               {stats.byDay.length === 0 ? (
                 <p className="text-sm text-muted-foreground">Aucune activité</p>
               ) : (
@@ -200,7 +200,7 @@ export default function AiUsage() {
 
             {/* Répartition par action */}
             <Card className="p-4 border-2 border-foreground">
-              <h2 className="font-black text-lg mb-3">⚡ Par type d'action</h2>
+ <h2 className="font-black text-lg mb-3"> Par type d'action</h2>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                 {Object.entries(stats.byAction)
                   .sort((a, b) => b[1] - a[1])
@@ -228,7 +228,7 @@ export default function AiUsage() {
 
             {/* Top users */}
             <Card className="p-4 border-2 border-foreground">
-              <h2 className="font-black text-lg mb-3">🔥 Top consommateurs</h2>
+ <h2 className="font-black text-lg mb-3"> Top consommateurs</h2>
               {stats.topUsers.length === 0 ? (
                 <p className="text-sm text-muted-foreground">Aucun utilisateur</p>
               ) : (
@@ -252,7 +252,7 @@ export default function AiUsage() {
             </Card>
 
             <p className="text-xs text-muted-foreground text-center pt-4">
-              💡 Pour les chiffres exacts (tokens, $) : <a href="https://console.anthropic.com/settings/usage" target="_blank" rel="noopener noreferrer" className="underline">console.anthropic.com</a>
+ Pour les chiffres exacts (tokens, $): <a href="https://console.anthropic.com/settings/usage" target="_blank" rel="noopener noreferrer" className="underline">console.anthropic.com</a>
             </p>
           </>
         )}

@@ -16,19 +16,19 @@ import { CourseSummary, type CourseSummaryData } from "@/components/revix/Course
 type Course = { id: string; title: string; subject: string | null; emoji: string | null; source_content: string | null; summary: CourseSummaryData | null };
 
 const QUIZ_TYPES = [
-  { value: "qcm", label: "QCM", emoji: "🎯", desc: "Choisis la bonne réponse parmi 4", icon: ListChecks },
-  { value: "qcm_multi", label: "Multi-réponses", emoji: "✅", desc: "Coche toutes les bonnes réponses", icon: CheckSquare },
-  { value: "vrai_faux", label: "Vrai / Faux", emoji: "⚖️", desc: "Juge des affirmations rapidement", icon: ToggleLeft },
-  { value: "association", label: "Association", emoji: "🔗", desc: "Relie chaque terme à sa définition", icon: Link2 },
-  { value: "ordre", label: "Mise en ordre", emoji: "🔢", desc: "Remets les éléments dans l'ordre", icon: ArrowDownUp },
+ { value: "qcm", label: "QCM", emoji: "", desc: "Choisis la bonne réponse parmi 4", icon: ListChecks },
+ { value: "qcm_multi", label: "Multi-réponses", emoji: "", desc: "Coche toutes les bonnes réponses", icon: CheckSquare },
+ { value: "vrai_faux", label: "Vrai / Faux", emoji: "", desc: "Juge des affirmations rapidement", icon: ToggleLeft },
+ { value: "association", label: "Association", emoji: "", desc: "Relie chaque terme à sa définition", icon: Link2 },
+ { value: "ordre", label: "Mise en ordre", emoji: "", desc: "Remets les éléments dans l'ordre", icon: ArrowDownUp },
 ] as const;
 const COUNT_PRESETS = [5, 10, 15, 20, 30];
 const DIFFICULTIES = [
-  { value: "facile", label: "Facile", emoji: "🌱", desc: "Mémorisation, définitions" },
-  { value: "moyen", label: "Moyen", emoji: "📘", desc: "Compréhension, application" },
-  { value: "difficile", label: "Difficile", emoji: "🔥", desc: "Analyse, mise en relation" },
-  { value: "expert", label: "Expert", emoji: "🧠", desc: "Pièges subtils, niveau examen" },
-  { value: "mixte", label: "Mixte", emoji: "🎲", desc: "Progressif facile → difficile" },
+ { value: "facile", label: "Facile", emoji: "", desc: "Mémorisation, définitions" },
+ { value: "moyen", label: "Moyen", emoji: "", desc: "Compréhension, application" },
+ { value: "difficile", label: "Difficile", emoji: "", desc: "Analyse, mise en relation" },
+ { value: "expert", label: "Expert", emoji: "", desc: "Pièges subtils, niveau examen" },
+ { value: "mixte", label: "Mixte", emoji: "", desc: "Progressif facile → difficile" },
 ] as const;
 
 export default function CourseDetail() {
@@ -137,7 +137,7 @@ export default function CourseDetail() {
         };
       });
       await supabase.from("quiz_questions").insert(rows);
-      toast.success("Quizz créé ✨");
+ toast.success("Quizz créé ");
       setQuizSheetOpen(false);
       nav(`/app/quizz?id=${quiz.id}`);
     } catch (e: any) { toast.error(e?.message ?? "Erreur"); }
@@ -250,7 +250,7 @@ export default function CourseDetail() {
 
       const safeTitle = course.title.replace(/[^\w\-]+/g, "_").slice(0, 60) || "cours";
       pdf.save(`${safeTitle}.pdf`);
-      toast.success("PDF téléchargé 📄");
+ toast.success("PDF téléchargé ");
     } catch (e: any) {
       console.error("[exportPdf]", e);
       toast.error("Erreur lors de l'export PDF");
@@ -298,7 +298,7 @@ export default function CourseDetail() {
       </div>
 
       <div className="px-5 pt-2 pb-4">
-        <div className="text-4xl">{course.emoji ?? "📘"}</div>
+ <div className="text-4xl">{course.emoji?? ""}</div>
         <h1 className="font-serif text-3xl mt-2">{course.title}</h1>
         <p className="text-sm text-muted-foreground mt-1">{course.subject ?? "—"}</p>
 
@@ -332,7 +332,7 @@ export default function CourseDetail() {
           </SheetTrigger>
           <SheetContent side="bottom" className="rounded-t-3xl max-h-[85vh] overflow-y-auto">
             <SheetHeader className="text-left">
-              <SheetTitle className="font-serif text-2xl">Configure ton quizz ✨</SheetTitle>
+ <SheetTitle className="font-serif text-2xl">Configure ton quizz </SheetTitle>
               <p className="text-sm text-muted-foreground mt-1">Choisis ton ambiance, on s'occupe du reste.</p>
             </SheetHeader>
 

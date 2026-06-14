@@ -37,7 +37,7 @@ export default function Login() {
   };
 
   return (
-    <AuthShell title="Bon retour 👋" subtitle="Connecte-toi pour reprendre tes révisions.">
+ <AuthShell title="Bon retour " subtitle="Connecte-toi pour reprendre tes révisions.">
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>

@@ -16,8 +16,8 @@ function PanelInner({ ctx }: { ctx: CoachContext | null }) {
       <DailyTipCard ctx={ctx} />
       <Tabs defaultValue="chat" className="w-full">
         <TabsList className="grid w-full grid-cols-2 rounded-full p-1 bg-muted/60 mb-3">
-          <TabsTrigger value="chat" className="rounded-full text-xs">💬 Coach</TabsTrigger>
-          <TabsTrigger value="saved" className="rounded-full text-xs">🔖 Mes conseils</TabsTrigger>
+ <TabsTrigger value="chat" className="rounded-full text-xs"> Coach</TabsTrigger>
+ <TabsTrigger value="saved" className="rounded-full text-xs"> Mes conseils</TabsTrigger>
         </TabsList>
         <TabsContent value="chat" className="space-y-3 mt-0">
           <CoachChat ctx={ctx} />
@@ -55,7 +55,7 @@ export function CoachPanel({ inline = false }: { inline?: boolean }) {
             aria-label="Ouvrir ton coach"
           >
             <MessageCircle className="h-4 w-4" />
-            Coach 💬
+ Coach 
           </button>
         </SheetTrigger>
         <SheetContent side="bottom" className="h-[88vh] overflow-y-auto rounded-t-3xl px-4 pt-6 paper-grain">

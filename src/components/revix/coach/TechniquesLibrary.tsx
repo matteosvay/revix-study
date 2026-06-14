@@ -10,7 +10,7 @@ import { bumpQuest } from "@/hooks/useGamification";
 
 const TECHNIQUES = [
   {
-    emoji: "🍅",
+ emoji: "",
     name: "POMODORO",
     desc: "25 min de travail / 5 min de pause. Après 4 cycles : pause 20 min.",
     use: "Idéal pour : démarrer quand t'as pas envie.",
@@ -19,7 +19,7 @@ const TECHNIQUES = [
     tape: "tape" as const,
   },
   {
-    emoji: "🧠",
+ emoji: "",
     name: "ACTIVE RECALL",
     desc: "Ferme tes fiches. Écris tout ce dont tu te souviens. Compare. Recommence sur les trous.",
     use: "Idéal pour : mémoriser durablement.",
@@ -28,7 +28,7 @@ const TECHNIQUES = [
     tape: "tape-pink" as const,
   },
   {
-    emoji: "📆",
+ emoji: "",
     name: "RÉVISION ESPACÉE",
     desc: "Révise J+1, J+3, J+7, J+14 après avoir appris. Revix calcule ça pour toi.",
     use: "Idéal pour : ne plus oublier avant l'exam.",
@@ -37,7 +37,7 @@ const TECHNIQUES = [
     tape: "tape-mint" as const,
   },
   {
-    emoji: "✏️",
+ emoji: "",
     name: "FEYNMAN",
     desc: "Explique le concept comme si t'avais 12 ans. Si tu bloques, t'as trouvé ton point faible.",
     use: "Idéal pour : vraiment comprendre.",
@@ -46,7 +46,7 @@ const TECHNIQUES = [
     tape: "tape" as const,
   },
   {
-    emoji: "🎯",
+ emoji: "",
     name: "BLURTING",
     desc: "Prends une feuille blanche. Vide ta tête sur le sujet. Compare avec tes fiches.",
     use: "Idéal pour : avant un exam dans 24h.",
@@ -55,7 +55,7 @@ const TECHNIQUES = [
     tape: "tape-pink" as const,
   },
   {
-    emoji: "😴",
+ emoji: "",
     name: "SLEEP LEARNING",
     desc: "Révise 30 min avant de dormir. Le cerveau consolide pendant le sommeil.",
     use: "Idéal pour : les révisions du soir.",
@@ -90,7 +90,7 @@ export function TechniquesLibrary() {
       });
       if (error) return toast.error(error.message);
       await bumpQuest(user.id, "task_added", 1);
-      toast.success("Session Pomodoro ajoutée à aujourd'hui 🍅");
+ toast.success("Session Pomodoro ajoutée à aujourd'hui ");
       return;
     }
     if (action === "feynman" || action === "blurt") {
@@ -108,7 +108,7 @@ export function TechniquesLibrary() {
         title: "Sleep learning — 30 min",
       });
       if (error) return toast.error(error.message);
-      toast.success("Rappel ajouté à 22h ce soir 😴");
+ toast.success("Rappel ajouté à 22h ce soir ");
     }
   };
 
@@ -119,7 +119,7 @@ export function TechniquesLibrary() {
         className="w-full flex items-center justify-between gap-2 label-tape !text-xs !rotate-0 !px-3 !py-2 !w-full hover:opacity-90"
         style={{ borderRadius: 4 }}
       >
-        <span>📚 TECHNIQUES QUI MARCHENT VRAIMENT</span>
+ <span> TECHNIQUES QUI MARCHENT VRAIMENT</span>
         <ChevronDown className={`h-3 w-3 transition-transform ${open ? "rotate-180" : ""}`} />
       </button>
       {open && (

@@ -60,14 +60,14 @@ export default function Streak() {
     const res = data as any;
     if (!res?.success) {
       const map: Record<string, string> = {
-        pro_required: "Réservé aux membres Pro ✨",
+ pro_required: "Réservé aux membres Pro ",
         no_tokens: "Tu n'as pas de pass de restauration",
         no_broken_streak: "Aucune streak à restaurer",
       };
       toast.error(map[res?.error] ?? "Impossible de restaurer");
       return;
     }
-    toast.success("Streak restaurée ! 🔥");
+ toast.success("Streak restaurée! ");
     load();
   };
 
@@ -291,7 +291,7 @@ export default function Streak() {
             <Sparkles className="h-3 w-3" /> Comment ça marche
           </p>
           <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
-            <li>• 1 activité par jour pour entretenir la flamme 🔥</li>
+ <li>• 1 activité par jour pour entretenir la flamme </li>
             <li>• Tous les <strong className="text-foreground">10 quiz</strong>, tu gagnes 1 pass de scotch (max 3)</li>
             <li>• Avec Pro, colle un pass pour restaurer une streak perdue la veille</li>
           </ul>
@@ -301,7 +301,7 @@ export default function Streak() {
         <Dialog open={openPrestige} onOpenChange={setOpenPrestige}>
           <DialogContent className="max-h-[85vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>Prestiges de la flamme 🔥</DialogTitle>
+ <DialogTitle>Prestiges de la flamme </DialogTitle>
               <DialogDescription>
                 Tu en es à <strong>{profile.streak_days} jours</strong>.
                 {prestige.next && ` Encore ${prestige.next.days - profile.streak_days}j pour ${prestige.next.name}.`}
@@ -342,7 +342,7 @@ export default function Streak() {
                         {p.days} jours · {p.tagline}
                       </p>
                     </div>
-                    {reached && !current && <span className="font-hand text-success text-sm shrink-0">✓</span>}
+ {reached &&!current && <span className="font-hand text-success text-sm shrink-0"></span>}
                   </li>
                 );
               })}

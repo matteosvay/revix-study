@@ -226,7 +226,7 @@ export default function StudyRoom() {
       const myGoals = goals.filter(x => x.user_id === user?.id);
       const allDone = myGoals.every(x => x.id === g.id ? true : x.done);
       if (allDone && myGoals.length > 0) {
-        toast.success("Tous tes objectifs ✓ Bien joué !");
+ toast.success("Tous tes objectifs Bien joué!");
       }
     }
   };
@@ -259,7 +259,7 @@ export default function StudyRoom() {
       else toast.error(error.message);
       return;
     }
-    toast.success("Fiche partagée 📤");
+ toast.success("Fiche partagée ");
     setShareDialogOpen(false);
   };
 
@@ -279,12 +279,12 @@ export default function StudyRoom() {
     const { error } = await supabase.from("courses").insert({
       user_id: user.id,
       title: `${original.title} (partagé)`,
-      emoji: original.emoji ?? "📘",
+ emoji: original.emoji?? "",
       subject: original.subject,
       summary: original.summary,
     });
     if (error) toast.error(error.message);
-    else toast.success("Sauvegardée dans tes cours ✅");
+ else toast.success("Sauvegardée dans tes cours ");
   };
 
   const askCoach = async () => {
@@ -300,7 +300,7 @@ export default function StudyRoom() {
       else if (data?.error === "credits_exhausted") toast.error("Crédits IA épuisés.");
       else if (data?.error) toast.error("Erreur du coach IA.");
       else {
-        toast.success("Le coach a répondu dans le chat 💬");
+ toast.success("Le coach a répondu dans le chat ");
         setSelection("");
         setOpenCourseId(null);
       }
@@ -362,7 +362,7 @@ export default function StudyRoom() {
         {/* Pomodoro */}
         <div className="bg-card border-2 border-foreground rounded-md p-5 shadow-brutal text-center">
           <p className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground mb-1">
-            {room.timer_phase === "focus" ? "🍅 Focus" : room.timer_phase === "pause" ? "☕ Pause" : "⏸ En attente"}
+ {room.timer_phase === "focus"? " Focus": room.timer_phase === "pause"? " Pause": "⏸ En attente"}
           </p>
           <p className="font-hand text-6xl leading-none">{mm}:{ss}</p>
           {isHost && (
@@ -414,7 +414,7 @@ export default function StudyRoom() {
 
         {/* Objectifs */}
         <div>
-          <div className="label-tape label-tape-mint inline-block mb-2">📊 OBJECTIFS DU SOIR</div>
+ <div className="label-tape label-tape-mint inline-block mb-2"> OBJECTIFS DU SOIR</div>
           <div className="bg-card border-2 border-foreground rounded-md p-3 space-y-2">
             {goals.length === 0 && <p className="text-xs text-muted-foreground italic">Personne n'a posé d'objectif. Lance-toi !</p>}
             {goals.map(g => {
@@ -447,7 +447,7 @@ export default function StudyRoom() {
             </div>
             {goals.length > 0 && (
               <div className="pt-2">
-                <p className="text-[10px] text-muted-foreground font-bold">{goals.filter(g => g.done).length}/{goals.length} objectifs atteints 🎯</p>
+ <p className="text-[10px] text-muted-foreground font-bold">{goals.filter(g => g.done).length}/{goals.length} objectifs atteints </p>
               </div>
             )}
           </div>
@@ -455,10 +455,10 @@ export default function StudyRoom() {
 
         {/* Chat minimaliste */}
         <div>
-          <div className="label-tape label-tape-violet inline-block mb-2">💬 CHAT</div>
+ <div className="label-tape label-tape-violet inline-block mb-2"> CHAT</div>
           <div className="bg-card border-2 border-foreground rounded-md p-3">
             <div className="space-y-1.5 max-h-48 overflow-y-auto mb-2">
-              {messages.length === 0 && <p className="text-xs text-muted-foreground italic">Reste focus 🎯</p>}
+ {messages.length === 0 && <p className="text-xs text-muted-foreground italic">Reste focus </p>}
               {messages.slice(-8).map(m => {
                 const p = profiles[m.user_id];
                 const mine = m.user_id === user?.id;
@@ -480,7 +480,7 @@ export default function StudyRoom() {
             <div className="flex gap-2 pt-2 border-t border-foreground/10">
               <Input
                 value={msgInput} onChange={(e) => setMsgInput(e.target.value.slice(0, 120))}
-                placeholder="Un message rapide... reste focus 🎯"
+ placeholder="Un message rapide... reste focus "
                 onKeyDown={(e) => e.key === "Enter" && sendMsg()}
                 className="text-xs h-8"
               />
@@ -493,14 +493,14 @@ export default function StudyRoom() {
         {/* Fiches partagées */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <div className="label-tape label-tape-mint inline-block">📚 FICHES PARTAGÉES</div>
+ <div className="label-tape label-tape-mint inline-block"> FICHES PARTAGÉES</div>
             <Button onClick={openShareDialog} size="sm" variant="outline" className="h-7 text-[10px]">
               <Plus className="h-3 w-3 mr-1" /> Partager
             </Button>
           </div>
           <div className="bg-card border-2 border-foreground rounded-md p-3 space-y-2">
             {sharedCourses.length === 0 && (
-              <p className="text-xs text-muted-foreground italic">Aucune fiche partagée. Lance le bal 📤</p>
+ <p className="text-xs text-muted-foreground italic">Aucune fiche partagée. Lance le bal </p>
             )}
             {sharedCourses.map(sc => {
               const c = courseInfos[sc.course_id];
@@ -510,7 +510,7 @@ export default function StudyRoom() {
               return (
                 <div key={sc.id} className="flex items-center gap-2 p-2 rounded border border-foreground/10 bg-muted/30">
                   <button onClick={() => { setOpenCourseId(c.id); setSelection(""); }} className="flex items-center gap-2 flex-1 text-left min-w-0">
-                    <span className="text-xl shrink-0">{c.emoji ?? "📘"}</span>
+ <span className="text-xl shrink-0">{c.emoji?? ""}</span>
                     <div className="min-w-0">
                       <p className="text-xs font-bold truncate">{c.title}</p>
                       <p className="text-[9px] text-muted-foreground">par {sharedByMe ? "toi" : sharer?.display_name?.split(" ")[0] ?? "?"}</p>
@@ -534,11 +534,11 @@ export default function StudyRoom() {
 
         {/* Tableau blanc collaboratif */}
         <div>
-          <div className="label-tape inline-block mb-2">🧠 TABLEAU BLANC</div>
+ <div className="label-tape inline-block mb-2"> TABLEAU BLANC</div>
           <div className="bg-card border-2 border-foreground rounded-md p-3 space-y-2">
             <p className="text-[10px] text-muted-foreground">Brainstormez ensemble : mots-clés, idées, formules…</p>
             <div className="flex flex-wrap gap-2 min-h-[60px]">
-              {notes.length === 0 && <p className="text-xs text-muted-foreground italic">Encore vide. Lance une idée ✏️</p>}
+ {notes.length === 0 && <p className="text-xs text-muted-foreground italic">Encore vide. Lance une idée </p>}
               {notes.map(n => {
                 const p = profiles[n.user_id];
                 const mine = n.user_id === user?.id;
@@ -611,7 +611,7 @@ export default function StudyRoom() {
               return (
                 <div key={sc.id} className="border-2 border-foreground rounded-md bg-card overflow-hidden">
                   <div className="flex items-center gap-2 p-3 bg-muted/40 border-b border-foreground/10">
-                    <span className="text-2xl">{c.emoji ?? "📘"}</span>
+ <span className="text-2xl">{c.emoji?? ""}</span>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold truncate">{c.title}</p>
                       <p className="text-[10px] text-muted-foreground">
@@ -665,14 +665,14 @@ export default function StudyRoom() {
             <DialogTitle>Partager une fiche</DialogTitle>
           </DialogHeader>
           <div className="space-y-1 max-h-[60vh] overflow-y-auto">
-            {myCourses.length === 0 && <p className="text-sm text-muted-foreground">Tu n'as pas encore de fiche. Crées-en une depuis "Mes cours" 📚</p>}
+ {myCourses.length === 0 && <p className="text-sm text-muted-foreground">Tu n'as pas encore de fiche. Crées-en une depuis "Mes cours" </p>}
             {myCourses.map(c => (
               <button
                 key={c.id}
                 onClick={() => shareCourse(c.id)}
                 className="w-full flex items-center gap-3 p-3 rounded border-2 border-foreground/10 hover:border-foreground hover:bg-muted text-left"
               >
-                <span className="text-2xl">{c.emoji ?? "📘"}</span>
+ <span className="text-2xl">{c.emoji?? ""}</span>
                 <span className="text-sm font-bold flex-1 truncate">{c.title}</span>
                 <Plus className="h-4 w-4 text-muted-foreground" />
               </button>
@@ -686,7 +686,7 @@ export default function StudyRoom() {
         <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <span>{openCourse?.emoji ?? "📘"}</span>
+ <span>{openCourse?.emoji?? ""}</span>
               <span>{openCourse?.title ?? "Fiche"}</span>
             </DialogTitle>
           </DialogHeader>
