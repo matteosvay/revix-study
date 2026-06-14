@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&family=JetBrains+Mono:wght@400;500;700&family=Architects+Daughter&display=swap');
 
@@ -16,31 +17,31 @@
 
 @layer base {
   :root {
-    /* Papier crème doux */
-    --background: 45 50% 94%;        /* crème chaud */
-    --foreground: 0 0% 4%;           /* encre noire */
+    /* Papier crème (#f5f3ee) */
+    --background: 43 26% 95%;
+    --foreground: 224 60% 15%;       /* bleu encre #0f1b3d */
 
-    --card: 0 0% 100%;               /* blanc franc — contraste maximal */
-    --card-foreground: 0 0% 4%;
+    --card: 0 0% 100%;               /* blanc franc */
+    --card-foreground: 224 60% 15%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
+    --popover-foreground: 224 60% 15%;
 
-    /* Violet électrique #7c3aed */
-    --primary: 262 83% 58%;
-    --primary-foreground: 0 0% 100%;
-    --primary-glow: 262 90% 72%;
+    /* Bleu encre #0f1b3d — couleur d'autorité */
+    --primary: 224 60% 15%;
+    --primary-foreground: 43 26% 95%;
+    --primary-glow: 214 52% 25%;     /* bleu profond #1e3a5f */
 
-    /* Crème jaune un ton plus sombre */
-    --secondary: 51 94% 78%;
-    --secondary-foreground: 0 0% 4%;
+    /* Crème un ton plus sombre */
+    --secondary: 43 22% 90%;
+    --secondary-foreground: 224 60% 15%;
 
-    --muted: 50 90% 92%;
-    --muted-foreground: 0 0% 32%;
+    --muted: 43 22% 92%;
+    --muted-foreground: 214 30% 35%;
 
-    /* Orange vif #f97316 — accent énergique */
-    --accent: 24 95% 53%;
-    --accent-foreground: 0 0% 100%;
+    /* Ambre #e8b84a — accent unique */
+    --accent: 42 77% 60%;
+    --accent-foreground: 224 60% 15%;
 
     /* Vert bloc */
     --success: 142 76% 36%;
@@ -50,87 +51,86 @@
     --destructive: 358 86% 53%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Bordure noire pure — la signature brutaliste */
-    --border: 0 0% 4%;
-    --input: 0 0% 4%;
-    --ring: 262 83% 58%;
+    /* Bordure encre */
+    --border: 224 60% 15%;
+    --input: 224 60% 15%;
+    --ring: 42 77% 60%;
 
     /* Univers académique réinterprété */
-    --paper: 45 50% 94%;
-    --paper-line: 0 0% 4%;
-    --ink: 0 0% 4%;
-    --highlight-yellow: 51 100% 60%;
-    --highlight-pink: 340 100% 70%;
-    --highlight-green: 142 76% 60%;
-    --tape: 51 100% 60%;             /* jaune vif */
-    --tape-pink: 340 100% 70%;       /* rose flashy */
-    --tape-mint: 162 73% 60%;        /* mint vif */
-    --postit: 51 100% 70%;           /* jaune fluo */
-    --postit-pink: 340 100% 80%;
+    --paper: 43 26% 95%;
+    --paper-line: 224 60% 15%;
+    --ink: 224 60% 15%;
+    --highlight-yellow: 42 77% 65%;
+    --highlight-pink: 14 70% 70%;
+    --highlight-green: 162 40% 60%;
+    --tape: 42 77% 60%;
+    --tape-pink: 14 70% 70%;
+    --tape-mint: 162 40% 60%;
+    --postit: 42 77% 72%;
+    --postit-pink: 14 70% 80%;
 
     --radius: 0.5rem;                /* moins arrondi */
 
-    /* Plus de gradients mous : on garde "gradient-primary" comme alias bloc violet */
-    --gradient-primary: hsl(262 83% 58%);
-    --gradient-hero: hsl(262 83% 58%);
-    --gradient-dark: hsl(0 0% 4%);
-    --gradient-gold: hsl(51 100% 60%);
+    --gradient-primary: hsl(224 60% 15%);
+    --gradient-hero: hsl(214 52% 25%);
+    --gradient-dark: hsl(224 60% 10%);
+    --gradient-gold: hsl(42 77% 60%);
 
-    /* OMBRES DURES — la signature néo-brutaliste */
-    --shadow-brutal: 4px 4px 0 0 hsl(0 0% 4%);
-    --shadow-brutal-sm: 2px 2px 0 0 hsl(0 0% 4%);
-    --shadow-brutal-lg: 6px 6px 0 0 hsl(0 0% 4%);
-    --shadow-brutal-xl: 8px 8px 0 0 hsl(0 0% 4%);
-    --shadow-brutal-primary: 4px 4px 0 0 hsl(262 83% 58%);
-    --shadow-brutal-accent: 4px 4px 0 0 hsl(24 95% 53%);
+    /* OMBRES DURES — encre bleue */
+    --shadow-brutal: 4px 4px 0 0 hsl(224 60% 15%);
+    --shadow-brutal-sm: 2px 2px 0 0 hsl(224 60% 15%);
+    --shadow-brutal-lg: 6px 6px 0 0 hsl(224 60% 15%);
+    --shadow-brutal-xl: 8px 8px 0 0 hsl(224 60% 15%);
+    --shadow-brutal-primary: 4px 4px 0 0 hsl(224 60% 15%);
+    --shadow-brutal-accent: 4px 4px 0 0 hsl(42 77% 60%);
 
     /* Aliases (compat) */
     --shadow-soft: var(--shadow-brutal-sm);
     --shadow-glow: var(--shadow-brutal);
     --shadow-card: var(--shadow-brutal-sm);
-    --shadow-phone: 8px 8px 0 0 hsl(0 0% 4%);
+    --shadow-phone: 8px 8px 0 0 hsl(224 60% 15%);
     --shadow-paper: var(--shadow-brutal-sm);
 
-    --font-serif: 'Archivo Black', 'Space Grotesk', sans-serif;
+    --font-serif: 'Sora', 'Manrope', sans-serif;
     --font-hand: 'Caveat', 'Kalam', cursive;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
     --font-marker: 'Architects Daughter', 'Caveat', cursive;
-    --font-display: 'Archivo Black', sans-serif;
+    --font-display: 'Sora', 'Manrope', sans-serif;
 
     --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 4%;
-    --sidebar-primary: 262 83% 58%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 51 100% 70%;
-    --sidebar-accent-foreground: 0 0% 4%;
-    --sidebar-border: 0 0% 4%;
-    --sidebar-ring: 262 83% 58%;
+    --sidebar-foreground: 224 60% 15%;
+    --sidebar-primary: 224 60% 15%;
+    --sidebar-primary-foreground: 43 26% 95%;
+    --sidebar-accent: 42 77% 72%;
+    --sidebar-accent-foreground: 224 60% 15%;
+    --sidebar-border: 224 60% 15%;
+    --sidebar-ring: 42 77% 60%;
   }
 
   .dark {
-    --background: 0 0% 8%;
-    --foreground: 51 100% 92%;
-    --card: 0 0% 12%;
-    --card-foreground: 51 100% 92%;
-    --popover: 0 0% 12%;
-    --popover-foreground: 51 100% 92%;
-    --primary: 262 90% 72%;
-    --primary-foreground: 0 0% 4%;
-    --primary-glow: 262 90% 80%;
-    --secondary: 0 0% 18%;
-    --secondary-foreground: 51 100% 92%;
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 24 95% 60%;
-    --accent-foreground: 0 0% 4%;
-    --destructive: 358 86% 60%;
+    --background: 224 50% 8%;
+    --foreground: 43 26% 92%;
+    --card: 224 45% 12%;
+    --card-foreground: 43 26% 92%;
+    --popover: 224 45% 12%;
+    --popover-foreground: 43 26% 92%;
+    --primary: 42 77% 60%;
+    --primary-foreground: 224 60% 12%;
+    --primary-glow: 42 77% 72%;
+    --secondary: 224 40% 18%;
+    --secondary-foreground: 43 26% 92%;
+    --muted: 224 35% 18%;
+    --muted-foreground: 43 15% 70%;
+    --accent: 42 77% 60%;
+    --accent-foreground: 224 60% 12%;
+    --destructive: 358 70% 55%;
     --destructive-foreground: 0 0% 100%;
-    --border: 51 100% 92%;
-    --input: 51 100% 92%;
-    --ring: 262 90% 72%;
-    --shadow-brutal: 4px 4px 0 0 hsl(51 100% 92%);
-    --shadow-brutal-sm: 2px 2px 0 0 hsl(51 100% 92%);
-    --shadow-brutal-lg: 6px 6px 0 0 hsl(51 100% 92%);
+    --border: 43 26% 92%;
+    --input: 43 26% 92%;
+    --ring: 42 77% 60%;
+    --shadow-brutal: 4px 4px 0 0 hsl(43 26% 92%);
+    --shadow-brutal-sm: 2px 2px 0 0 hsl(43 26% 92%);
+    --shadow-brutal-lg: 6px 6px 0 0 hsl(43 26% 92%);
   }
 }
 
@@ -139,15 +139,15 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    font-family: 'Manrope', 'Inter', system-ui, sans-serif;
     font-feature-settings: 'cv11', 'ss01';
   }
 
   h1, h2, h3, .font-serif {
     font-family: var(--font-display);
-    font-weight: 900;
+    font-weight: 800;
     letter-spacing: -0.02em;
-    line-height: 0.95;
+    line-height: 1.05;
     text-transform: none;
   }
 

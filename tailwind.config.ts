@@ -70,9 +70,9 @@ export default {
       },
       fontFamily: {
         hand: ["Caveat", "Kalam", "cursive"],
-        serif: ["Archivo Black", "Space Grotesk", "sans-serif"],
-        display: ["Archivo Black", "sans-serif"],
-        sans: ["Space Grotesk", "Inter", "system-ui", "sans-serif"],
+        serif: ["Sora", "Manrope", "sans-serif"],
+        display: ["Sora", "Manrope", "sans-serif"],
+        sans: ["Manrope", "Inter", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
         marker: ["Architects Daughter", "Caveat", "cursive"],
       },
