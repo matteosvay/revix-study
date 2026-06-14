@@ -183,8 +183,7 @@ Deno.serve(async (req) => {
     });
   } catch (e) {
     console.error("create-checkout error:", e);
-    const msg = e instanceof Error ? e.message : "Unknown error";
-    return new Response(JSON.stringify({ error: msg }), {
+    return new Response(JSON.stringify({ error: "Erreur lors de la création du paiement" }), {
       status: 500,
       headers: { ...corsHeaders(req), "Content-Type": "application/json" },
     });
