@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2, Sparkles, BookOpen, Hash, CheckCircle2 } from "lucide-react";
+import { illu } from "@/assets/illu";
 
 type CourseRow = {
   id: string;
