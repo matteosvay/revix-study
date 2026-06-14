@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { PageHead } from "@/components/seo/PageHead";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -52,8 +53,30 @@ const faqs = [
 ];
 
 export default function Landing() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Revix",
+    url: "https://revix-study.lovable.app/",
+    inLanguage: "fr-FR",
+  };
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-x-hidden">
+      <PageHead
+        title="Revix — Fiches, quizz & planning IA pour étudiants"
+        description="L'app de révision IA : transforme tes PDF et photos de cours en fiches, quizz et plannings personnalisés. Gratuit, BTS, Licence, Prépa."
+        path="/"
+        jsonLd={[websiteJsonLd, faqJsonLd]}
+      />
       <div className="absolute inset-0 dots-bg pointer-events-none opacity-40" />
 
       {/* Nav */}
