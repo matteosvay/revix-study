@@ -665,7 +665,7 @@ export default function Quizz() {
               {gaps.map((gap) => (
                 <div key={gap.course_id} className="notebook-card p-3.5">
                   <div className="flex items-center gap-2 mb-2">
- <span className="text-xl">{gap.course_emoji?? ""}</span>
+ <img src={illu.notebook} alt="" className="h-5 w-5 object-contain" />
                     <p className="font-serif text-sm flex-1 truncate">{gap.course_title}</p>
                     <span className="font-mono-tag text-[10px] text-muted-foreground">{gap.missing.length} restant{gap.missing.length > 1 ? "s" : ""}</span>
                   </div>

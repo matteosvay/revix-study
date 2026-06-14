@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { illu } from "@/assets/illu";
 
 type Row = {
   course_id: string;
@@ -97,7 +98,7 @@ export function GlobalChapterHeatmap({ compact = false }: { compact?: boolean })
               <div className="flex-1 min-w-0">
                 <p className="font-serif text-sm truncate">{d.chapter}</p>
                 <p className="text-[10px] text-muted-foreground truncate mt-0.5">
- {d.course_emoji?? ""} {d.course_title}
+ <span className="inline-flex items-center gap-1"><img src={illu.notebook} alt="" className="h-3.5 w-3.5 object-contain" />{d.course_title}</span>
                 </p>
               </div>
               <span className={`font-mono-tag text-[10px] px-2 py-0.5 rounded-full font-bold ${colorFor(d.mastery_pct)}`}>

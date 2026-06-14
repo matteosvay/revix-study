@@ -5,6 +5,7 @@ import { Gift, Sparkles, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { emitXp } from "@/hooks/useGamification";
 import { LootBoxReveal } from "@/components/revix/LootBoxReveal";
+import { illu } from "@/assets/illu";
 
 type Reward = {
   xp: number;
@@ -74,8 +75,8 @@ export function LootBoxCard() {
           <span className="tape" />
           <div className="flex items-center gap-3">
             <div className="relative shrink-0">
-              <div className={`h-14 w-14 rounded-xl gradient-primary flex items-center justify-center text-3xl shadow-glow ${opening ? "" : "loot-bounce rainbow-glow-pulse"}`}>
- {opening? <Loader2 className="h-6 w-6 animate-spin text-primary-foreground" />: ""}
+              <div className={`h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-glow ${opening ? "" : "loot-bounce rainbow-glow-pulse"}`}>
+                {opening ? <Loader2 className="h-6 w-6 animate-spin text-primary-foreground" /> : <img src={illu.lootbox} alt="" className="h-9 w-9 object-contain" />}
               </div>
               {!opening && (<>
  <span className="float-sparkle absolute top-1 left-1 text-yellow-300 text-sm pointer-events-none leading-none" style={{ animationDelay: "0s" }}></span>

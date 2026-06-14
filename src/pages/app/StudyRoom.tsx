@@ -510,7 +510,7 @@ export default function StudyRoom() {
               return (
                 <div key={sc.id} className="flex items-center gap-2 p-2 rounded border border-foreground/10 bg-muted/30">
                   <button onClick={() => { setOpenCourseId(c.id); setSelection(""); }} className="flex items-center gap-2 flex-1 text-left min-w-0">
- <span className="text-xl shrink-0">{c.emoji?? ""}</span>
+ <img src={illu.notebook} alt="" className="h-5 w-5 shrink-0 object-contain" />
                     <div className="min-w-0">
                       <p className="text-xs font-bold truncate">{c.title}</p>
                       <p className="text-[9px] text-muted-foreground">par {sharedByMe ? "toi" : sharer?.display_name?.split(" ")[0] ?? "?"}</p>
@@ -611,7 +611,7 @@ export default function StudyRoom() {
               return (
                 <div key={sc.id} className="border-2 border-foreground rounded-md bg-card overflow-hidden">
                   <div className="flex items-center gap-2 p-3 bg-muted/40 border-b border-foreground/10">
- <span className="text-2xl">{c.emoji?? ""}</span>
+ <img src={illu.notebook} alt="" className="h-6 w-6 object-contain" />
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-bold truncate">{c.title}</p>
                       <p className="text-[10px] text-muted-foreground">
@@ -672,7 +672,7 @@ export default function StudyRoom() {
                 onClick={() => shareCourse(c.id)}
                 className="w-full flex items-center gap-3 p-3 rounded border-2 border-foreground/10 hover:border-foreground hover:bg-muted text-left"
               >
- <span className="text-2xl">{c.emoji?? ""}</span>
+ <img src={illu.notebook} alt="" className="h-6 w-6 object-contain" />
                 <span className="text-sm font-bold flex-1 truncate">{c.title}</span>
                 <Plus className="h-4 w-4 text-muted-foreground" />
               </button>
@@ -686,7 +686,7 @@ export default function StudyRoom() {
         <DialogContent className="max-w-2xl max-h-[85vh] flex flex-col">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
- <span>{openCourse?.emoji?? ""}</span>
+ <img src={illu.notebook} alt="" className="h-5 w-5 inline object-contain" />
               <span>{openCourse?.title ?? "Fiche"}</span>
             </DialogTitle>
           </DialogHeader>

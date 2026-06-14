@@ -641,7 +641,7 @@ export default function Campus() {
               <label className="text-[10px] font-bold uppercase">Cours (avec QCM)</label>
               <select value={duelCourse} onChange={(e) => setDuelCourse(e.target.value)} className="w-full h-10 rounded-md border-2 border-foreground bg-card px-3 text-sm">
                 <option value="">— choisir —</option>
-                {myCourses.map((c: any) => <option key={c.id} value={c.id}>{c.emoji} {c.title}</option>)}
+                {myCourses.map((c: any) => <option key={c.id} value={c.id}>{c.title}</option>)}
               </select>
             </div>
             <div className="grid grid-cols-2 gap-2">
