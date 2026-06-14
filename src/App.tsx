@@ -44,6 +44,9 @@ import FichesRevisionIA from "./pages/landings/FichesRevisionIA";
 import QuizIA from "./pages/landings/QuizIA";
 import PlanningRevision from "./pages/landings/PlanningRevision";
 import FlashcardsIA from "./pages/landings/FlashcardsIA";
+import FicheDroit from "./pages/landings/subjects/FicheDroit";
+import FicheMarketing from "./pages/landings/subjects/FicheMarketing";
+import FicheAnalyseLitteraire from "./pages/landings/subjects/FicheAnalyseLitteraire";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -111,6 +114,9 @@ const App = () => (
             <Route path="/quiz-ia" element={<QuizIA />} />
             <Route path="/planning-de-revision" element={<PlanningRevision />} />
             <Route path="/flashcards-ia" element={<FlashcardsIA />} />
+            <Route path="/fiches-de-revision/droit" element={<FicheDroit />} />
+            <Route path="/fiches-de-revision/marketing" element={<FicheMarketing />} />
+            <Route path="/fiches-de-revision/analyse-litteraire" element={<FicheAnalyseLitteraire />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
