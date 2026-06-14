@@ -38,6 +38,7 @@ import doc from "./doc.png";
 import target from "./target.png";
 import muscle from "./muscle.png";
 import folder from "./folder.png";
+import lootbox from "./lootbox.png";
 
 export const illu = {
   desk,
@@ -80,6 +81,7 @@ export const illu = {
   target,
   muscle,
   folder,
+  lootbox,
 } as const;
 
 export type IlluKey = keyof typeof illu;
