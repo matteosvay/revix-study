@@ -2002,7 +2002,6 @@ export type Database = {
           sticker_rarity: string
           streak_days: number
           streak_record: number
-          student_code: string
           title_emoji: string
           title_name: string
           title_rarity: string
