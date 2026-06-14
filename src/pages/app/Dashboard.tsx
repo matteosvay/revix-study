@@ -115,7 +115,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-2 gap-2">
             {gam && levelTier && xp ? (
               <Link to="/app/aventure" className="rounded-xl border-[2.5px] border-foreground bg-card p-3 shadow-brutal-sm tap-press flex items-center gap-2.5">
-                <div className="text-2xl leading-none shrink-0">{levelTier.emoji}</div>
+                <img src={levelTier.icon} alt="" width={28} height={28} className="h-7 w-7 object-contain shrink-0" />
                 <div className="flex-1 min-w-0">
                   <p className="font-bold text-sm leading-tight">Niv. {gam.level} <span className="font-normal text-muted-foreground text-xs">· {levelTier.name}</span></p>
                   <div className="mt-1.5 h-1.5 rounded-full bg-muted overflow-hidden">

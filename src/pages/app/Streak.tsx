@@ -141,13 +141,15 @@ export default function Streak() {
             </div>
             {prestige.current && (
               <div className="mt-4 inline-flex items-center gap-2 text-xs bg-card text-foreground border-[2px] border-foreground rounded-sm px-3 py-1.5 font-bold uppercase tracking-wider shadow-[2px_2px_0_0_hsl(var(--foreground))]">
-                <span>{prestige.current.emoji}</span>
+                <img src={prestige.current.icon} alt="" width={18} height={18} className="h-[18px] w-[18px] object-contain" />
                 <span>Prestige · {prestige.current.name}</span>
               </div>
             )}
             {prestige.next && (
-              <p className="text-[11px] opacity-80 mt-2">
-                Prochain : {prestige.next.emoji} {prestige.next.name} dans {prestige.next.days - profile.streak_days}j
+              <p className="text-[11px] opacity-80 mt-2 inline-flex items-center gap-1.5">
+                Prochain :
+                <img src={prestige.next.icon} alt="" width={14} height={14} className="h-[14px] w-[14px] object-contain inline-block" />
+                {prestige.next.name} dans {prestige.next.days - profile.streak_days}j
               </p>
             )}
             {!todayActive && (
@@ -326,8 +328,8 @@ export default function Streak() {
                         : "border-dashed border-muted-foreground/30 bg-muted/30 opacity-70"
                     }`}
                   >
-                    <div className="h-10 w-10 shrink-0 rounded-lg flex items-center justify-center text-xl border-2 border-foreground/80 bg-secondary">
-                      {reached ? p.emoji : <Lock className="h-4 w-4 text-muted-foreground" />}
+                    <div className="h-10 w-10 shrink-0 rounded-lg flex items-center justify-center border-2 border-foreground/80 bg-secondary">
+                      {reached ? <img src={p.icon} alt="" width={28} height={28} className="h-7 w-7 object-contain" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
