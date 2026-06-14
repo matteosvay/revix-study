@@ -60,7 +60,7 @@ export function GlobalChapterHeatmap({ compact = false }: { compact?: boolean })
       if (!qs.length) throw new Error("Aucune question générée");
       const { data: quiz, error: qErr } = await supabase.from("quizzes").insert({
         user_id: user.id, course_id: row.course_id,
-        title: `👹 Boss · ${row.chapter}`, quiz_type: "qcm",
+ title: ` Boss · ${row.chapter}`, quiz_type: "qcm",
       }).select().single();
       if (qErr) throw qErr;
       await supabase.from("quiz_questions").insert(qs.map((q: any, i: number) => ({
@@ -70,7 +70,7 @@ export function GlobalChapterHeatmap({ compact = false }: { compact?: boolean })
         accepted_answers: q.accepted_answers ?? null,
         explanation: q.explanation, position: i, chapter: row.chapter,
       })));
-      toast.success("👹 Boss prêt !");
+ toast.success(" Boss prêt!");
       nav(`/app/quizz?id=${quiz.id}`);
     } catch (e: any) { toast.error(e?.message ?? "Erreur"); }
     finally { setBossLoading(null); }
@@ -97,7 +97,7 @@ export function GlobalChapterHeatmap({ compact = false }: { compact?: boolean })
               <div className="flex-1 min-w-0">
                 <p className="font-serif text-sm truncate">{d.chapter}</p>
                 <p className="text-[10px] text-muted-foreground truncate mt-0.5">
-                  {d.course_emoji ?? "📘"} {d.course_title}
+ {d.course_emoji?? ""} {d.course_title}
                 </p>
               </div>
               <span className={`font-mono-tag text-[10px] px-2 py-0.5 rounded-full font-bold ${colorFor(d.mastery_pct)}`}>

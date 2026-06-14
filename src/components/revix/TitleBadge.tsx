@@ -23,7 +23,7 @@ export function TitleBadge({ itemKey, name, emoji, rarity, className, size = "te
   if (isOwner) {
     return (
       <span className={cn("inline-flex items-center gap-1 truncate max-w-full", size, className)}>
-        <span aria-hidden>👑</span>
+ <span aria-hidden></span>
         <span className="owner-title">{name}</span>
       </span>
     );

@@ -38,7 +38,7 @@ export function SavedTipsTab() {
     return (
       <div className="postit p-5 rounded-md min-h-[140px] flex items-center justify-center text-center">
         <p className="font-hand text-lg text-foreground/70">
-          Aucun conseil sauvegardé — pose une question au coach pour commencer 💬
+ Aucun conseil sauvegardé — pose une question au coach pour commencer 
         </p>
       </div>
     );

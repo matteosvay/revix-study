@@ -83,7 +83,7 @@ export default function Landing() {
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28">
         <div className="container max-w-5xl text-center relative z-10">
           <span className="inline-block border-[2.5px] border-foreground bg-accent text-foreground shadow-brutal-sm font-mono-tag text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-md mb-6">
-            ✨ L'IA française pour étudiants
+ L'IA française pour étudiants
           </span>
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl tracking-tight leading-[0.95]">
             Transforme tes cours en{" "}
@@ -93,7 +93,7 @@ export default function Landing() {
             en 30 secondes
           </h1>
           <p className="mt-6 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto font-medium">
-            Revix lit tes PDF et photos, génère des fiches claires, des quizz personnalisés et un planning. Tout ça pendant que tu prends ton café ☕.
+ Revix lit tes PDF et photos, génère des fiches claires, des quizz personnalisés et un planning. Tout ça pendant que tu prends ton café.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
             <Button
@@ -115,7 +115,7 @@ export default function Landing() {
             </Button>
           </div>
           <p className="mt-6 font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">
-            Pas de CB · RGPD 🇫🇷 · Fait en France
+ Pas de CB · RGPD · Fait en France
           </p>
         </div>
       </section>
@@ -291,7 +291,7 @@ export default function Landing() {
               <Link to="/mentions-legales" className="hover:text-foreground transition-colors">Mentions légales</Link>
             </nav>
             <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">
-              Fait avec ❤️ en France 🇫🇷
+ Fait avec en France 
             </p>
           </div>
           <div className="mt-6 pt-6 border-t-[2px] border-foreground/10 text-center">

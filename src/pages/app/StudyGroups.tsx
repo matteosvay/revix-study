@@ -45,7 +45,6 @@ type Member = {
 };
 
 const initials = (n?: string | null) => (n ?? "U").split(" ").map(s => s[0]).filter(Boolean).join("").slice(0, 2).toUpperCase();
-const EMOJIS = ["👥", "🔥", "🎯", "🏆", "💪", "🚀", "🧠", "⚡", "🦄", "🌟"];
 
 export default function StudyGroups() {
   const { user } = useAuth();
@@ -54,7 +53,6 @@ export default function StudyGroups() {
   const [createOpen, setCreateOpen] = useState(false);
   const [joinOpen, setJoinOpen] = useState(false);
   const [name, setName] = useState("");
-  const [emoji, setEmoji] = useState("👥");
   const [code, setCode] = useState("");
   const [busy, setBusy] = useState(false);
 
@@ -132,11 +130,11 @@ export default function StudyGroups() {
   const submitCreate = async () => {
     if (!name.trim() || name.trim().length < 2) { toast.error("Nom trop court"); return; }
     setBusy(true);
-    const { data, error } = await supabase.rpc("create_study_group", { p_name: name.trim(), p_emoji: emoji });
+    const { data, error } = await supabase.rpc("create_study_group", { p_name: name.trim(), p_emoji: "" });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
-    toast.success(`Groupe créé ${emoji} — partage le code à tes potes !`);
-    setCreateOpen(false); setName(""); setEmoji("👥");
+    toast.success("Groupe créé — partage le code à tes potes !");
+    setCreateOpen(false); setName("");
     load();
   };
 
@@ -151,7 +149,7 @@ export default function StudyGroups() {
           : error.message;
       toast.error(msg); return;
     }
-    toast.success("Bienvenue dans le groupe 🎉");
+ toast.success("Bienvenue dans le groupe ");
     setJoinOpen(false); setCode("");
     load();
   };
@@ -188,7 +186,7 @@ export default function StudyGroups() {
           <div className="text-center py-12"><Loader2 className="h-6 w-6 mx-auto animate-spin text-primary" /></div>
         ) : groups.length === 0 ? (
           <div className="text-center py-10 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
-            <p className="text-5xl mb-2">👥</p>
+            <img src={illu.group} alt="" className="w-16 h-16 mx-auto mb-2 object-contain" />
             <p className="font-display text-lg">Aucun groupe pour l'instant</p>
             <p className="text-xs text-muted-foreground mt-2">Crée un groupe avec tes potes pour booster vos streaks ensemble.</p>
           </div>
@@ -197,7 +195,7 @@ export default function StudyGroups() {
             {groups.map((g) => (
               <button key={g.id} onClick={() => loadMembers(g)} className="w-full text-left bg-card p-4 rounded-md border-2 border-foreground shadow-brutal-sm hover:shadow-brutal transition-shadow">
                 <div className="flex items-center gap-3">
-                  <div className="text-3xl shrink-0">{g.emoji}</div>
+                  <img src={illu.group} alt="" className="w-9 h-9 shrink-0 object-contain" />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1">
                       <p className="font-display text-base truncate">{g.name}</p>
@@ -217,7 +215,7 @@ export default function StudyGroups() {
                 </div>
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
-                    <span className="flex items-center gap-1">Contribution <span className="font-normal normal-case text-muted-foreground">(1 quiz = ✓)</span></span>
+ <span className="flex items-center gap-1">Contribution <span className="font-normal normal-case text-muted-foreground">(1 quiz =)</span></span>
                     <span className={g.all_contributed_today ? "text-success" : "text-muted-foreground"}>
                       {g.contributed_today}/{g.member_count}
                     </span>
@@ -226,7 +224,7 @@ export default function StudyGroups() {
                     <div className={`h-full transition-all ${g.all_contributed_today ? "bg-success" : "bg-accent"}`} style={{ width: `${g.member_count > 0 ? (g.contributed_today / g.member_count) * 100 : 0}%` }} />
                   </div>
                   {g.all_contributed_today && (
-                    <p className="text-[10px] font-bold text-success mt-1">✓ Streak validée pour aujourd'hui !</p>
+ <p className="text-[10px] font-bold text-success mt-1"> Streak validée pour aujourd'hui!</p>
                   )}
                 </div>
               </button>
@@ -238,17 +236,9 @@ export default function StudyGroups() {
       {/* CREATE */}
       <Dialog open={createOpen} onOpenChange={setCreateOpen}>
         <DialogContent>
-          <DialogHeader><DialogTitle>Créer un groupe</DialogTitle><DialogDescription>Donne-lui un nom et choisis un emoji.</DialogDescription></DialogHeader>
+          <DialogHeader><DialogTitle>Créer un groupe</DialogTitle><DialogDescription>Donne-lui un nom pour démarrer.</DialogDescription></DialogHeader>
           <div className="space-y-3">
             <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ex: Les warriors du BTS" maxLength={40} />
-            <div>
-              <p className="text-[10px] font-bold uppercase tracking-wider mb-2">Emoji</p>
-              <div className="grid grid-cols-5 gap-2">
-                {EMOJIS.map((e) => (
-                  <button key={e} onClick={() => setEmoji(e)} className={`h-10 rounded-md border-2 border-foreground text-xl ${emoji === e ? "bg-primary" : "bg-card"}`}>{e}</button>
-                ))}
-              </div>
-            </div>
           </div>
           <DialogFooter>
             <Button onClick={submitCreate} disabled={busy} className="rounded-md gradient-primary border-2 border-foreground font-bold w-full">
@@ -275,7 +265,7 @@ export default function StudyGroups() {
       <Dialog open={!!openGroup} onOpenChange={(o) => !o && setOpenGroup(null)}>
         <DialogContent className="max-h-[90vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>{openGroup?.emoji} {openGroup?.name}</DialogTitle>
+            <DialogTitle className="flex items-center gap-2"><img src={illu.group} alt="" className="w-5 h-5 object-contain" />{openGroup?.name}</DialogTitle>
             <DialogDescription>
               Streak {openGroup?.group_streak_days} jour(s) · Record {openGroup?.group_streak_record}
             </DialogDescription>
@@ -293,7 +283,7 @@ export default function StudyGroups() {
             <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-primary/5 border border-primary/20">
               <Info className="h-3 w-3 text-primary shrink-0" />
               <p className="text-[10px] text-muted-foreground">
-                <span className="font-semibold text-foreground">Contribution</span> = terminer au moins 1 quizz aujourd'hui. ✅ = contribué, — = pas encore.
+ <span className="font-semibold text-foreground">Contribution</span> = terminer au moins 1 quizz aujourd'hui. = contribué, — = pas encore.
               </p>
             </div>
 

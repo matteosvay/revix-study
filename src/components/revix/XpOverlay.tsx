@@ -50,9 +50,9 @@ export function XpOverlay() {
               <img src={levelInfo(levelup).icon} alt="" width={28} height={28} className="h-7 w-7 object-contain" />
               {levelInfo(levelup).name}
             </p>
-            <p className="text-sm text-muted-foreground mt-3">Tu es maintenant <strong>{levelInfo(levelup).name}</strong> ! 🎉</p>
+ <p className="text-sm text-muted-foreground mt-3">Tu es maintenant <strong>{levelInfo(levelup).name}</strong>! </p>
             <button onClick={() => setLevelup(null)} className="mt-5 w-full rounded-full gradient-primary text-primary-foreground py-2.5 font-semibold text-sm">
-              Continuer 🚀
+ Continuer 
             </button>
           </div>
         </div>

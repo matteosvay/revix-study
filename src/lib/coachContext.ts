@@ -156,7 +156,7 @@ export function pickSmartAlert(ctx: CoachContext, weekTaskCount: number): SmartA
   if (ctx.nextExam && ctx.nextExam.daysLeft >= 0 && ctx.nextExam.daysLeft <= 2) {
     return {
       tone: "urgent",
-      text: `⚠️ Exam ${ctx.nextExam.subject} dans ${ctx.nextExam.daysLeft} ${ctx.nextExam.daysLeft <= 1 ? "jour" : "jours"} ! Coach recommande : révision espacée ce soir + quizz demain matin.`,
+ text: ` Exam ${ctx.nextExam.subject} dans ${ctx.nextExam.daysLeft} ${ctx.nextExam.daysLeft <= 1? "jour": "jours"}! Coach recommande: révision espacée ce soir + quizz demain matin.`,
       cta: "Voir le plan d'urgence",
       ctaAction: "generate_plan",
     };
@@ -164,7 +164,7 @@ export function pickSmartAlert(ctx: CoachContext, weekTaskCount: number): SmartA
   if (ctx.nextExam && ctx.nextExam.daysLeft <= 7 && weekTaskCount < 3) {
     return {
       tone: "warn",
-      text: `📅 T'as un exam ${ctx.nextExam.subject} dans ${ctx.nextExam.daysLeft} jours et seulement ${weekTaskCount} session${weekTaskCount > 1 ? "s" : ""} de prévue. Coach suggère d'ajouter 3 sessions.`,
+ text: ` T'as un exam ${ctx.nextExam.subject} dans ${ctx.nextExam.daysLeft} jours et seulement ${weekTaskCount} session${weekTaskCount > 1? "s": ""} de prévue. Coach suggère d'ajouter 3 sessions.`,
       cta: "Générer le planning",
       ctaAction: "generate_plan",
     };
@@ -172,14 +172,14 @@ export function pickSmartAlert(ctx: CoachContext, weekTaskCount: number): SmartA
   if (ctx.streak >= 5 && weekTaskCount >= 4) {
     return {
       tone: "ok",
-      text: `✅ T'es à fond cette semaine (streak ${ctx.streak} jours). Coach suggère d'attaquer une matière plus dure pendant que t'as l'élan.`,
+ text: ` T'es à fond cette semaine (streak ${ctx.streak} jours). Coach suggère d'attaquer une matière plus dure pendant que t'as l'élan.`,
       cta: "OK",
       ctaAction: "none",
     };
   }
   return {
     tone: "info",
-    text: `💡 Conseil pro : alterner les matières (pas 3h de la même d'affilée) améliore la rétention de 23%.`,
+ text: ` Conseil pro: alterner les matières (pas 3h de la même d'affilée) améliore la rétention de 23%.`,
     cta: "En savoir plus",
     ctaAction: "open_techniques",
   };

@@ -8,6 +8,7 @@ import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
 import { type Rarity } from "@/lib/cosmetics";
 import { TitleBadge } from "@/components/revix/TitleBadge";
 import { cn } from "@/lib/utils";
+import { illu } from "@/assets/illu";
 
 type Row = {
   id: string;
@@ -35,7 +36,7 @@ const initialsOf = (n?: string | null) => (n ?? "U").split(" ").map(s => s[0]).f
 function Podium({ rows }: { rows: Row[] }) {
   if (rows.length < 3) return null;
   const order = [1, 0, 2];
-  const medals = ["🥇", "🥈", "🥉"];
+  const medals = [illu.medalGold, illu.medalSilver, illu.medalBronze];
   const heights = ["h-32", "h-24", "h-20"];
   const stamps = ["MAJOR", "MENTION TB", "MENTION B"];
   return (
@@ -63,8 +64,8 @@ function Podium({ rows }: { rows: Row[] }) {
               rarity={row.title_rarity ?? "common"}
               size="text-[8px]"
             />
-            <div className={`${heights[idx]} w-full bg-secondary border-2 border-foreground rounded-t-md mt-1 flex flex-col items-center justify-end p-1`}>
-              <p className="text-2xl">{medals[idx]}</p>
+              <div className={`${heights[idx]} w-full bg-secondary border-2 border-foreground rounded-t-md mt-1 flex flex-col items-center justify-end p-1`}>
+              <img src={medals[idx]} alt="" className="w-7 h-7 object-contain" />
               <p className="font-mono text-[10px] font-bold">{row.xp_week} XP</p>
               <p className="text-[8px] font-bold uppercase tracking-wider mt-1">{stamps[idx]}</p>
             </div>
@@ -181,7 +182,7 @@ export function LeaderboardTabs({ initialScope = "amis" }: { initialScope?: stri
           <GraduationCap className="h-3 w-3 mr-1" />École
         </TabsTrigger>
         <TabsTrigger value="cursus" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
-          🎓 Cursus
+ Cursus
         </TabsTrigger>
         <TabsTrigger value="global" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground rounded-sm font-bold uppercase tracking-wider">
           <Globe className="h-3 w-3 mr-1" />Top

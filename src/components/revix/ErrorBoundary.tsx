@@ -79,7 +79,7 @@ export class ErrorBoundary extends Component<Props, State> {
             {/* Title */}
             <h1 className="font-serif text-2xl text-center mb-2"
               style={{ color: "hsl(var(--foreground))" }}>
-              {chunkErr ? "Nouvelle version disponible 🚀" : "Oups, quelque chose a planté 😵"}
+ {chunkErr? "Nouvelle version disponible ": "Oups, quelque chose a planté "}
             </h1>
 
             {/* Message */}

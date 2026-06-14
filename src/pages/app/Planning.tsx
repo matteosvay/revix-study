@@ -108,7 +108,7 @@ export default function Planning() {
       await supabase.from("planning_tasks").insert(rows);
       await bumpQuest(user.id, "task_added", rows.length);
       await bumpQuest(user.id, "w_5_planning_tasks", rows.length);
-      toast.success("Planning généré ✨");
+ toast.success("Planning généré ");
       setOpen(false);
       load();
     } catch (e: any) { toast.error(e?.message ?? "Erreur"); }
@@ -154,7 +154,7 @@ export default function Planning() {
                 </Button>
               </DialogTrigger>
               <DialogContent className="rounded-2xl">
-                <DialogHeader><DialogTitle className="font-serif">Générer ton planning ✨</DialogTitle></DialogHeader>
+ <DialogHeader><DialogTitle className="font-serif">Générer ton planning </DialogTitle></DialogHeader>
                 <form onSubmit={generate} className="space-y-3 mt-2">
                   <div className="space-y-1.5"><Label>Heures dispo / jour</Label><Input name="hours" type="number" defaultValue={3} min={1} max={12} required /></div>
                   <div className="space-y-1.5"><Label>Date du prochain examen</Label><Input name="exam" type="date" /></div>
@@ -255,7 +255,7 @@ export default function Planning() {
                       {dayTasks.map(t => (
                         <div key={t.id} className={`group flex items-start gap-3 p-3 rounded-xl bg-card border border-border/60 hover:border-primary/40 transition ${t.done ? "opacity-60" : ""}`}>
                           <button onClick={() => toggle(t)} className={`h-5 w-5 rounded-md border-2 flex items-center justify-center shrink-0 transition mt-0.5 ${t.done ? "gradient-primary border-transparent" : "border-muted-foreground/40 hover:border-primary"}`}>
-                            {t.done && <span className="text-primary-foreground text-[10px]">✓</span>}
+ {t.done && <span className="text-primary-foreground text-[10px]"></span>}
                           </button>
                           <div className="flex-1 min-w-0">
                             <p className={`text-sm font-medium leading-snug break-words ${t.done ? "line-through" : ""}`}>{t.title ?? t.subject}</p>
@@ -317,7 +317,7 @@ export default function Planning() {
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium">{g.label}</p>
                       <p className="text-[11px] text-muted-foreground">
-                        {g.value} / {g.goal} {reached && "· objectif atteint 🎉"}
+ {g.value} / {g.goal} {reached && "· objectif atteint "}
                       </p>
                     </div>
                     <p className="font-serif text-xl">{pct}%</p>

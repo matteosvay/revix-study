@@ -48,7 +48,7 @@ export default function CheckoutReturn() {
         {isActive ? (
           <>
             <CheckCircle2 className="h-16 w-16 text-primary" />
-            <h2 className="font-serif text-2xl">Bienvenue dans Revix {tier === "max" ? "Max" : "Pro"} 🎉</h2>
+ <h2 className="font-serif text-2xl">Bienvenue dans Revix {tier === "max"? "Max": "Pro"} </h2>
             <p className="text-sm text-muted-foreground max-w-xs">
               Ton abonnement est actif. Tes nouveaux quotas IA sont déjà disponibles.
             </p>
