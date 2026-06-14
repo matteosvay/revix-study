@@ -298,7 +298,7 @@ export default function CourseDetail() {
       </div>
 
       <div className="px-5 pt-2 pb-4">
- <div className="text-4xl">{course.emoji?? ""}</div>
+ <img src={illu.notebook} alt="" className="h-10 w-10 object-contain" />
         <h1 className="font-serif text-3xl mt-2">{course.title}</h1>
         <p className="text-sm text-muted-foreground mt-1">{course.subject ?? "—"}</p>
 

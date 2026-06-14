@@ -222,7 +222,7 @@ export function RevisionExplorer() {
               className="w-full notebook-card p-3 text-left hover:shadow-glow transition-shadow"
             >
               <div className="flex items-center gap-3">
- <span className="text-2xl shrink-0">{c.emoji?? ""}</span>
+ <img src={illu.notebook} alt="" className="h-6 w-6 shrink-0 object-contain" />
                 <div className="flex-1 min-w-0">
                   <p className="font-serif text-base truncate">{c.title}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">

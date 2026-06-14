@@ -146,7 +146,7 @@ export default function Revision() {
 
         <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
           <Repeat className="h-3.5 w-3.5" />
- <span>{q.course_emoji?? ""} {q.course_title?? "Cours"}</span>
+ <span className="inline-flex items-center gap-1"><img src={illu.notebook} alt="" className="h-4 w-4 object-contain" />{q.course_title?? "Cours"}</span>
           {q.chapter && <><span>·</span><span className="truncate">{q.chapter}</span></>}
         </div>
 

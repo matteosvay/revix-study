@@ -224,7 +224,7 @@ export function GenerateQuizDialog({
                           : "border-border bg-card hover:border-primary/40"
                       }`}
                     >
- <span className="text-xl shrink-0">{c.emoji?? ""}</span>
+ <img src={illu.notebook} alt="" className="h-5 w-5 shrink-0 object-contain" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{c.title}</p>
                         {c.subject && (
