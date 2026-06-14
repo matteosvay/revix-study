@@ -38,6 +38,12 @@ export default function Login() {
   };
 
   return (
+ <>
+ <PageHead
+   title="Connexion — Revix"
+   description="Connecte-toi à ton compte Revix pour reprendre tes révisions, quizz et plannings IA."
+   path="/login"
+ />
  <AuthShell title="Bon retour " subtitle="Connecte-toi pour reprendre tes révisions.">
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="space-y-2">
@@ -59,5 +65,6 @@ export default function Login() {
         </p>
       </form>
     </AuthShell>
+ </>
   );
 }
