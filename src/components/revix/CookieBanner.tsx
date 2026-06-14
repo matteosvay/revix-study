@@ -46,7 +46,7 @@ export function CookieBanner() {
           <X className="h-4 w-4" />
         </button>
 
-        <p className="text-sm font-bold mb-1">Cookies 🍪</p>
+ <p className="text-sm font-bold mb-1">Cookies </p>
         <p className="text-xs text-muted-foreground leading-relaxed mb-4">
           Revix utilise des cookies <strong>strictement nécessaires</strong> pour l'authentification et
           le paiement sécurisé. Aucun cookie publicitaire ou de suivi tiers n'est utilisé.{" "}

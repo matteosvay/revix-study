@@ -162,7 +162,7 @@ export function ReviewBankDialog({ open, onOpenChange, courseId, courseTitle, li
 
         {!loading && done && (
           <div className="space-y-4 text-center py-4">
-            <div className="text-5xl">{correct === questions.length ? "🎉" : correct >= questions.length / 2 ? "💪" : "📚"}</div>
+ <div className="text-5xl">{correct === questions.length? "": correct >= questions.length / 2? "": ""}</div>
             <div>
               <p className="font-hand text-2xl">
                 {correct} / {questions.length}

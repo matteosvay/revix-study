@@ -58,7 +58,7 @@ export function LootBoxCard() {
     return (
       <div className="card-paper p-3 mb-3 flex items-center gap-3 opacity-60">
         <Gift className="h-5 w-5 text-muted-foreground" />
-        <p className="text-xs text-muted-foreground flex-1">Boîte mystère ouverte ✓ Reviens demain.</p>
+ <p className="text-xs text-muted-foreground flex-1">Boîte mystère ouverte Reviens demain.</p>
       </div>
     );
   }
@@ -75,12 +75,12 @@ export function LootBoxCard() {
           <div className="flex items-center gap-3">
             <div className="relative shrink-0">
               <div className={`h-14 w-14 rounded-xl gradient-primary flex items-center justify-center text-3xl shadow-glow ${opening ? "" : "loot-bounce rainbow-glow-pulse"}`}>
-                {opening ? <Loader2 className="h-6 w-6 animate-spin text-primary-foreground" /> : "🎁"}
+ {opening? <Loader2 className="h-6 w-6 animate-spin text-primary-foreground" />: ""}
               </div>
               {!opening && (<>
-                <span className="float-sparkle absolute top-1 left-1 text-yellow-300 text-sm pointer-events-none leading-none" style={{ animationDelay: "0s" }}>✦</span>
-                <span className="float-sparkle absolute top-2 right-0 text-pink-300 text-xs pointer-events-none leading-none" style={{ animationDelay: "0.75s" }}>✦</span>
-                <span className="float-sparkle absolute bottom-1 left-3 text-purple-300 text-xs pointer-events-none leading-none" style={{ animationDelay: "1.4s" }}>✦</span>
+ <span className="float-sparkle absolute top-1 left-1 text-yellow-300 text-sm pointer-events-none leading-none" style={{ animationDelay: "0s" }}></span>
+ <span className="float-sparkle absolute top-2 right-0 text-pink-300 text-xs pointer-events-none leading-none" style={{ animationDelay: "0.75s" }}></span>
+ <span className="float-sparkle absolute bottom-1 left-3 text-purple-300 text-xs pointer-events-none leading-none" style={{ animationDelay: "1.4s" }}></span>
               </>)}
             </div>
             <div className="flex-1 min-w-0">

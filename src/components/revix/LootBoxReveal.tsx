@@ -7,9 +7,9 @@ import { backgroundStyle, RARITY_LABEL, RARITY_ORDER, type Rarity } from "@/lib/
 import { cn } from "@/lib/utils";
 
 const POWERUP_LABELS: Record<string, { name: string; emoji: string }> = {
-  power_5050: { name: "50 / 50", emoji: "✂️" },
-  power_skip:  { name: "Skip question", emoji: "⏭️" },
-  power_time:  { name: "+30 sec", emoji: "⏱️" },
+ power_5050: { name: "50 / 50", emoji: "" },
+ power_skip: { name: "Skip question", emoji: "⏭" },
+ power_time: { name: "+30 sec", emoji: "⏱" },
 };
 
 type Reward = {
@@ -239,7 +239,7 @@ function CardReveal({ card }: { card: Card }) {
   const renderVisual = () => {
     if (card.kind === "cosmetic") {
       if (card.category === "frame")
-        return <CosmeticAvatar fallback="✨" frame={card.key} size="xl" />;
+ return <CosmeticAvatar fallback="" frame={card.key} size="xl" />;
       if (card.category === "background")
         return (
           <div className="w-40 h-28 rounded-md border-[2.5px] border-foreground overflow-hidden relative" style={backgroundStyle(card.key)}>
@@ -249,15 +249,15 @@ function CardReveal({ card }: { card: Card }) {
       if (card.category === "sticker")
         return hasCustomSticker(card.key)
           ? <StickerDecor itemKey={card.key} className="block w-32 h-32" />
-          : <span className="text-8xl drop-shadow-lg">{card.emoji ?? "✨"}</span>;
+: <span className="text-8xl drop-shadow-lg">{card.emoji?? ""}</span>;
       if (card.category === "title")
         return card.key === "title_owner"
           ? <p className="owner-title text-3xl">{card.name}</p>
           : <p className={cn("font-mono uppercase tracking-widest text-2xl font-bold", theme.text)}>{card.name}</p>;
     }
     if (card.kind === "xp")      return <p className="text-7xl font-display xp-slam">+<CountUp target={card.xp} /></p>;
-    if (card.kind === "token")   return <span className="text-8xl">📎</span>;
-    if (card.kind === "powerup") return <span className="text-8xl">{POWERUP_LABELS[card.key]?.emoji ?? "⚡"}</span>;
+ if (card.kind === "token") return <span className="text-8xl"></span>;
+ if (card.kind === "powerup") return <span className="text-8xl">{POWERUP_LABELS[card.key]?.emoji?? ""}</span>;
     return null;
   };
 
@@ -440,7 +440,7 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
               phase === "burst" ? "opacity-0" : "opacity-100"
             )}>
               {phase === "enter" && "Boîte mystère"}
-              {phase === "glow"  && "⚡ Ouverture…"}
+ {phase === "glow" && " Ouverture…"}
             </p>
           </div>
         )}
@@ -485,7 +485,7 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
                 >
                   {revealIdx < cards.length - 1
                     ? <>Suivant <ChevronRight className="h-4 w-4" /></>
-                    : "Terminer ✨"
+: "Terminer "
                   }
                 </button>
               </div>

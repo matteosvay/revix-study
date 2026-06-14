@@ -92,7 +92,7 @@ export function QuizBonusLootBoxCard() {
     const pct = Math.round(((quizCount % 5) / 5) * 100);
     return (
       <div className="card-paper p-3 mb-3 flex items-center gap-3 opacity-80">
-        <span className="text-2xl">🎁</span>
+ <span className="text-2xl"></span>
         <div className="flex-1 min-w-0">
           <p className="text-xs text-muted-foreground">
             Boîte bonus dans <span className="font-bold text-foreground">{left} quiz</span> ({quizCount}/{next})
@@ -115,7 +115,7 @@ export function QuizBonusLootBoxCard() {
         <span className="tape" />
         <div className="flex items-center gap-3">
           <div className={`h-14 w-14 rounded-xl gradient-primary flex items-center justify-center text-3xl shadow-glow ${opening ? "" : "loot-bounce"}`}>
-            {opening ? <Loader2 className="h-6 w-6 animate-spin text-primary-foreground" /> : "🎁"}
+ {opening? <Loader2 className="h-6 w-6 animate-spin text-primary-foreground" />: ""}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-serif text-lg leading-none flex items-center gap-1.5">
