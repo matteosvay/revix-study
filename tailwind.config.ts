@@ -77,12 +77,23 @@ export default {
         marker: ["Architects Daughter", "Caveat", "cursive"],
       },
       boxShadow: {
-        "brutal-sm": "2px 2px 0 0 hsl(var(--foreground))",
-        brutal: "4px 4px 0 0 hsl(var(--foreground))",
-        "brutal-lg": "6px 6px 0 0 hsl(var(--foreground))",
-        "brutal-xl": "8px 8px 0 0 hsl(var(--foreground))",
-        "brutal-primary": "4px 4px 0 0 hsl(var(--primary))",
-        "brutal-accent": "4px 4px 0 0 hsl(var(--accent))",
+        xs: "var(--shadow-xs)",
+        sm: "var(--shadow-sm)",
+        md: "var(--shadow-md)",
+        lg: "var(--shadow-lg)",
+        xl: "var(--shadow-xl)",
+        warm: "var(--shadow-warm)",
+        // Aliases legacy : on garde les noms pour ne casser aucun composant
+        "brutal-sm": "var(--shadow-sm)",
+        brutal: "var(--shadow-md)",
+        "brutal-lg": "var(--shadow-lg)",
+        "brutal-xl": "var(--shadow-xl)",
+        "brutal-primary": "var(--shadow-warm)",
+        "brutal-accent": "var(--shadow-warm)",
+        soft: "var(--shadow-sm)",
+        card: "var(--shadow-sm)",
+        glow: "var(--shadow-warm)",
+        phone: "var(--shadow-xl)",
       },
       keyframes: {
         "accordion-down": {
@@ -114,12 +125,12 @@ export default {
           "50%": { transform: "translateY(-8px)" },
         },
         "pulse-glow": {
-          "0%,100%": { boxShadow: "4px 4px 0 0 hsl(var(--foreground))" },
-          "50%": { boxShadow: "6px 6px 0 0 hsl(var(--primary))" },
+          "0%,100%": { boxShadow: "var(--shadow-sm)" },
+          "50%": { boxShadow: "var(--shadow-warm)" },
         },
         "press-down": {
-          "0%": { transform: "translate(0,0)", boxShadow: "4px 4px 0 0 hsl(var(--foreground))" },
-          "100%": { transform: "translate(2px,2px)", boxShadow: "2px 2px 0 0 hsl(var(--foreground))" },
+          "0%": { transform: "scale(1)" },
+          "100%": { transform: "scale(0.97)" },
         },
         "shake-x": {
           "0%,100%": { transform: "translateX(0)" },
