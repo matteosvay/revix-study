@@ -3,6 +3,7 @@
  * item_key → CSS recipe (frame ring/border, background gradient/pattern).
  */
 import type { CSSProperties } from "react";
+import { BG_SRC } from "./cosmetics-assets";
 
 export type Rarity = "common" | "rare" | "epic" | "legendary" | "creator" | "queen";
 
@@ -54,66 +55,8 @@ export const CATEGORY_LABEL: Record<string, string> = {
 export function frameStyle(itemKey: string | null | undefined): { className: string; style: CSSProperties } {
   if (!itemKey) return { className: "", style: {} };
   const k = itemKey;
-  if (k === "frame_paper")    return { className: "ring-2 ring-muted-foreground/30", style: {} };
-  if (k === "frame_kraft")    return { className: "ring-[3px]", style: { boxShadow: "0 0 0 3px hsl(35 50% 60%)" } };
-  if (k === "frame_dotted")   return { className: "ring-2 ring-dashed ring-foreground", style: {} };
-  if (k === "frame_dashed")   return { className: "ring-2 ring-dashed ring-foreground/70", style: {} };
-  if (k === "frame_notebook") return { className: "ring-2 ring-blue-300", style: {} };
-  if (k === "frame_grid")     return { className: "ring-2 ring-foreground/40", style: {} };
-  if (k === "frame_pencil")   return { className: "ring-2 ring-foreground/60", style: {} };
-  if (k === "frame_scotch")   return { className: "ring-[3px] ring-yellow-300", style: {} };
-  if (k === "frame_sticker")  return { className: "ring-[3px] ring-pink-400", style: {} };
-  if (k === "frame_postit_yellow") return { className: "ring-[3px] ring-yellow-400", style: {} };
-  if (k === "frame_marker_yellow") return { className: "ring-[3px] ring-yellow-500", style: {} };
-  if (k === "frame_marker_orange") return { className: "ring-[3px] ring-orange-500", style: {} };
-  if (k === "frame_polaroid") return { className: "ring-4 ring-white shadow-[0_2px_8px_rgba(0,0,0,0.25)]", style: {} };
-  if (k === "frame_neon")     return { className: "ring-2 ring-cyan-400 shadow-[0_0_12px_hsl(190_100%_60%)]", style: {} };
-  if (k === "frame_neon_blue") return { className: "ring-2 ring-blue-500 shadow-[0_0_14px_hsl(220_100%_60%)]", style: {} };
-  if (k === "frame_neon_green") return { className: "ring-2 ring-green-400 shadow-[0_0_14px_hsl(130_90%_55%)]", style: {} };
-  if (k === "frame_neon_pink") return { className: "ring-2 ring-pink-500 shadow-[0_0_14px_hsl(330_100%_60%)]", style: {} };
-  if (k === "frame_floral")   return { className: "ring-[3px] ring-pink-300", style: {} };
-  if (k === "frame_ice")      return { className: "ring-2 ring-sky-300 shadow-[0_0_10px_hsl(200_100%_70%)]", style: {} };
-  if (k === "frame_fire")     return { className: "ring-2 ring-orange-500 shadow-[0_0_14px_hsl(20_100%_55%)]", style: {} };
-  if (k === "frame_lightning") return { className: "ring-2 ring-yellow-400 shadow-[0_0_14px_hsl(50_100%_55%)]", style: {} };
-  if (k === "frame_gold")     return { className: "ring-[3px] ring-yellow-400 shadow-[0_0_18px_hsl(45_100%_55%)]", style: {} };
-  if (k === "frame_rainbow")  return { className: "p-[3px] rounded-full", style: { background: "conic-gradient(from 0deg, #ff0080, #ff8c00, #ffd000, #00d084, #00b8ff, #b400ff, #ff0080)" } };
-  if (k === "frame_aurora")   return { className: "p-[3px] rounded-full", style: { background: "linear-gradient(135deg, #00ffd1, #b388ff, #ff80ab)" } };
-  if (k === "frame_galaxy")   return { className: "p-[3px] rounded-full", style: { background: "linear-gradient(135deg, #1a0040, #6a00ff, #00b8ff, #1a0040)" } };
-  if (k === "frame_holo")     return { className: "p-[3px] rounded-full", style: { background: "linear-gradient(135deg, #ff00cc, #00ffff, #ffff00, #00ffaa)" } };
-  if (k === "frame_diamond")  return { className: "p-[3px] rounded-full shadow-[0_0_18px_hsl(190_100%_70%)]", style: { background: "linear-gradient(135deg, #e0f7fa, #b2ebf2, #80deea, #e0f7fa)" } };
-  if (k === "frame_phoenix")  return { className: "p-[3px] rounded-full shadow-[0_0_18px_hsl(20_100%_55%)]", style: { background: "linear-gradient(135deg, #ff0000, #ff8c00, #ffd000, #ff0000)" } };
-  if (k === "frame_dragon")   return { className: "p-[3px] rounded-full shadow-[0_0_16px_hsl(140_100%_45%)]", style: { background: "linear-gradient(135deg, #003300, #00b300, #66ff66, #003300)" } };
-  if (k === "frame_cosmic")   return { className: "p-[3px] rounded-full shadow-[0_0_18px_hsl(280_100%_60%)]", style: { background: "linear-gradient(135deg, #000033, #6600cc, #ff00ff, #000033)" } };
-  if (k === "frame_celestial") return { className: "p-[3px] rounded-full shadow-[0_0_18px_hsl(50_100%_70%)]", style: { background: "linear-gradient(135deg, #fff5cc, #ffd700, #ffaa00, #fff5cc)" } };
-  if (k === "frame_thunder")  return { className: "p-[3px] rounded-full shadow-[0_0_18px_hsl(60_100%_60%)]", style: { background: "linear-gradient(135deg, #1a1a40, #ffff00, #ffffff, #1a1a40)" } };
-  /* ===== Phase 2 — new frames ===== */
-  if (k === "frame_emerald")  return { className: "p-[3px] rounded-full shadow-[0_0_16px_hsl(150_85%_45%)]", style: { background: "linear-gradient(135deg, #064e3b, #10b981, #6ee7b7, #064e3b)" } };
-  if (k === "frame_ruby")     return { className: "p-[3px] rounded-full shadow-[0_0_16px_hsl(0_85%_55%)]",   style: { background: "linear-gradient(135deg, #7f1d1d, #ef4444, #fca5a5, #7f1d1d)" } };
-  if (k === "frame_sapphire") return { className: "p-[3px] rounded-full shadow-[0_0_16px_hsl(220_85%_55%)]", style: { background: "linear-gradient(135deg, #1e3a8a, #3b82f6, #93c5fd, #1e3a8a)" } };
-  if (k === "frame_sun")      return { className: "p-[3px] rounded-full shadow-[0_0_18px_hsl(40_100%_55%)]", style: { background: "radial-gradient(circle, #fef3c7, #f59e0b, #b45309)" } };
-  if (k === "frame_moon")     return { className: "p-[3px] rounded-full shadow-[0_0_16px_hsl(220_60%_75%)]", style: { background: "radial-gradient(circle, #f1f5f9, #94a3b8, #475569)" } };
-  if (k === "frame_shooting_stars") return { className: "ring-2 ring-indigo-400 shadow-[0_0_14px_hsl(240_80%_60%)]", style: {} };
-  if (k === "frame_crystal_blue")   return { className: "p-[3px] rounded-full shadow-[0_0_14px_hsl(195_100%_60%)]", style: { background: "linear-gradient(135deg, #0e7490, #22d3ee, #cffafe, #0e7490)" } };
-  if (k === "frame_pixel")    return { className: "ring-[3px] ring-emerald-400 shadow-[0_0_10px_hsl(150_85%_45%)]", style: {} };
-  if (k === "frame_marker_pink") return { className: "ring-[3px] ring-pink-400", style: {} };
-  /* ===== Phase 3 — Summer pack ===== */
-  if (k === "frame_summer_seashell") return { className: "p-[2px] rounded-full", style: { background: "linear-gradient(135deg, #fff1f2, #fecdd3, #fda4af, #fff1f2)" } };
-  if (k === "frame_summer_palm")    return { className: "p-[2px] rounded-full shadow-[0_0_10px_hsl(150_70%_45%/0.5)]", style: { background: "linear-gradient(135deg, #064e3b, #15803d, #facc15, #064e3b)" } };
-  if (k === "frame_summer_wave")    return { className: "p-[2px] rounded-full shadow-[0_0_10px_hsl(195_100%_55%/0.55)]", style: { background: "linear-gradient(135deg, #0c4a6e, #0ea5e9, #67e8f9, #0c4a6e)" } };
-  if (k === "frame_summer_flower")  return { className: "p-[3px] rounded-full shadow-[0_0_12px_hsl(330_90%_65%/0.55)]", style: { background: "conic-gradient(from 0deg, #fb7185, #f59e0b, #84cc16, #f472b6, #fb7185)" } };
-  if (k === "frame_summer_pineapple") return { className: "p-[3px] rounded-full shadow-[0_0_12px_hsl(45_100%_55%/0.55)]", style: { background: "linear-gradient(135deg, #fde047, #ca8a04, #65a30d, #fde047)" } };
-  if (k === "frame_summer_neon")    return { className: "p-[2px] rounded-full shadow-[0_0_18px_hsl(330_100%_60%/0.65)]", style: { background: "linear-gradient(135deg, #ec4899, #22d3ee, #ec4899)" } };
-  if (k === "frame_summer_surf")    return { className: "p-[2px] rounded-full shadow-[0_0_10px_hsl(200_100%_55%/0.4)]", style: { background: "linear-gradient(135deg, #fef3c7, #fb923c, #0ea5e9, #fef3c7)" } };
-  if (k === "frame_summer_pool")    return { className: "p-[2px] rounded-full shadow-[0_0_10px_hsl(190_100%_55%/0.5)]", style: { background: "linear-gradient(135deg, #67e8f9, #06b6d4, #155e75, #67e8f9)" } };
-  if (k === "frame_summer_sunset")  return { className: "p-[3px] rounded-full shadow-[0_0_14px_hsl(20_100%_55%/0.6)]", style: { background: "linear-gradient(135deg, #fef3c7, #fb923c, #db2777, #4c1d95)" } };
-  if (k === "frame_summer_coral")   return { className: "p-[2px] rounded-full shadow-[0_0_10px_hsl(0_85%_70%/0.5)]", style: { background: "linear-gradient(135deg, #fecaca, #f87171, #fb7185, #fecaca)" } };
-  if (k === "frame_summer_gold_sun") return { className: "p-[3px] rounded-full shadow-[0_0_22px_hsl(45_100%_60%/0.85)]", style: { background: "radial-gradient(circle, #fff7c2 0%, #fbbf24 45%, #b45309 100%)" } };
-  if (k === "frame_summer_lagoon")  return { className: "p-[3px] rounded-full shadow-[0_0_18px_hsl(180_90%_55%/0.65)]", style: { background: "conic-gradient(from 0deg, #022c22, #14b8a6, #67e8f9, #155e75, #022c22)" } };
   /* ===== Creator-exclusive ===== */
   if (k === "frame_origine") {
-    // The ornate ring is rendered by the PNG overlay (FrameDecor "above" layer).
-    // Here we only add a subtle warm glow so the avatar feels lit from within,
-    // without competing with the photoreal liquid-gold ring on top.
     return {
       className: "rounded-full shadow-[0_0_28px_hsl(40_100%_55%/0.45)]",
       style: {},
@@ -121,73 +64,19 @@ export function frameStyle(itemKey: string | null | undefined): { className: str
   }
   /* ===== Queen-exclusive (Léna) ===== */
   if (k === "frame_reine") {
-    // The ornate rose-gold ring + crown are rendered by FrameDecor (PNG overlay).
-    // Here we only add a soft pink-gold glow so the avatar feels lit from within.
     return {
       className: "rounded-full shadow-[0_0_28px_hsl(330_100%_75%/0.55)]",
       style: {},
     };
   }
-  return { className: "ring-2 ring-offset-2 ring-offset-background ring-primary/40", style: {} };
+  // All other frames are rendered as <img> ring overlays by FrameDecor.
+  // The avatar element itself stays neutral; no CSS ring on the avatar.
+  return { className: "", style: {} };
 }
 
 export function backgroundStyle(itemKey: string | null | undefined): CSSProperties {
   if (!itemKey) return {};
   const k = itemKey;
-  if (k === "bg_paper_white")  return { background: "hsl(45 30% 96%)" };
-  if (k === "bg_paper_kraft")  return { background: "hsl(35 40% 80%)" };
-  if (k === "bg_dotted")       return { backgroundColor: "hsl(45 30% 96%)", backgroundImage: "radial-gradient(hsl(0 0% 0% / 0.15) 1px, transparent 1px)", backgroundSize: "12px 12px" };
-  if (k === "bg_grid")         return { backgroundColor: "hsl(45 30% 96%)", backgroundImage: "linear-gradient(hsl(0 0% 0% / 0.1) 1px, transparent 1px), linear-gradient(90deg, hsl(0 0% 0% / 0.1) 1px, transparent 1px)", backgroundSize: "16px 16px" };
-  if (k === "bg_lined")        return { backgroundColor: "hsl(210 60% 98%)", backgroundImage: "linear-gradient(hsl(210 80% 70% / 0.5) 1px, transparent 1px)", backgroundSize: "100% 18px" };
-  if (k === "bg_corkboard")    return { background: "repeating-radial-gradient(circle at 20% 30%, hsl(30 40% 55%), hsl(30 40% 50%) 2px), hsl(30 40% 55%)" };
-  if (k === "bg_chalkboard")   return { background: "linear-gradient(180deg, hsl(150 25% 18%), hsl(150 30% 12%))" };
-  if (k === "bg_pastel_pink")  return { background: "linear-gradient(135deg, hsl(340 100% 92%), hsl(310 100% 88%))" };
-  if (k === "bg_pastel_blue")  return { background: "linear-gradient(135deg, hsl(200 100% 92%), hsl(220 100% 88%))" };
-  if (k === "bg_pastel_mint")  return { background: "linear-gradient(135deg, hsl(150 70% 90%), hsl(170 70% 86%))" };
-  if (k === "bg_cherry")       return { background: "linear-gradient(135deg, hsl(340 100% 70%), hsl(0 80% 60%))" };
-  if (k === "bg_sunset")       return { background: "linear-gradient(135deg, #ff6a00, #ee0979)" };
-  if (k === "bg_sunrise")      return { background: "linear-gradient(135deg, #ffe259, #ffa751)" };
-  if (k === "bg_ocean")        return { background: "linear-gradient(135deg, #2193b0, #6dd5ed)" };
-  if (k === "bg_forest")       return { background: "linear-gradient(135deg, #134e5e, #71b280)" };
-  if (k === "bg_library")      return { background: "linear-gradient(135deg, #654321, #8b6f47)" };
-  if (k === "bg_galaxy")       return { background: "linear-gradient(135deg, #0f0c29, #302b63, #24243e)" };
-  if (k === "bg_galaxy_swirl") return { background: "conic-gradient(from 180deg at 50% 50%, #1a0040, #6a00ff, #00b8ff, #1a0040)" };
-  if (k === "bg_starfield")    return { backgroundColor: "#000020", backgroundImage: "radial-gradient(white 1px, transparent 1px), radial-gradient(white 1px, transparent 1px)", backgroundSize: "30px 30px, 50px 50px", backgroundPosition: "0 0, 15px 25px" };
-  if (k === "bg_aurora")       return { background: "linear-gradient(135deg, #00ffd1, #b388ff, #ff80ab)" };
-  if (k === "bg_nebula")       return { background: "radial-gradient(circle at 30% 40%, #ff00cc, transparent 50%), radial-gradient(circle at 70% 60%, #00ffff, transparent 50%), #1a0040" };
-  if (k === "bg_neon_city")    return { background: "linear-gradient(180deg, #1a0033, #ff00aa)" };
-  if (k === "bg_underwater")   return { background: "linear-gradient(180deg, #006994, #00aaff)" };
-  if (k === "bg_lightning")    return { background: "linear-gradient(135deg, #232526, #ffd700)" };
-  if (k === "bg_volcano")      return { background: "linear-gradient(180deg, #1a0000, #ff4500, #ffaa00)" };
-  if (k === "bg_holographic")  return { background: "linear-gradient(135deg, #ff00cc, #00ffff, #ffff00, #00ffaa)" };
-  if (k === "bg_cosmic_void")  return { background: "radial-gradient(circle at 50% 50%, #6600cc, #000033)" };
-  if (k === "bg_crystal_cave") return { background: "linear-gradient(135deg, #4a148c, #00bcd4, #4a148c)" };
-  if (k === "bg_dimension")    return { background: "conic-gradient(from 90deg at 50% 50%, #ff00cc, #00ffff, #ffff00, #00ffaa, #ff00cc)" };
-  if (k === "bg_phoenix_fire") return { background: "radial-gradient(ellipse at 50% 100%, #ffd700, #ff4500, #8b0000)" };
-  if (k === "bg_celestial_temple") return { background: "linear-gradient(180deg, #fff5cc, #ffd700, #ffaa00)" };
-  /* ===== Phase 2 — new backgrounds (rich CSS gradients) ===== */
-  if (k === "bg_tropical_sunset") return { background: "linear-gradient(180deg, #fef3c7 0%, #fb923c 35%, #db2777 65%, #4c1d95 100%)" };
-  if (k === "bg_polar_dawn")      return { background: "linear-gradient(180deg, #fbcfe8 0%, #c4b5fd 40%, #93c5fd 75%, #e0f2fe 100%)" };
-  if (k === "bg_mountain_mist")   return { background: "linear-gradient(180deg, #e0f2fe 0%, #cbd5e1 50%, #64748b 100%)" };
-  if (k === "bg_enchanted_forest") return { background: "radial-gradient(ellipse at 30% 20%, hsl(150 60% 60% / 0.4), transparent 50%), radial-gradient(ellipse at 70% 80%, hsl(280 60% 50% / 0.3), transparent 50%), linear-gradient(180deg, #064e3b 0%, #022c22 100%)" };
-  if (k === "bg_deep_sea")        return { background: "radial-gradient(ellipse at 50% 30%, hsl(190 80% 50% / 0.5), transparent 60%), linear-gradient(180deg, #0c4a6e 0%, #082f49 50%, #020617 100%)" };
-  if (k === "bg_golden_desert")   return { background: "linear-gradient(180deg, #fef08a 0%, #fbbf24 35%, #d97706 70%, #78350f 100%)" };
-  if (k === "bg_violet_crystal")  return { background: "radial-gradient(ellipse at 30% 50%, hsl(280 100% 60% / 0.6), transparent 50%), radial-gradient(ellipse at 70% 60%, hsl(220 100% 50% / 0.5), transparent 55%), linear-gradient(135deg, #1e1b4b 0%, #0f0a2e 100%)" };
-  if (k === "bg_thunderstorm")    return { background: "radial-gradient(ellipse at 50% 30%, hsl(220 50% 30% / 0.8), transparent 50%), linear-gradient(180deg, #1e293b 0%, #0f172a 60%, #020617 100%)" };
-  if (k === "bg_pastel_lavender") return { background: "linear-gradient(135deg, hsl(270 100% 92%), hsl(290 100% 88%))" };
-  /* ===== Phase 3 — Summer pack ===== */
-  if (k === "bg_summer_beach")      return { background: "linear-gradient(180deg, #87ceeb 0%, #b0e0e6 35%, #f5deb3 70%, #f4a460 100%)" };
-  if (k === "bg_summer_lagoon")     return { background: "radial-gradient(ellipse at 50% 30%, hsl(180 100% 70% / 0.7), transparent 60%), linear-gradient(180deg, #67e8f9 0%, #06b6d4 50%, #0e7490 100%)" };
-  if (k === "bg_summer_palm")       return { background: "linear-gradient(180deg, #fef3c7 0%, #fde68a 30%, #f97316 70%, #7c2d12 100%)" };
-  if (k === "bg_summer_pool")       return { background: "radial-gradient(circle at 30% 40%, hsl(190 100% 80% / 0.6), transparent 50%), radial-gradient(circle at 70% 70%, hsl(200 100% 70% / 0.6), transparent 50%), linear-gradient(135deg, #06b6d4, #0891b2, #155e75)" };
-  if (k === "bg_summer_tropic")     return { background: "linear-gradient(135deg, #f472b6 0%, #f59e0b 35%, #34d399 70%, #06b6d4 100%)" };
-  if (k === "bg_summer_paradise")   return { background: "radial-gradient(ellipse at 50% 100%, hsl(45 100% 65% / 0.6), transparent 70%), linear-gradient(180deg, #fce7f3 0%, #fbcfe8 30%, #f97316 70%, #7c2d12 100%)" };
-  if (k === "bg_summer_sunset_sea") return { background: "linear-gradient(180deg, #fef3c7 0%, #fb923c 30%, #db2777 60%, #1e3a8a 90%, #0c4a6e 100%)" };
-  if (k === "bg_summer_neon_beach") return { background: "linear-gradient(180deg, #4c1d95 0%, #db2777 40%, #f59e0b 75%, #06b6d4 100%)" };
-  if (k === "bg_summer_coconut")    return { background: "linear-gradient(180deg, #fef3c7 0%, #fde68a 50%, #d4a373 100%)" };
-  if (k === "bg_summer_aurora_bay") return { background: "radial-gradient(ellipse at 50% 80%, hsl(40 100% 60% / 0.7), transparent 60%), linear-gradient(180deg, #fef3c7 0%, #fbbf24 25%, #ea580c 55%, #7c2d12 100%)" };
-  if (k === "bg_summer_caribbean")  return { background: "radial-gradient(ellipse at 50% 50%, hsl(170 90% 70% / 0.5), transparent 70%), linear-gradient(135deg, #14b8a6 0%, #0d9488 50%, #115e59 100%)" };
-  if (k === "bg_summer_ice_cream")  return { background: "linear-gradient(135deg, #fef3c7 0%, #fbcfe8 35%, #ddd6fe 70%, #bae6fd 100%)" };
   /* ===== Creator-exclusive ===== */
   if (k === "bg_origine") return {
     background:
@@ -207,5 +96,15 @@ export function backgroundStyle(itemKey: string | null | undefined): CSSProperti
       // base velvet
       "linear-gradient(160deg, #fff1f4 0%, #fde7ef 35%, #f9d7e3 65%, #f3c0d3 100%)",
   };
+  /* ===== All other backgrounds → generated WebP image ===== */
+  const url = BG_SRC[k];
+  if (url) {
+    return {
+      backgroundImage: `url(${url})`,
+      backgroundSize: "cover",
+      backgroundPosition: "center",
+      backgroundRepeat: "no-repeat",
+    };
+  }
   return { background: "hsl(var(--muted))" };
 }
