@@ -81,7 +81,7 @@ Deno.serve(async (req) => {
     });
     if (insertErr) {
       console.error("Insert error", insertErr);
-      return jsonResponse({ error: "insert_failed", details: insertErr.message }, { status: 500 });
+      return jsonResponse({ error: "insert_failed" }, { status: 500 });
     }
 
     return jsonResponse({ success: true, explanation });
