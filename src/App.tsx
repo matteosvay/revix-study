@@ -1,32 +1,47 @@
+import { lazy, Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+// Index (landing) reste eager : c'est la première page vue, le lazy ajouterait un flash inutile
 import Index from "./pages/Index.tsx";
 import NotFound from "./pages/NotFound.tsx";
-import Login from "./pages/auth/Login";
-import SignUp from "./pages/auth/SignUp";
-import Reset from "./pages/auth/Reset";
-import Dashboard from "./pages/app/Dashboard";
-import Upload from "./pages/app/Upload";
-import Fiches from "./pages/app/Fiches";
-import Quizz from "./pages/app/Quizz";
-import Planning from "./pages/app/Planning";
-import Profil from "./pages/app/Profil";
-import Streak from "./pages/app/Streak";
-import CourseDetail from "./pages/app/CourseDetail";
-import Aventure from "./pages/app/Aventure";
-import Campus from "./pages/app/Campus";
-import DuelPlay from "./pages/app/DuelPlay";
-import StudyRoom from "./pages/app/StudyRoom";
-import Revision from "./pages/app/Revision";
-import StudyGroups from "./pages/app/StudyGroups";
-import Cosmetics from "./pages/app/Cosmetics";
-import Stats from "./pages/app/Stats";
-import PublicProfile from "./pages/app/PublicProfile";
-import AiUsage from "./pages/admin/AiUsage";
-import CheckoutReturn from "./pages/app/CheckoutReturn";
+// Toutes les autres routes sont lazy-loaded → bundle initial divisé par ~3
+const Login = lazy(() => import("./pages/auth/Login"));
+const SignUp = lazy(() => import("./pages/auth/SignUp"));
+const Reset = lazy(() => import("./pages/auth/Reset"));
+const Dashboard = lazy(() => import("./pages/app/Dashboard"));
+const Upload = lazy(() => import("./pages/app/Upload"));
+const Fiches = lazy(() => import("./pages/app/Fiches"));
+const Quizz = lazy(() => import("./pages/app/Quizz"));
+const Planning = lazy(() => import("./pages/app/Planning"));
+const Profil = lazy(() => import("./pages/app/Profil"));
+const Streak = lazy(() => import("./pages/app/Streak"));
+const CourseDetail = lazy(() => import("./pages/app/CourseDetail"));
+const Aventure = lazy(() => import("./pages/app/Aventure"));
+const Campus = lazy(() => import("./pages/app/Campus"));
+const DuelPlay = lazy(() => import("./pages/app/DuelPlay"));
+const StudyRoom = lazy(() => import("./pages/app/StudyRoom"));
+const Revision = lazy(() => import("./pages/app/Revision"));
+const StudyGroups = lazy(() => import("./pages/app/StudyGroups"));
+const Cosmetics = lazy(() => import("./pages/app/Cosmetics"));
+const Stats = lazy(() => import("./pages/app/Stats"));
+const PublicProfile = lazy(() => import("./pages/app/PublicProfile"));
+const AiUsage = lazy(() => import("./pages/admin/AiUsage"));
+const CheckoutReturn = lazy(() => import("./pages/app/CheckoutReturn"));
+const MentionsLegales = lazy(() => import("./pages/legal/MentionsLegales"));
+const PolitiqueConfidentialite = lazy(() => import("./pages/legal/PolitiqueConfidentialite"));
+const CGU = lazy(() => import("./pages/legal/CGU"));
+const CGV = lazy(() => import("./pages/legal/CGV"));
+const FichesRevisionIA = lazy(() => import("./pages/landings/FichesRevisionIA"));
+const QuizIA = lazy(() => import("./pages/landings/QuizIA"));
+const PlanningRevision = lazy(() => import("./pages/landings/PlanningRevision"));
+const FlashcardsIA = lazy(() => import("./pages/landings/FlashcardsIA"));
+const FicheDroit = lazy(() => import("./pages/landings/subjects/FicheDroit"));
+const FicheMarketing = lazy(() => import("./pages/landings/subjects/FicheMarketing"));
+const FicheAnalyseLitteraire = lazy(() => import("./pages/landings/subjects/FicheAnalyseLitteraire"));
+
 import { AuthProvider } from "./hooks/useAuth";
 import { RequireAuth } from "./components/revix/RequireAuth";
 import { RequireAdmin } from "./components/revix/RequireAdmin";
@@ -36,17 +51,6 @@ import { ErrorBoundary } from "./components/revix/ErrorBoundary";
 import { AiLimitModal } from "./components/revix/AiLimitModal";
 import { CookieBanner } from "./components/revix/CookieBanner";
 import { SplashScreen } from "./components/revix/SplashScreen";
-import MentionsLegales from "./pages/legal/MentionsLegales";
-import PolitiqueConfidentialite from "./pages/legal/PolitiqueConfidentialite";
-import CGU from "./pages/legal/CGU";
-import CGV from "./pages/legal/CGV";
-import FichesRevisionIA from "./pages/landings/FichesRevisionIA";
-import QuizIA from "./pages/landings/QuizIA";
-import PlanningRevision from "./pages/landings/PlanningRevision";
-import FlashcardsIA from "./pages/landings/FlashcardsIA";
-import FicheDroit from "./pages/landings/subjects/FicheDroit";
-import FicheMarketing from "./pages/landings/subjects/FicheMarketing";
-import FicheAnalyseLitteraire from "./pages/landings/subjects/FicheAnalyseLitteraire";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -80,6 +84,7 @@ const App = () => (
           <BrowserRouter>
             <AiLimitModal />
             <CookieBanner />
+            <Suspense fallback={null}>
             <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
@@ -120,6 +125,7 @@ const App = () => (
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            </Suspense>
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
