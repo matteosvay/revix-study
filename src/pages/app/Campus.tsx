@@ -502,7 +502,7 @@ export default function Campus() {
                         </p>
                         <div className="flex gap-2 mt-1 text-[10px] font-bold">
  <span className="flex items-center gap-0.5">{p.streak_days?? 0}</span>
-                          <span className="flex items-center gap-0.5">⭐{p.xp_total ?? 0}</span>
+                          <span className="flex items-center gap-0.5"><img src={illu.star} alt="" className="w-3 h-3 inline" />{p.xp_total ?? 0}</span>
                         </div>
                       </Link>
                       <Button size="sm" variant="ghost" onClick={() => removeFriend(otherId)} className="text-destructive h-7 text-[10px] font-bold">
