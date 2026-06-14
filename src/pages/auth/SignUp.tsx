@@ -156,7 +156,15 @@ export default function SignUp() {
   }
 
   return (
- <AuthShell title="Crée ton compte " subtitle="C'est gratuit, et ça change tout.">
+ <AuthShell
+   title="Crée ton compte "
+   subtitle="C'est gratuit, et ça change tout."
+   seo={{
+     title: "Inscription gratuite — Revix",
+     description: "Crée ton compte Revix gratuitement et débloque fiches, quizz et plannings IA pour tes révisions.",
+     path: "/signup",
+   }}
+ >
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="space-y-2">
           <Label htmlFor="name">Prénom</Label>

@@ -17,7 +17,15 @@ export default function Reset() {
     else toast.success("Email envoyé ! Vérifie ta boîte.");
   };
   return (
-    <AuthShell title="Mot de passe oublié ?" subtitle="On t'envoie un lien pour le réinitialiser.">
+ <AuthShell
+   title="Mot de passe oublié ?"
+   subtitle="On t'envoie un lien pour le réinitialiser."
+   seo={{
+     title: "Réinitialiser mon mot de passe — Revix",
+     description: "Réinitialise le mot de passe de ton compte Revix par email.",
+     path: "/reset-password",
+   }}
+ >
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>

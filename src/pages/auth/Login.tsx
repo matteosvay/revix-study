@@ -6,7 +6,6 @@ import { Label } from "@/components/ui/label";
 import { AuthShell } from "./AuthShell";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { PageHead } from "@/components/seo/PageHead";
 
 export default function Login() {
   const nav = useNavigate();
@@ -38,13 +37,15 @@ export default function Login() {
   };
 
   return (
- <>
- <PageHead
-   title="Connexion — Revix"
-   description="Connecte-toi à ton compte Revix pour reprendre tes révisions, quizz et plannings IA."
-   path="/login"
- />
- <AuthShell title="Bon retour " subtitle="Connecte-toi pour reprendre tes révisions.">
+ <AuthShell
+   title="Bon retour "
+   subtitle="Connecte-toi pour reprendre tes révisions."
+   seo={{
+     title: "Connexion — Revix",
+     description: "Connecte-toi à Revix pour reprendre tes révisions, quizz et plannings IA.",
+     path: "/login",
+   }}
+ >
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
@@ -65,6 +66,5 @@ export default function Login() {
         </p>
       </form>
     </AuthShell>
- </>
   );
 }
