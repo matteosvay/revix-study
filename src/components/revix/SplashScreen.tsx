@@ -1,23 +1,37 @@
 import { useEffect, useState } from "react";
 import { Sparkles } from "lucide-react";
 
+const SPLASH_FLAG = "revix:splash-shown";
+
 /**
- * Écran de chargement initial — affiché au boot de l'app.
- * Sobre, brutaliste, dans le thème (Archivo Black + accents primaires).
- * Disparaît après un court délai avec un fade.
+ * Écran de chargement initial — affiché UNIQUEMENT au tout premier lancement
+ * de l'application dans l'onglet (comme un vrai jeu). On stocke un flag dans
+ * sessionStorage pour ne plus le remontrer lors des navigations internes
+ * ou des rechargements de chunks lazy.
  */
 export const SplashScreen = () => {
-  const [done, setDone] = useState(false);
+  // Si on a déjà affiché le splash dans cet onglet, on saute directement.
+  const alreadyShown =
+    typeof window !== "undefined" && window.sessionStorage.getItem(SPLASH_FLAG) === "1";
+  const [done, setDone] = useState(alreadyShown);
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
+    if (alreadyShown) return;
     const t1 = window.setTimeout(() => setFading(true), 900);
-    const t2 = window.setTimeout(() => setDone(true), 1300);
+    const t2 = window.setTimeout(() => {
+      setDone(true);
+      try {
+        window.sessionStorage.setItem(SPLASH_FLAG, "1");
+      } catch {
+        // sessionStorage indisponible (mode privé strict) → on l'ignore.
+      }
+    }, 1300);
     return () => {
       window.clearTimeout(t1);
       window.clearTimeout(t2);
     };
-  }, []);
+  }, [alreadyShown]);
 
   if (done) return null;
 
