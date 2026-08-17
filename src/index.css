@@ -1,136 +1,168 @@
-@import url('https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800;900&display=swap');
-@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;600;700&family=Kalam:wght@300;400;700&family=JetBrains+Mono:wght@400;500;700&family=Architects+Daughter&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Caveat:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* ============================================================
-   REVIX — NEO-BRUTALIST STUDY
-   Palette : papier crème jaune (#fef9c3) / encre noire pure
-             violet électrique #7c3aed / orange vif #f97316
-   Forme   : bordures noires 2-3px, ombres dures offset 4px 4px 0 #000
-             border-radius réduit (4-12px), pas de blur
-   Typo    : Archivo Black titres / Space Grotesk + Inter UI / Caveat annotations
+   REVIX — ADN « BUREAU D'ÉTUDIANT »
+   Palette : papier crème (#faf6ea) / encre bleu-nuit (#1e2c47)
+             bleu stylo #2456d6 (principal) / jaune surligneur #f6c945 (récompense)
+   Forme   : bordures encre 2-3px, ombres décalées (sticker), coins arrondis doux
+   Typo    : Space Grotesk (titres) / Inter (UI) / Caveat (annotations)
    ============================================================ */
 
 @layer base {
   :root {
     /* Papier crème doux */
-    --background: 45 50% 94%;        /* crème chaud */
-    --foreground: 0 0% 4%;           /* encre noire */
+    --background: 44 48% 95%;        /* papier crème */
+    --foreground: 222 41% 20%;       /* encre bleu-nuit */
 
-    --card: 0 0% 100%;               /* blanc franc — contraste maximal */
-    --card-foreground: 0 0% 4%;
+    --card: 44 60% 98%;              /* feuille claire */
+    --card-foreground: 222 41% 20%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 4%;
+    --popover: 44 60% 98%;
+    --popover-foreground: 222 41% 20%;
 
-    /* Violet électrique #7c3aed */
-    --primary: 262 83% 58%;
+    /* Bleu stylo #2456d6 — couleur principale */
+    --primary: 222 71% 49%;
     --primary-foreground: 0 0% 100%;
-    --primary-glow: 262 90% 72%;
+    --primary-glow: 222 90% 66%;
 
-    /* Crème jaune un ton plus sombre */
-    --secondary: 51 94% 78%;
-    --secondary-foreground: 0 0% 4%;
+    /* Bleu papier doux */
+    --secondary: 210 40% 91%;
+    --secondary-foreground: 222 41% 22%;
 
-    --muted: 50 90% 92%;
-    --muted-foreground: 0 0% 32%;
+    --muted: 44 30% 90%;
+    --muted-foreground: 222 16% 42%;
 
-    /* Orange vif #f97316 — accent énergique */
-    --accent: 24 95% 53%;
-    --accent-foreground: 0 0% 100%;
+    /* Jaune surligneur #f6c945 — accent récompense (XP, badges) */
+    --accent: 45 91% 62%;
+    --accent-foreground: 222 45% 16%;
 
     /* Vert bloc */
-    --success: 142 76% 36%;
+    --success: 149 61% 41%;
     --success-foreground: 0 0% 100%;
 
     /* Rouge bloc */
-    --destructive: 358 86% 53%;
+    --destructive: 0 63% 55%;
     --destructive-foreground: 0 0% 100%;
 
-    /* Bordure noire pure — la signature brutaliste */
-    --border: 0 0% 4%;
-    --input: 0 0% 4%;
-    --ring: 262 83% 58%;
+    /* Bordure encre bleu-nuit — signature "sticker" */
+    --border: 222 41% 20%;
+    --input: 222 41% 20%;
+    --ring: 222 71% 49%;
 
-    /* Univers académique réinterprété */
-    --paper: 45 50% 94%;
-    --paper-line: 0 0% 4%;
-    --ink: 0 0% 4%;
-    --highlight-yellow: 51 100% 60%;
-    --highlight-pink: 340 100% 70%;
-    --highlight-green: 142 76% 60%;
-    --tape: 51 100% 60%;             /* jaune vif */
-    --tape-pink: 340 100% 70%;       /* rose flashy */
-    --tape-mint: 162 73% 60%;        /* mint vif */
-    --postit: 51 100% 70%;           /* jaune fluo */
-    --postit-pink: 340 100% 80%;
+    /* Univers académique — papier Seyès, scotch, post-its */
+    --paper: 44 48% 95%;
+    --paper-line: 210 55% 80%;
+    --ink: 222 41% 20%;
+    --highlight-yellow: 48 100% 66%;
+    --highlight-pink: 340 90% 78%;
+    --highlight-green: 150 60% 70%;
+    --tape: 44 55% 80%;              /* scotch kraft */
+    --tape-pink: 340 80% 85%;
+    --tape-mint: 175 45% 78%;
+    --postit: 48 100% 72%;
+    --postit-pink: 340 90% 85%;
 
-    --radius: 0.5rem;                /* moins arrondi */
+    --radius: 0.6rem;               /* coins arrondis doux */
 
-    /* Plus de gradients mous : on garde "gradient-primary" comme alias bloc violet */
-    --gradient-primary: hsl(262 83% 58%);
-    --gradient-hero: hsl(262 83% 58%);
-    --gradient-dark: hsl(0 0% 4%);
-    --gradient-gold: hsl(51 100% 60%);
+    /* Aliases blocs (compat) */
+    --gradient-primary: hsl(222 71% 49%);
+    --gradient-hero: hsl(222 71% 49%);
+    --gradient-dark: hsl(222 41% 20%);
+    --gradient-gold: hsl(45 91% 62%);
 
-    /* OMBRES DURES — la signature néo-brutaliste */
-    --shadow-brutal: 4px 4px 0 0 hsl(0 0% 4%);
-    --shadow-brutal-sm: 2px 2px 0 0 hsl(0 0% 4%);
-    --shadow-brutal-lg: 6px 6px 0 0 hsl(0 0% 4%);
-    --shadow-brutal-xl: 8px 8px 0 0 hsl(0 0% 4%);
-    --shadow-brutal-primary: 4px 4px 0 0 hsl(262 83% 58%);
-    --shadow-brutal-accent: 4px 4px 0 0 hsl(24 95% 53%);
+    /* OMBRES DÉCALÉES — encre bleu-nuit (plus douce que le noir pur) */
+    --shadow-brutal: 4px 4px 0 0 hsl(222 41% 20%);
+    --shadow-brutal-sm: 2px 2px 0 0 hsl(222 41% 20%);
+    --shadow-brutal-lg: 6px 6px 0 0 hsl(222 41% 20%);
+    --shadow-brutal-xl: 8px 8px 0 0 hsl(222 41% 20%);
+    --shadow-brutal-primary: 4px 4px 0 0 hsl(222 71% 49%);
+    --shadow-brutal-accent: 4px 4px 0 0 hsl(45 91% 62%);
 
     /* Aliases (compat) */
     --shadow-soft: var(--shadow-brutal-sm);
     --shadow-glow: var(--shadow-brutal);
     --shadow-card: var(--shadow-brutal-sm);
-    --shadow-phone: 8px 8px 0 0 hsl(0 0% 4%);
+    --shadow-phone: 8px 8px 0 0 hsl(222 41% 20%);
     --shadow-paper: var(--shadow-brutal-sm);
 
-    --font-serif: 'Archivo Black', 'Space Grotesk', sans-serif;
-    --font-hand: 'Caveat', 'Kalam', cursive;
+    --font-serif: 'Space Grotesk', 'Inter', sans-serif;
+    --font-hand: 'Caveat', cursive;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-    --font-marker: 'Architects Daughter', 'Caveat', cursive;
-    --font-display: 'Archivo Black', sans-serif;
+    --font-marker: 'Caveat', cursive;
+    --font-display: 'Space Grotesk', 'Inter', sans-serif;
 
-    --sidebar-background: 0 0% 100%;
-    --sidebar-foreground: 0 0% 4%;
-    --sidebar-primary: 262 83% 58%;
+    --sidebar-background: 44 60% 98%;
+    --sidebar-foreground: 222 41% 20%;
+    --sidebar-primary: 222 71% 49%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 51 100% 70%;
-    --sidebar-accent-foreground: 0 0% 4%;
-    --sidebar-border: 0 0% 4%;
-    --sidebar-ring: 262 83% 58%;
+    --sidebar-accent: 48 100% 72%;
+    --sidebar-accent-foreground: 222 45% 16%;
+    --sidebar-border: 222 41% 20%;
+    --sidebar-ring: 222 71% 49%;
   }
 
   .dark {
-    --background: 0 0% 8%;
-    --foreground: 51 100% 92%;
-    --card: 0 0% 12%;
-    --card-foreground: 51 100% 92%;
-    --popover: 0 0% 12%;
-    --popover-foreground: 51 100% 92%;
-    --primary: 262 90% 72%;
-    --primary-foreground: 0 0% 4%;
-    --primary-glow: 262 90% 80%;
-    --secondary: 0 0% 18%;
-    --secondary-foreground: 51 100% 92%;
-    --muted: 0 0% 18%;
-    --muted-foreground: 0 0% 65%;
-    --accent: 24 95% 60%;
-    --accent-foreground: 0 0% 4%;
-    --destructive: 358 86% 60%;
+    --background: 222 46% 12%;
+    --foreground: 222 60% 96%;
+    --card: 222 39% 19%;
+    --card-foreground: 222 60% 96%;
+    --popover: 222 39% 19%;
+    --popover-foreground: 222 60% 96%;
+    --primary: 223 73% 55%;
+    --primary-foreground: 0 0% 100%;
+    --primary-glow: 223 80% 66%;
+    --secondary: 222 30% 22%;
+    --secondary-foreground: 222 55% 92%;
+    --muted: 222 28% 20%;
+    --muted-foreground: 220 25% 70%;
+    --accent: 45 100% 65%;
+    --accent-foreground: 222 45% 12%;
+    --success: 150 55% 50%;
+    --success-foreground: 222 45% 10%;
+    --destructive: 0 70% 62%;
     --destructive-foreground: 0 0% 100%;
-    --border: 51 100% 92%;
-    --input: 51 100% 92%;
-    --ring: 262 90% 72%;
-    --shadow-brutal: 4px 4px 0 0 hsl(51 100% 92%);
-    --shadow-brutal-sm: 2px 2px 0 0 hsl(51 100% 92%);
-    --shadow-brutal-lg: 6px 6px 0 0 hsl(51 100% 92%);
+    --border: 222 28% 34%;
+    --input: 222 28% 34%;
+    --ring: 223 73% 55%;
+
+    /* univers académique — nuit */
+    --paper: 222 46% 12%;
+    --paper-line: 222 33% 26%;
+    --ink: 222 60% 96%;
+    --highlight-yellow: 48 90% 60%;
+    --highlight-pink: 340 70% 65%;
+    --highlight-green: 150 45% 55%;
+    --tape: 222 25% 34%;
+    --tape-pink: 330 30% 45%;
+    --tape-mint: 185 30% 40%;
+    --postit: 45 60% 45%;
+    --postit-pink: 335 40% 55%;
+
+    --gradient-primary: hsl(223 73% 55%);
+    --gradient-hero: hsl(223 73% 55%);
+    --gradient-dark: hsl(222 46% 8%);
+    --gradient-gold: hsl(45 100% 65%);
+
+    /* ombres décalées adoucies pour le fond sombre */
+    --shadow-brutal: 4px 4px 0 0 hsl(222 30% 32%);
+    --shadow-brutal-sm: 2px 2px 0 0 hsl(222 30% 32%);
+    --shadow-brutal-lg: 6px 6px 0 0 hsl(222 30% 32%);
+    --shadow-brutal-xl: 8px 8px 0 0 hsl(222 30% 32%);
+    --shadow-brutal-primary: 4px 4px 0 0 hsl(223 73% 55%);
+    --shadow-brutal-accent: 4px 4px 0 0 hsl(45 100% 65%);
+
+    --sidebar-background: 222 39% 19%;
+    --sidebar-foreground: 222 60% 96%;
+    --sidebar-primary: 223 73% 55%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 45 100% 65%;
+    --sidebar-accent-foreground: 222 45% 12%;
+    --sidebar-border: 222 28% 34%;
+    --sidebar-ring: 223 73% 55%;
   }
 }
 
@@ -139,15 +171,15 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Space Grotesk', 'Inter', system-ui, sans-serif;
+    font-family: 'Inter', system-ui, sans-serif;
     font-feature-settings: 'cv11', 'ss01';
   }
 
   h1, h2, h3, .font-serif {
     font-family: var(--font-display);
-    font-weight: 900;
-    letter-spacing: -0.02em;
-    line-height: 0.95;
+    font-weight: 700;
+    letter-spacing: -0.01em;
+    line-height: 1.05;
     text-transform: none;
   }
 

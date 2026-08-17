@@ -69,12 +69,12 @@ export default {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        hand: ["Caveat", "Kalam", "cursive"],
-        serif: ["Archivo Black", "Space Grotesk", "sans-serif"],
-        display: ["Archivo Black", "sans-serif"],
-        sans: ["Space Grotesk", "Inter", "system-ui", "sans-serif"],
+        hand: ["Caveat", "cursive"],
+        serif: ["Space Grotesk", "Inter", "sans-serif"],
+        display: ["Space Grotesk", "Inter", "sans-serif"],
+        sans: ["Inter", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
-        marker: ["Architects Daughter", "Caveat", "cursive"],
+        marker: ["Caveat", "cursive"],
       },
       boxShadow: {
         "brutal-sm": "2px 2px 0 0 hsl(var(--foreground))",
