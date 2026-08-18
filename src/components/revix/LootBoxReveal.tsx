@@ -6,6 +6,7 @@ import { StickerDecor, hasCustomSticker } from "@/components/revix/cosmetics/Sti
 import { backgroundStyle, RARITY_LABEL, RARITY_ORDER, type Rarity } from "@/lib/cosmetics";
 import { cn } from "@/lib/utils";
 import { playShimmer, playUnwrap, playReveal, playPop, unlock } from "@/lib/sfx";
+import { DiploFace } from "./DiploFace";
 
 const POWERUP_LABELS: Record<string, { name: string }> = {
   power_5050: { name: "50 / 50" },
@@ -107,33 +108,6 @@ function PaperBox({ state }: { state: "idle" | "shake" | "burst" }) {
           <rect width="6" height="12" fill="rgba(255,255,255,0.25)" />
         </pattern>
       </defs>
-    </svg>
-  );
-}
-
-/* ─── Diplo qui jubile (cap = couleur principale) ────────────────────────── */
-function DiploCheer() {
-  return (
-    <svg viewBox="0 0 140 156" width="80" height="88" className="overflow-visible">
-      <g className="diplo-bob">
-        <path d="M56 134 v9 M84 134 v9" stroke="#1e2c47" strokeWidth="5.5" strokeLinecap="round" />
-        <path d="M40 106 c-8 -6 -12 -14 -11 -22 M100 106 c8 -6 12 -14 11 -22" fill="none" stroke="#1e2c47" strokeWidth="5" strokeLinecap="round" />
-        <rect x="38" y="60" width="64" height="78" rx="30" fill="#fffdf6" stroke="#1e2c47" strokeWidth="4.5" />
-        <ellipse cx="52" cy="106" rx="6.5" ry="4.5" fill="#ffb0c8" opacity="0.85" />
-        <ellipse cx="88" cy="106" rx="6.5" ry="4.5" fill="#ffb0c8" opacity="0.85" />
-        <g className="diplo-eyes">
-          <path d="M50 96 q7 -9 14 0" fill="none" stroke="#1e2c47" strokeWidth="3.6" strokeLinecap="round" />
-          <path d="M76 96 q7 -9 14 0" fill="none" stroke="#1e2c47" strokeWidth="3.6" strokeLinecap="round" />
-        </g>
-        <path d="M58 108 q12 13 24 0" fill="none" stroke="#1e2c47" strokeWidth="3.8" strokeLinecap="round" />
-        <ellipse cx="70" cy="58" rx="35" ry="12" fill="hsl(var(--primary))" stroke="#1e2c47" strokeWidth="4" />
-        <path d="M70 28 L118 50 L70 72 L22 50 Z" fill="hsl(var(--primary))" stroke="#1e2c47" strokeWidth="4" strokeLinejoin="round" />
-        <circle cx="70" cy="50" r="3.4" fill="#f6c945" />
-        <g className="diplo-tassel">
-          <path d="M70 50 C96 52 108 56 108 66" fill="none" stroke="#f6c945" strokeWidth="3.2" />
-          <path d="M103 64 h10 l-2.5 15 h-5 z" fill="#f6c945" stroke="#1e2c47" strokeWidth="2" strokeLinejoin="round" />
-        </g>
-      </g>
     </svg>
   );
 }
@@ -339,7 +313,7 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
       {/* Diplo qui jubile pendant la révélation */}
       {phase === "reveal" && (
         <div className="pointer-events-none absolute bottom-4 left-1/2 -translate-x-1/2 z-30 animate-pop-in" style={{ filter: "drop-shadow(0 6px 10px rgba(30,44,71,0.28))" }}>
-          <DiploCheer />
+          <DiploFace expr="happy" size={80} />
         </div>
       )}
     </div>
