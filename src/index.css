@@ -1631,3 +1631,66 @@
     .lb-box.is-idle, .lb-box.is-shake, .lb-box.is-burst .lb-lid, .lb-box.is-burst .lb-body, .lb-beam, .lb-stamp-in, .lb-card-in, .lb-foil { animation: none; }
   }
 }
+
+/* ============================================================
+   FINITIONS GLOBALES — polish premium transverse (ADN bureau)
+   ============================================================ */
+@layer base {
+  html { scroll-behavior: smooth; }
+
+  /* Surlignage à la sélection */
+  ::selection { background: hsl(var(--highlight-yellow)); color: hsl(var(--foreground)); }
+
+  /* Focus visible net et cohérent partout */
+  :where(a, button, [role="button"], input, textarea, select, summary, [tabindex]):focus-visible {
+    outline: 3px solid hsl(var(--ring) / 0.55);
+    outline-offset: 2px;
+    border-radius: 8px;
+  }
+
+  /* Barre de défilement "papier" */
+  * { scrollbar-width: thin; scrollbar-color: hsl(var(--foreground) / 0.32) transparent; }
+  ::-webkit-scrollbar { width: 11px; height: 11px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb {
+    background: hsl(var(--foreground) / 0.28);
+    border-radius: 999px;
+    border: 3px solid transparent;
+    background-clip: padding-box;
+  }
+  ::-webkit-scrollbar-thumb:hover { background: hsl(var(--foreground) / 0.5); }
+
+  a { text-underline-offset: 3px; }
+  img, svg, video { max-width: 100%; }
+}
+
+@layer utilities {
+  /* Survol : la carte cliquable se soulève doucement (rebond léger) */
+  .hover-lift { transition: transform 0.22s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.22s; }
+  .hover-lift:hover { transform: translateY(-3px); box-shadow: var(--shadow-brutal-lg); }
+  .hover-lift:active { transform: translateY(0); box-shadow: var(--shadow-brutal-sm); }
+
+  /* Appui "tampon" générique sur boutons/cartes */
+  .press { transition: transform 0.1s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.1s; }
+  .press:active { transform: translateY(2px) scale(0.98); }
+
+  /* Apparition douce, réutilisable */
+  .rise-in { animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  @keyframes rise-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+  /* Entrée en cascade pour les listes/grilles */
+  .stagger-in > * { animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+  .stagger-in > *:nth-child(1) { animation-delay: 0.02s; }
+  .stagger-in > *:nth-child(2) { animation-delay: 0.06s; }
+  .stagger-in > *:nth-child(3) { animation-delay: 0.10s; }
+  .stagger-in > *:nth-child(4) { animation-delay: 0.14s; }
+  .stagger-in > *:nth-child(5) { animation-delay: 0.18s; }
+  .stagger-in > *:nth-child(6) { animation-delay: 0.22s; }
+  .stagger-in > *:nth-child(7) { animation-delay: 0.26s; }
+  .stagger-in > *:nth-child(8) { animation-delay: 0.30s; }
+
+  @media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    .hover-lift, .press, .rise-in, .stagger-in > * { animation: none; transition: none; }
+  }
+}
