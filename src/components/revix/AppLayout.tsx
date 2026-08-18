@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Link } from "react-router-dom";
 import { CoachFab } from "./CoachFab";
+import { ThemeToggle } from "./ThemeToggle";
 
 // Navigation complète — sidebar desktop
 const navAll = [
@@ -64,6 +65,11 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
       <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-primary focus:text-primary-foreground focus:border-2 focus:border-foreground focus:rounded-md focus:shadow-brutal-sm focus:font-bold focus:text-sm">
         Aller au contenu principal
       </a>
+
+      {/* Bouton jour/nuit flottant — mobile/tablette (le desktop l'a dans la barre du haut) */}
+      <div className="lg:hidden fixed top-3 right-3 z-40">
+        <ThemeToggle />
+      </div>
 
       <aside className="hidden lg:flex relative z-10 w-[260px] shrink-0 h-screen border-r-[3px] border-foreground bg-card flex-col" role="complementary" aria-label="Barre latérale">
         <div className="px-5 pt-6 pb-5 border-b-[2.5px] border-foreground">
@@ -122,6 +128,7 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
         </div>
 
         <header className="hidden lg:flex h-16 shrink-0 border-b-[3px] border-foreground bg-card/95 backdrop-blur items-center justify-end px-6 gap-3">
+          <ThemeToggle />
           <NotificationBell />
           <Link to="/app/profil" className="hover:opacity-80 transition">
             <Avatar className="h-10 w-10 border-2 border-foreground">

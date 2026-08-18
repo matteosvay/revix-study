@@ -1556,3 +1556,36 @@
     100% { opacity: 0; transform: translateY(110vh) rotate(720deg); }
   }
 }
+
+/* ============================================================
+   ADN « bureau » — fond papier Seyès + mascotte Diplo
+   ============================================================ */
+@layer base {
+  /* Fond "bureau" derrière le cadre de l'appli (desktop/tablette) */
+  body {
+    background-image:
+      repeating-linear-gradient(0deg, transparent 0 31px, hsl(var(--paper-line) / 0.45) 31px 32px),
+      repeating-linear-gradient(90deg, transparent 0 31px, hsl(var(--paper-line) / 0.45) 31px 32px);
+    background-attachment: fixed;
+  }
+  /* La zone de contenu = la "page de cahier" à carreaux Seyès */
+  #main-content {
+    background-color: hsl(var(--background));
+    background-image:
+      repeating-linear-gradient(0deg, transparent 0 31px, hsl(var(--paper-line) / 0.55) 31px 32px),
+      repeating-linear-gradient(90deg, transparent 0 31px, hsl(var(--paper-line) / 0.55) 31px 32px);
+    background-attachment: local;
+  }
+}
+
+@layer utilities {
+  .diplo-bob { transform-box: fill-box; transform-origin: center bottom; animation: diplo-bob 3.2s ease-in-out infinite; }
+  .diplo-eyes { transform-box: fill-box; transform-origin: center; animation: diplo-blink 4.2s infinite; }
+  .diplo-tassel { transform-box: fill-box; transform-origin: left top; animation: diplo-sway 2.8s ease-in-out infinite; }
+  @keyframes diplo-bob { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-5px) rotate(1.5deg); } }
+  @keyframes diplo-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.1); } }
+  @keyframes diplo-sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(9deg); } }
+  @media (prefers-reduced-motion: reduce) {
+    .diplo-bob, .diplo-eyes, .diplo-tassel { animation: none; }
+  }
+}

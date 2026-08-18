@@ -35,6 +35,8 @@ import { InstallAppPrompt } from "./components/revix/InstallAppPrompt";
 import { ErrorBoundary } from "./components/revix/ErrorBoundary";
 import { AiLimitModal } from "./components/revix/AiLimitModal";
 import { CookieBanner } from "./components/revix/CookieBanner";
+import { ThemeProvider } from "next-themes";
+import { DiploMascot } from "./components/revix/DiploMascot";
 import MentionsLegales from "./pages/legal/MentionsLegales";
 import PolitiqueConfidentialite from "./pages/legal/PolitiqueConfidentialite";
 import CGU from "./pages/legal/CGU";
@@ -61,6 +63,7 @@ const queryClient = new QueryClient({
 
 const App = () => (
   <ErrorBoundary>
+    <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false} storageKey="revix-theme">
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <TooltipProvider>
@@ -71,6 +74,7 @@ const App = () => (
           <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
             <AiLimitModal />
             <CookieBanner />
+            <DiploMascot />
             <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />
@@ -107,6 +111,7 @@ const App = () => (
         </TooltipProvider>
       </AuthProvider>
     </QueryClientProvider>
+    </ThemeProvider>
   </ErrorBoundary>
 );
 
