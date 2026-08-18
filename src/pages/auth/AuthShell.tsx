@@ -1,5 +1,6 @@
 import { ReactNode } from "react";
 import { Logo } from "@/components/revix/Logo";
+import { DiploFace } from "@/components/revix/DiploFace";
 
 export const AuthShell = ({ children, title, subtitle }: { children: ReactNode; title: string; subtitle: string }) => (
   <div className="min-h-screen grid lg:grid-cols-2 paper-grain relative overflow-hidden">
@@ -20,7 +21,12 @@ export const AuthShell = ({ children, title, subtitle }: { children: ReactNode; 
         </h2>
         <p className="font-serif text-base mt-4 text-muted-foreground">— Léa, BTS NDRC</p>
       </div>
-      <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">© 2025 Revix · Made in France 🇫🇷</p>
+      <div className="flex items-end justify-between gap-4">
+        <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">© 2025 Revix · Made in France 🇫🇷</p>
+        <div className="shrink-0 -mb-2 pointer-events-none" aria-hidden="true">
+          <DiploFace size={104} expr="happy" cap="#2456d6" />
+        </div>
+      </div>
     </div>
 
     {/* Colonne droite : formulaire en notebook-card */}

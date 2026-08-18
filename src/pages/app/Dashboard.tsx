@@ -12,6 +12,7 @@ import { LootBoxCard } from "@/components/revix/LootBoxCard";
 import { FlashQuizCard } from "@/components/revix/FlashQuizCard";
 import { useFomoChecks } from "@/hooks/useFomoChecks";
 import { UsageMeter } from "@/components/revix/UsageMeter";
+import { DiploState } from "@/components/revix/DiploState";
 
 type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
 
@@ -163,13 +164,12 @@ export default function Dashboard() {
 
         {/* État vide — premier cours */}
         {!dataLoading && stats.courses === 0 && (
-          <div className="rounded-2xl border-2 border-dashed border-primary/30 p-6 text-center glass">
-            <Sparkles className="h-8 w-8 mx-auto text-primary animate-pulse" />
-            <p className="font-serif text-xl mt-2">Crée ta première fiche</p>
-            <p className="text-xs text-muted-foreground mt-1 mb-4">Upload un cours et l'IA fait le reste.</p>
-            <Button asChild className="rounded-full gradient-primary border-0">
-              <Link to="/app/upload"><Plus className="h-4 w-4 mr-1" /> Commencer</Link>
-            </Button>
+          <div className="rounded-2xl border-2 border-dashed border-primary/40 bg-card">
+            <DiploState
+              title="Crée ta première fiche"
+              subtitle="Envoie un cours (PDF ou photo) et Diplo s'occupe du reste."
+              action={<Button asChild className="rounded-full gradient-primary border-0"><Link to="/app/upload"><Plus className="h-4 w-4 mr-1" /> Commencer</Link></Button>}
+            />
           </div>
         )}
 
