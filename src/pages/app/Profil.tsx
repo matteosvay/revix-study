@@ -4,10 +4,9 @@ import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { AvatarImage } from "@/components/ui/avatar";
 import { Textarea } from "@/components/ui/textarea";
-import { LogOut, Trash2, Sparkles, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3, Crown, CreditCard, Check } from "lucide-react";
+import { LogOut, Trash2, Sparkles, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3, Crown, CreditCard, Check, Pencil } from "lucide-react";
+import { DiploFace } from "@/components/revix/DiploFace";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -137,6 +136,10 @@ export default function Profil() {
   if (!profile) return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement...</div></AppLayout>;
 
   const initials = (profile.display_name ?? "U").split(" ").map((s: string) => s[0]).join("").slice(0, 2).toUpperCase();
+  const studentNo = ((user?.id ?? "0000").replace(/[^a-f0-9]/gi, "").slice(0, 4).toUpperCase() || "0000");
+  const memberYear = profile.created_at ? new Date(profile.created_at).getFullYear() : new Date().getFullYear();
+  const cursusLabel: string = profile.formation || profile.cursus || "Étudiant";
+  const planLabel: string = (profile.plan ?? "free").toString();
 
   const formationItems = FORMATIONS.map(f => ({
     value: f.name,
@@ -198,34 +201,78 @@ export default function Profil() {
       />
 
       <div className="px-5 space-y-5 stagger-in">
-        <div className="flex items-center gap-3">
-          <label className="relative cursor-pointer group">
-            <Avatar className="h-16 w-16 border-2 border-primary/20">
-              {profile.avatar_url && <AvatarImage src={profile.avatar_url} alt={profile.display_name ?? "Avatar"} className="object-cover" />}
-              <AvatarFallback className="gradient-primary text-primary-foreground text-xl font-bold">{initials}</AvatarFallback>
-            </Avatar>
-            <div className="absolute inset-0 rounded-full bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-              {uploading ? <Loader2 className="h-5 w-5 text-white animate-spin" /> : <Camera className="h-5 w-5 text-white" />}
+        {/* Carte d'étudiant Revix */}
+        <div className="relative rounded-2xl border-[2.5px] border-foreground bg-card shadow-brutal-lg overflow-hidden">
+          {/* encoche façon badge */}
+          <div className="absolute top-2 left-1/2 -translate-x-1/2 h-[7px] w-11 rounded-full bg-foreground/25 z-10" />
+          {/* bandeau */}
+          <div className="flex items-center gap-2 px-3.5 py-2.5 bg-primary text-primary-foreground border-b-[2.5px] border-foreground">
+            <span className="flex h-6 w-6 items-center justify-center rounded-lg bg-accent border-2 border-[#1e2c47] shadow-brutal-sm shrink-0">
+              <svg viewBox="0 0 32 28" width="15" height="13" fill="none" aria-hidden="true">
+                <path d="M16 3.5 L30 10.5 L16 17.5 L2 10.5 Z" fill="#fffdf6" stroke="#1e2c47" strokeWidth="2.6" strokeLinejoin="round" />
+                <path d="M9 13 v5.5 c0 2.6 14 2.6 14 0 V13" fill="#fffdf6" stroke="#1e2c47" strokeWidth="2.6" strokeLinejoin="round" />
+                <circle cx="16" cy="10.5" r="1.9" fill="#f6c945" stroke="#1e2c47" strokeWidth="1.5" />
+              </svg>
+            </span>
+            <span className="text-[10.5px] font-bold uppercase tracking-[0.14em]">Carte étudiant · Revix</span>
+            <span className="ml-auto text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-accent text-[#1e2c47] border-2 border-[#1e2c47]">{planLabel}</span>
+          </div>
+          {/* corps */}
+          <div className="relative flex gap-3.5 px-4 pt-4 pb-3">
+            <label className="relative cursor-pointer group shrink-0" aria-label="Changer la photo">
+              <div className="h-[76px] w-[76px] rounded-xl border-[2.5px] border-foreground shadow-brutal overflow-hidden bg-gradient-to-br from-primary to-primary/70 flex items-center justify-center">
+                {profile.avatar_url
+                  ? <img src={profile.avatar_url} alt={profile.display_name ?? "Avatar"} className="h-full w-full object-cover" />
+                  : <span className="text-primary-foreground text-2xl font-display font-bold">{initials}</span>}
+              </div>
+              <div className="absolute inset-0 rounded-xl bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                {uploading ? <Loader2 className="h-5 w-5 text-white animate-spin" /> : <Camera className="h-5 w-5 text-white" />}
+              </div>
+              <input type="file" accept="image/*" className="sr-only" onChange={onAvatarChange} disabled={uploading} />
+            </label>
+            <div className="min-w-0 flex-1 pt-0.5">
+              <p className="font-display font-bold text-[22px] leading-tight text-foreground truncate">{profile.display_name ?? "Sans nom"}</p>
+              <span className="inline-flex items-center gap-1.5 mt-2 max-w-full text-xs font-semibold text-foreground px-2 py-0.5 rounded-full border-2 border-foreground bg-accent/30">
+                <span aria-hidden="true">🎓</span><span className="truncate">{cursusLabel}</span>
+              </span>
+              {profile.school && (
+                <p className="mt-1.5 text-[12.5px] text-foreground truncate">
+                  <span className="text-[10px] uppercase tracking-wide text-muted-foreground font-semibold mr-1.5">École</span>{profile.school}
+                </p>
+              )}
             </div>
-            <input type="file" accept="image/*" className="sr-only" onChange={onAvatarChange} disabled={uploading} />
-          </label>
-          <div className="flex-1 min-w-0">
-            <p className="font-serif text-xl truncate">{profile.display_name ?? "Sans nom"}</p>
-            <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
-            <span className="inline-block mt-1 text-[10px] px-2 py-0.5 rounded-full bg-primary/10 text-primary font-semibold uppercase tracking-wider">{profile.plan}</span>
+            {/* pencil = éditer */}
+            <button
+              onClick={() => setEditOpen(true)}
+              aria-label="Modifier le profil"
+              className="absolute right-3 top-3 h-[30px] w-[30px] rounded-lg border-2 border-foreground bg-card flex items-center justify-center shadow-brutal-sm hover:-translate-y-0.5 transition-transform"
+            >
+              <Pencil className="h-3.5 w-3.5" strokeWidth={2.4} />
+            </button>
+            {/* Diplo qui pointe le bout de sa toque */}
+            <div className="pointer-events-none absolute right-2 bottom-0 h-[56px] w-[56px] overflow-hidden">
+              <div className="rotate-6 origin-bottom">
+                <DiploFace size={56} expr="happy" animClass="" />
+              </div>
+            </div>
+          </div>
+          {/* pied */}
+          <div className="px-4 py-2.5 border-t-2 border-dashed border-foreground/40">
+            <p className="font-mono text-[11px] text-muted-foreground">N° {studentNo} · membre depuis {memberYear}</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-2">
+        {/* Tampons de stats */}
+        <div className="grid grid-cols-4 gap-2">
           {[
-            { v: stats.courses, l: "Cours" },
-            { v: stats.quizzes, l: "Quizz" },
-            { v: `${stats.avg}%`, l: "Moyenne" },
-            { v: `${profile.streak_days ?? 0}j`, l: "Streak" },
+            { v: stats.courses, l: "Cours", hot: false },
+            { v: stats.quizzes, l: "Quizz", hot: false },
+            { v: `${stats.avg}%`, l: "Moy.", hot: false },
+            { v: `${profile.streak_days ?? 0}j`, l: "Série", hot: true },
           ].map(s => (
-            <div key={s.l} className="rounded-xl border bg-card p-3 text-center">
-              <p className="font-serif text-2xl">{s.v}</p>
-              <p className="text-[11px] text-muted-foreground mt-0.5">{s.l}</p>
+            <div key={s.l} className="rounded-xl border-[2.5px] border-foreground bg-card px-1 py-2.5 text-center shadow-brutal-sm">
+              <p className={`font-display font-bold text-xl leading-none ${s.hot ? "text-accent [-webkit-text-stroke:0.5px_hsl(var(--foreground))]" : "text-foreground"}`}>{s.v}</p>
+              <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wide font-semibold">{s.l}</p>
             </div>
           ))}
         </div>
