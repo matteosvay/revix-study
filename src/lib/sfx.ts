@@ -135,6 +135,75 @@ export function playLevel() {
   pluck(P.E6, t + 0.55, 0.7, 0.05, 0.8);
 }
 
+/* ── Effet spécial d'ouverture de lootbox (3 temps) ──────────────────────── */
+
+function noiseBurst(t0: number, dur: number, f0: number, f1: number, vol = 0.1, q = 0.7) {
+  const c = ctx();
+  if (!c || !master) return;
+  const buf = c.createBuffer(1, Math.floor(c.sampleRate * dur), c.sampleRate);
+  const d = buf.getChannelData(0);
+  for (let i = 0; i < d.length; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / d.length);
+  const s = c.createBufferSource();
+  s.buffer = buf;
+  const bp = c.createBiquadFilter();
+  bp.type = "bandpass";
+  bp.frequency.setValueAtTime(f0, t0);
+  bp.frequency.exponentialRampToValueAtTime(f1, t0 + dur);
+  bp.Q.value = q;
+  const g = c.createGain();
+  g.gain.value = vol;
+  s.connect(bp);
+  bp.connect(g);
+  g.connect(master);
+  s.start(t0);
+  s.stop(t0 + dur);
+}
+
+/** Anticipation — petit scintillement qui monte pendant que le paquet tremble. */
+export function playShimmer() {
+  if (!soundEnabled()) return;
+  unlock();
+  const c = ctx();
+  if (!c) return;
+  const t = c.currentTime;
+  [P.C5, P.E5, P.G5, P.C6].forEach((f, i) => pluck(f, t + i * 0.09, 0.18, 0.05, 0.3));
+}
+
+/** Déballage — whoosh de papier + pop doux. */
+export function playUnwrap() {
+  if (!soundEnabled()) return;
+  unlock();
+  const c = ctx();
+  if (!c) return;
+  const t = c.currentTime;
+  noiseBurst(t, 0.26, 700, 3200, 0.13);
+  pluck(220, t + 0.02, 0.14, 0.09, 0.2);
+  pluck(660, t + 0.03, 0.12, 0.07, 0.3);
+}
+
+/** Révélation — carillon dont l'ampleur grandit avec la rareté. */
+export function playReveal(rarity: string) {
+  if (!soundEnabled()) return;
+  unlock();
+  const c = ctx();
+  if (!c) return;
+  const t = c.currentTime;
+  const high = rarity === "legendary" || rarity === "creator" || rarity === "queen";
+  if (high) {
+    [P.C5, P.E5, P.G5, P.C6, P.E6, 1568].forEach((f, i) => pluck(f, t + i * 0.09, 0.5, 0.12, 0.75));
+    for (let i = 0; i < 8; i++) pluck([P.C6, P.E6, 1568][i % 3], t + 0.5 + i * 0.06, 0.4, 0.04, 0.8);
+    noiseBurst(t + 0.5, 0.5, 4000, 9000, 0.05);
+  } else if (rarity === "epic") {
+    [P.E5, P.A5, P.C6, P.E6].forEach((f, i) => pluck(f, t + i * 0.085, 0.42, 0.11, 0.65));
+    pluck(1568, t + 0.4, 0.5, 0.05, 0.7);
+  } else if (rarity === "rare") {
+    [P.E5, P.G5, P.C6].forEach((f, i) => pluck(f, t + i * 0.085, 0.4, 0.1, 0.6));
+  } else {
+    pluck(P.A5, t, 0.34, 0.1, 0.5);
+    pluck(P.C6, t + 0.09, 0.3, 0.07, 0.5);
+  }
+}
+
 // Débloque l'audio au premier geste de l'utilisateur (contrainte des navigateurs).
 if (typeof window !== "undefined") {
   const once = () => {

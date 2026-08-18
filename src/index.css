@@ -1593,3 +1593,38 @@
     .diplo-bob, .diplo-eyes, .diplo-tassel, .diplo-hop, .diplo-party { animation: none; }
   }
 }
+
+/* ============================================================
+   Ouverture de lootbox — style papier
+   ============================================================ */
+@layer utilities {
+  .lb-backdrop {
+    background-color: hsl(var(--background));
+    background-image:
+      repeating-linear-gradient(0deg, transparent 0 31px, hsl(var(--paper-line) / 0.5) 31px 32px),
+      repeating-linear-gradient(90deg, transparent 0 31px, hsl(var(--paper-line) / 0.5) 31px 32px);
+  }
+  .lb-box { transform-box: fill-box; transform-origin: center bottom; }
+  .lb-box.is-idle { animation: lb-bob 3s ease-in-out infinite; }
+  @keyframes lb-bob { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-6px) rotate(1deg); } }
+  .lb-box.is-shake { animation: lb-shake 0.6s ease-in-out; }
+  @keyframes lb-shake { 0%, 100% { transform: rotate(0); } 15% { transform: rotate(-6deg) scale(1.02); } 30% { transform: rotate(6deg); } 45% { transform: rotate(-7deg) scale(1.04); } 60% { transform: rotate(7deg); } 75% { transform: rotate(-4deg) scale(1.02); } }
+  .lb-lid { transform-box: fill-box; transform-origin: center; }
+  .lb-box.is-burst .lb-lid { animation: lb-lidfly 0.7s cubic-bezier(0.22, 1, 0.36, 1) forwards; }
+  @keyframes lb-lidfly { 0% { transform: translateY(0) rotate(0); opacity: 1; } 100% { transform: translateY(-180px) rotate(24deg); opacity: 0; } }
+  .lb-body { transform-box: fill-box; transform-origin: center bottom; }
+  .lb-box.is-burst .lb-body { animation: lb-bodypop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); }
+  @keyframes lb-bodypop { 0% { transform: scaleY(1); } 40% { transform: scaleY(0.86) scaleX(1.08); } 100% { transform: scaleY(1); } }
+  .lb-beam { animation: lb-beam 1s cubic-bezier(0.22, 1, 0.36, 1); }
+  @keyframes lb-beam { 0% { opacity: 0; transform: translateX(-50%) scaleY(0.3); } 30% { opacity: 0.9; } 100% { opacity: 0; transform: translateX(-50%) scaleY(1.1); } }
+  .lb-stamp-in { animation: lb-stampin 0.5s 0.05s cubic-bezier(0.28, 1.7, 0.5, 1) both; }
+  @keyframes lb-stampin { 0% { transform: rotate(-8deg) scale(1.8); opacity: 0; } 55% { opacity: 1; } 100% { transform: rotate(-8deg) scale(1); opacity: 0.95; } }
+  .lb-card-in { animation: lb-cardin 0.55s 0.12s cubic-bezier(0.28, 1.7, 0.5, 1) both; }
+  @keyframes lb-cardin { 0% { transform: translateY(24px) scale(0.85); opacity: 0; } 100% { transform: translateY(0) scale(1); opacity: 1; } }
+  .lb-tape::after { content: ""; position: absolute; inset: 0; background: repeating-linear-gradient(90deg, rgba(255, 255, 255, 0.28) 0 6px, transparent 6px 12px); }
+  .lb-foil { background-image: linear-gradient(135deg, #fff7db, #ffe9a8, #f6c945, #fff7db); background-size: 300% 300%; animation: lb-foilshift 3s linear infinite; }
+  @keyframes lb-foilshift { 0% { background-position: 0% 50%; } 100% { background-position: 300% 50%; } }
+  @media (prefers-reduced-motion: reduce) {
+    .lb-box.is-idle, .lb-box.is-shake, .lb-box.is-burst .lb-lid, .lb-box.is-burst .lb-body, .lb-beam, .lb-stamp-in, .lb-card-in, .lb-foil { animation: none; }
+  }
+}
