@@ -52,6 +52,7 @@ import { AiLimitModal } from "./components/revix/AiLimitModal";
 import { CookieBanner } from "./components/revix/CookieBanner";
 import { ThemeProvider } from "next-themes";
 import { DiploMascot } from "./components/revix/DiploMascot";
+import { GlobalSound } from "./components/revix/GlobalSound";
 import { SplashScreen } from "./components/revix/SplashScreen";
 
 const queryClient = new QueryClient({
@@ -88,6 +89,7 @@ const App = () => (
             <AiLimitModal />
             <CookieBanner />
             <DiploMascot />
+            <GlobalSound />
             <Suspense fallback={null}>
             <Routes>
             <Route path="/" element={<Index />} />

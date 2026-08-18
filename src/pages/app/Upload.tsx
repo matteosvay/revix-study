@@ -11,6 +11,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { extractPdfText, fileToBase64, extractDocxText, isDocx, DOCX_MIME } from "@/lib/pdf";
 import { toast } from "sonner";
+import { playSuccess } from "@/lib/sfx";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { useUsage } from "@/hooks/useUsage";
 import { XP_REWARDS } from "@/lib/gamification";
@@ -326,6 +327,7 @@ export default function Upload() {
       }
       await bumpQuest(user.id, "w_4_uploads", 1);
 
+ playSuccess();
  toast.success("Ta fiche de cours est prête ");
       nav(`/app/fiches/${course.id}`);
     } catch (e: any) {

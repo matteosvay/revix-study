@@ -7,6 +7,7 @@ import { Brain, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight,
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
+import { playCorrect, playWrong, playFinish } from "@/lib/sfx";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { illu } from "@/assets/illu";
 import { XP_REWARDS } from "@/lib/gamification";
@@ -375,6 +376,7 @@ export default function Quizz() {
   // Enregistre la réponse mais NE passe PAS à la question suivante (l'utilisateur clique sur "Suivant")
   const advance = (ok: boolean) => {
     if (ok) {
+      playCorrect();
       setScore(s => s + 1);
       setCombo(c => {
         const nc = c + 1;
@@ -382,6 +384,7 @@ export default function Quizz() {
         return nc;
       });
     } else {
+      playWrong();
       setWrong(w => [...w, qIdx]);
       setCombo(0);
     }
@@ -390,6 +393,7 @@ export default function Quizz() {
   const goNext = async () => {
     if (qIdx + 1 >= questions.length) {
       setPhase("end");
+      playFinish();
       if (user && activeQuiz) {
         // Recalcule depuis l'état actuel (score est à jour grâce aux setters fonctionnels)
         const finalScore = score;

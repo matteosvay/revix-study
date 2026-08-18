@@ -204,6 +204,46 @@ export function playReveal(rarity: string) {
   }
 }
 
+/** Tic ultra-discret pour les clics / la navigation (le plus léger de tous). */
+export function playTick() {
+  if (!soundEnabled()) return;
+  unlock();
+  const c = ctx();
+  if (c) pluck(P.C6, c.currentTime, 0.07, 0.03, 0.1);
+}
+
+/** Mauvaise réponse — deux notes douces qui descendent, jamais agressif. */
+export function playWrong() {
+  if (!soundEnabled()) return;
+  unlock();
+  const c = ctx();
+  if (!c) return;
+  const t = c.currentTime;
+  pluck(392, t, 0.24, 0.085, 0.3);          // G4
+  pluck(329.63, t + 0.11, 0.34, 0.085, 0.35); // E4
+}
+
+/** Validation / succès — petit accord montant qui confirme (profil, upload, action réussie). */
+export function playSuccess() {
+  if (!soundEnabled()) return;
+  unlock();
+  const c = ctx();
+  if (!c) return;
+  const t = c.currentTime;
+  pluck(P.G5, t, 0.3, 0.1, 0.5);
+  pluck(P.C6, t + 0.09, 0.36, 0.1, 0.55);
+}
+
+/** Fin de session / quizz — petite fanfare douce (moins ample que le level-up). */
+export function playFinish() {
+  if (!soundEnabled()) return;
+  unlock();
+  const c = ctx();
+  if (!c) return;
+  const t = c.currentTime;
+  [P.C5, P.E5, P.G5, P.C6].forEach((f, i) => pluck(f, t + i * 0.09, 0.4, 0.1, 0.6));
+}
+
 // Débloque l'audio au premier geste de l'utilisateur (contrainte des navigateurs).
 if (typeof window !== "undefined") {
   const once = () => {

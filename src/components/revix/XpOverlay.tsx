@@ -3,6 +3,7 @@ import { Sparkles } from "lucide-react";
 import { levelInfo } from "@/lib/gamification";
 import { DiploFace } from "./DiploFace";
 import { firePaperConfetti } from "@/lib/confetti";
+import { playXp, playLevel } from "@/lib/sfx";
 
 type Pill = { id: number; amount: number; label?: string };
 
@@ -45,11 +46,13 @@ export function XpOverlay() {
       const detail = (e as CustomEvent).detail as { amount: number; label?: string };
       const pill = { id: ++id, amount: detail.amount, label: detail.label };
       setPills((p) => [...p, pill]);
+      playXp();
       setTimeout(() => setPills((p) => p.filter((x) => x.id !== pill.id)), 1700);
     };
     const onLvl = (e: Event) => {
       const detail = (e as CustomEvent).detail as { level: number };
       setLevelup(detail.level);
+      playLevel();
       firePaperConfetti(["#2456d6", "#ffe14d", "#28a866", "#f6c945", "#3f7bff", "#ffffff"], 80, 0.42);
     };
     window.addEventListener("revix:xp", onXp);
