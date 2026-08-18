@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { awardXp } from "@/hooks/useGamification";
 import { RevisionExplorer } from "@/components/revix/RevisionExplorer";
+import { DiploState } from "@/components/revix/DiploState";
 
 type DueQ = {
   question_id: string;
@@ -76,7 +77,7 @@ export default function Revision() {
   };
 
   if (loading) {
-    return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement...</div></AppLayout>;
+    return <AppLayout><DiploState variant="loading" title="On révise tes chapitres" /></AppLayout>;
   }
 
   if (queue.length === 0) {
@@ -88,16 +89,11 @@ export default function Revision() {
             {skippedCount} question{skippedCount > 1 ? "s" : ""} de type texte libre ou ordre ne sont pas encore disponibles en révision ciblée.
           </div>
         )}
-        <div className="px-5 mt-4 text-center">
-          <div className="inline-block notebook-card dog-ear p-5 max-w-xs mx-auto">
-            <Sparkles className="h-8 w-8 mx-auto text-primary" />
-            <p className="font-hand text-xl mt-2">Tout est à jour !</p>
-            <p className="text-xs text-muted-foreground mt-1">Aucune question à réviser. Explore tes chapitres ci-dessous ou lance un nouveau quiz.</p>
-            <Button asChild size="sm" className="mt-3 rounded-full">
-              <Link to="/app/quizz"><Brain className="h-4 w-4 mr-1" /> Faire un quiz</Link>
-            </Button>
-          </div>
-        </div>
+        <DiploState
+          title="Tout est à jour !"
+          subtitle="Aucune question à réviser. Explore tes chapitres ci-dessous ou lance un nouveau quiz."
+          action={<Button asChild size="sm" className="rounded-full"><Link to="/app/quizz"><Brain className="h-4 w-4 mr-1" /> Faire un quiz</Link></Button>}
+        />
         <div className="px-5 mt-6 pb-24">
           <RevisionExplorer />
         </div>

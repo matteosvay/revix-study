@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { DiploState } from "@/components/revix/DiploState";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Brain, BookOpen, TrendingUp } from "lucide-react";
@@ -82,7 +83,7 @@ export default function Stats() {
   const chartAttempts = [...attempts].reverse().slice(-20);
   const maxPct = 100;
 
-  if (loading) return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement...</div></AppLayout>;
+  if (loading) return <AppLayout><DiploState variant="loading" title="On calcule tes stats" /></AppLayout>;
 
   return (
     <AppLayout>
@@ -161,19 +162,18 @@ export default function Stats() {
         )}
 
         {attempts.length === 0 && (
-          <div className="text-center py-12 flex flex-col items-center gap-3">
-            <Brain className="h-12 w-12 opacity-20" />
-            <div>
-              <p className="font-serif text-lg text-foreground">Aucun quizz terminé</p>
-              <p className="text-xs text-muted-foreground mt-1">Fais ton premier quizz pour voir ta progression ici.</p>
-            </div>
-            <Link
-              to="/app/quizz"
-              className="mt-1 inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-foreground bg-primary text-primary-foreground font-serif text-sm shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition"
-            >
-              <BookOpen className="h-4 w-4" /> Lancer un quizz
-            </Link>
-          </div>
+          <DiploState
+            title="Aucun quizz terminé"
+            subtitle="Fais ton premier quizz pour voir ta progression ici."
+            action={
+              <Link
+                to="/app/quizz"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border-2 border-foreground bg-primary text-primary-foreground font-serif text-sm shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition"
+              >
+                <BookOpen className="h-4 w-4" /> Lancer un quizz
+              </Link>
+            }
+          />
         )}
       </div>
     </AppLayout>
