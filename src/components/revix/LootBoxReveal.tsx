@@ -5,6 +5,7 @@ import { BackgroundDecor } from "@/components/revix/cosmetics/BackgroundDecor";
 import { StickerDecor, hasCustomSticker } from "@/components/revix/cosmetics/StickerDecor";
 import { backgroundStyle, RARITY_LABEL, RARITY_ORDER, type Rarity } from "@/lib/cosmetics";
 import { cn } from "@/lib/utils";
+import { playPop, playXp, playCorrect, playLevel, unlock } from "@/lib/sfx";
 
 const POWERUP_LABELS: Record<string, { name: string; emoji: string }> = {
   power_5050: { name: "50 / 50", emoji: "✂️" },
@@ -321,14 +322,19 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
 
   // ── Main cinematic timeline: 1.2 s to first card (was 3.3 s) ──────────
   useEffect(() => {
+    unlock();
     const t1 = setTimeout(() => setPhase("glow"),  380);
-    const t2 = setTimeout(() => setPhase("burst"), 930);
+    const t2 = setTimeout(() => { setPhase("burst"); playPop(); }, 930);
     const t3 = setTimeout(() => {
       setPhase("reveal");
       setShowConfetti(true);
+      // Son de révélation selon la rareté : fanfare pour le haut du panier, sinon chime doux
+      if (peakRarity === "legendary" || peakRarity === "creator" || peakRarity === "queen") playLevel();
+      else if (peakRarity === "epic" || peakRarity === "rare") playCorrect();
+      else playXp();
     }, 1200);
     return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); };
-  }, []);
+  }, [peakRarity]);
 
   // ── Banner → card transition on each reveal ────────────────────────────
   useEffect(() => {
@@ -339,6 +345,7 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
   }, [revealIdx, phase]);
 
   const next = () => {
+    playPop();
     if (revealIdx < cards.length - 1) setRevealIdx(i => i + 1);
     else onClose();
   };
@@ -493,6 +500,36 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
           </div>
         )}
       </div>
+
+      {/* Diplo qui jubile en bas pendant la révélation */}
+      {phase === "reveal" && (
+        <div
+          className="pointer-events-none absolute bottom-3 left-1/2 -translate-x-1/2 z-30 animate-pop-in"
+          style={{ filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.5))" }}
+        >
+          <svg viewBox="0 0 140 156" width="74" height="82" style={{ overflow: "visible" }}>
+            <g className="diplo-bob">
+              <path d="M56 134 v9 M84 134 v9" stroke="#1e2c47" strokeWidth="5.5" strokeLinecap="round" />
+              <path d="M40 106 c-8 -6 -12 -14 -11 -22 M100 106 c8 -6 12 -14 11 -22" fill="none" stroke="#1e2c47" strokeWidth="5" strokeLinecap="round" />
+              <rect x="38" y="60" width="64" height="78" rx="30" fill="#fffdf6" stroke="#1e2c47" strokeWidth="4.5" />
+              <ellipse cx="52" cy="106" rx="6.5" ry="4.5" fill="#ffb0c8" opacity="0.85" />
+              <ellipse cx="88" cy="106" rx="6.5" ry="4.5" fill="#ffb0c8" opacity="0.85" />
+              <g className="diplo-eyes">
+                <path d="M50 96 q7 -9 14 0" fill="none" stroke="#1e2c47" strokeWidth="3.6" strokeLinecap="round" />
+                <path d="M76 96 q7 -9 14 0" fill="none" stroke="#1e2c47" strokeWidth="3.6" strokeLinecap="round" />
+              </g>
+              <path d="M58 108 q12 13 24 0" fill="none" stroke="#1e2c47" strokeWidth="3.8" strokeLinecap="round" />
+              <ellipse cx="70" cy="58" rx="35" ry="12" fill="hsl(var(--primary))" stroke="#1e2c47" strokeWidth="4" />
+              <path d="M70 28 L118 50 L70 72 L22 50 Z" fill="hsl(var(--primary))" stroke="#1e2c47" strokeWidth="4" strokeLinejoin="round" />
+              <circle cx="70" cy="50" r="3.4" fill="#f6c945" />
+              <g className="diplo-tassel">
+                <path d="M70 50 C96 52 108 56 108 66" fill="none" stroke="#f6c945" strokeWidth="3.2" />
+                <path d="M103 64 h10 l-2.5 15 h-5 z" fill="#f6c945" stroke="#1e2c47" strokeWidth="2" strokeLinejoin="round" />
+              </g>
+            </g>
+          </svg>
+        </div>
+      )}
 
       {showConfetti && <Confetti rarity={peakRarity} />}
     </div>
