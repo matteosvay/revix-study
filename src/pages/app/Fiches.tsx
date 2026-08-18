@@ -4,6 +4,7 @@ import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Plus, ChevronRight, BookOpen, Trash2, Loader2, Send, Hash, X } from "lucide-react";
+import { DiploState } from "@/components/revix/DiploState";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
@@ -170,32 +171,22 @@ export default function Fiches() {
       </div>
 
       {loading ? (
-        <div className="px-5 text-sm text-muted-foreground">Chargement...</div>
+        <DiploState variant="loading" title="On ouvre ton cahier" />
       ) : results.length === 0 ? (
-        <div className="px-5 mt-10 text-center">
-          <div className="notebook-card dog-ear p-6 max-w-xs mx-auto">
-            <BookOpen className="h-10 w-10 mx-auto text-muted-foreground/50" />
-            {search.trim() ? (
-              <>
-                <p className="font-hand text-2xl mt-2">Aucun résultat</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Rien ne correspond à « {search} ».
-                </p>
-                <Button onClick={() => setSearch("")} variant="outline" className="mt-4 rounded-full">
-                  Effacer la recherche
-                </Button>
-              </>
-            ) : (
-              <>
-                <p className="font-hand text-2xl mt-2">Cahier vide</p>
-                <p className="text-sm text-muted-foreground mt-1">Crée ton premier cours pour commencer.</p>
-                <Button asChild className="mt-4 rounded-full gradient-primary border-0">
-                  <Link to="/app/upload"><Plus className="h-4 w-4 mr-1" /> Nouveau cours</Link>
-                </Button>
-              </>
-            )}
-          </div>
-        </div>
+        search.trim() ? (
+          <DiploState
+            expr="sad"
+            title="Aucun résultat"
+            subtitle={`Rien ne correspond à « ${search} ».`}
+            action={<Button onClick={() => setSearch("")} variant="outline" className="rounded-full">Effacer la recherche</Button>}
+          />
+        ) : (
+          <DiploState
+            title="Ton cahier est vide"
+            subtitle="Ajoute ton premier cours et Diplo t'aide à le réviser."
+            action={<Button asChild className="rounded-full gradient-primary border-0"><Link to="/app/upload"><Plus className="h-4 w-4 mr-1" /> Nouveau cours</Link></Button>}
+          />
+        )
       ) : (
         <div className="px-4 space-y-3 stagger-in">
           {results.map((r, i) => {

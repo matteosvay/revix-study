@@ -1589,8 +1589,11 @@
   .diplo-party { transform-box: fill-box; transform-origin: center bottom; animation: diplo-party 0.9s cubic-bezier(0.28, 1.7, 0.5, 1); }
   @keyframes diplo-hop { 0% { transform: translateY(0); } 35% { transform: translateY(-22px) scale(1.05, 0.95); } 70% { transform: translateY(0) scale(0.96, 1.05); } 100% { transform: translateY(0); } }
   @keyframes diplo-party { 0% { transform: translateY(0) rotate(0); } 40% { transform: translateY(-26px) rotate(-10deg) scale(1.06); } 100% { transform: translateY(0) rotate(0); } }
+  .diplo-dots::after { content: "…"; display: inline-block; width: 1.1em; text-align: left; animation: diplo-dots 1.4s steps(1, end) infinite; }
+  @keyframes diplo-dots { 0% { content: "."; } 25% { content: ".."; } 50% { content: "…"; } 75%, 100% { content: ""; } }
   @media (prefers-reduced-motion: reduce) {
     .diplo-bob, .diplo-eyes, .diplo-tassel, .diplo-hop, .diplo-party { animation: none; }
+    .diplo-dots::after { animation: none; content: "…"; }
   }
 }
 

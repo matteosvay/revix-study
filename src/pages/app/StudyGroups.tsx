@@ -11,6 +11,7 @@ import { Link } from "react-router-dom";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
 import { type Rarity } from "@/lib/cosmetics";
 import { TitleBadge } from "@/components/revix/TitleBadge";
+import { DiploState } from "@/components/revix/DiploState";
 import { cn } from "@/lib/utils";
 
 type Group = {
@@ -184,13 +185,12 @@ export default function StudyGroups() {
         </div>
 
         {loading ? (
-          <div className="text-center py-12"><Loader2 className="h-6 w-6 mx-auto animate-spin text-primary" /></div>
+          <DiploState variant="loading" title="On rassemble tes groupes" />
         ) : groups.length === 0 ? (
-          <div className="text-center py-10 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
-            <p className="text-5xl mb-2">👥</p>
-            <p className="font-display text-lg">Aucun groupe pour l'instant</p>
-            <p className="text-xs text-muted-foreground mt-2">Crée un groupe avec tes potes pour booster vos streaks ensemble.</p>
-          </div>
+          <DiploState
+            title="Aucun groupe pour l'instant"
+            subtitle="Crée un groupe avec tes potes pour booster vos séries ensemble."
+          />
         ) : (
           <div className="space-y-3">
             {groups.map((g) => (

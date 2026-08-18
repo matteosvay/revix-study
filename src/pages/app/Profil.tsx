@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { LogOut, Trash2, Sparkles, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3, Crown, CreditCard, Check, Pencil } from "lucide-react";
 import { DiploFace } from "@/components/revix/DiploFace";
+import { DiploState } from "@/components/revix/DiploState";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -133,7 +134,7 @@ export default function Profil() {
     }
   };
 
-  if (!profile) return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement...</div></AppLayout>;
+  if (!profile) return <AppLayout><DiploState variant="loading" title="On prépare ta carte" /></AppLayout>;
 
   const initials = (profile.display_name ?? "U").split(" ").map((s: string) => s[0]).join("").slice(0, 2).toUpperCase();
   const studentNo = ((user?.id ?? "0000").replace(/[^a-f0-9]/gi, "").slice(0, 4).toUpperCase() || "0000");
