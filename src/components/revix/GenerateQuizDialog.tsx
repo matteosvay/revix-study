@@ -7,6 +7,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Loader2, Sparkles, BookOpen, Hash, CheckCircle2 } from "lucide-react";
+import { illu } from "@/assets/illu";
 
 type CourseRow = {
   id: string;
@@ -20,11 +21,11 @@ type CourseRow = {
 type QuizType = "qcm" | "qcm_multi" | "vrai_faux" | "ordre" | "association";
 
 const TYPES: { key: QuizType; label: string; emoji: string }[] = [
-  { key: "qcm", label: "QCM", emoji: "✅" },
-  { key: "qcm_multi", label: "QCM multi", emoji: "☑️" },
-  { key: "vrai_faux", label: "Vrai / Faux", emoji: "⚖️" },
-  { key: "ordre", label: "Mise en ordre", emoji: "🔢" },
-  { key: "association", label: "Association", emoji: "🔗" },
+ { key: "qcm", label: "QCM", emoji: "" },
+ { key: "qcm_multi", label: "QCM multi", emoji: "" },
+ { key: "vrai_faux", label: "Vrai / Faux", emoji: "" },
+ { key: "ordre", label: "Mise en ordre", emoji: "" },
+ { key: "association", label: "Association", emoji: "" },
 ];
 
 const COUNTS = [5, 10, 15, 20];
@@ -168,7 +169,7 @@ export function GenerateQuizDialog({
       const { error: rowsErr } = await supabase.from("quiz_questions").insert(rows);
       if (rowsErr) throw rowsErr;
 
-      toast.success("Quizz prêt ✨");
+ toast.success("Quizz prêt ");
       onOpenChange(false);
       if (onGenerated) onGenerated(quiz.id);
       else nav(`/app/quizz?id=${quiz.id}`);
@@ -224,7 +225,7 @@ export function GenerateQuizDialog({
                           : "border-border bg-card hover:border-primary/40"
                       }`}
                     >
-                      <span className="text-xl shrink-0">{c.emoji ?? "📘"}</span>
+ <img src={illu.notebook} alt="" className="h-5 w-5 shrink-0 object-contain" />
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium truncate">{c.title}</p>
                         {c.subject && (
@@ -257,7 +258,7 @@ export function GenerateQuizDialog({
                       : "border-border bg-card hover:border-primary/40"
                   }`}
                 >
-                  📖 Tout le cours
+ Tout le cours
                 </button>
                 <button
                   onClick={() => setScope("chapters")}
@@ -268,7 +269,7 @@ export function GenerateQuizDialog({
                       : "border-border bg-card hover:border-primary/40"
                   }`}
                 >
-                  🎯 Chapitres choisis
+ Chapitres choisis
                 </button>
               </div>
               {scope === "chapters" && (

@@ -39,7 +39,7 @@ export function StudyPlanCard({ plan, onImported }: { plan: StudyPlan; onImporte
       await bumpQuest(user.id, "task_added", rows.length);
       await bumpQuest(user.id, "w_5_planning_tasks", rows.length);
       await awardXp(user.id, 80, "coach:plan_imported");
-      toast.success(`${rows.length} sessions ajoutées à ton planning ✨`);
+ toast.success(`${rows.length} sessions ajoutées à ton planning `);
       setImported(true);
       onImported?.();
     } catch (e: any) {
@@ -52,7 +52,7 @@ export function StudyPlanCard({ plan, onImported }: { plan: StudyPlan; onImporte
   return (
     <div className="notebook-card p-4 my-3 relative">
       <span className="rubber-stamp rubber-stamp-purple absolute -top-3 right-4 text-[10px]">+80 XP PLAN</span>
-      <p className="font-hand text-2xl text-foreground leading-tight">📋 {plan.plan_title}</p>
+ <p className="font-hand text-2xl text-foreground leading-tight"> {plan.plan_title}</p>
       <p className="text-xs text-foreground/60 mt-1 mb-3">{plan.coach_note}</p>
       <div className="space-y-1.5">
         {plan.days.map((d, i) => (
@@ -77,7 +77,7 @@ export function StudyPlanCard({ plan, onImported }: { plan: StudyPlan; onImporte
           disabled={imported || loading}
           className="rounded-full gradient-primary border-0 flex-1 text-xs"
         >
-          {imported ? "✓ Ajouté" : loading ? "Ajout..." : "✅ Ajouter tout au planning"}
+ {imported? " Ajouté": loading? "Ajout...": " Ajouter tout au planning"}
         </Button>
       </div>
     </div>

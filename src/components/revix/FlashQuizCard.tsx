@@ -78,10 +78,10 @@ export function FlashQuizCard() {
         .from("quizzes")
         .delete()
         .eq("user_id", user.id)
-        .ilike("title", "⚡ Flash%")
+.ilike("title", " Flash%")
         .lt("created_at", yesterday);
 
-      const flashTitle = subject ? `⚡ Flash · ${subject}` : "⚡ Flash 5 min";
+ const flashTitle = subject? ` Flash · ${subject}`: " Flash 5 min";
       const { data: quiz, error: qErr } = await supabase
         .from("quizzes")
         .insert({ user_id: user.id, title: flashTitle, quiz_type: "qcm" })
@@ -124,7 +124,7 @@ export function FlashQuizCard() {
           {loading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Zap className="h-5 w-5" />}
         </div>
         <div className="flex-1 min-w-0">
-          <p className="font-serif text-base leading-none">J'ai 5 minutes ⚡</p>
+ <p className="font-serif text-base leading-none">J'ai 5 minutes </p>
           <p className="text-xs text-muted-foreground mt-1">5 questions ciblées par matière</p>
         </div>
         <span className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">Go</span>
@@ -134,7 +134,7 @@ export function FlashQuizCard() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent side="bottom" className="rounded-t-3xl max-h-[80vh] overflow-y-auto">
         <SheetHeader className="text-left">
-          <SheetTitle className="font-serif text-2xl">Quelle matière ? ⚡</SheetTitle>
+ <SheetTitle className="font-serif text-2xl">Quelle matière? </SheetTitle>
         </SheetHeader>
         <div className="mt-5 space-y-2">
           <button

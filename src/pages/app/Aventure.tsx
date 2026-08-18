@@ -5,8 +5,9 @@ import { Tape, Pin, ScribbleUnderline, Stamp } from "@/components/revix/Academic
 import { Flame, Sparkles, Trophy, Target, Zap, Lock, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { levelInfo, xpForLevel, LEVEL_NAMES, LEAGUES, leagueInfo } from "@/lib/gamification";
+import { levelInfo, xpForLevel, LEVEL_NAMES, LEAGUES, leagueInfo, questIcon } from "@/lib/gamification";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { illu } from "@/assets/illu";
 
 export default function Aventure() {
   const { profile, dailyQuests, weeklyQuest, xp, levelTier, loading } = useGamification();
@@ -22,7 +23,7 @@ export default function Aventure() {
 
   return (
     <AppLayout>
-      <PageHeader emoji="🗺️" title="Aventure" subtitle="Quêtes, niveaux & récompenses." />
+      <PageHeader illustration={illu.adventure} title="Aventure" subtitle="Quêtes, niveaux & récompenses." />
 
       <div className="px-5 space-y-5 pb-6">
         {/* Niveau hero */}
@@ -36,8 +37,8 @@ export default function Aventure() {
           <ChevronRight className="absolute bottom-3 right-3 h-4 w-4 text-muted-foreground" />
           <div className="flex items-center gap-4">
             <div className="relative">
-              <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center text-3xl shadow-glow">
-                {levelTier.emoji}
+              <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center shadow-glow">
+                <img src={levelTier.icon} alt="" width={48} height={48} className="h-12 w-12 object-contain" />
               </div>
               <span className="rubber-stamp-purple rubber-stamp absolute -bottom-2 -right-3 text-[8px] !px-1.5 !py-0.5 stamp-pop">
                 Lv {profile.level}
@@ -80,7 +81,7 @@ export default function Aventure() {
           >
             <Tape variant="mint" position="top" />
             <div className="flex items-center gap-2.5 mt-1">
-              <span className="text-2xl leading-none">{league.current.emoji}</span>
+              <img src={league.current.icon} alt="" width={28} height={28} className="h-7 w-7 object-contain" />
               <div>
                 <p className="font-serif text-2xl leading-none">{league.current.name}</p>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">Ligue · {profile.xp_week} XP</p>
@@ -107,7 +108,11 @@ export default function Aventure() {
                 </div>
               </div>
               <p className="font-serif text-xl flex items-center gap-2">
-                <span>{weeklyQuest.emoji}</span>
+                {questIcon(weeklyQuest.quest_key) ? (
+                  <img src={questIcon(weeklyQuest.quest_key)} alt="" width={24} height={24} className="h-6 w-6 object-contain" />
+                ) : (
+                  <span>{weeklyQuest.emoji}</span>
+                )}
                 {weeklyQuest.title}
               </p>
               <p className="text-xs text-muted-foreground mt-0.5">{weeklyQuest.description}</p>
@@ -121,7 +126,7 @@ export default function Aventure() {
                 </div>
               </div>
               {weeklyQuest.completed && (
-                <p className="font-hand text-primary text-lg mt-3">Complétée ! 🎉</p>
+ <p className="font-hand text-primary text-lg mt-3">Complétée! </p>
               )}
             </div>
           </div>
@@ -135,7 +140,7 @@ export default function Aventure() {
             <div>
               <p className="font-mono-tag text-xs font-bold uppercase tracking-wider text-white/95 drop-shadow-sm">Quêtes du jour</p>
             </div>
-            {allDailyDone && <span className="font-hand text-white text-lg drop-shadow">tout fait ! 🎉</span>}
+ {allDailyDone && <span className="font-hand text-white text-lg drop-shadow">tout fait! </span>}
           </div>
 
           <div className="space-y-2.5">
@@ -145,8 +150,12 @@ export default function Aventure() {
                 <div key={q.id} className={`card-paper p-3.5 relative ${i % 2 === 0 ? "tilt-l" : "tilt-r"} hover:shadow-glow transition-shadow`}>
                   <Pin color={i % 3 === 0 ? "red" : i % 3 === 1 ? "blue" : "purple"} className="absolute -top-1 left-1/2 -translate-x-1/2 decor-extra" />
                   <div className="flex items-start gap-3">
-                    <div className="h-10 w-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-lg shrink-0">
-                      {q.emoji}
+                    <div className="h-10 w-10 rounded-xl bg-primary/10 flex items-center justify-center shrink-0">
+                      {questIcon(q.quest_key) ? (
+                        <img src={questIcon(q.quest_key)} alt="" width={28} height={28} className="h-7 w-7 object-contain" />
+                      ) : (
+                        <span className="text-lg">{q.emoji}</span>
+                      )}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between gap-2">
@@ -159,7 +168,7 @@ export default function Aventure() {
                       <div className="mt-2">
                         <div className="flex items-center justify-between text-[10px] mb-1">
                           <span className="font-mono-tag text-muted-foreground">{q.progress} / {q.target}</span>
-                          {q.completed && <span className="font-hand text-primary">fait ✓</span>}
+ {q.completed && <span className="font-hand text-primary">fait </span>}
                         </div>
                         <div className="h-1.5 rounded-full bg-muted overflow-hidden">
                           <div className={`h-full transition-all duration-700 ${q.completed ? "bg-success" : "gradient-primary"}`} style={{ width: `${pct}%` }} />
@@ -179,7 +188,7 @@ export default function Aventure() {
       <Dialog open={openLevels} onOpenChange={setOpenLevels}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Chemin des titres 🎓</DialogTitle>
+ <DialogTitle>Chemin des titres </DialogTitle>
             <DialogDescription>Tous les paliers de Bizuth à Légende Revix.</DialogDescription>
           </DialogHeader>
           <ol className="space-y-2">
@@ -207,7 +216,7 @@ export default function Aventure() {
                         : "border-muted-foreground/30 bg-muted"
                     }`}
                   >
-                    {reached ? tier.emoji : <Lock className="h-4 w-4 text-muted-foreground" />}
+                    {reached ? <img src={tier.icon} alt="" width={28} height={28} className="h-7 w-7 object-contain" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
@@ -222,7 +231,7 @@ export default function Aventure() {
                       Niv. {tier.min}–{tier.max} · {xpToReach} XP
                     </p>
                   </div>
-                  {reached && !current && <span className="font-hand text-success text-sm shrink-0">✓</span>}
+ {reached &&!current && <span className="font-hand text-success text-sm shrink-0"></span>}
                 </li>
               );
             })}
@@ -234,7 +243,7 @@ export default function Aventure() {
       <Dialog open={openLeagues} onOpenChange={setOpenLeagues}>
         <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
-            <DialogTitle>Ligues hebdo 🏆</DialogTitle>
+ <DialogTitle>Ligues hebdo </DialogTitle>
             <DialogDescription>
               Tu es <strong>{league.current.name}</strong> avec {profile.xp_week} XP cette semaine.
               {league.next && ` Encore ${league.next.minWeekXp - profile.xp_week} XP pour passer ${league.next.name}.`}
@@ -255,8 +264,8 @@ export default function Aventure() {
                       : "border-dashed border-muted-foreground/30 bg-muted/30 opacity-70"
                   }`}
                 >
-                  <div className="h-10 w-10 shrink-0 rounded-lg flex items-center justify-center text-xl border-2 border-foreground/80 bg-secondary">
-                    {reached ? l.emoji : <Lock className="h-4 w-4 text-muted-foreground" />}
+                  <div className="h-10 w-10 shrink-0 rounded-lg flex items-center justify-center border-2 border-foreground/80 bg-secondary">
+                    {reached ? <img src={l.icon} alt="" width={28} height={28} className="h-7 w-7 object-contain" /> : <Lock className="h-4 w-4 text-muted-foreground" />}
                   </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">

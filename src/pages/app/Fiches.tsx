@@ -14,6 +14,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { SendCourseDialog } from "@/components/revix/SendCourseDialog";
+import { illu } from "@/assets/illu";
 
 type SummarySection = { title?: string; blocks?: any[] };
 type SummaryData = { intro?: string; sections?: SummarySection[] } | null;
@@ -115,7 +116,7 @@ export default function Fiches() {
   return (
     <AppLayout>
       <PageHeader
-        emoji="📚"
+        illustration={illu.notebook}
         title="Mes cours"
         subtitle={subjectFilter ? `${filtered.length} cours · ${subjectFilter}` : `${courses.length} cours`}
         action={
@@ -198,7 +199,7 @@ export default function Fiches() {
                 <Tape variant={tape as any} position={i % 2 === 0 ? "top-left" : "top-right"} />
                 <div className="flex items-center gap-3 p-4">
                   <Link to={`/app/fiches/${c.id}`} className="flex items-center gap-3 flex-1 min-w-0">
-                    <span className="text-3xl shrink-0">{c.emoji ?? "📘"}</span>
+ <img src={illu.notebook} alt="" className="h-8 w-8 shrink-0 object-contain" />
                     <div className="flex-1 min-w-0">
                       <p className="font-serif text-lg leading-tight truncate">{c.title}</p>
                       <div className="flex items-center gap-2 mt-1">

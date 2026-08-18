@@ -6,6 +6,11 @@ export default function CGV() {
       title="Conditions Générales de Vente"
       subtitle="Les présentes Conditions Générales de Vente (CGV) s'appliquent à tout achat d'abonnement payant sur Revix. Elles complètent les Conditions Générales d'Utilisation (CGU)."
       updatedAt="19 mai 2026"
+      seo={{
+        title: "Conditions Générales de Vente — Revix",
+        description: "CGV de Revix : tarifs, abonnements Pro et Max, paiement, droit de rétractation et remboursement.",
+        path: "/cgv",
+      }}
     >
       <LegalHighlight>
         <p className="text-sm">

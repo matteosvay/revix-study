@@ -32,6 +32,7 @@ const nav = [
   { to: "/app/fiches", label: "Cours", icon: BookOpen },
   { to: "/app/aventure", label: "Quêtes", icon: Map },
   { to: "/app/quizz", label: "Quizz", icon: Brain },
+  { to: "/app/campus", label: "Campus", icon: School },
   { to: "/app/profil", label: "Profil", icon: User },
 ];
 
@@ -177,17 +178,29 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
 /** Page header brutaliste — titre Archivo Black + soulignement manuscrit accent. */
 export const PageHeader = ({
   emoji,
+  illustration,
   title,
   subtitle,
   action,
 }: {
   emoji?: string;
+  illustration?: string;
   title: string;
   subtitle?: string;
   action?: ReactNode;
 }) => (
   <div className="px-5 pt-5 pb-3 relative">
-    {emoji && <div className="text-3xl mb-1.5 leading-none">{emoji}</div>}
+    {illustration ? (
+      <img
+        src={illustration}
+        alt=""
+        aria-hidden
+        loading="lazy"
+        className="h-14 w-14 sm:h-16 sm:w-16 object-contain mb-1.5 -ml-1 drop-shadow-[2px_2px_0_hsl(var(--foreground)/0.15)]"
+      />
+    ) : (
+      emoji && <div className="text-3xl mb-1.5 leading-none">{emoji}</div>
+    )}
     <div className="flex items-start justify-between gap-3">
       <div className="flex-1 min-w-0">
         <div className="relative inline-block">

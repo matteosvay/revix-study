@@ -85,7 +85,7 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
     if (result?.error === "already_pending") {
       toast.info("Fiche déjà envoyée à cette personne");
     } else {
-      toast.success(`Fiche envoyée à ${recipient.display_name ?? recipient.username ?? "ton ami"} 📨`);
+ toast.success(`Fiche envoyée à ${recipient.display_name?? recipient.username?? "ton ami"} `);
       onOpenChange(false);
     }
   };
@@ -101,7 +101,7 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>📨 Envoyer à un ami</DialogTitle>
+ <DialogTitle> Envoyer à un ami</DialogTitle>
           <DialogDescription>
             Partage « {courseTitle} » avec un ami. Il pourra accepter ou refuser.
           </DialogDescription>
@@ -124,7 +124,7 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
             </div>
           ) : friends.length === 0 ? (
             <div className="text-center py-8">
-              <p className="text-3xl mb-2">🫥</p>
+ <p className="text-3xl mb-2"></p>
               <p className="text-sm text-muted-foreground">
                 Tu n'as pas encore d'amis. Va sur le Campus pour en ajouter.
               </p>
@@ -169,7 +169,7 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
     <AlertDialog open={!!confirmFriend} onOpenChange={(o) => { if (!o && !sendingTo) setConfirmFriend(null); }}>
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>Envoyer cette fiche ? 📨</AlertDialogTitle>
+ <AlertDialogTitle>Envoyer cette fiche? </AlertDialogTitle>
           <AlertDialogDescription>
             Tu vas envoyer <span className="font-bold">« {courseTitle} »</span> à{" "}
             <span className="font-bold">{confirmFriend?.display_name ?? confirmFriend?.username ?? "cet ami"}</span>.

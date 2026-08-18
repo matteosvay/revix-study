@@ -49,7 +49,7 @@ export function useFomoChecks() {
         toInsert.push({
           user_id: user.id,
           type: "fomo_streak",
-          title: "🔥 Ta streak est en danger !",
+ title: " Ta streak est en danger!",
           message: `${profile.streak_days} jours d'affilée — ne laisse pas tomber maintenant.`,
           link: "/app/streak",
         });
@@ -71,7 +71,7 @@ export function useFomoChecks() {
         toInsert.push({
           user_id: user.id,
           type: "fomo_quest",
-          title: "🎯 Quête presque finie !",
+ title: " Quête presque finie!",
           message: `"${almostDone.title}" : ${almostDone.progress}/${almostDone.target}`,
           link: "/app/aventure",
         });
@@ -86,7 +86,7 @@ export function useFomoChecks() {
         toInsert.push({
           user_id: user.id,
           type: "fomo_level",
-          title: "⚡ Niveau supérieur en vue",
+ title: " Niveau supérieur en vue",
           message: `Plus que ${remaining} XP avant le niveau ${L + 1} !`,
           link: "/app/aventure",
         });

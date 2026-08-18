@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -139,7 +140,7 @@ export default function DuelPlay() {
     const other = isChall ? opponent : challenger;
     return (
       <AppLayout>
-        <PageHeader emoji="⚔️" title="Salle d'attente" />
+        <PageHeader illustration={illu.duel} title="Salle d'attente" />
         <div className="px-5 pt-8 pb-6 text-center space-y-4">
           <Loader2 className="h-10 w-10 mx-auto animate-spin text-primary" />
           <p className="font-display text-lg">
@@ -168,12 +169,16 @@ export default function DuelPlay() {
     const lost = isCompleted && duel.winner_id && duel.winner_id !== user?.id;
     return (
       <AppLayout>
-        <PageHeader emoji="⚔️" title="Duel terminé" />
+        <PageHeader illustration={illu.duel} title="Duel terminé" />
         <div className="px-5 pt-6 pb-6 space-y-5">
           <div className="text-center">
             {isCompleted ? (
               <>
-                <p className="text-5xl mb-2">{won ? "🏆" : tie ? "🤝" : "💔"}</p>
+                <img
+                  src={won ? illu.trophy : tie ? illu.group : illu.heartFire}
+                  alt=""
+                  className="w-16 h-16 mx-auto mb-2 object-contain"
+                />
                 <p className="font-display text-2xl">
                   {won ? "Victoire !" : tie ? "Égalité" : "Défaite"}
                 </p>
@@ -242,7 +247,7 @@ export default function DuelPlay() {
           <div className="flex items-center justify-center gap-2 text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
             <Wifi className="h-3 w-3 text-success" />
             <span>Adversaire à la question {Math.min(opponentPresence.current_question + 1, questions.length)}</span>
-            {opponentPresence.current_question > idx && <span className="text-accent font-bold">⚡ il/elle te devance !</span>}
+ {opponentPresence.current_question > idx && <span className="text-accent font-bold"> il/elle te devance!</span>}
           </div>
         )}
         <div className="h-2 w-full bg-muted rounded-full overflow-hidden border-2 border-foreground">
@@ -272,7 +277,7 @@ export default function DuelPlay() {
 
         {selected !== null && (
           <p className="text-center text-xs text-muted-foreground">
-            Réponse enregistrée ✓ — la correction sera révélée à la fin du duel.
+ Réponse enregistrée — la correction sera révélée à la fin du duel.
           </p>
         )}
 

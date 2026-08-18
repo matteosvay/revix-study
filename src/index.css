@@ -312,6 +312,42 @@
     background-position: 0 0, 8px 12px;
   }
 
+  /* ===== Seyès — cahier français traditionnel ===== */
+  .paper-seyes {
+    background-color: hsl(var(--card));
+    background-image:
+      /* lignes horizontales fines */
+      linear-gradient(to bottom,
+        hsl(var(--paper-line) / 0.35) 0,
+        hsl(var(--paper-line) / 0.35) 1px,
+        transparent 1px),
+      /* lignes verticales fines */
+      linear-gradient(to right,
+        hsl(var(--paper-line) / 0.18) 0,
+        hsl(var(--paper-line) / 0.18) 1px,
+        transparent 1px),
+      /* ligne rouge marge gauche */
+      linear-gradient(to right,
+        transparent 35px,
+        hsl(var(--destructive) / 0.55) 35px,
+        hsl(var(--destructive) / 0.55) 36px,
+        transparent 36px);
+    background-size: 100% 8px, 8px 100%, 100% 100%;
+  }
+  .paper-seyes-soft {
+    background-color: hsl(var(--card));
+    background-image:
+      linear-gradient(to bottom,
+        hsl(var(--paper-line) / 0.12) 0,
+        hsl(var(--paper-line) / 0.12) 1px,
+        transparent 1px),
+      linear-gradient(to right,
+        hsl(var(--paper-line) / 0.07) 0,
+        hsl(var(--paper-line) / 0.07) 1px,
+        transparent 1px);
+    background-size: 100% 10px, 10px 100%;
+  }
+
   /* Scotch / washi tape — bloc opaque noir-bordé, très saturé */
   .tape {
     position: absolute;

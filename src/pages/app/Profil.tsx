@@ -13,6 +13,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { CURSUS_OPTIONS } from "@/data/cursus";
+import { illu } from "@/assets/illu";
 import { SearchableCombobox, SearchableMultiCombobox } from "@/components/revix/SearchableCombobox";
 import { FORMATIONS } from "@/data/formations";
 import { SUBJECTS } from "@/data/subjects";
@@ -98,7 +99,7 @@ export default function Profil() {
       const { error: updErr } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
       if (updErr) throw updErr;
       setProfile({ ...profile, avatar_url: url });
-      toast.success("Photo mise à jour ✨");
+ toast.success("Photo mise à jour ");
     } catch (err: any) {
       toast.error(err.message ?? "Échec de l'upload");
     } finally {
@@ -124,7 +125,7 @@ export default function Profil() {
       }
       // La session est invalidée côté serveur ; on nettoie aussi le client.
       await supabase.auth.signOut();
-      toast.success("Ton compte a été supprimé. À bientôt 👋");
+ toast.success("Ton compte a été supprimé. À bientôt ");
       nav("/");
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Impossible de supprimer le compte. Réessaie ou contacte le support.";
@@ -192,7 +193,7 @@ export default function Profil() {
 
   return (
     <AppLayout>
-      <PageHeader emoji="👤" title="Profil" />
+      <PageHeader illustration={illu.backpack} title="Profil" />
 
       <AvatarCropper
         file={pendingFile}
@@ -527,7 +528,7 @@ export default function Profil() {
                 </span>
                 {isActive && (
                   <span className="block text-sm text-amber-600 dark:text-amber-400 pt-2">
-                    ⚠️ Tu as un abonnement actif. Pense à le résilier d'abord depuis « Gérer mon abonnement »
+ Tu as un abonnement actif. Pense à le résilier d'abord depuis « Gérer mon abonnement »
                     pour ne plus être facturé.
                   </span>
                 )}

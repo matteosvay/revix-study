@@ -2,17 +2,20 @@ import { ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { ArrowLeft } from "lucide-react";
 import { Logo } from "@/components/revix/Logo";
+import { PageHead } from "@/components/seo/PageHead";
 
 interface LegalLayoutProps {
   title: string;
   subtitle?: string;
   updatedAt: string;
   children: ReactNode;
+  seo?: { title: string; description: string; path: string };
 }
 
-export function LegalLayout({ title, subtitle, updatedAt, children }: LegalLayoutProps) {
+export function LegalLayout({ title, subtitle, updatedAt, children, seo }: LegalLayoutProps) {
   return (
     <div className="min-h-screen bg-background text-foreground">
+      {seo && <PageHead title={seo.title} description={seo.description} path={seo.path} />}
       {/* Header */}
       <header className="sticky top-0 z-50 border-b-[3px] border-foreground bg-card">
         <div className="max-w-3xl mx-auto px-5 h-14 flex items-center justify-between gap-4">

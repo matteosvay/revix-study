@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import { CheckCircle2, Loader2, Mail } from "lucide-react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { useSubscription } from "@/hooks/useSubscription";
 
@@ -42,12 +43,12 @@ export default function CheckoutReturn() {
 
   return (
     <AppLayout>
-      <PageHeader emoji="💳" title="Paiement" />
+      <PageHeader illustration={illu.card} title="Paiement" />
       <div className="px-5 py-6 flex flex-col items-center text-center gap-4">
         {isActive ? (
           <>
             <CheckCircle2 className="h-16 w-16 text-primary" />
-            <h2 className="font-serif text-2xl">Bienvenue dans Revix {tier === "max" ? "Max" : "Pro"} 🎉</h2>
+ <h2 className="font-serif text-2xl">Bienvenue dans Revix {tier === "max"? "Max": "Pro"} </h2>
             <p className="text-sm text-muted-foreground max-w-xs">
               Ton abonnement est actif. Tes nouveaux quotas IA sont déjà disponibles.
             </p>

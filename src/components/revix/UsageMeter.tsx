@@ -85,7 +85,7 @@ export function UsageMeter() {
           to="/app/profil"
           className="mt-3 block text-center text-xs font-bold uppercase tracking-wider rounded-md border-[2.5px] border-foreground bg-primary text-primary-foreground py-2 shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
         >
-          🚀 Passer à Pro
+ Passer à Pro
         </Link>
       )}
     </div>

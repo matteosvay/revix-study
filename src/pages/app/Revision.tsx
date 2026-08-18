@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { ArrowLeft, Brain, CheckCircle2, XCircle, Repeat, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -83,7 +84,7 @@ export default function Revision() {
   if (queue.length === 0) {
     return (
       <AppLayout>
-        <PageHeader emoji="🧠" title="Révision" subtitle="Spaced repetition" />
+        <PageHeader illustration={illu.brain} title="Révision" subtitle="Spaced repetition" />
         {skippedCount > 0 && (
           <div className="mx-5 mt-3 px-3 py-2 rounded-md border border-muted bg-muted/40 text-xs text-muted-foreground">
             {skippedCount} question{skippedCount > 1 ? "s" : ""} de type texte libre ou ordre ne sont pas encore disponibles en révision ciblée.
@@ -141,7 +142,7 @@ export default function Revision() {
 
         <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
           <Repeat className="h-3.5 w-3.5" />
-          <span>{q.course_emoji ?? "📘"} {q.course_title ?? "Cours"}</span>
+ <span className="inline-flex items-center gap-1"><img src={illu.notebook} alt="" className="h-4 w-4 object-contain" />{q.course_title?? "Cours"}</span>
           {q.chapter && <><span>·</span><span className="truncate">{q.chapter}</span></>}
         </div>
 
@@ -163,7 +164,7 @@ export default function Revision() {
               return (
                 <button key={i} onClick={() => pickChoice(i)} disabled={picked !== null}
                   className={`answer-postit ${stateCls} flex flex-col items-center justify-center gap-2 min-h-[80px] text-center text-lg`}>
-                  <span className="text-2xl">{i === 0 ? "✅" : "❌"}</span>
+ <span className="text-2xl">{i === 0? "": ""}</span>
                   <span className="font-bold">{a}</span>
                   {picked !== null && isCorrect && <CheckCircle2 className="h-4 w-4 text-success" />}
                   {picked !== null && isPicked && !isCorrect && <XCircle className="h-4 w-4 text-destructive" />}
@@ -199,7 +200,7 @@ export default function Revision() {
 
         {picked !== null && q.explanation && (
           <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
-            💡 {q.explanation}
+ {q.explanation}
           </div>
         )}
 

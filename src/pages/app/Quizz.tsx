@@ -8,6 +8,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
+import { illu } from "@/assets/illu";
 import { XP_REWARDS } from "@/lib/gamification";
 import { Tape, Pin, ScribbleUnderline } from "@/components/revix/AcademicDecor";
 import { localDateKey } from "@/lib/date";
@@ -50,7 +51,7 @@ const TYPE_LABELS: Record<QType, string> = {
   qcm_multi: "QCM multi",
   vrai_faux: "Vrai / Faux",
   ordre: "Mise en ordre",
-  association: "Association 🔗",
+ association: "Association ",
 };
 
 export default function Quizz() {
@@ -362,7 +363,7 @@ export default function Quizz() {
         chapter: q.chapter ?? chapter,
       }));
       await supabase.from("quiz_questions").insert(rows);
-      toast.success("Quizz prêt ✨");
+ toast.success("Quizz prêt ");
       nav(`/app/quizz?id=${quiz.id}`);
     } catch (e: any) {
       toast.error(e?.message ?? "Erreur");
@@ -406,7 +407,7 @@ export default function Quizz() {
           // Incrémente le compteur quiz et octroie un jeton tous les 10 quiz
           const { data: tokenRes } = await supabase.rpc("increment_quiz_count", { p_user_id: user.id });
           if ((tokenRes as any)?.earned) {
-            toast.success("📎 Pass de restauration gagné !", { description: "Colle-le sur une streak perdue." });
+ toast.success(" Pass de restauration gagné!", { description: "Colle-le sur une streak perdue." });
           }
           // XP : finir un quiz + bonus score
           const pct = (finalScore / questions.length) * 100;
@@ -420,7 +421,7 @@ export default function Quizz() {
           // Log group activity (streak partagée des groupes d'étude)
           await supabase.rpc("log_group_activity", { p_xp: total });
           if (comboBonus > 0) {
-            toast.success(`🔥 Combo x${Math.floor(maxCombo / 5) + 1} ! +${comboBonus} XP bonus`);
+ toast.success(` Combo x${Math.floor(maxCombo / 5) + 1}! +${comboBonus} XP bonus`);
           }
           // Bump quêtes
           await bumpQuest(user.id, "quiz_done", 1);
@@ -467,9 +468,9 @@ export default function Quizz() {
       const wrongIdx = q.answers.map((_, i) => i).filter(i => i !== q.correct_index);
       const toHide = wrongIdx.sort(() => Math.random() - 0.5).slice(0, Math.max(0, wrongIdx.length - 1));
       setHidden(toHide);
-      toast.success("✂️ 50/50 activé");
+ toast.success(" 50/50 activé");
     } else if (key === "power_skip") {
-      toast.success("⏭️ Question passée");
+ toast.success("⏭ Question passée");
       // Skip = avance sans compter (ni juste ni faux), reset combo neutre
       setCombo(0);
       if (qIdx + 1 >= questions.length) {
@@ -480,7 +481,7 @@ export default function Quizz() {
         setPicked(null); setHidden([]);
       }
     } else if (key === "power_time") {
-      toast.success("⏱️ +30 sec");
+ toast.success("⏱ +30 sec");
     }
   };
 
@@ -570,7 +571,7 @@ export default function Quizz() {
       if (q) supabase.rpc("review_question", { p_question_id: q.id, p_correct: nextAttempts === 1 });
       // Toast info sur la performance
       if (nextAttempts === 1) {
-        toast.success("Parfait du premier coup ! 🎯");
+ toast.success("Parfait du premier coup! ");
       } else {
         toast.success(`Bravo ! ${nextAttempts} tentatives — score réduit`);
       }
@@ -589,7 +590,7 @@ export default function Quizz() {
     if (correctCount === 0) {
       toast.error(`Aucune paire correcte. Réessaie !`);
     } else {
-      toast.info(`${correctCount} OK ✅ — ${wrongCount} à corriger`);
+ toast.info(`${correctCount} OK — ${wrongCount} à corriger`);
     }
     // Si l'utilisateur a fait trop d'erreurs (5+ tentatives), on abandonne et marque faux
     if (nextAttempts >= 5) {
@@ -613,7 +614,7 @@ export default function Quizz() {
     return (
       <AppLayout>
         <PageHeader
-          emoji="🧠"
+          illustration={illu.quiz}
           title="Quizz"
           subtitle="Choisis un quizz pour t'entraîner."
           action={
@@ -664,7 +665,7 @@ export default function Quizz() {
               {gaps.map((gap) => (
                 <div key={gap.course_id} className="notebook-card p-3.5">
                   <div className="flex items-center gap-2 mb-2">
-                    <span className="text-xl">{gap.course_emoji ?? "📘"}</span>
+ <img src={illu.notebook} alt="" className="h-5 w-5 object-contain" />
                     <p className="font-serif text-sm flex-1 truncate">{gap.course_title}</p>
                     <span className="font-mono-tag text-[10px] text-muted-foreground">{gap.missing.length} restant{gap.missing.length > 1 ? "s" : ""}</span>
                   </div>
@@ -812,7 +813,7 @@ export default function Quizz() {
                     <p className="font-serif text-sm mt-1">{qq.question}</p>
                     <p className="font-hand text-base text-success mt-2">→ {correct}</p>
                     {qq.explanation && (
-                      <p className="text-xs text-muted-foreground mt-1.5 italic">💡 {qq.explanation}</p>
+ <p className="text-xs text-muted-foreground mt-1.5 italic"> {qq.explanation}</p>
                     )}
                   </div>
                 );
@@ -1150,7 +1151,7 @@ export default function Quizz() {
                       {assocCorrect ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
                       <span>
                         {assocCorrect
-                          ? assocAttempts === 1 ? "Parfait du premier coup ! 🎯" : `Réussi en ${assocAttempts} tentatives`
+? assocAttempts === 1? "Parfait du premier coup! ": `Réussi en ${assocAttempts} tentatives`
                           : "Trop de tentatives"}
                       </span>
                     </div>
@@ -1161,7 +1162,7 @@ export default function Quizz() {
 
             {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted)) && q.explanation && (
               <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
-                💡 {q.explanation}
+ {q.explanation}
               </div>
             )}
 
@@ -1288,10 +1289,10 @@ export default function Quizz() {
                   return (
                     <div key={i} className="rounded-xl border-2 border-foreground bg-card p-3 shadow-brutal-sm space-y-1">
                       <p className="text-sm font-semibold leading-snug">{qq.question}</p>
-                      <p className="font-hand text-base text-success">✓ {correctLabel}</p>
+ <p className="font-hand text-base text-success"> {correctLabel}</p>
                       {qq.explanation && (
                         <p className="text-xs text-muted-foreground border-l-2 border-primary/40 pl-2 italic">
-                          💡 {qq.explanation}
+ {qq.explanation}
                         </p>
                       )}
                     </div>

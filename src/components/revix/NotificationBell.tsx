@@ -23,14 +23,15 @@ type Notification = {
   metadata: any;
 };
 
+import { illu } from "@/assets/illu";
 const ICONS: Record<string, string> = {
-  friend_request: "👋",
-  friend_accepted: "🤝",
-  duel_received: "⚔️",
-  duel_completed: "🏁",
-  course_share_received: "📨",
-  course_share_response: "📬",
-  queen_lootbox: "👑",
+  friend_request: illu.group,
+  friend_accepted: illu.group,
+  duel_received: illu.duel,
+  duel_completed: illu.trophy,
+  course_share_received: illu.doc,
+  course_share_response: illu.doc,
+  queen_lootbox: illu.crown,
 };
 
 export const NotificationBell = () => {
@@ -107,7 +108,7 @@ export const NotificationBell = () => {
       toast.error(error.message.includes("share_not_found") ? "Déjà traité" : "Action impossible");
       return;
     }
-    toast.success(accept ? "Fiche ajoutée à tes cours ✨" : "Fiche refusée");
+ toast.success(accept? "Fiche ajoutée à tes cours ": "Fiche refusée");
     await supabase.from("notifications").update({ read: true }).eq("id", n.id);
     await load();
   };
@@ -165,7 +166,7 @@ export const NotificationBell = () => {
         <ScrollArea className="max-h-96">
           {items.length === 0 ? (
             <div className="px-4 py-10 text-center">
-              <div className="text-3xl mb-2">📭</div>
+ <div className="text-3xl mb-2"></div>
               <p className="text-xs text-muted-foreground font-mono uppercase tracking-wider">Aucune notification</p>
             </div>
           ) : (
@@ -178,7 +179,7 @@ export const NotificationBell = () => {
                       !n.read ? "bg-accent/10" : ""
                     }`}
                   >
-                    <span className="text-xl shrink-0 leading-none mt-0.5">{ICONS[n.type] ?? "🔔"}</span>
+                    <img src={ICONS[n.type] ?? illu.sparkle} alt="" className="w-5 h-5 shrink-0 mt-0.5 object-contain" />
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-1.5">
                         <p className="text-xs font-bold leading-tight">{n.title}</p>

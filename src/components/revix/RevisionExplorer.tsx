@@ -5,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
+import { illu } from "@/assets/illu";
 
 type MasteryRow = {
   course_id: string;
@@ -121,7 +122,7 @@ export function RevisionExplorer() {
       if (!qs.length) throw new Error("Aucune question générée");
       const { data: quiz, error: qErr } = await supabase.from("quizzes").insert({
         user_id: user.id, course_id: row.course_id,
-        title: `👹 Boss · ${row.chapter}`, quiz_type: "qcm",
+ title: ` Boss · ${row.chapter}`, quiz_type: "qcm",
       }).select().single();
       if (qErr) throw qErr;
       await supabase.from("quiz_questions").insert(qs.map((q: any, i: number) => ({
@@ -131,7 +132,7 @@ export function RevisionExplorer() {
         accepted_answers: q.accepted_answers ?? null,
         explanation: q.explanation, position: i, chapter: row.chapter,
       })));
-      toast.success("👹 Boss prêt !");
+ toast.success(" Boss prêt!");
       nav(`/app/quizz?id=${quiz.id}`);
     } catch (e: any) { toast.error(e?.message ?? "Erreur"); }
     finally { setBossLoading(null); }
@@ -222,7 +223,7 @@ export function RevisionExplorer() {
               className="w-full notebook-card p-3 text-left hover:shadow-glow transition-shadow"
             >
               <div className="flex items-center gap-3">
-                <span className="text-2xl shrink-0">{c.emoji ?? "📘"}</span>
+ <img src={illu.notebook} alt="" className="h-6 w-6 shrink-0 object-contain" />
                 <div className="flex-1 min-w-0">
                   <p className="font-serif text-base truncate">{c.title}</p>
                   <p className="text-[10px] text-muted-foreground mt-0.5">

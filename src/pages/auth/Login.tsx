@@ -37,7 +37,15 @@ export default function Login() {
   };
 
   return (
-    <AuthShell title="Bon retour 👋" subtitle="Connecte-toi pour reprendre tes révisions.">
+ <AuthShell
+   title="Bon retour "
+   subtitle="Connecte-toi pour reprendre tes révisions."
+   seo={{
+     title: "Connexion — Revix",
+     description: "Connecte-toi à Revix pour reprendre tes révisions, quizz et plannings IA.",
+     path: "/login",
+   }}
+ >
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>

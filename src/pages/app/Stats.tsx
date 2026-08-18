@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { DiploState } from "@/components/revix/DiploState";
+import { illu } from "@/assets/illu";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { Brain, BookOpen, TrendingUp } from "lucide-react";
@@ -87,7 +88,7 @@ export default function Stats() {
 
   return (
     <AppLayout>
-      <PageHeader emoji="📊" title="Mes stats" subtitle="Progression & performance" />
+      <PageHeader illustration={illu.stats} title="Mes stats" subtitle="Progression & performance" />
 
       <div className="px-5 pb-8 space-y-5">
         {/* KPIs */}

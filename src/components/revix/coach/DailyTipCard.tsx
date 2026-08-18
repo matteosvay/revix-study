@@ -22,7 +22,7 @@ export function DailyTipCard({ ctx }: { ctx: CoachContext | null }) {
       <div className="postit p-4 rounded-md shadow-paper" style={{ transform: "rotate(0.5deg)" }}>
         <p className="font-mono text-[10px] tracking-widest text-foreground/60 mb-2">{tip.label}</p>
         <p className="font-hand text-xl leading-tight text-foreground">{tip.text}</p>
-        <p className="text-[10px] text-foreground/50 mt-3 italic">💡 Basé sur ton planning + tes résultats</p>
+ <p className="text-[10px] text-foreground/50 mt-3 italic"> Basé sur ton planning + tes résultats</p>
       </div>
     </div>
   );

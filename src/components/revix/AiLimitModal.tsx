@@ -40,7 +40,7 @@ export function AiLimitModal() {
     <Dialog open={!!info} onOpenChange={(o) => !o && setInfo(null)}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-xl">🚀 Tu as tout déchiré !</DialogTitle>
+ <DialogTitle className="text-xl"> Tu as tout déchiré!</DialogTitle>
           <DialogDescription className="text-sm">
             Tu as utilisé toutes tes <strong>{actionLabel}</strong> pour {period}. Passe à une formule supérieure pour continuer sans attendre.
           </DialogDescription>

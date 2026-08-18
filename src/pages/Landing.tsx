@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { PageHead } from "@/components/seo/PageHead";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -52,8 +53,30 @@ const faqs = [
 ];
 
 export default function Landing() {
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: faqs.map((f) => ({
+      "@type": "Question",
+      name: f.q,
+      acceptedAnswer: { "@type": "Answer", text: f.a },
+    })),
+  };
+  const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: "Revix",
+    url: "https://revix-study.lovable.app/",
+    inLanguage: "fr-FR",
+  };
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-x-hidden">
+      <PageHead
+        title="Revix — Fiches, quizz & planning IA pour étudiants"
+        description="L'app de révision IA : transforme tes PDF et photos de cours en fiches, quizz et plannings personnalisés. Gratuit, BTS, Licence, Prépa."
+        path="/"
+        jsonLd={[websiteJsonLd, faqJsonLd]}
+      />
       <div className="absolute inset-0 dots-bg pointer-events-none opacity-40" />
 
       {/* Nav */}
@@ -83,7 +106,7 @@ export default function Landing() {
       <section className="relative pt-16 pb-20 lg:pt-24 lg:pb-28">
         <div className="container max-w-5xl text-center relative z-10">
           <span className="inline-block border-[2.5px] border-foreground bg-accent text-foreground shadow-brutal-sm font-mono-tag text-[11px] uppercase tracking-wider px-3 py-1.5 rounded-md mb-6">
-            ✨ L'IA française pour étudiants
+ L'IA française pour étudiants
           </span>
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl tracking-tight leading-[0.95]">
             Transforme tes cours en{" "}
@@ -93,7 +116,7 @@ export default function Landing() {
             en 30 secondes
           </h1>
           <p className="mt-6 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto font-medium">
-            Revix lit tes PDF et photos, génère des fiches claires, des quizz personnalisés et un planning. Tout ça pendant que tu prends ton café ☕.
+ Revix lit tes PDF et photos, génère des fiches claires, des quizz personnalisés et un planning. Tout ça pendant que tu prends ton café.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
             <Button
@@ -115,7 +138,7 @@ export default function Landing() {
             </Button>
           </div>
           <p className="mt-6 font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">
-            Pas de CB · RGPD 🇫🇷 · Fait en France
+ Pas de CB · RGPD · Fait en France
           </p>
         </div>
       </section>
@@ -291,7 +314,7 @@ export default function Landing() {
               <Link to="/mentions-legales" className="hover:text-foreground transition-colors">Mentions légales</Link>
             </nav>
             <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">
-              Fait avec ❤️ en France 🇫🇷
+ Fait avec en France 
             </p>
           </div>
           <div className="mt-6 pt-6 border-t-[2px] border-foreground/10 text-center">

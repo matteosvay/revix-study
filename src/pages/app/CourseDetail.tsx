@@ -12,23 +12,24 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { CourseSummary, type CourseSummaryData } from "@/components/revix/CourseSummary";
+import { illu } from "@/assets/illu";
 
 type Course = { id: string; title: string; subject: string | null; emoji: string | null; source_content: string | null; summary: CourseSummaryData | null };
 
 const QUIZ_TYPES = [
-  { value: "qcm", label: "QCM", emoji: "🎯", desc: "Choisis la bonne réponse parmi 4", icon: ListChecks },
-  { value: "qcm_multi", label: "Multi-réponses", emoji: "✅", desc: "Coche toutes les bonnes réponses", icon: CheckSquare },
-  { value: "vrai_faux", label: "Vrai / Faux", emoji: "⚖️", desc: "Juge des affirmations rapidement", icon: ToggleLeft },
-  { value: "association", label: "Association", emoji: "🔗", desc: "Relie chaque terme à sa définition", icon: Link2 },
-  { value: "ordre", label: "Mise en ordre", emoji: "🔢", desc: "Remets les éléments dans l'ordre", icon: ArrowDownUp },
+ { value: "qcm", label: "QCM", emoji: "", desc: "Choisis la bonne réponse parmi 4", icon: ListChecks },
+ { value: "qcm_multi", label: "Multi-réponses", emoji: "", desc: "Coche toutes les bonnes réponses", icon: CheckSquare },
+ { value: "vrai_faux", label: "Vrai / Faux", emoji: "", desc: "Juge des affirmations rapidement", icon: ToggleLeft },
+ { value: "association", label: "Association", emoji: "", desc: "Relie chaque terme à sa définition", icon: Link2 },
+ { value: "ordre", label: "Mise en ordre", emoji: "", desc: "Remets les éléments dans l'ordre", icon: ArrowDownUp },
 ] as const;
 const COUNT_PRESETS = [5, 10, 15, 20, 30];
 const DIFFICULTIES = [
-  { value: "facile", label: "Facile", emoji: "🌱", desc: "Mémorisation, définitions" },
-  { value: "moyen", label: "Moyen", emoji: "📘", desc: "Compréhension, application" },
-  { value: "difficile", label: "Difficile", emoji: "🔥", desc: "Analyse, mise en relation" },
-  { value: "expert", label: "Expert", emoji: "🧠", desc: "Pièges subtils, niveau examen" },
-  { value: "mixte", label: "Mixte", emoji: "🎲", desc: "Progressif facile → difficile" },
+ { value: "facile", label: "Facile", emoji: "", desc: "Mémorisation, définitions" },
+ { value: "moyen", label: "Moyen", emoji: "", desc: "Compréhension, application" },
+ { value: "difficile", label: "Difficile", emoji: "", desc: "Analyse, mise en relation" },
+ { value: "expert", label: "Expert", emoji: "", desc: "Pièges subtils, niveau examen" },
+ { value: "mixte", label: "Mixte", emoji: "", desc: "Progressif facile → difficile" },
 ] as const;
 
 export default function CourseDetail() {
@@ -137,45 +138,124 @@ export default function CourseDetail() {
         };
       });
       await supabase.from("quiz_questions").insert(rows);
-      toast.success("Quizz créé ✨");
+ toast.success("Quizz créé ");
       setQuizSheetOpen(false);
       nav(`/app/quizz?id=${quiz.id}`);
     } catch (e: any) { toast.error(e?.message ?? "Erreur"); }
     finally { setCreatingQuiz(false); }
   };
 
-  const exportPdf = () => {
+  const exportPdf = async () => {
     if (!course) return;
-    const summary = course.summary;
-    const sections = summary?.sections ?? [];
-    const lines: string[] = [];
-    if (summary?.intro) lines.push(`<p class="intro">${summary.intro}</p>`);
-    sections.forEach(s => {
-      if (s.title) lines.push(`<h2>${s.title}</h2>`);
-      (s.blocks ?? []).forEach((b: any) => {
-        if (b.kind === "paragraph" && b.text) lines.push(`<p>${b.text}</p>`);
-        else if (b.kind === "definition") lines.push(`<p><strong>${b.term ?? ""}</strong>${b.term && b.text ? " — " : ""}${b.text ?? ""}</p>`);
-        else if (b.kind === "key_point" && b.text) lines.push(`<p>⭐ ${b.text}</p>`);
-        else if (b.kind === "example" && b.text) lines.push(`<p><em>Exemple : ${b.text}</em></p>`);
-        else if (b.kind === "tip" && b.text) lines.push(`<p>💡 ${b.text}</p>`);
-        else if (b.kind === "list" && Array.isArray(b.items)) lines.push(`<ul>${b.items.map((i: string) => `<li>${i}</li>`).join("")}</ul>`);
+    try {
+      const { default: jsPDF } = await import("jspdf");
+      const pdf = new jsPDF({ unit: "pt", format: "a4" });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const marginX = 48;
+      const marginTop = 56;
+      const marginBottom = 56;
+      const maxWidth = pageWidth - marginX * 2;
+      let y = marginTop;
+
+      // Sanitize: jsPDF standard fonts (helvetica) ne supportent pas les emojis/glyphes non-latins → on les retire
+      const clean = (s: string) =>
+        (s ?? "")
+          .replace(/[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F000}-\u{1F2FF}]/gu, "")
+          .replace(/\s+/g, " ")
+          .trim();
+
+      const ensureSpace = (h: number) => {
+        if (y + h > pageHeight - marginBottom) {
+          pdf.addPage();
+          y = marginTop;
+        }
+      };
+
+      const writeText = (
+        text: string,
+        opts: { size?: number; style?: "normal" | "bold" | "italic"; color?: [number, number, number]; indent?: number; gap?: number } = {}
+      ) => {
+        const { size = 11, style = "normal", color = [20, 20, 20], indent = 0, gap = 4 } = opts;
+        const txt = clean(text);
+        if (!txt) return;
+        pdf.setFont("helvetica", style);
+        pdf.setFontSize(size);
+        pdf.setTextColor(color[0], color[1], color[2]);
+        const lineHeight = size * 1.35;
+        const lines = pdf.splitTextToSize(txt, maxWidth - indent);
+        for (const line of lines) {
+          ensureSpace(lineHeight);
+          pdf.text(line, marginX + indent, y);
+          y += lineHeight;
+        }
+        y += gap;
+      };
+
+      const drawSeparator = () => {
+        ensureSpace(10);
+        pdf.setDrawColor(180, 180, 180);
+        pdf.setLineWidth(0.5);
+        pdf.line(marginX, y, pageWidth - marginX, y);
+        y += 10;
+      };
+
+      // Titre
+      writeText(course.title, { size: 22, style: "bold", gap: 6 });
+      if (course.subject) writeText(`${course.subject} · Généré par Revix`, { size: 10, color: [120, 120, 120], gap: 10 });
+      drawSeparator();
+
+      const summary = course.summary;
+      if (summary?.intro) writeText(summary.intro, { size: 11, style: "italic", color: [80, 80, 80], gap: 10 });
+
+      (summary?.sections ?? []).forEach((s) => {
+        if (s.title) {
+          y += 6;
+          ensureSpace(24);
+          writeText(s.title, { size: 15, style: "bold", gap: 4 });
+          ensureSpace(6);
+          pdf.setDrawColor(0, 0, 0);
+          pdf.setLineWidth(1);
+          pdf.line(marginX, y - 2, marginX + 60, y - 2);
+          y += 6;
+        }
+        (s.blocks ?? []).forEach((b: any) => {
+          if (b.kind === "paragraph" && b.text) {
+            writeText(b.text);
+          } else if (b.kind === "definition") {
+            const term = clean(b.term ?? "");
+            const text = clean(b.text ?? "");
+            if (term || text) writeText(term && text ? `${term} — ${text}` : term || text, { style: term ? "bold" : "normal" });
+          } else if (b.kind === "key_point" && b.text) {
+            writeText(`• Point clé : ${b.text}`, { style: "bold" });
+          } else if (b.kind === "example" && b.text) {
+            writeText(`Exemple : ${b.text}`, { style: "italic", color: [70, 70, 70] });
+          } else if (b.kind === "tip" && b.text) {
+            writeText(`Astuce : ${b.text}`, { color: [70, 70, 70] });
+          } else if (b.kind === "list" && Array.isArray(b.items)) {
+            b.items.forEach((item: string) => writeText(`• ${item}`, { indent: 12, gap: 2 }));
+            y += 4;
+          }
+        });
       });
-    });
-    const html = `<!DOCTYPE html><html><head><meta charset="utf-8"><title>${course.title}</title><style>
-      body{font-family:Georgia,serif;max-width:700px;margin:40px auto;padding:0 24px;color:#111;line-height:1.6}
-      h1{font-size:2rem;margin-bottom:4px}h2{font-size:1.2rem;margin-top:2rem;border-bottom:2px solid #000;padding-bottom:4px}
-      p{margin:.6rem 0}ul{padding-left:1.4rem}li{margin:.3rem 0}.intro{font-style:italic;color:#444}
-      @media print{body{margin:0}}
-    </style></head><body>
-      <h1>${course.emoji ?? "📘"} ${course.title}</h1>
-      <p style="color:#666;font-size:.85rem;margin-bottom:1.5rem">${course.subject ?? ""} · Généré par Revix</p>
-      ${lines.join("\n")}
-    </body></html>`;
-    const w = window.open("", "_blank");
-    if (!w) return;
-    w.document.write(html);
-    w.document.close();
-    w.print();
+
+      // Pagination
+      const pageCount = pdf.getNumberOfPages();
+      for (let i = 1; i <= pageCount; i++) {
+        pdf.setPage(i);
+        pdf.setFont("helvetica", "normal");
+        pdf.setFontSize(9);
+        pdf.setTextColor(150, 150, 150);
+        pdf.text(`${i} / ${pageCount}`, pageWidth - marginX, pageHeight - 24, { align: "right" });
+      }
+
+      const safeTitle = course.title.replace(/[^\w\-]+/g, "_").slice(0, 60) || "cours";
+      pdf.save(`${safeTitle}.pdf`);
+ toast.success("PDF téléchargé ");
+    } catch (e: any) {
+      console.error("[exportPdf]", e);
+      toast.error("Erreur lors de l'export PDF");
+    }
   };
 
   const remove = async () => {
@@ -219,7 +299,7 @@ export default function CourseDetail() {
       </div>
 
       <div className="px-5 pt-2 pb-4">
-        <div className="text-4xl">{course.emoji ?? "📘"}</div>
+ <img src={illu.notebook} alt="" className="h-10 w-10 object-contain" />
         <h1 className="font-serif text-3xl mt-2">{course.title}</h1>
         <p className="text-sm text-muted-foreground mt-1">{course.subject ?? "—"}</p>
 
@@ -253,7 +333,7 @@ export default function CourseDetail() {
           </SheetTrigger>
           <SheetContent side="bottom" className="rounded-t-3xl max-h-[85vh] overflow-y-auto">
             <SheetHeader className="text-left">
-              <SheetTitle className="font-serif text-2xl">Configure ton quizz ✨</SheetTitle>
+ <SheetTitle className="font-serif text-2xl">Configure ton quizz </SheetTitle>
               <p className="text-sm text-muted-foreground mt-1">Choisis ton ambiance, on s'occupe du reste.</p>
             </SheetHeader>
 
