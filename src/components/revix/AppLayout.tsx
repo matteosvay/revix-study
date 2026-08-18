@@ -11,6 +11,7 @@ import { useIsAdmin } from "@/hooks/useIsAdmin";
 import { Link } from "react-router-dom";
 import { CoachFab } from "./CoachFab";
 import { ThemeToggle } from "./ThemeToggle";
+import { SoundToggle } from "./SoundToggle";
 
 // Navigation complète — sidebar desktop
 const navAll = [
@@ -67,7 +68,8 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
       </a>
 
       {/* Bouton jour/nuit flottant — mobile/tablette (le desktop l'a dans la barre du haut) */}
-      <div className="lg:hidden fixed top-3 right-3 z-40">
+      <div className="lg:hidden fixed top-3 right-3 z-40 flex items-center gap-2">
+        <SoundToggle />
         <ThemeToggle />
       </div>
 
@@ -128,6 +130,7 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
         </div>
 
         <header className="hidden lg:flex h-16 shrink-0 border-b-[3px] border-foreground bg-card/95 backdrop-blur items-center justify-end px-6 gap-3">
+          <SoundToggle />
           <ThemeToggle />
           <NotificationBell />
           <Link to="/app/profil" className="hover:opacity-80 transition">
