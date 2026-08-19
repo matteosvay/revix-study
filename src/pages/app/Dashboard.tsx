@@ -14,6 +14,7 @@ import { useFomoChecks } from "@/hooks/useFomoChecks";
 import { UsageMeter } from "@/components/revix/UsageMeter";
 import { DiploState } from "@/components/revix/DiploState";
 import { AnimatedNumber } from "@/components/revix/AnimatedNumber";
+import { DailyGoal } from "@/components/revix/DailyGoal";
 import { illu } from "@/assets/illu";
 
 type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
@@ -68,6 +69,9 @@ export default function Dashboard() {
       />
 
       <div className="px-5 stagger-in space-y-3">
+        {/* Objectif du jour — raison n°1 de revenir chaque jour */}
+        {!dataLoading && <DailyGoal />}
+
         {/* Focus du jour */}
         {!dataLoading && (
           <Link
