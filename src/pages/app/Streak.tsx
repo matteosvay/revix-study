@@ -342,7 +342,7 @@ export default function Streak() {
                         {p.days} jours · {p.tagline}
                       </p>
                     </div>
- {reached &&!current && <span className="font-hand text-success text-sm shrink-0"></span>}
+                      {reached && !current && <span className="font-hand text-success text-lg shrink-0">fait !</span>}
                   </li>
                 );
               })}

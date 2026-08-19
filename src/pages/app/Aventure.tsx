@@ -100,7 +100,7 @@ export default function Aventure() {
                 </div>
                 <div className="flex items-center gap-2">
                   {(() => { const day = new Date().getDay(); const left = day === 0 ? 0 : 7 - day; return left > 0 ? (
-                    <span className="text-[10px] text-muted-foreground font-mono">⏳ {left}j</span>
+                    <span className="text-[10px] text-muted-foreground font-mono">Reste {left}j</span>
                   ) : (
                     <span className="text-[10px] text-destructive font-mono font-bold">Fin aujourd'hui</span>
                   ); })()}
@@ -231,7 +231,7 @@ export default function Aventure() {
                       Niv. {tier.min}–{tier.max} · {xpToReach} XP
                     </p>
                   </div>
- {reached &&!current && <span className="font-hand text-success text-sm shrink-0"></span>}
+                  {reached && !current && <span className="font-hand text-success text-lg shrink-0">fait !</span>}
                 </li>
               );
             })}
