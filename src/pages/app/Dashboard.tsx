@@ -15,6 +15,7 @@ import { UsageMeter } from "@/components/revix/UsageMeter";
 import { DiploState } from "@/components/revix/DiploState";
 import { AnimatedNumber } from "@/components/revix/AnimatedNumber";
 import { DailyGoal } from "@/components/revix/DailyGoal";
+import { OnboardingFlow, hasOnboarded } from "@/components/revix/OnboardingFlow";
 import { illu } from "@/assets/illu";
 
 type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
@@ -24,6 +25,7 @@ export default function Dashboard() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [stats, setStats] = useState({ courses: 0, due: 0 });
   const [dataLoading, setDataLoading] = useState(true);
+  const [showOnboarding, setShowOnboarding] = useState(false);
   const { profile: gam, levelTier, xp } = useGamification();
   useFomoChecks();
 
@@ -43,6 +45,8 @@ export default function Dashboard() {
         const dueRows = (dueRes?.data as any[]) ?? [];
         const dueCount = dueRows.filter((q) => q.type === "qcm" || q.type === "vrai_faux").length;
         setStats({ courses: cc ?? 0, due: dueCount });
+        // Accueil première visite : nouvel utilisateur sans cours
+        if (!hasOnboarded() && (cc ?? 0) === 0) setShowOnboarding(true);
       } catch {
         if (!active) return;
         setProfile(null);
@@ -72,6 +76,9 @@ export default function Dashboard() {
 
   return (
     <AppLayout>
+      {showOnboarding && user && (
+        <OnboardingFlow userId={user.id} onClose={() => setShowOnboarding(false)} />
+      )}
       <PageHeader
         illustration={illu.desk}
         title={`Salut ${name}`}
