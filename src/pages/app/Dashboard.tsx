@@ -22,7 +22,7 @@ type Profile = { display_name: string | null; streak_days: number; streak_record
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [stats, setStats] = useState({ courses: 0 });
+  const [stats, setStats] = useState({ courses: 0, due: 0 });
   const [dataLoading, setDataLoading] = useState(true);
   const { profile: gam, levelTier, xp } = useGamification();
   useFomoChecks();
@@ -32,17 +32,21 @@ export default function Dashboard() {
     let active = true;
     (async () => {
       try {
-        const [{ data: p }, { count: cc }] = await Promise.all([
+        const [{ data: p }, { count: cc }, dueRes] = await Promise.all([
           supabase.from("profiles").select("display_name, streak_days, streak_record, streak_tokens").eq("id", user.id).maybeSingle(),
           supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
+          supabase.rpc("get_due_review_questions", { p_limit: 50 }),
         ]);
         if (!active) return;
         setProfile((p as any) ?? null);
-        setStats({ courses: cc ?? 0 });
+        // Révisions dues réellement jouables (mêmes types que la page Révision)
+        const dueRows = (dueRes?.data as any[]) ?? [];
+        const dueCount = dueRows.filter((q) => q.type === "qcm" || q.type === "vrai_faux").length;
+        setStats({ courses: cc ?? 0, due: dueCount });
       } catch {
         if (!active) return;
         setProfile(null);
-        setStats({ courses: 0 });
+        setStats({ courses: 0, due: 0 });
       } finally {
         if (active) setDataLoading(false);
       }
@@ -51,6 +55,13 @@ export default function Dashboard() {
   }, [authLoading, user]);
 
   const name = profile?.display_name?.split(" ")[0] ?? "toi";
+
+  // Focus du jour adaptatif : les révisions dues passent avant tout (habitude quotidienne réelle)
+  const focus = stats.due > 0
+    ? { to: "/app/revision", Icon: Target, title: `${stats.due} révision${stats.due > 1 ? "s" : ""} à faire`, desc: "Consolide ta mémoire avant d'oublier" }
+    : stats.courses > 0
+    ? { to: "/app/quizz", Icon: Brain, title: "Lance un quizz", desc: "Teste-toi sur tes cours" }
+    : { to: "/app/upload", Icon: Plus, title: "Ajoute ton premier cours", desc: "Upload un PDF ou une photo" };
 
   const quickTiles = [
     { to: "/app/upload", icon: Plus, label: "Nouveau cours", desc: "PDF ou photo", accent: true },
@@ -75,7 +86,7 @@ export default function Dashboard() {
         {/* Focus du jour */}
         {!dataLoading && (
           <Link
-            to={stats.courses > 0 ? "/app/quizz" : "/app/upload"}
+            to={focus.to}
             className="block rounded-2xl border-[2.5px] border-foreground bg-card shadow-brutal tap-press overflow-hidden"
           >
             <div className="gradient-primary px-4 py-2.5 flex items-center justify-between">
@@ -84,15 +95,11 @@ export default function Dashboard() {
             </div>
             <div className="px-4 py-3 flex items-center gap-3">
               <div className="h-11 w-11 rounded-xl gradient-primary flex items-center justify-center shrink-0 border-2 border-foreground shadow-[2px_2px_0_0_hsl(var(--foreground))]">
-                {stats.courses > 0 ? <Brain className="h-5 w-5 text-primary-foreground" /> : <Plus className="h-5 w-5 text-primary-foreground" />}
+                <focus.Icon className="h-5 w-5 text-primary-foreground" />
               </div>
               <div>
-                <p className="font-bold text-base leading-tight">
-                  {stats.courses > 0 ? "Lance un quizz" : "Ajoute ton premier cours"}
-                </p>
-                <p className="text-[11px] text-muted-foreground mt-0.5">
-                  {stats.courses > 0 ? "Teste-toi sur tes cours" : "Upload un PDF ou une photo"}
-                </p>
+                <p className="font-bold text-base leading-tight">{focus.title}</p>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{focus.desc}</p>
               </div>
             </div>
           </Link>
