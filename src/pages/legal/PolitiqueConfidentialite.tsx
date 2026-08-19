@@ -201,9 +201,10 @@ export default function PolitiqueConfidentialite() {
 
       <LegalSection number="8" title="Cookies">
         <p>
-          Revix utilise des cookies strictement nécessaires au fonctionnement du service. Consultez
-          notre <a href="/cookies" className="text-primary font-medium underline">politique de cookies</a> pour
-          plus de détails.
+          Revix utilise uniquement des cookies (et technologies de stockage local) strictement nécessaires
+          au fonctionnement du service : maintien de ta session de connexion et mémorisation de tes préférences
+          (thème clair/sombre, son). Aucun cookie publicitaire ni traceur tiers à des fins marketing n'est déposé.
+          Ces cookies essentiels ne nécessitent pas de consentement préalable au sens de la réglementation applicable.
         </p>
       </LegalSection>
 

@@ -15,7 +15,6 @@ if ("serviceWorker" in navigator && import.meta.env.PROD) {
     navigator.serviceWorker
       .register("/sw.js")
       .then((reg) => {
-        console.log("[SW] Registered:", reg.scope);
         // Check for updates every 30 minutes
         setInterval(() => reg.update(), 30 * 60 * 1000);
       })
