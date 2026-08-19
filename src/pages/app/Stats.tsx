@@ -97,6 +97,15 @@ export default function Stats() {
   const chartAttempts = [...attempts].reverse().slice(-20);
   const maxPct = 100;
 
+  // Récap "cette semaine" + points fort/faible — dérivés des données déjà chargées
+  const weekAttempts = attempts.filter((a) => new Date(a.created_at).getTime() >= Date.now() - 7 * 864e5);
+  const weekXp = weeklyXp[7] ?? 0;
+  const weekAvg = weekAttempts.length
+    ? Math.round(weekAttempts.reduce((s, a) => s + (a.score / a.total) * 100, 0) / weekAttempts.length)
+    : 0;
+  const strongest = subjects.length ? subjects.reduce((a, b) => (a.avg >= b.avg ? a : b)) : null;
+  const weakest = subjects.length > 1 ? subjects.reduce((a, b) => (a.avg <= b.avg ? a : b)) : null;
+
   if (loading) return <AppLayout><DiploState variant="loading" title="On calcule tes stats" /></AppLayout>;
 
   return (
@@ -118,6 +127,20 @@ export default function Stats() {
             </div>
           ))}
         </div>
+
+        {/* Récap de la semaine */}
+        {weekAttempts.length > 0 && (
+          <div className="rounded-xl border-[2.5px] border-foreground bg-primary text-primary-foreground p-4 shadow-brutal-sm">
+            <p className="text-[10px] font-mono uppercase tracking-widest opacity-80">Cette semaine</p>
+            <div className="flex items-center justify-between mt-2">
+              <div className="text-center flex-1"><p className="font-display font-bold text-2xl leading-none">{weekXp}</p><p className="text-[10px] opacity-80 mt-1">XP</p></div>
+              <div className="w-px h-8 bg-primary-foreground/25" />
+              <div className="text-center flex-1"><p className="font-display font-bold text-2xl leading-none">{weekAttempts.length}</p><p className="text-[10px] opacity-80 mt-1">quizz</p></div>
+              <div className="w-px h-8 bg-primary-foreground/25" />
+              <div className="text-center flex-1"><p className="font-display font-bold text-2xl leading-none">{weekAvg}%</p><p className="text-[10px] opacity-80 mt-1">moyenne</p></div>
+            </div>
+          </div>
+        )}
 
         {/* Score evolution chart */}
         {chartAttempts.length > 0 && (
@@ -196,6 +219,24 @@ export default function Stats() {
                 </div>
               ))}
             </div>
+          </div>
+        )}
+
+        {/* Point fort / à retravailler */}
+        {strongest && (
+          <div className="grid grid-cols-2 gap-2">
+            <div className="rounded-xl border-2 border-foreground bg-card p-3 shadow-brutal-sm">
+              <p className="text-[10px] font-mono uppercase tracking-wider text-success">Point fort</p>
+              <p className="font-bold text-sm mt-1 truncate">{strongest.subject}</p>
+              <p className="text-xs text-muted-foreground">{strongest.avg}% de moyenne</p>
+            </div>
+            {weakest && weakest.subject !== strongest.subject && (
+              <div className="rounded-xl border-2 border-foreground bg-card p-3 shadow-brutal-sm">
+                <p className="text-[10px] font-mono uppercase tracking-wider text-destructive">À retravailler</p>
+                <p className="font-bold text-sm mt-1 truncate">{weakest.subject}</p>
+                <p className="text-xs text-muted-foreground">{weakest.avg}% de moyenne</p>
+              </div>
+            )}
           </div>
         )}
 
