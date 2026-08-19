@@ -176,19 +176,20 @@ export default function Profil() {
       tier: "pro" as const,
       name: "Pro",
       price: "4,99 €",
-      tagline: "Pour étudier sérieusement chaque jour",
-      perks: ["10 quizz IA / jour", "20 messages coach / jour", "5 fiches IA / semaine", "Planning IA hebdo"],
-      gradient: "from-primary to-primary-glow",
+      tagline: "L'essentiel pour cartonner",
+      perks: ["≈ 5 quizz IA par jour", "Coach IA (200 msg/mois)", "Fiches de cours IA", "Révisions ciblées & planning"],
+      badge: "Le plus choisi",
+      theme: "pro" as const,
     },
     {
       id: "max_monthly",
       tier: "max" as const,
       name: "Max",
       price: "8,99 €",
-      tagline: "Quotas maximaux, zéro limite",
-      perks: ["30 quizz IA / jour", "50 messages coach / jour", "3 fiches IA / jour", "Planning IA illimité"],
-      gradient: "from-amber-500 to-orange-600",
-      highlight: true,
+      tagline: "La puissance maximale",
+      perks: ["≈ 10 quizz IA par jour", "Coach IA (500 msg/mois)", "3× plus de fiches IA", "Tout Pro + priorité"],
+      badge: "Puissance max",
+      theme: "max" as const,
     },
   ];
 
@@ -339,39 +340,43 @@ export default function Profil() {
                 </Button>
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-3">
-                {PLANS.map((p) => (
-                  <div
-                    key={p.id}
-                    className={`rounded-md border-[2.5px] border-foreground bg-gradient-to-br ${p.gradient} p-4 shadow-brutal-sm text-primary-foreground relative overflow-hidden`}
-                  >
-                    {p.highlight && (
-                      <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider bg-foreground text-background px-2 py-0.5 rounded">
-                        Best
-                      </span>
-                    )}
-                    <div className="flex items-baseline gap-2">
-                      <p className="font-serif text-2xl">{p.name}</p>
-                      <p className="font-bold text-xl">{p.price}<span className="text-xs opacity-80">/mois TTC</span></p>
-                    </div>
-                    <p className="text-xs opacity-90 mt-0.5">{p.tagline}</p>
-                    <ul className="mt-3 space-y-1">
-                      {p.perks.map((perk) => (
-                        <li key={perk} className="flex items-center gap-1.5 text-xs">
-                          <Check className="h-3 w-3 shrink-0" /> {perk}
-                        </li>
-                      ))}
-                    </ul>
-                    <Button
-                      variant="secondary"
-                      size="sm"
-                      className="rounded-full mt-3 w-full"
-                      onClick={() => setCheckoutPriceId(p.id)}
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground">Débloque tout le potentiel de Revix et soutiens le projet.</p>
+                {PLANS.map((p) => {
+                  const isMax = p.theme === "max";
+                  return (
+                    <div
+                      key={p.id}
+                      className={`relative rounded-2xl border-[2.5px] border-foreground p-4 shadow-brutal overflow-hidden ${isMax ? "bg-foreground text-background" : "bg-card"}`}
                     >
-                      <Sparkles className="h-3.5 w-3.5 mr-1" /> Choisir {p.name}
-                    </Button>
-                  </div>
-                ))}
+                      <span className={`absolute top-3 right-3 text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border-2 ${isMax ? "bg-accent text-[#1e2c47] border-background" : "bg-primary text-primary-foreground border-foreground"}`}>
+                        {p.badge}
+                      </span>
+                      <div className="flex items-baseline gap-2">
+                        <p className="font-display font-bold text-2xl">{p.name}</p>
+                        <p className="font-display font-bold text-xl">{p.price}<span className="text-xs opacity-70 font-normal">/mois</span></p>
+                      </div>
+                      <p className={`text-xs mt-0.5 ${isMax ? "text-background/70" : "text-muted-foreground"}`}>{p.tagline}</p>
+                      <ul className="mt-3 space-y-1.5">
+                        {p.perks.map((perk) => (
+                          <li key={perk} className="flex items-center gap-2 text-[13px]">
+                            <span className={`h-4 w-4 rounded-full flex items-center justify-center shrink-0 ${isMax ? "bg-accent text-[#1e2c47]" : "bg-primary text-primary-foreground"}`}>
+                              <Check className="h-3 w-3" strokeWidth={3} />
+                            </span>
+                            {perk}
+                          </li>
+                        ))}
+                      </ul>
+                      <Button
+                        onClick={() => setCheckoutPriceId(p.id)}
+                        className={`w-full rounded-full mt-3.5 border-2 border-foreground font-bold ${isMax ? "bg-accent text-[#1e2c47] hover:bg-accent" : "gradient-primary text-primary-foreground"}`}
+                      >
+                        Choisir {p.name}
+                      </Button>
+                    </div>
+                  );
+                })}
+                <p className="text-[11px] text-center text-muted-foreground">Sans engagement · résiliable à tout moment · paiement sécurisé</p>
               </div>
             )}
         </div>
