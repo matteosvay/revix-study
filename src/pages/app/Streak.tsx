@@ -41,11 +41,15 @@ export default function Streak() {
     setProfile(p as any);
 
     const since = new Date(); since.setDate(since.getDate() - 60);
-    const { data: attempts } = await supabase
-      .from("quiz_attempts").select("created_at")
-       .eq("user_id", user.id).gte("created_at", since.toISOString());
+    // Un jour est "actif" dès qu'il y a eu une activité (quizz OU toute action donnant de l'XP :
+    // révision, fiche, coach…) — reflète fidèlement la série.
+    const [{ data: attempts }, { data: events }] = await Promise.all([
+      supabase.from("quiz_attempts").select("created_at").eq("user_id", user.id).gte("created_at", since.toISOString()),
+      supabase.from("xp_events").select("created_at").eq("user_id", user.id).gte("created_at", since.toISOString()),
+    ]);
     const set = new Set<string>();
     attempts?.forEach((a: any) => set.add(localDateKey(new Date(a.created_at))));
+    events?.forEach((e: any) => set.add(localDateKey(new Date(e.created_at))));
     if (p?.last_active_date) set.add(p.last_active_date);
     setActiveDates(set);
   };

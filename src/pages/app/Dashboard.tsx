@@ -16,9 +16,10 @@ import { DiploState } from "@/components/revix/DiploState";
 import { AnimatedNumber } from "@/components/revix/AnimatedNumber";
 import { DailyGoal } from "@/components/revix/DailyGoal";
 import { OnboardingFlow, hasOnboarded } from "@/components/revix/OnboardingFlow";
+import { localDateKey } from "@/lib/date";
 import { illu } from "@/assets/illu";
 
-type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
+type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number; last_active_date: string | null };
 
 export default function Dashboard() {
   const { user, loading: authLoading } = useAuth();
@@ -35,7 +36,7 @@ export default function Dashboard() {
     (async () => {
       try {
         const [{ data: p }, { count: cc }, dueRes] = await Promise.all([
-          supabase.from("profiles").select("display_name, streak_days, streak_record, streak_tokens").eq("id", user.id).maybeSingle(),
+          supabase.from("profiles").select("display_name, streak_days, streak_record, streak_tokens, last_active_date").eq("id", user.id).maybeSingle(),
           supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
           supabase.rpc("get_due_review_questions", { p_limit: 50 }),
         ]);
@@ -59,6 +60,9 @@ export default function Dashboard() {
   }, [authLoading, user]);
 
   const name = profile?.display_name?.split(" ")[0] ?? "toi";
+
+  // Série en danger : streak ≥ 2 et aucune activité aujourd'hui → on pousse à revenir
+  const streakAtRisk = !!profile && (profile.streak_days ?? 0) >= 2 && profile.last_active_date !== localDateKey(new Date());
 
   // Focus du jour adaptatif : les révisions dues passent avant tout (habitude quotidienne réelle)
   const focus = stats.due > 0
@@ -87,6 +91,20 @@ export default function Dashboard() {
       />
 
       <div className="px-5 stagger-in space-y-3">
+        {/* Série en danger — urgence qui fait revenir */}
+        {!dataLoading && streakAtRisk && profile && (
+          <Link to={focus.to} className="block rounded-2xl border-[2.5px] border-foreground bg-accent text-accent-foreground p-3.5 shadow-brutal tap-press">
+            <div className="flex items-center gap-3">
+              <Flame className="h-7 w-7 shrink-0 wiggle" />
+              <div className="flex-1 min-w-0">
+                <p className="font-bold text-sm leading-tight">Ta série de {profile.streak_days} jours est en jeu !</p>
+                <p className="text-[11px] opacity-80">Fais une activité aujourd'hui pour la garder.</p>
+              </div>
+              <ArrowRight className="h-4 w-4 shrink-0" />
+            </div>
+          </Link>
+        )}
+
         {/* Objectif du jour — raison n°1 de revenir chaque jour */}
         {!dataLoading && <DailyGoal />}
 
