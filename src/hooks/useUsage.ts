@@ -17,24 +17,24 @@ interface Limits {
 const TIER_LIMITS: Record<UsageTier, Record<UsageAction, Limits>> = {
   free: {
     fiche:      { daily: 1,  weekly: 1 },
-    quiz_ia:    { daily: 5,  weekly: 15 },
-    coach:      { daily: 5,  weekly: 15 },
-    correction: { daily: 5,  weekly: 15 },
+    quiz_ia:    { daily: 3,  weekly: 7 },
+    coach:      { daily: 3,  weekly: 5 },
+    correction: { daily: 2,  weekly: 4 },
     planning:   { daily: 1,  weekly: 1 },
   },
   pro: {
-    fiche:      { daily: 1,  weekly: 5 },
-    quiz_ia:    { daily: 10, weekly: 60 },
-    coach:      { daily: 20, weekly: 100 },
-    correction: { daily: 25, weekly: 120 },
-    planning:   { daily: 1,  weekly: 5 },
+    fiche:      { daily: 2,  weekly: 3 },
+    quiz_ia:    { daily: 12, weekly: 35 },
+    coach:      { daily: 16, weekly: 46 },
+    correction: { daily: 10, weekly: 23 },
+    planning:   { daily: 1,  weekly: 2 },
   },
   max: {
-    fiche:      { daily: 3,  weekly: 15 },
-    quiz_ia:    { daily: 30, weekly: 150 },
-    coach:      { daily: 50, weekly: 300 },
-    correction: { daily: 60, weekly: 350 },
-    planning:   { daily: 3,  weekly: 999 },
+    fiche:      { daily: 4,  weekly: 7 },
+    quiz_ia:    { daily: 25, weekly: 70 },
+    coach:      { daily: 40, weekly: 115 },
+    correction: { daily: 25, weekly: 58 },
+    planning:   { daily: 3,  weekly: 8 },
   },
 };
 
