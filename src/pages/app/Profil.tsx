@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { LogOut, Trash2, Sparkles, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3, Crown, CreditCard, Check, Pencil } from "lucide-react";
 import { DiploFace } from "@/components/revix/DiploFace";
 import { DiploState } from "@/components/revix/DiploState";
+import { AnimatedNumber } from "@/components/revix/AnimatedNumber";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -267,13 +268,15 @@ export default function Profil() {
         {/* Tampons de stats */}
         <div className="grid grid-cols-4 gap-2">
           {[
-            { v: stats.courses, l: "Cours", hot: false },
-            { v: stats.quizzes, l: "Quizz", hot: false },
-            { v: `${stats.avg}%`, l: "Moy.", hot: false },
-            { v: `${profile.streak_days ?? 0}j`, l: "Série", hot: true },
+            { n: stats.courses, suffix: "", l: "Cours", hot: false },
+            { n: stats.quizzes, suffix: "", l: "Quizz", hot: false },
+            { n: stats.avg, suffix: "%", l: "Moy.", hot: false },
+            { n: profile.streak_days ?? 0, suffix: "j", l: "Série", hot: true },
           ].map(s => (
-            <div key={s.l} className="rounded-xl border-[2.5px] border-foreground bg-card px-1 py-2.5 text-center shadow-brutal-sm">
-              <p className={`font-display font-bold text-xl leading-none ${s.hot ? "text-accent [-webkit-text-stroke:0.5px_hsl(var(--foreground))]" : "text-foreground"}`}>{s.v}</p>
+            <div key={s.l} className="rounded-xl border-[2.5px] border-foreground bg-card px-1 py-2.5 text-center shadow-brutal-sm hover-lift">
+              <p className={`font-display font-bold text-xl leading-none ${s.hot ? "text-accent [-webkit-text-stroke:0.5px_hsl(var(--foreground))]" : "text-foreground"}`}>
+                <AnimatedNumber value={s.n} suffix={s.suffix} />
+              </p>
               <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wide font-semibold">{s.l}</p>
             </div>
           ))}

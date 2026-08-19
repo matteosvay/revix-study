@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { DiploState } from "@/components/revix/DiploState";
+import { AnimatedNumber } from "@/components/revix/AnimatedNumber";
 import { illu } from "@/assets/illu";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -94,13 +95,13 @@ export default function Stats() {
         {/* KPIs */}
         <div className="grid grid-cols-2 gap-2">
           {[
-            { icon: BookOpen, label: "Cours", value: totalCourses },
-            { icon: Brain, label: "Quizz", value: totalQuizzes },
-            { icon: TrendingUp, label: "Moyenne", value: `${globalAvg}%` },
-          ].map(({ icon: Icon, label, value }) => (
-            <div key={label} className="rounded-xl border-2 border-foreground bg-card shadow-brutal-sm p-3 text-center">
+            { icon: BookOpen, label: "Cours", n: totalCourses, suffix: "" },
+            { icon: Brain, label: "Quizz", n: totalQuizzes, suffix: "" },
+            { icon: TrendingUp, label: "Moyenne", n: globalAvg, suffix: "%" },
+          ].map(({ icon: Icon, label, n, suffix }) => (
+            <div key={label} className="rounded-xl border-2 border-foreground bg-card shadow-brutal-sm p-3 text-center hover-lift">
               <Icon className="h-4 w-4 mx-auto text-primary mb-1" />
-              <p className="font-serif text-2xl leading-none">{value}</p>
+              <p className="font-serif text-2xl leading-none"><AnimatedNumber value={n} suffix={suffix} /></p>
               <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider font-mono">{label}</p>
             </div>
           ))}

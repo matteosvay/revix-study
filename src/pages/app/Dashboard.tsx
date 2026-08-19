@@ -13,6 +13,7 @@ import { FlashQuizCard } from "@/components/revix/FlashQuizCard";
 import { useFomoChecks } from "@/hooks/useFomoChecks";
 import { UsageMeter } from "@/components/revix/UsageMeter";
 import { DiploState } from "@/components/revix/DiploState";
+import { AnimatedNumber } from "@/components/revix/AnimatedNumber";
 import { illu } from "@/assets/illu";
 
 type Profile = { display_name: string | null; streak_days: number; streak_record: number; streak_tokens: number };
@@ -131,7 +132,7 @@ export default function Dashboard() {
             <Link to="/app/streak" className="rounded-xl border-[2.5px] border-foreground gradient-hero p-3 shadow-brutal-sm tap-press flex items-center gap-2.5 text-primary-foreground">
               <Flame className="h-7 w-7 wiggle shrink-0" />
               <div>
-                <p className="font-serif text-3xl leading-none">{profile?.streak_days ?? 0}</p>
+                <p className="font-serif text-3xl leading-none"><AnimatedNumber value={profile?.streak_days ?? 0} /></p>
                 <p className="text-xs opacity-80 mt-0.5">jours</p>
                 <p className="text-[10px] opacity-60">record {profile?.streak_record ?? 0}j</p>
               </div>
