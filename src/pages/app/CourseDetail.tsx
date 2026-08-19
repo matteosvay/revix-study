@@ -12,6 +12,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { CourseSummary, type CourseSummaryData } from "@/components/revix/CourseSummary";
+import { DiploState } from "@/components/revix/DiploState";
 import { illu } from "@/assets/illu";
 
 type Course = { id: string; title: string; subject: string | null; emoji: string | null; source_content: string | null; summary: CourseSummaryData | null };
@@ -263,7 +264,7 @@ export default function CourseDetail() {
     nav("/app/fiches");
   };
 
-  if (!course) return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement...</div></AppLayout>;
+  if (!course) return <AppLayout><DiploState variant="loading" title="On ouvre ta fiche" /></AppLayout>;
 
   return (
     <AppLayout>
@@ -299,9 +300,17 @@ export default function CourseDetail() {
       </div>
 
       <div className="px-5 pt-2 pb-4">
- <img src={illu.notebook} alt="" className="h-10 w-10 object-contain" />
-        <h1 className="font-serif text-3xl mt-2">{course.title}</h1>
-        <p className="text-sm text-muted-foreground mt-1">{course.subject ?? "—"}</p>
+        <div className="flex items-start gap-3">
+          <div className="h-12 w-12 rounded-xl border-2 border-foreground bg-card flex items-center justify-center shrink-0 shadow-brutal-sm">
+            <img src={illu.notebook} alt="" className="h-7 w-7 object-contain" />
+          </div>
+          <div className="min-w-0 flex-1">
+            <h1 className="font-display font-bold text-2xl leading-tight">{course.title}</h1>
+            {course.subject && (
+              <span className="inline-block mt-1.5 text-xs font-semibold px-2 py-0.5 rounded-full border-2 border-foreground bg-accent/30">{course.subject}</span>
+            )}
+          </div>
+        </div>
 
         {courseStats !== null && (
           <div className="grid grid-cols-2 gap-2 mt-4">
