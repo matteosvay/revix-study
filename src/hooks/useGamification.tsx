@@ -58,7 +58,11 @@ export async function bumpQuest(userId: string, questKey: string, inc = 1) {
   });
   const res = data as any;
   if (res?.completed && res?.xp) {
- toast.success(`Quête complétée! +${res.xp.xp_total? "": ""}`, { description: "Nouvelle XP gagnée " });
+    toast.success("Quête complétée !", { description: "Récompense ajoutée à ton XP." });
+    // Une quête peut faire monter de niveau : on déclenche la célébration Diplo.
+    if (res.xp.leveled_up) {
+      window.dispatchEvent(new CustomEvent("revix:levelup", { detail: { level: res.xp.level } }));
+    }
   }
   return res;
 }
