@@ -8,6 +8,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 import { playCorrect, playWrong, playFinish } from "@/lib/sfx";
+import { DiploFace } from "@/components/revix/DiploFace";
+import { shareScoreCard } from "@/lib/shareCard";
+import { Share2 } from "lucide-react";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { illu } from "@/assets/illu";
 import { XP_REWARDS } from "@/lib/gamification";
@@ -1196,6 +1199,9 @@ export default function Quizz() {
           {pct >= 80 && <ConfettiBurst count={pct === 100 ? 36 : 22} />}
           <span className="rubber-stamp stamp-pop absolute top-3 right-4 z-10">{pct >= 80 ? "Très bien" : pct >= 50 ? "Bien" : "À revoir"}</span>
 
+          <div className="flex justify-center mb-1">
+            <DiploFace size={92} expr={pct >= 50 ? "happy" : "sad"} animClass={pct >= 80 ? "diplo-party" : "diplo-bob"} />
+          </div>
           <p className="font-mono-tag text-[10px] uppercase tracking-widest text-muted-foreground">Résultats</p>
           <h1 className="font-hand text-5xl text-primary mt-1 leading-none score-pop">
             <AnimatedNumber value={score} /> / {questions.length}
@@ -1307,11 +1313,24 @@ export default function Quizz() {
           )}
         </div>
 
-        <div className="mt-5 flex gap-3 justify-center">
+        <div className="mt-5 flex gap-3 justify-center flex-wrap">
           <button onClick={() => activeQuiz && startQuiz(activeQuiz, { shuffle: true })} className="pen-btn pen-btn-blue">
             <RefreshCw className="h-4 w-4 inline mr-1" /> Refaire
           </button>
           <button onClick={() => setPhase("select")} className="pen-btn pen-btn-green">Autre quizz</button>
+        </div>
+        <div className="mt-3 flex justify-center">
+          <button
+            onClick={async () => {
+              try {
+                const res = await shareScoreCard({ score, total: questions.length, pct });
+                if (res === "downloaded") toast.success("Carte enregistrée — partage-la où tu veux !");
+              } catch { toast.error("Partage impossible sur cet appareil."); }
+            }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-[2.5px] border-foreground bg-accent text-accent-foreground font-bold text-sm shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+          >
+            <Share2 className="h-4 w-4" /> Partager mon score
+          </button>
         </div>
       </div>
     </AppLayout>
