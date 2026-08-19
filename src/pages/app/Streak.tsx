@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Flame, Trophy, Sparkles, Zap, Calendar as CalendarIcon, Lock, RotateCcw, ChevronRight } from "lucide-react";
+import { Flame, Trophy, Sparkles, Zap, Calendar as CalendarIcon, Lock, RotateCcw, ChevronRight, Share2 } from "lucide-react";
+import { shareStreakCard } from "@/lib/shareCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -159,6 +160,18 @@ export default function Streak() {
               </div>
             )}
           </div>
+        </button>
+
+        <button
+          onClick={async () => {
+            try {
+              const r = await shareStreakCard({ days: profile.streak_days, record: profile.streak_record });
+              if (r === "downloaded") toast.success("Carte enregistrée — partage ta série !");
+            } catch { toast.error("Partage impossible sur cet appareil."); }
+          }}
+          className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border-[2.5px] border-foreground bg-accent text-accent-foreground font-bold text-sm shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
+        >
+          <Share2 className="h-4 w-4" /> Partager ma série
         </button>
 
         {/* Stats */}

@@ -133,6 +133,93 @@ export async function makeScoreCard({ score, total, pct }: ScoreData): Promise<B
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b as Blob), "image/png", 0.95));
 }
 
+function flame(ctx: CanvasRenderingContext2D, cx: number, cy: number, s: number) {
+  ctx.save();
+  ctx.translate(cx, cy);
+  ctx.scale(s, s);
+  ctx.beginPath();
+  ctx.moveTo(0, 42);
+  ctx.bezierCurveTo(-36, 20, -22, -18, 0, -46);
+  ctx.bezierCurveTo(8, -24, 28, -20, 22, 8);
+  ctx.bezierCurveTo(20, 28, 8, 36, 0, 42);
+  ctx.closePath();
+  ctx.fillStyle = "#f6a723"; ctx.fill();
+  ctx.lineWidth = 4; ctx.strokeStyle = INK; ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(0, 34);
+  ctx.bezierCurveTo(-16, 20, -10, -2, 3, -18);
+  ctx.bezierCurveTo(5, 2, 16, 8, 10, 22);
+  ctx.bezierCurveTo(8, 30, 4, 32, 0, 34);
+  ctx.closePath();
+  ctx.fillStyle = "#ffd23a"; ctx.fill();
+  ctx.restore();
+}
+
+export async function makeStreakCard({ days, record }: { days: number; record: number }): Promise<Blob> {
+  const W = 1080, H = 1350;
+  const canvas = document.createElement("canvas");
+  canvas.width = W; canvas.height = H;
+  const ctx = canvas.getContext("2d")!;
+  ctx.fillStyle = PAPER; ctx.fillRect(0, 0, W, H);
+
+  const cardX = 70, cardY = 150, cardW = W - 140, cardH = H - 300;
+  ctx.fillStyle = INK; roundRect(ctx, cardX + 12, cardY + 14, cardW, cardH, 42); ctx.fill();
+  ctx.fillStyle = CREAM; roundRect(ctx, cardX, cardY, cardW, cardH, 42); ctx.fill();
+  ctx.lineWidth = 6; ctx.strokeStyle = INK; ctx.stroke();
+
+  ctx.save(); roundRect(ctx, cardX, cardY, cardW, 132, 42); ctx.clip();
+  ctx.fillStyle = BLUE; ctx.fillRect(cardX, cardY, cardW, 132); ctx.restore();
+  ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+  ctx.font = "700 46px 'Space Grotesk', system-ui, sans-serif"; ctx.fillText("REVIX", W / 2, cardY + 66);
+  ctx.font = "600 22px 'JetBrains Mono', monospace"; ctx.fillText("MA SÉRIE", W / 2, cardY + 104);
+
+  flame(ctx, W / 2, cardY + 290, 2.6);
+
+  ctx.fillStyle = INK;
+  ctx.font = "700 210px 'Space Grotesk', system-ui, sans-serif";
+  ctx.fillText(`${days}`, W / 2, cardY + 560);
+  ctx.font = "700 40px 'Space Grotesk', system-ui, sans-serif";
+  ctx.fillText(days <= 1 ? "JOUR DE SÉRIE" : "JOURS DE SÉRIE", W / 2, cardY + 690);
+
+  ctx.fillStyle = "#5a6478";
+  ctx.font = "600 30px 'Inter', system-ui, sans-serif";
+  ctx.fillText(`Record personnel : ${record} jour${record > 1 ? "s" : ""}`, W / 2, cardY + 760);
+
+  try {
+    const img = await loadImg(diploSvg(true));
+    const dw = 150, dh = (dw * 156) / 140;
+    ctx.drawImage(img, W / 2 - dw / 2, cardY + cardH - 300, dw, dh);
+  } catch { /* ignore */ }
+
+  ctx.fillStyle = INK;
+  ctx.font = "600 32px 'Inter', system-ui, sans-serif";
+  ctx.fillText("Tiendras-tu la série ?", W / 2, cardY + cardH - 100);
+  ctx.fillStyle = "#5a6478";
+  ctx.font = "500 26px 'Inter', system-ui, sans-serif";
+  ctx.fillText("Révise chaque jour sur Revix", W / 2, cardY + cardH - 58);
+
+  return new Promise((resolve) => canvas.toBlob((b) => resolve(b as Blob), "image/png", 0.95));
+}
+
+async function shareBlob(blob: Blob, filename: string, text: string): Promise<"shared" | "downloaded"> {
+  const file = new File([blob], filename, { type: "image/png" });
+  const nav = navigator as Navigator & { canShare?: (d: any) => boolean; share?: (d: any) => Promise<void> };
+  if (nav.canShare && nav.share && nav.canShare({ files: [file] })) {
+    try { await nav.share({ files: [file], title: "Revix", text }); return "shared"; } catch { /* annulé */ }
+  }
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url; a.download = filename;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  return "downloaded";
+}
+
+export async function shareStreakCard(data: { days: number; record: number }): Promise<"shared" | "downloaded"> {
+  const blob = await makeStreakCard(data);
+  return shareBlob(blob, "revix-serie.png", `${data.days} jours de série sur Revix ! 🔥`);
+}
+
 /** Partage (mobile) ou télécharge (desktop) la carte de score. */
 export async function shareScoreCard(data: ScoreData): Promise<"shared" | "downloaded"> {
   const blob = await makeScoreCard(data);

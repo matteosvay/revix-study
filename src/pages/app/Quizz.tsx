@@ -10,7 +10,7 @@ import { toast } from "sonner";
 import { playCorrect, playWrong, playFinish } from "@/lib/sfx";
 import { DiploFace } from "@/components/revix/DiploFace";
 import { shareScoreCard } from "@/lib/shareCard";
-import { Share2 } from "lucide-react";
+import { Share2, Flame } from "lucide-react";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
 import { illu } from "@/assets/illu";
 import { XP_REWARDS } from "@/lib/gamification";
@@ -867,8 +867,18 @@ export default function Quizz() {
             <span className="flex items-center gap-2">
               <span>Score · {score}</span>
               {combo >= 2 && (
-                <span key={combo} className="combo-pop inline-flex items-center gap-0.5 px-1.5 py-0.5 rounded-full bg-primary text-primary-foreground font-bold text-[10px]">
-                  <Zap className="h-2.5 w-2.5" /> x{comboMultiplier} · {combo}
+                <span
+                  key={combo}
+                  className={`combo-pop inline-flex items-center gap-1 rounded-full font-bold border-2 border-foreground ${
+                    combo >= 10
+                      ? "bg-accent text-[#1e2c47] text-[11px] px-2.5 py-0.5 shadow-brutal-sm"
+                      : combo >= 5
+                        ? "bg-accent text-[#1e2c47] text-[10px] px-2 py-0.5"
+                        : "bg-primary text-primary-foreground text-[10px] px-2 py-0.5"
+                  }`}
+                >
+                  {combo >= 5 ? <Flame className="h-3 w-3" /> : <Zap className="h-2.5 w-2.5" />}
+                  {combo >= 10 ? "INARRÊTABLE" : combo >= 5 ? "EN FEU" : `x${comboMultiplier}`} · {combo}
                 </span>
               )}
             </span>

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { LogOut, Trash2, Sparkles, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3, Crown, CreditCard, Check, Pencil } from "lucide-react";
+import { LogOut, Trash2, Sparkles, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3, Crown, CreditCard, Check, Pencil, UserPlus, Share2 } from "lucide-react";
 import { DiploFace } from "@/components/revix/DiploFace";
 import { DiploState } from "@/components/revix/DiploState";
 import { AnimatedNumber } from "@/components/revix/AnimatedNumber";
@@ -109,6 +109,19 @@ export default function Profil() {
   };
 
   const logout = async () => { await supabase.auth.signOut(); nav("/"); };
+
+  const inviteFriends = async () => {
+    const url = window.location.origin;
+    const text = "Je révise avec Revix — l'appli qui transforme mes cours en quizz et fiches avec l'IA. Rejoins-moi !";
+    const n = navigator as Navigator & { share?: (d: { title?: string; text?: string; url?: string }) => Promise<void> };
+    if (n.share) {
+      try { await n.share({ title: "Revix", text, url }); return; } catch { /* annulé */ }
+    }
+    try {
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      toast.success("Lien copié — partage-le à tes potes !");
+    } catch { toast.error("Impossible de copier le lien."); }
+  };
 
   /**
    * Suppression définitive du compte (RGPD article 17).
@@ -402,6 +415,17 @@ export default function Profil() {
             </div>
           </DialogContent>
         </Dialog>
+
+        <button onClick={inviteFriends} className="w-full flex items-center gap-3 rounded-md border-[2.5px] border-foreground bg-accent text-accent-foreground p-3 shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all">
+          <div className="h-10 w-10 rounded-md bg-card border-2 border-foreground flex items-center justify-center">
+            <UserPlus className="h-5 w-5" />
+          </div>
+          <div className="flex-1 min-w-0 text-left">
+            <p className="text-sm font-bold">Inviter des amis</p>
+            <p className="text-[11px] opacity-80">Réviser à plusieurs, c'est plus motivant</p>
+          </div>
+          <Share2 className="h-4 w-4 shrink-0" />
+        </button>
 
         <div className="space-y-2">
           <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Personnalisation</p>
