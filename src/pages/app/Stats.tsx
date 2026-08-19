@@ -17,6 +17,7 @@ export default function Stats() {
   const [subjects, setSubjects] = useState<SubjectStat[]>([]);
   const [totalQuizzes, setTotalQuizzes] = useState(0);
   const [totalCourses, setTotalCourses] = useState(0);
+  const [weeklyXp, setWeeklyXp] = useState<number[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -27,16 +28,27 @@ export default function Stats() {
         { count: tq },
         { count: tc },
         { data: courses },
+        { data: xpEv },
       ] = await Promise.all([
         supabase.from("quiz_attempts").select("score, total, created_at").eq("user_id", user.id).order("created_at", { ascending: false }).limit(30),
         supabase.from("quizzes").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("courses").select("id", { count: "exact", head: true }).eq("user_id", user.id),
         supabase.from("courses").select("id, subject").eq("user_id", user.id),
+        supabase.from("xp_events").select("amount, created_at").eq("user_id", user.id).gte("created_at", new Date(Date.now() - 56 * 864e5).toISOString()),
       ]);
 
       setAttempts((att ?? []) as Attempt[]);
       setTotalQuizzes(tq ?? 0);
       setTotalCourses(tc ?? 0);
+
+      // XP par semaine sur les 8 dernières semaines (ancienne → récente)
+      const buckets = new Array(8).fill(0);
+      const now = Date.now();
+      (xpEv ?? []).forEach((e: any) => {
+        const weeksAgo = Math.floor((now - new Date(e.created_at).getTime()) / (7 * 864e5));
+        if (weeksAgo >= 0 && weeksAgo < 8) buckets[7 - weeksAgo] += (e.amount ?? 0);
+      });
+      setWeeklyXp(buckets);
 
       // Subject breakdown — needs quiz_attempts grouped by course subject
       if (courses?.length) {
@@ -136,6 +148,30 @@ export default function Stats() {
                 <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-primary inline-block" /> ≥50%</span>
                 <span className="flex items-center gap-1"><span className="h-2 w-2 rounded-sm bg-destructive inline-block" /> &lt;50%</span>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* XP par semaine */}
+        {weeklyXp.some((v) => v > 0) && (
+          <div className="rounded-xl border-2 border-foreground bg-card shadow-brutal-sm p-4">
+            <p className="text-xs font-mono uppercase tracking-wider text-muted-foreground mb-3">XP gagnée · 8 dernières semaines</p>
+            <div className="flex items-end gap-1.5 h-24">
+              {(() => {
+                const max = Math.max(...weeklyXp, 1);
+                return weeklyXp.map((v, i) => (
+                  <div key={i} className="flex-1 flex flex-col items-center justify-end" title={`${v} XP`}>
+                    <div
+                      className="w-full rounded-t-sm bg-primary transition-all"
+                      style={{ height: `${Math.max(3, (v / max) * 100)}%`, opacity: 0.55 + (i / 8) * 0.45 }}
+                    />
+                  </div>
+                ));
+              })()}
+            </div>
+            <div className="flex items-center justify-between mt-2 text-[10px] text-muted-foreground font-mono">
+              <span>il y a 8 sem.</span>
+              <span>cette sem.</span>
             </div>
           </div>
         )}
