@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&family=Caveat:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&family=Public+Sans:wght@400;500;600;700;800&family=Caveat:wght@400;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -89,11 +89,11 @@
     --shadow-phone: 8px 8px 0 0 hsl(222 41% 20%);
     --shadow-paper: var(--shadow-brutal-sm);
 
-    --font-serif: 'Space Grotesk', 'Inter', sans-serif;
+    --font-serif: 'Bricolage Grotesque', 'Public Sans', sans-serif;
     --font-hand: 'Caveat', cursive;
     --font-mono: 'JetBrains Mono', ui-monospace, monospace;
     --font-marker: 'Caveat', cursive;
-    --font-display: 'Space Grotesk', 'Inter', sans-serif;
+    --font-display: 'Bricolage Grotesque', 'Public Sans', sans-serif;
 
     --sidebar-background: 44 60% 98%;
     --sidebar-foreground: 222 41% 20%;
@@ -171,7 +171,7 @@
 
   body {
     @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', system-ui, sans-serif;
+    font-family: 'Public Sans', system-ui, sans-serif;
     font-feature-settings: 'cv11', 'ss01';
   }
 
@@ -1006,7 +1006,7 @@
     100% { background-position: 200% 50%; }
   }
   .owner-title {
-    font-family: 'Archivo Black', 'Inter', sans-serif;
+    font-family: 'Archivo Black', 'Public Sans', sans-serif;
     font-weight: 900;
     letter-spacing: 0.08em;
     text-transform: uppercase;

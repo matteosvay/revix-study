@@ -1,14 +1,12 @@
 import { Link } from "react-router-dom";
 import { PageHead } from "@/components/seo/PageHead";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Logo } from "@/components/revix/Logo";
-import { Upload, Brain, Calendar, Flame, Check, ArrowRight, Star, BookOpen, Target, Sparkles } from "lucide-react";
-import { testimonials } from "@/data/mock";
+import { Upload, Brain, Calendar, Flame, Check, ArrowRight, BookOpen, Target } from "lucide-react";
 
 const features = [
-  { icon: Upload, title: "Upload magique", desc: "PDF, photo de cours, screenshot — l'IA digère tout en quelques secondes." },
+  { icon: Upload, title: "Upload magique", desc: "PDF, photo de cours, screenshot : l'IA digère tout en quelques secondes." },
   { icon: Brain, title: "Quizz adaptatifs", desc: "QCM, vrai/faux, questions ouvertes corrigées par l'IA." },
   { icon: Calendar, title: "Planning IA", desc: "Un planning de révisions sur mesure selon ta deadline d'examen." },
   { icon: Flame, title: "Streak & XP", desc: "Garde le rythme : streaks, niveaux, quêtes journalières et hebdo." },
@@ -44,12 +42,18 @@ const plans = [
   },
 ];
 
+const steps = [
+  { n: "1", icon: Upload, title: "Tu déposes ton cours", desc: "Un PDF, une photo de tes notes ou un simple copier-coller. Rien à mettre en forme." },
+  { n: "2", icon: Brain, title: "L'IA lit et prépare", desc: "En quelques secondes, elle sort une fiche claire, un quizz adapté et un planning." },
+  { n: "3", icon: Flame, title: "Tu révises pour de vrai", desc: "Quizz, flashcards, streaks. Tu vois ce que tu maîtrises et ce qui coince." },
+];
+
 const faqs = [
   { q: "Est-ce vraiment gratuit ?", a: "Oui. Le plan Gratuit te donne 2 quizz IA par jour, 5 messages coach et 1 fiche IA par semaine, sans carte bancaire." },
   { q: "Mes cours sont-ils en sécurité ?", a: "100%. Tes données restent en Europe et ne sont jamais utilisées pour entraîner d'IA tierces." },
   { q: "Quels formats sont acceptés ?", a: "PDF, photos (JPG/PNG), screenshots et texte collé directement. L'IA s'occupe du reste." },
   { q: "Puis-je annuler à tout moment ?", a: "Oui, sans engagement. Tu peux passer du Pro/Max au Gratuit en un clic depuis ton profil." },
-  { q: "Revix marche pour toutes les matières ?", a: "Oui — droit, marketing, maths, histoire, philo, langues, médecine... tout ce qui est texte ou notes." },
+  { q: "Revix marche pour toutes les matières ?", a: "Oui : droit, marketing, maths, histoire, philo, langues, médecine, tout ce qui est texte ou notes." },
 ];
 
 export default function Landing() {
@@ -72,13 +76,11 @@ export default function Landing() {
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-x-hidden">
       <PageHead
-        title="Revix — Fiches, quizz & planning IA pour étudiants"
-        description="L'app de révision IA : transforme tes PDF et photos de cours en fiches, quizz et plannings personnalisés. Gratuit, BTS, Licence, Prépa."
+        title="Revix, fiches, quizz et planning IA pour étudiants"
+        description="L'app de révision IA : génère fiches, quizz et plannings personnalisés à partir de tes PDF et photos de cours. Gratuit, BTS, Licence, Prépa."
         path="/"
         jsonLd={[websiteJsonLd, faqJsonLd]}
       />
-      <div className="absolute inset-0 dots-bg pointer-events-none opacity-40" />
-
       {/* Nav */}
       <header className="sticky top-0 inset-x-0 z-50 border-b-[3px] border-foreground bg-card/95 backdrop-blur">
         <div className="container max-w-6xl flex h-16 items-center justify-between">
@@ -109,7 +111,7 @@ export default function Landing() {
  L'IA française pour étudiants
           </span>
           <h1 className="font-display text-4xl md:text-6xl lg:text-7xl tracking-tight leading-[0.95]">
-            Transforme tes cours en{" "}
+            Tes cours en{" "}
             <span className="inline-block bg-primary text-primary-foreground px-3 -rotate-1 border-[3px] border-foreground shadow-brutal-sm">
               fiches & quizz
             </span>{" "}
@@ -156,7 +158,7 @@ export default function Landing() {
             {features.map((f) => (
               <div
                 key={f.title}
-                className="rounded-xl border-[3px] border-foreground bg-card p-6 shadow-brutal hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+                className="rounded-xl border-[3px] border-foreground bg-card p-6 shadow-brutal"
               >
                 <div className="h-12 w-12 rounded-lg border-[2.5px] border-foreground bg-primary text-primary-foreground flex items-center justify-center mb-4 shadow-brutal-sm">
                   <f.icon className="h-6 w-6" strokeWidth={2.5} />
@@ -222,33 +224,33 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
+      {/* Comment ça marche */}
       <section className="py-20 lg:py-24 border-t-[3px] border-foreground bg-secondary/40">
-        <div className="container max-w-6xl">
+        <div className="container max-w-5xl">
           <div className="text-center max-w-2xl mx-auto mb-14">
-            <h2 className="font-display text-3xl md:text-5xl tracking-tight">Ils ont validé leur année</h2>
+            <h2 className="font-display text-3xl md:text-5xl tracking-tight">Comment ça marche</h2>
+            <p className="mt-4 text-muted-foreground font-medium">Trois temps, de ton cours à ta révision.</p>
           </div>
-          <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {testimonials.map((t) => (
-              <div
-                key={t.name}
-                className="rounded-xl border-[3px] border-foreground bg-card p-6 shadow-brutal"
-              >
-                <div className="flex gap-0.5 mb-3">
-                  {Array.from({ length: 5 }).map((_, j) => (
-                    <Star key={j} className="h-4 w-4 fill-accent text-foreground" strokeWidth={2} />
-                  ))}
-                </div>
-                <p className="text-sm leading-relaxed font-medium">"{t.quote}"</p>
-                <div className="mt-5 flex items-center gap-3">
-                  <Avatar className="h-10 w-10 border-2 border-foreground">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-xs font-display">{t.avatar}</AvatarFallback>
-                  </Avatar>
+          <div className="flex flex-col md:flex-row md:items-stretch gap-4 md:gap-2">
+            {steps.map((s, i) => (
+              <div key={s.n} className="flex flex-col md:flex-row md:items-stretch md:flex-1 gap-4 md:gap-2">
+                <div className="flex-1 flex gap-4 items-start">
+                  <div className="shrink-0 h-11 w-11 rounded-md border-[2.5px] border-foreground bg-primary text-primary-foreground font-display text-xl flex items-center justify-center shadow-brutal-sm">
+                    {s.n}
+                  </div>
                   <div>
-                    <p className="font-mono-tag text-[10px] uppercase font-bold tracking-wider">{t.name}</p>
-                    <p className="text-xs text-muted-foreground">{t.role}</p>
+                    <div className="flex items-center gap-2">
+                      <s.icon className="h-4 w-4" strokeWidth={2.5} />
+                      <h3 className="font-display text-lg">{s.title}</h3>
+                    </div>
+                    <p className="text-sm text-muted-foreground mt-1.5 leading-relaxed">{s.desc}</p>
                   </div>
                 </div>
+                {i < steps.length - 1 && (
+                  <div className="hidden md:flex items-center text-foreground/30 px-1" aria-hidden="true">
+                    <ArrowRight className="h-5 w-5" />
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -282,9 +284,7 @@ export default function Landing() {
       <section className="py-20 border-t-[3px] border-foreground bg-secondary/40">
         <div className="container max-w-4xl">
           <div className="rounded-2xl border-[3px] border-foreground bg-primary text-primary-foreground p-10 lg:p-14 text-center shadow-brutal-lg relative">
-            <Sparkles className="absolute top-4 right-4 h-6 w-6" />
-            <Sparkles className="absolute bottom-4 left-4 h-6 w-6" />
-            <h2 className="font-display text-3xl md:text-5xl">Prêt à diviser ton temps de révision par 3 ?</h2>
+            <h2 className="font-display text-3xl md:text-5xl">Prêt à réviser autrement ?</h2>
             <p className="mt-4 text-base md:text-lg opacity-95 font-medium">Commence gratuitement, sans carte bancaire.</p>
             <Button
               asChild
@@ -314,12 +314,12 @@ export default function Landing() {
               <Link to="/mentions-legales" className="hover:text-foreground transition-colors">Mentions légales</Link>
             </nav>
             <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">
- Fait avec en France 
+              Fait en France
             </p>
           </div>
           <div className="mt-6 pt-6 border-t-[2px] border-foreground/10 text-center">
             <p className="font-mono-tag text-[10px] text-muted-foreground uppercase tracking-wider">
-              © {new Date().getFullYear()} Revix — Matteo Svay, auto-entrepreneur · SIRET [À COMPLÉTER]
+              © {new Date().getFullYear()} Revix
             </p>
           </div>
         </div>

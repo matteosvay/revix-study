@@ -23,17 +23,21 @@ export default function SignUp() {
   const [submittedEmail, setSubmittedEmail] = useState<string>("");
   const [submittedName, setSubmittedName] = useState<string>("");
   const [resending, setResending] = useState(false);
+  const [formError, setFormError] = useState<string | null>(null);
   // RGPD : consentement explicite obligatoire avant la création de compte.
   const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const formationItems = FORMATIONS.map(f => ({
-    value: f.name, label: f.abbr ? `${f.abbr} — ${f.name.replace(`${f.abbr} - `, "").replace(`${f.abbr} `, "")}` : f.name, group: f.category,
+    value: f.name, label: f.abbr ? `${f.abbr} · ${f.name.replace(`${f.abbr} - `, "").replace(`${f.abbr} `, "")}` : f.name, group: f.category,
   }));
 
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setFormError(null);
     if (!acceptedTerms) {
-      toast.error("Tu dois accepter les CGU et la politique de confidentialité pour créer un compte.");
+      const msg = "Tu dois accepter les CGU et la politique de confidentialité pour créer un compte.";
+      setFormError(msg);
+      toast.error(msg);
       return;
     }
     const data = new FormData(e.currentTarget);
@@ -55,7 +59,14 @@ export default function SignUp() {
       },
     });
     setLoading(false);
-    if (error) { toast.error(error.message); return; }
+    if (error) {
+      const msg = /already registered|exist/i.test(error.message)
+        ? "Un compte existe déjà avec cet email. Essaie de te connecter."
+        : "La création du compte a échoué. Vérifie tes informations et réessaie.";
+      setFormError(msg);
+      toast.error(msg);
+      return;
+    }
     if (signUpData.session) {
       if (formation || gender) {
         await supabase.from("profiles").update({
@@ -63,7 +74,7 @@ export default function SignUp() {
           ...(gender ? { gender } : {}),
         }).eq("id", signUpData.session.user.id);
       }
- toast.success("Compte créé! Bienvenue sur Revix ");
+      toast.success("Compte créé ! Bienvenue sur Revix.");
       nav("/app");
     } else {
       setSubmittedEmail(email);
@@ -81,12 +92,12 @@ export default function SignUp() {
     });
     setResending(false);
     if (error) toast.error(error.message);
- else toast.success("Email renvoyé! ");
+    else toast.success("Email renvoyé.");
   };
 
   if (submittedEmail) {
     return (
- <AuthShell title="Presque prêt! " subtitle="Une dernière étape avant l'aventure...">
+      <AuthShell title="Presque prêt" subtitle="Une dernière étape avant de commencer.">
         <div className="space-y-5 text-center">
           <div className="relative mx-auto w-20 h-20 flex items-center justify-center">
             <div className="absolute inset-0 rounded-full gradient-primary opacity-20 animate-ping" />
@@ -100,13 +111,13 @@ export default function SignUp() {
               {submittedName ? `Hey ${submittedName} !` : "C'est parti !"}
             </h2>
             <p className="font-hand text-lg text-primary mt-1">
- On t'a envoyé un email magique 
+              On vient de t'envoyer un email de confirmation.
             </p>
           </div>
 
           <div className="notebook-card p-4 text-left space-y-3">
             <p className="text-sm text-muted-foreground">
- Un email de confirmation vient d'être envoyé à:
+              Un email de confirmation vient d'être envoyé à :
             </p>
             <p className="font-mono text-sm font-semibold text-foreground break-all bg-muted/50 px-3 py-2 rounded-lg">
               {submittedEmail}
@@ -114,7 +125,7 @@ export default function SignUp() {
             <div className="space-y-2 pt-2">
               <div className="flex items-start gap-2 text-sm">
                 <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
- <span>Ouvre ta boîte mail (pense à vérifier les <strong>spams</strong>)</span>
+                <span>Ouvre ta boîte mail (pense à vérifier les <strong>spams</strong>)</span>
               </div>
               <div className="flex items-start gap-2 text-sm">
                 <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
@@ -122,7 +133,7 @@ export default function SignUp() {
               </div>
               <div className="flex items-start gap-2 text-sm">
                 <CheckCircle2 className="w-4 h-4 text-primary mt-0.5 shrink-0" />
- <span>Reviens te connecter et débloque ton premier XP </span>
+                <span>Reviens te connecter et débloque ton premier XP</span>
               </div>
             </div>
           </div>
@@ -156,15 +167,7 @@ export default function SignUp() {
   }
 
   return (
- <AuthShell
-   title="Crée ton compte "
-   subtitle="C'est gratuit, et ça change tout."
-   seo={{
-     title: "Inscription gratuite — Revix",
-     description: "Crée ton compte Revix gratuitement et débloque fiches, quizz et plannings IA pour tes révisions.",
-     path: "/signup",
-   }}
- >
+    <AuthShell title="Crée ton compte" subtitle="C'est gratuit, et ça change tout.">
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="space-y-2">
           <Label htmlFor="name">Prénom</Label>
@@ -196,7 +199,7 @@ export default function SignUp() {
             <SelectContent>
               {GENDER_OPTIONS.map(g => (
                 <SelectItem key={g.value} value={g.value}>
-                  <span className="mr-2">{g.emoji}</span>{g.label}
+                  {g.label}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -232,6 +235,11 @@ export default function SignUp() {
             de Revix.
           </Label>
         </div>
+        {formError && (
+          <p role="alert" className="text-sm font-medium text-destructive bg-destructive/10 border-2 border-destructive/30 rounded-md px-3 py-2">
+            {formError}
+          </p>
+        )}
         <Button type="submit" disabled={loading} className="w-full rounded-full gradient-primary border-0 h-11">
           {loading ? "Création..." : "Créer mon compte"}
         </Button>

@@ -24,14 +24,14 @@ export const AuthShell = ({ children, title, subtitle, seo }: AuthShellProps) =>
     <div className="hidden lg:flex flex-col justify-between p-10 relative">
       <Logo />
       <div className="relative max-w-md">
-        <span className="rubber-stamp stamp-pop inline-block mb-4">Témoignage</span>
+        <span className="rubber-stamp stamp-pop inline-block mb-4">Révise mieux</span>
         <h2 className="font-hand text-5xl text-primary leading-tight">
-          "Revix a transformé mes révisions. Je gagne <span className="marker-yellow">10h / semaine</span>."
+          Tes cours deviennent des <span className="marker-yellow">fiches, des quizz et un planning</span>. Toi, tu révises.
         </h2>
-        <p className="font-serif text-base mt-4 text-muted-foreground">— Léa, BTS NDRC</p>
+        <p className="font-serif text-base mt-4 text-muted-foreground">Fiches, quizz et planning générés par l'IA depuis tes propres cours.</p>
       </div>
       <div className="flex items-end justify-between gap-4">
-        <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">© 2025 Revix · Made in France 🇫🇷</p>
+        <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">© 2025 Revix · Fait en France</p>
         <div className="shrink-0 -mb-2 pointer-events-none" aria-hidden="true">
           <DiploFace size={104} expr="happy" cap="#2456d6" />
         </div>

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { DiploState } from "@/components/revix/DiploState";
 import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -56,7 +57,7 @@ export default function Cosmetics() {
     } finally { setBusy(null); }
   };
 
-  if (loading) return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement...</div></AppLayout>;
+  if (loading) return <AppLayout><DiploState variant="loading" title="On ouvre ta penderie" /></AppLayout>;
 
   const initials = (profile?.display_name ?? "U").split(" ").map((s: string) => s[0]).join("").slice(0, 2).toUpperCase();
   const stickerEmoji = items.find(i => i.item_key === profile?.equipped_sticker)?.emoji ?? null;

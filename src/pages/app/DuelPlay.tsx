@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { DiploState } from "@/components/revix/DiploState";
 import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -129,7 +130,7 @@ export default function DuelPlay() {
   };
 
   if (!duel) {
-    return <AppLayout><div className="p-5 text-sm text-muted-foreground">Chargement du duel...</div></AppLayout>;
+    return <AppLayout><DiploState variant="loading" title="On prépare le duel" /></AppLayout>;
   }
 
   // Lobby : duel encore "pending" — l'opposant n'a pas accepté

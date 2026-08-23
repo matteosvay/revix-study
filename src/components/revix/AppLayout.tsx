@@ -59,7 +59,6 @@ export const AppLayout = ({ children, wide = false }: { children: ReactNode; wid
 
   return (
     <div className="min-h-screen w-full flex items-center justify-center p-0 sm:p-6 bg-background relative overflow-hidden lg:items-stretch lg:justify-start lg:p-0">
-      <div className="hidden sm:block absolute inset-0 dots-bg pointer-events-none opacity-50 lg:opacity-30" />
       <div className="hidden sm:block lg:hidden absolute -top-10 -left-10 w-72 h-72 stripes-violet rounded-full opacity-20 pointer-events-none" />
       <div className="hidden sm:block lg:hidden absolute -bottom-10 -right-10 w-80 h-80 bg-accent rounded-full opacity-25 pointer-events-none" />
 

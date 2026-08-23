@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { DiploState } from "@/components/revix/DiploState";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
@@ -280,19 +281,20 @@ export default function Planning() {
             })}
 
             {tasks.length === 0 && (
-              <div className="rounded-2xl border-2 border-dashed border-primary/20 p-6 text-center mt-4">
-                <Sparkles className="h-8 w-8 mx-auto text-primary/60" />
-                <p className="font-serif text-lg mt-2">Semaine vide</p>
-                <p className="text-xs text-muted-foreground mt-1 mb-3">Génère un plan IA ou ajoute une tâche</p>
-                <div className="flex gap-2 justify-center">
-                  <Button size="sm" onClick={() => setOpen(true)} className="rounded-full gradient-primary border-0">
-                    <Sparkles className="h-3.5 w-3.5 mr-1" /> Générer
-                  </Button>
-                  <Button size="sm" variant="outline" onClick={() => setAddOpen(true)} className="rounded-full">
-                    <Plus className="h-3.5 w-3.5 mr-1" /> Tâche
-                  </Button>
-                </div>
-              </div>
+              <DiploState
+                title="Semaine vide"
+                subtitle="Génère un plan de révision avec l'IA ou ajoute une tâche."
+                action={
+                  <div className="flex gap-2 justify-center">
+                    <Button size="sm" onClick={() => setOpen(true)} className="rounded-full gradient-primary border-0">
+                      <Sparkles className="h-3.5 w-3.5 mr-1" /> Générer
+                    </Button>
+                    <Button size="sm" variant="outline" onClick={() => setAddOpen(true)} className="rounded-full">
+                      <Plus className="h-3.5 w-3.5 mr-1" /> Tâche
+                    </Button>
+                  </div>
+                }
+              />
             )}
           </TabsContent>
 

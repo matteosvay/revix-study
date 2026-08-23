@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
+import { DiploState } from "@/components/revix/DiploState";
 import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -461,14 +462,15 @@ export default function Campus() {
               {loadingFriends ? (
                 <p className="text-xs text-muted-foreground">Chargement...</p>
               ) : accepted.length === 0 ? (
-                <div className="text-center py-8 px-4 bg-card border-2 border-dashed border-foreground rounded-md">
-                  <img src={illu.group} alt="" className="w-12 h-12 mx-auto mb-2 object-contain" />
-                  <p className="font-display text-base">Ton campus est vide</p>
-                  <p className="text-xs text-muted-foreground mt-2">Partage ton code à tes amis de promo. En groupe, on retient 40% de plus.</p>
-                  <Button onClick={copyCode} className="mt-3 rounded-md gradient-primary border-2 border-foreground font-bold text-xs h-8">
-                    <Copy className="h-3 w-3 mr-1" /> Copier mon code
-                  </Button>
-                </div>
+                <DiploState
+                  title="Ton campus est vide"
+                  subtitle="Partage ton code à tes amis de promo. En groupe, on retient 40% de plus."
+                  action={
+                    <Button onClick={copyCode} className="rounded-md gradient-primary border-2 border-foreground font-bold text-xs h-8">
+                      <Copy className="h-3 w-3 mr-1" /> Copier mon code
+                    </Button>
+                  }
+                />
               ) : (
                 accepted.map(f => {
                   const otherId = f.requester_id === user?.id ? f.addressee_id : f.requester_id;
