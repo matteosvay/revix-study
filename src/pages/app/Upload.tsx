@@ -277,7 +277,7 @@ export default function Upload() {
           await bumpQuest(user.id, "w_7_streak", 1);
         }
         await bumpQuest(user.id, "w_4_uploads", 1);
- toast.success("Ta fiche est prête (déjà disponible dans Revix)");
+ toast.success("Ta fiche est prête (déjà disponible dans Diplo)");
         nav(`/app/fiches/${clonedId}`);
         return;
       }

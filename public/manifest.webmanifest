@@ -1,13 +1,13 @@
 {
-  "name": "Revix",
-  "short_name": "Revix",
-  "description": "Transforme tes cours en fiches, quizz et planning de révisions.",
+  "name": "Diplo",
+  "short_name": "Diplo",
+  "description": "Génère fiches, quizz et planning de révisions à partir de tes cours.",
   "start_url": "/app",
   "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#fbf6e3",
-  "theme_color": "#7c3aed",
+  "theme_color": "#2456d6",
   "lang": "fr",
   "icons": [
     {

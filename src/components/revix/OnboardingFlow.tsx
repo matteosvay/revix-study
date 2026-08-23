@@ -46,7 +46,7 @@ export function OnboardingFlow({ userId, onClose }: { userId: string; onClose: (
             <DiploFace size={130} expr="happy" animClass="diplo-party" />
             <h1 className="font-display font-bold text-2xl mt-4 leading-tight">Salut, moi c'est Diplo !</h1>
             <p className="text-muted-foreground mt-2 text-[15px]">
-              Ton compagnon de révision. En 30 secondes, je te montre comment transformer tes cours en quizz, fiches et flashcards.
+              Ton compagnon de révision. En 30 secondes, je te fais des quizz, des fiches et des flashcards à partir de tes cours.
             </p>
             <Button onClick={() => setStep(1)} className="rounded-full gradient-primary border-2 border-foreground mt-6 px-8">
               C'est parti <ArrowRight className="h-4 w-4 ml-1" />

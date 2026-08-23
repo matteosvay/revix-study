@@ -10,7 +10,7 @@ export type Toque = { id: string; name: string; rarity: ToqueRarity; cap: string
 
 /** Catalogue des toques. `cap` = valeur de `fill` SVG (couleur solide ou dégradé url(#…)). */
 export const TOQUES: Toque[] = [
-  { id: "revix",    name: "Bleu Revix",         rarity: "common", cap: "#2456d6" },
+  { id: "revix",    name: "Bleu Diplo",         rarity: "common", cap: "#2456d6" },
   { id: "encre",    name: "Encre",              rarity: "common", cap: "#28324a" },
   { id: "emeraude", name: "Émeraude",           rarity: "common", cap: "#1f9d57" },
   { id: "corail",   name: "Corail",             rarity: "common", cap: "#e2564b" },

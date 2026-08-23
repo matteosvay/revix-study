@@ -203,7 +203,7 @@ export default function CourseDetail() {
 
       // Titre
       writeText(course.title, { size: 22, style: "bold", gap: 6 });
-      if (course.subject) writeText(`${course.subject} · Généré par Revix`, { size: 10, color: [120, 120, 120], gap: 10 });
+      if (course.subject) writeText(`${course.subject} · Généré par Diplo`, { size: 10, color: [120, 120, 120], gap: 10 });
       drawSeparator();
 
       const summary = course.summary;
