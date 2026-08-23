@@ -3,15 +3,15 @@ import { FeatureLandingLayout } from "@/components/seo/FeatureLandingLayout";
 export default function PlanningRevision() {
   return (
     <FeatureLandingLayout
-      title="Planning de révision IA — organise tes examens | Revix"
-      metaDescription="Génère un planning de révisions personnalisé selon ta date d'examen et tes matières. L'IA Revix répartit tes sessions et adapte ton planning chaque jour."
+      title="Planning de révision IA — organise tes examens | Diplo"
+      metaDescription="Génère un planning de révisions personnalisé selon ta date d'examen et tes matières. L'IA Diplo répartit tes sessions et adapte ton planning chaque jour."
       path="/planning-de-revision"
       tagline="Planning IA · Gratuit"
       h1="Planning de révision personnalisé par IA"
       intro={
         <>
           <p>
-            Dis à Revix tes matières, ta date d'examen et ton temps disponible :
+            Dis à Diplo tes matières, ta date d'examen et ton temps disponible :
             l'IA te construit un planning de révisions équilibré, jour par jour.
           </p>
           <p>

@@ -1,5 +1,5 @@
 /**
- * Moteur audio léger de Revix — sons doux, ronds et discrets.
+ * Moteur audio léger de Diplo — sons doux, ronds et discrets.
  * Timbre marimba/cloche (sinus + octave), gamme pentatonique (toujours agréable),
  * volume bas + une petite réverbe pour le côté "produit".
  * Aucune dépendance ; tout est synthétisé via la Web Audio API.

@@ -1,4 +1,4 @@
-# Revix — Application d'apprentissage gamifiée
+# Diplo — Application d'apprentissage gamifiée
 
 > **Note pour Claude** : ce repo est synchronisé en bidirectionnel avec Lovable. Toute modification poussée sur `main` est appliquée en live à l'app. Inversement, toute modification faite via Lovable apparaît ici en quelques secondes. Travaille sur des branches feature + PR si tu veux éviter d'impacter directement le preview.
 
@@ -6,9 +6,9 @@
 
 ## 1. Vue d'ensemble
 
-**Revix** est une PWA d'apprentissage pour étudiants du supérieur qui transforme n'importe quel cours (PDF, DOCX, photo) en fiches de révision structurées et quiz adaptatifs — le tout gamifié avec un système complet d'XP, niveaux, streaks, lootboxes et cosmétiques.
+**Diplo** est une PWA d'apprentissage pour étudiants du supérieur qui transforme n'importe quel cours (PDF, DOCX, photo) en fiches de révision structurées et quiz adaptatifs — le tout gamifié avec un système complet d'XP, niveaux, streaks, lootboxes et cosmétiques.
 
-### Ce que fait Revix
+### Ce que fait Diplo
 - 📚 **Upload intelligent** — Glisse-dépose un PDF ou une photo de cours, l'IA en extrait le texte et génère des fiches claires
 - 🧠 **Quiz adaptatifs** — QCM et questions ouvertes notées automatiquement par IA
 - 🔁 **Révision espacée** — Algorithme SM-2 pour retenir à long terme

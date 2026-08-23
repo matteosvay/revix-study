@@ -58,7 +58,7 @@ export function OnboardingFlow({ userId, onClose }: { userId: string; onClose: (
           <div className="rise-in w-full">
             <DiploFace size={84} expr="normal" animClass="diplo-bob" />
             <h1 className="font-display font-bold text-2xl mt-3 leading-tight">Tu étudies quoi ?</h1>
-            <p className="text-muted-foreground mt-1.5 text-sm">Je personnalise Revix pour ton niveau.</p>
+            <p className="text-muted-foreground mt-1.5 text-sm">Je personnalise Diplo pour ton niveau.</p>
             <div className="flex flex-wrap justify-center gap-2 mt-5">
               {CURSUS_OPTIONS.map((c) => (
                 <button

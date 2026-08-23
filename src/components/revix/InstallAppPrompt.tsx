@@ -38,7 +38,7 @@ function isInIframe(): boolean {
 }
 
 /**
- * Popup proposant d'installer Revix sur l'écran d'accueil.
+ * Popup proposant d'installer Diplo sur l'écran d'accueil.
  * - Affiché 1 seule fois par appareil (localStorage).
  * - Ne s'affiche pas en iframe (preview Lovable) ni si déjà installée.
  * - Android/Desktop : utilise le prompt natif beforeinstallprompt.
@@ -103,7 +103,7 @@ export const InstallAppPrompt = () => {
           <div className="flex-1 min-w-0">
             <DialogHeader className="space-y-0.5 text-left">
               <DialogTitle className="font-display text-xl leading-tight">
-                Installe Revix
+                Installe Diplo
               </DialogTitle>
               <DialogDescription className="font-mono-tag text-[11px] uppercase tracking-wider text-foreground/70">
                 Accès direct depuis l'écran d'accueil
@@ -116,7 +116,7 @@ export const InstallAppPrompt = () => {
           {platform === "ios" && (
             <>
               <p className="text-sm">
-                Sur iPhone, ajoute Revix à ton écran d'accueil pour l'ouvrir comme une vraie app.
+                Sur iPhone, ajoute Diplo à ton écran d'accueil pour l'ouvrir comme une vraie app.
               </p>
               <ol className="space-y-3">
                 <li className="flex items-center gap-3 p-3 rounded-lg border-2 border-foreground bg-secondary">
@@ -156,7 +156,7 @@ export const InstallAppPrompt = () => {
           {(platform === "android" || platform === "desktop" || platform === "other") && deferred && (
             <>
               <p className="text-sm">
-                Installe Revix pour un accès rapide, sans passer par le navigateur.
+                Installe Diplo pour un accès rapide, sans passer par le navigateur.
               </p>
               <Button onClick={triggerNativePrompt} className="w-full font-display gap-2" size="lg">
                 <Download className="h-5 w-5" strokeWidth={2.5} />
@@ -168,7 +168,7 @@ export const InstallAppPrompt = () => {
           {(platform === "android" || platform === "desktop" || platform === "other") && !deferred && (
             <>
               <p className="text-sm">
-                Pour installer Revix, ouvre le menu de ton navigateur et choisis « Installer l'application » ou « Ajouter à l'écran d'accueil ».
+                Pour installer Diplo, ouvre le menu de ton navigateur et choisis « Installer l'application » ou « Ajouter à l'écran d'accueil ».
               </p>
               <div className="flex items-center gap-3 p-3 rounded-lg border-2 border-foreground bg-secondary">
                 <MoreVertical className="h-5 w-5 shrink-0" strokeWidth={2.5} />

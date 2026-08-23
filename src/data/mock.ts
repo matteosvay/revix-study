@@ -139,5 +139,5 @@ export const faqs = [
   { q: "Mes cours sont-ils en sécurité ?", a: "100%. Tes données restent en France, hébergées chez OVH, et ne sont jamais utilisées pour entraîner d'IA." },
   { q: "Quels formats sont acceptés ?", a: "PDF, photos (JPG/PNG), screenshots et texte collé directement. L'IA s'occupe du reste." },
   { q: "Puis-je annuler à tout moment ?", a: "Oui, sans engagement. Tu peux passer du Pro au Gratuit en un clic depuis ton profil." },
-  { q: "Revix fonctionne pour toutes les matières ?", a: "Oui — droit, marketing, maths, histoire, philo, langues, médecine... tout ce qui est texte ou notes." },
+  { q: "Diplo fonctionne pour toutes les matières ?", a: "Oui — droit, marketing, maths, histoire, philo, langues, médecine... tout ce qui est texte ou notes." },
 ];

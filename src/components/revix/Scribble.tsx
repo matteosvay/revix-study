@@ -2,7 +2,7 @@ import { CSSProperties } from "react";
 import { cn } from "@/lib/utils";
 
 /**
- * Scribble — annotations manuscrites SVG (la signature visuelle Revix).
+ * Scribble — annotations manuscrites SVG (la signature visuelle Diplo).
  * À poser absolument n'importe où dans la page pour habiller un titre,
  * un CTA, un score, etc.
  */

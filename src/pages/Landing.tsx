@@ -53,7 +53,7 @@ const faqs = [
   { q: "Mes cours sont-ils en sécurité ?", a: "100%. Tes données restent en Europe et ne sont jamais utilisées pour entraîner d'IA tierces." },
   { q: "Quels formats sont acceptés ?", a: "PDF, photos (JPG/PNG), screenshots et texte collé directement. L'IA s'occupe du reste." },
   { q: "Puis-je annuler à tout moment ?", a: "Oui, sans engagement. Tu peux passer du Pro/Max au Gratuit en un clic depuis ton profil." },
-  { q: "Revix marche pour toutes les matières ?", a: "Oui : droit, marketing, maths, histoire, philo, langues, médecine, tout ce qui est texte ou notes." },
+  { q: "Diplo marche pour toutes les matières ?", a: "Oui : droit, marketing, maths, histoire, philo, langues, médecine, tout ce qui est texte ou notes." },
 ];
 
 export default function Landing() {
@@ -69,14 +69,14 @@ export default function Landing() {
   const websiteJsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "Revix",
+    name: "Diplo",
     url: "https://revix-study.lovable.app/",
     inLanguage: "fr-FR",
   };
   return (
     <div className="min-h-screen bg-background text-foreground relative overflow-x-hidden">
       <PageHead
-        title="Revix, fiches, quizz et planning IA pour étudiants"
+        title="Diplo, fiches, quizz et planning IA pour étudiants"
         description="L'app de révision IA : génère fiches, quizz et plannings personnalisés à partir de tes PDF et photos de cours. Gratuit, BTS, Licence, Prépa."
         path="/"
         jsonLd={[websiteJsonLd, faqJsonLd]}
@@ -118,7 +118,7 @@ export default function Landing() {
             en 30 secondes
           </h1>
           <p className="mt-6 text-base md:text-lg text-muted-foreground max-w-2xl mx-auto font-medium">
- Revix lit tes PDF et photos, génère des fiches claires, des quizz personnalisés et un planning. Tout ça pendant que tu prends ton café.
+ Diplo lit tes PDF et photos, génère des fiches claires, des quizz personnalisés et un planning. Tout ça pendant que tu prends ton café.
           </p>
           <div className="mt-10 flex flex-col sm:flex-row gap-3 justify-center">
             <Button
@@ -319,7 +319,7 @@ export default function Landing() {
           </div>
           <div className="mt-6 pt-6 border-t-[2px] border-foreground/10 text-center">
             <p className="font-mono-tag text-[10px] text-muted-foreground uppercase tracking-wider">
-              © {new Date().getFullYear()} Revix
+              © {new Date().getFullYear()} Diplo
             </p>
           </div>
         </div>

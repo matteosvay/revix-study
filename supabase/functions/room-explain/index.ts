@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
       ? question.trim().slice(0, 300)
       : `Explique clairement ce point pour qu'on le comprenne tous.`;
 
-    const sys = `Tu es Coach Revix, un coach pédagogique pour étudiants français. On est dans une salle d'étude collaborative. Un membre te pose une question sur un point précis d'une fiche partagée. Réponds en français, de façon claire, structurée et concise (max 8 lignes), avec un exemple si utile. Utilise du markdown léger (gras, listes courtes). Adresse-toi au groupe ("on", "vous").`;
+    const sys = `Tu es Coach Diplo, un coach pédagogique pour étudiants français. On est dans une salle d'étude collaborative. Un membre te pose une question sur un point précis d'une fiche partagée. Réponds en français, de façon claire, structurée et concise (max 8 lignes), avec un exemple si utile. Utilise du markdown léger (gras, listes courtes). Adresse-toi au groupe ("on", "vous").`;
 
     const userMsg = `Fiche : ${courseTitle || "(sans titre)"}\n\nContexte de la fiche :\n"""${context || "(non fourni)"}"""\n\nPoint sélectionné par l'étudiant :\n"""${selection.slice(0, 800)}"""\n\nQuestion : ${userQ}`;
 

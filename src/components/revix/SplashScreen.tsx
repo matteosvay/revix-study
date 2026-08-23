@@ -47,7 +47,7 @@ export const SplashScreen = () => {
           <Sparkles className="h-10 w-10 text-primary-foreground" strokeWidth={2.5} />
         </div>
         <div className="flex flex-col items-center gap-3 animate-fade-in">
-          <h1 className="font-display text-4xl tracking-tight text-foreground">Revix</h1>
+          <h1 className="font-display text-4xl tracking-tight text-foreground">Diplo</h1>
           <div className="h-1 w-24 overflow-hidden rounded-full border-2 border-foreground bg-card">
             <div className="h-full w-1/2 bg-accent animate-[loading-bar_1.1s_ease-in-out_infinite]" />
           </div>

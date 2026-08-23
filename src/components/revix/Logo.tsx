@@ -1,7 +1,7 @@
 import { forwardRef } from "react";
 import { Link } from "react-router-dom";
 
-/** Marque Revix — toque façon « bureau étudiant », cohérente avec Diplo (encre #1e2c47, bouton doré). */
+/** Marque Diplo — toque façon « bureau étudiant », cohérente avec Diplo (encre #1e2c47, bouton doré). */
 function CapMark({ className = "" }: { className?: string }) {
   return (
     <svg viewBox="0 0 32 28" width="24" height="21" fill="none" className={className} aria-hidden="true">
@@ -16,11 +16,11 @@ function CapMark({ className = "" }: { className?: string }) {
 
 export const Logo = forwardRef<HTMLAnchorElement, { className?: string }>(function Logo({ className = "" }, ref) {
   return (
-    <Link ref={ref} to="/" aria-label="Revix — accueil" className={`group flex items-center gap-2.5 font-display font-bold text-xl ${className}`}>
+    <Link ref={ref} to="/" aria-label="Diplo — accueil" className={`group flex items-center gap-2.5 font-display font-bold text-xl ${className}`}>
       <span className="relative flex h-9 w-9 items-center justify-center rounded-xl bg-accent border-[2.5px] border-foreground shadow-brutal -rotate-3 transition-transform duration-200 group-hover:rotate-0 group-hover:-translate-y-0.5">
         <CapMark />
       </span>
-      <span className="tracking-tight">Revix</span>
+      <span className="tracking-tight">Diplo</span>
     </Link>
   );
 });
