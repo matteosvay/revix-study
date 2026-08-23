@@ -1,5 +1,5 @@
 /**
- * Revix Service Worker — Offline-first for static assets, network-first for API.
+ * Diplo Service Worker — Offline-first for static assets, network-first for API.
  *
  * Strategy:
  * - Static assets (JS, CSS, images, fonts): Cache-first with fallback to network.
@@ -143,7 +143,7 @@ function offlineFallback() {
     `<!DOCTYPE html>
     <html lang="fr">
     <head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Revix — Hors ligne</title>
+    <title>Diplo — Hors ligne</title>
     <style>
       body { font-family: 'Space Grotesk', system-ui, sans-serif; background: #fbf6e3; display: flex;
         align-items: center; justify-content: center; min-height: 100vh; margin: 0; padding: 20px; }
@@ -158,7 +158,7 @@ function offlineFallback() {
     </style></head>
     <body><div class="card">
       <h1>📶 Pas de connexion</h1>
-      <p>Revix a besoin d'internet pour charger tes cours et quiz. Vérifie ta connexion et réessaie.</p>
+      <p>Diplo a besoin d'internet pour charger tes cours et quiz. Vérifie ta connexion et réessaie.</p>
       <button onclick="location.reload()">Réessayer</button>
     </div></body></html>`,
     { status: 503, headers: { "Content-Type": "text/html; charset=utf-8" } }

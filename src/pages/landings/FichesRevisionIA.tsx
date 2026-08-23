@@ -3,15 +3,15 @@ import { FeatureLandingLayout } from "@/components/seo/FeatureLandingLayout";
 export default function FichesRevisionIA() {
   return (
     <FeatureLandingLayout
-      title="Fiches de révision IA — créer une fiche depuis un PDF | Revix"
-      metaDescription="Génère une fiche de révision claire et synthétique à partir d'un PDF, d'une photo de cours ou de notes. L'IA Revix structure, résume et met en forme automatiquement."
+      title="Fiches de révision IA — créer une fiche depuis un PDF | Diplo"
+      metaDescription="Génère une fiche de révision claire et synthétique à partir d'un PDF, d'une photo de cours ou de notes. L'IA Diplo structure, résume et met en forme automatiquement."
       path="/fiches-de-revision-ia"
       tagline="Fiches IA · Gratuit"
       h1="Fiches de révision générées par IA"
       intro={
         <>
           <p>
-            Uploade ton PDF, ta photo de cours ou colle ton texte : Revix te génère
+            Uploade ton PDF, ta photo de cours ou colle ton texte : Diplo te génère
             une fiche de révision structurée, hiérarchisée et prête à imprimer en
             quelques secondes.
           </p>
@@ -31,7 +31,7 @@ export default function FichesRevisionIA() {
       ]}
       steps={[
         { title: "Upload ton cours", desc: "Glisse un PDF, prends ton cours en photo ou colle ton texte." },
-        { title: "L'IA structure", desc: "Revix extrait les concepts clés et construit la fiche." },
+        { title: "L'IA structure", desc: "Diplo extrait les concepts clés et construit la fiche." },
         { title: "Révise efficacement", desc: "Consulte, édite ou exporte ta fiche en PDF." },
       ]}
       faqs={[

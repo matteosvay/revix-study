@@ -25,7 +25,7 @@ const SUGGESTIONS = [
 
 const MOCK_HISTORY: Msg[] = [
   { id: "m1", role: "user", content: "Comment je révise le marketing mix efficacement ?", created_at: new Date().toISOString() },
- { id: "m2", role: "assistant", content: "Le mix marketing (4P) c'est du par cœur pur. Fiche par P, puis restitution à blanc le lendemain. Ton quizz Revix est parfait pour ça — lance-le après ce soir. ", created_at: new Date().toISOString() },
+ { id: "m2", role: "assistant", content: "Le mix marketing (4P) c'est du par cœur pur. Fiche par P, puis restitution à blanc le lendemain. Ton quizz Diplo est parfait pour ça — lance-le après ce soir. ", created_at: new Date().toISOString() },
   { id: "m3", role: "user", content: "Et si j'ai la flemme ?", created_at: new Date().toISOString() },
   { id: "m4", role: "assistant", content: "Commence par 5 min. Juste 5. Le cerveau déteste commencer, pas continuer. Lance le timer et après t'arrêtes si tu veux — spoiler: tu t'arrêteras pas.", created_at: new Date().toISOString() },
 ];
@@ -62,7 +62,7 @@ export function CoachChat({ ctx }: { ctx: CoachContext | null }) {
         setMessages([{
           id: "welcome",
           role: "assistant",
- content: "Salut! Je suis ton coach Revix Pose-moi une question sur tes révisions, demande un planning, ou dis-moi comment tu te sens. Je suis là pour t'aider.",
+ content: "Salut! Je suis ton coach Diplo Pose-moi une question sur tes révisions, demande un planning, ou dis-moi comment tu te sens. Je suis là pour t'aider.",
           created_at: new Date().toISOString(),
         }]);
       }
@@ -193,7 +193,7 @@ export function CoachChat({ ctx }: { ctx: CoachContext | null }) {
 
   return (
     <div className="notebook-card p-3">
- <p className="font-hand text-xl text-foreground mb-2"> Pose ta question à Revix</p>
+ <p className="font-hand text-xl text-foreground mb-2"> Pose ta question à Diplo</p>
 
       <div ref={scrollRef} className="max-h-[340px] overflow-y-auto space-y-2.5 pr-1 mb-3">
         {!hydrated && (

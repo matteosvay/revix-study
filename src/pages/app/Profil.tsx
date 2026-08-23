@@ -112,10 +112,10 @@ export default function Profil() {
 
   const inviteFriends = async () => {
     const url = window.location.origin;
-    const text = "Je révise avec Revix — l'appli qui transforme mes cours en quizz et fiches avec l'IA. Rejoins-moi !";
+    const text = "Je révise avec Diplo — l'appli qui transforme mes cours en quizz et fiches avec l'IA. Rejoins-moi !";
     const n = navigator as Navigator & { share?: (d: { title?: string; text?: string; url?: string }) => Promise<void> };
     if (n.share) {
-      try { await n.share({ title: "Revix", text, url }); return; } catch { /* annulé */ }
+      try { await n.share({ title: "Diplo", text, url }); return; } catch { /* annulé */ }
     }
     try {
       await navigator.clipboard.writeText(`${text} ${url}`);
@@ -218,7 +218,7 @@ export default function Profil() {
       />
 
       <div className="px-5 space-y-5 stagger-in">
-        {/* Carte d'étudiant Revix */}
+        {/* Carte d'étudiant Diplo */}
         <div className="relative rounded-2xl border-[2.5px] border-foreground bg-card shadow-brutal-lg overflow-hidden">
           {/* encoche façon badge */}
           <div className="absolute top-2 left-1/2 -translate-x-1/2 h-[7px] w-11 rounded-full bg-foreground/25 z-10" />
@@ -231,7 +231,7 @@ export default function Profil() {
                 <circle cx="16" cy="10.5" r="1.9" fill="#f6c945" stroke="#1e2c47" strokeWidth="1.5" />
               </svg>
             </span>
-            <span className="text-[10.5px] font-bold uppercase tracking-[0.14em]">Carte étudiant · Revix</span>
+            <span className="text-[10.5px] font-bold uppercase tracking-[0.14em]">Carte étudiant · Diplo</span>
             <span className="ml-auto text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-md bg-accent text-[#1e2c47] border-2 border-[#1e2c47]">{planLabel}</span>
           </div>
           {/* corps */}
@@ -329,7 +329,7 @@ export default function Profil() {
               <div className="rounded-md border-[2.5px] border-foreground bg-card p-4 shadow-brutal-sm space-y-2">
                 <div className="flex items-center gap-2">
                   <Crown className="h-5 w-5 text-amber-500" />
-                  <p className="font-serif text-lg">Revix {tier === "max" ? "Max" : "Pro"}</p>
+                  <p className="font-serif text-lg">Diplo {tier === "max" ? "Max" : "Pro"}</p>
                   <span className="ml-auto text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border-[1.5px] border-foreground bg-primary text-primary-foreground">
                     Actif
                   </span>
@@ -354,7 +354,7 @@ export default function Profil() {
               </div>
             ) : (
               <div className="space-y-3">
-                <p className="text-sm text-muted-foreground">Débloque tout le potentiel de Revix et soutiens le projet.</p>
+                <p className="text-sm text-muted-foreground">Débloque tout le potentiel de Diplo et soutiens le projet.</p>
                 {PLANS.map((p) => {
                   const isMax = p.theme === "max";
                   return (

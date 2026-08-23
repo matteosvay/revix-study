@@ -2,7 +2,7 @@
  * SM-2 Algorithm — Spaced Repetition Scheduling
  *
  * Implementation based on the SuperMemo SM-2 algorithm by P.A. Woźniak,
- * with adaptations for Revix (French student context).
+ * with adaptations for Diplo (French student context).
  *
  * Reference: https://www.supermemo.com/en/blog/application-of-a-computer-to-improve-the-results-obtained-in-working-with-the-supermemo-method
  *
@@ -14,7 +14,7 @@
  *   1 — Incorrect, vague memory
  *   0 — Complete blackout
  *
- * For Revix quiz context:
+ * For Diplo quiz context:
  *   - QCM correct on first try → grade 5
  *   - QCM correct after hesitation → grade 4
  *   - Open question marked "correct" by AI → grade 4

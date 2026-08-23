@@ -87,9 +87,9 @@ describe("levelInfo", () => {
     expect(levelInfo(5).name).toBe("Bizuth");
   });
 
-  it("returns Légende Revix for levels 46-50", () => {
-    expect(levelInfo(46).name).toBe("Légende Revix");
-    expect(levelInfo(50).name).toBe("Légende Revix");
+  it("returns Légende Diplo for levels 46-50", () => {
+    expect(levelInfo(46).name).toBe("Légende Diplo");
+    expect(levelInfo(50).name).toBe("Légende Diplo");
   });
 
   it("falls back to Bizuth for level 0 or below", () => {

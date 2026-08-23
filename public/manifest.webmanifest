@@ -1,6 +1,6 @@
 {
-  "name": "Revix",
-  "short_name": "Revix",
+  "name": "Diplo",
+  "short_name": "Diplo",
   "description": "Transforme tes cours en fiches, quizz et planning de révisions.",
   "start_url": "/app",
   "scope": "/",

@@ -189,7 +189,7 @@ export default function Aventure() {
         <DialogContent className="max-h-[85vh] overflow-y-auto">
           <DialogHeader>
  <DialogTitle>Chemin des titres </DialogTitle>
-            <DialogDescription>Tous les paliers de Bizuth à Légende Revix.</DialogDescription>
+            <DialogDescription>Tous les paliers de Bizuth à Légende Diplo.</DialogDescription>
           </DialogHeader>
           <ol className="space-y-2">
             {LEVEL_NAMES.map((tier) => {

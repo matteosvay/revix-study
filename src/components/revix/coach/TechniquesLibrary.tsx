@@ -27,7 +27,7 @@ const TECHNIQUES = [
   },
   {
     name: "RÉVISION ESPACÉE",
-    desc: "Révise J+1, J+3, J+7, J+14 après avoir appris. Revix calcule ça pour toi.",
+    desc: "Révise J+1, J+3, J+7, J+14 après avoir appris. Diplo calcule ça pour toi.",
     use: "Idéal pour : ne plus oublier avant l'exam.",
     cta: "Voir mes fiches",
     action: "fiches" as const,

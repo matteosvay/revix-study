@@ -11,7 +11,7 @@ export const LEVEL_NAMES: { min: number; max: number; name: string; emoji: strin
   { min: 31, max: 35, name: "Mention TB", emoji: "🥇", icon: illu.medalGold },
   { min: 36, max: 40, name: "Major de Promo", emoji: "🎓", icon: illu.cap },
   { min: 41, max: 45, name: "Surdoué", emoji: "🧠", icon: illu.brain },
-  { min: 46, max: 50, name: "Légende Revix", emoji: "👑", icon: illu.crown },
+  { min: 46, max: 50, name: "Légende Diplo", emoji: "👑", icon: illu.crown },
 ];
 
 export function levelInfo(level: number) {
@@ -165,7 +165,7 @@ export const STREAK_PRESTIGES: { days: number; name: string; emoji: string; icon
   { days: 100, name: "Phénix", emoji: "🐦‍🔥", icon: illu.phoenix, tagline: "100 jours. Tu renais chaque jour." },
   { days: 180, name: "Soleil", emoji: "☀️", icon: illu.sun, tagline: "6 mois — tu brilles tout seul." },
   { days: 365, name: "Supernova", emoji: "💫", icon: illu.supernova, tagline: "Une année. Légendaire." },
-  { days: 500, name: "Constellation", emoji: "🌌", icon: illu.constellation, tagline: "Tu fais partie du ciel Revix." },
+  { days: 500, name: "Constellation", emoji: "🌌", icon: illu.constellation, tagline: "Tu fais partie du ciel Diplo." },
   { days: 1000, name: "Éternel", emoji: "♾️", icon: illu.infinity, tagline: "1000 jours. Statut mythique." },
 ];
 

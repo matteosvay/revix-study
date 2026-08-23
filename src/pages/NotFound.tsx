@@ -15,7 +15,7 @@ const NotFound = () => {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground px-6 text-center relative overflow-hidden">
       <PageHead
-        title="Page introuvable, Revix"
+        title="Page introuvable, Diplo"
         description="Cette page n'existe pas ou plus."
         path={location.pathname}
         noindex

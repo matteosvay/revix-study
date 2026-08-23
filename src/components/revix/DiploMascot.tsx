@@ -7,7 +7,7 @@ import { DiploCapPicker } from "./DiploCapPicker";
 type Anim = "diplo-bob" | "diplo-hop" | "diplo-party";
 
 /**
- * Diplo — la mascotte de Revix, présente sur les écrans /app.
+ * Diplo — la mascotte de Diplo, présente sur les écrans /app.
  * Cligne des yeux, se balance, réagit aux événements de jeu (XP -> saut,
  * niveau -> fête) avec un son doux, et ouvre le sélecteur de toque au clic.
  */

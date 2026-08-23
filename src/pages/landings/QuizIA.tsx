@@ -3,8 +3,8 @@ import { FeatureLandingLayout } from "@/components/seo/FeatureLandingLayout";
 export default function QuizIA() {
   return (
     <FeatureLandingLayout
-      title="Quiz IA — générer un QCM depuis ton cours | Revix"
-      metaDescription="Crée un quiz personnalisé (QCM, vrai/faux, questions ouvertes) à partir de tes cours. L'IA Revix génère et corrige automatiquement pour t'entraîner aux examens."
+      title="Quiz IA — générer un QCM depuis ton cours | Diplo"
+      metaDescription="Crée un quiz personnalisé (QCM, vrai/faux, questions ouvertes) à partir de tes cours. L'IA Diplo génère et corrige automatiquement pour t'entraîner aux examens."
       path="/quiz-ia"
       tagline="Quiz IA · Gratuit"
       h1="Quiz IA pour réviser tes cours"
@@ -26,7 +26,7 @@ export default function QuizIA() {
         "Quizz adaptatifs basés sur tes erreurs précédentes",
         "Statistiques par chapitre pour cibler tes lacunes",
         "Mode duel avec tes amis pour réviser en s'amusant",
-        "Fonctionne avec n'importe quel cours uploadé sur Revix",
+        "Fonctionne avec n'importe quel cours uploadé sur Diplo",
       ]}
       steps={[
         { title: "Choisis ton cours", desc: "Sélectionne un cours déjà uploadé ou ajoutes-en un nouveau." },

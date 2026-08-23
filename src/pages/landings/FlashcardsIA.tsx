@@ -3,15 +3,15 @@ import { FeatureLandingLayout } from "@/components/seo/FeatureLandingLayout";
 export default function FlashcardsIA() {
   return (
     <FeatureLandingLayout
-      title="Flashcards IA — réviser avec la répétition espacée | Revix"
-      metaDescription="Crée des flashcards depuis tes cours et révise avec la méthode SM-2 (répétition espacée). L'IA Revix génère, suit et adapte tes cartes automatiquement."
+      title="Flashcards IA — réviser avec la répétition espacée | Diplo"
+      metaDescription="Crée des flashcards depuis tes cours et révise avec la méthode SM-2 (répétition espacée). L'IA Diplo génère, suit et adapte tes cartes automatiquement."
       path="/flashcards-ia"
       tagline="Flashcards · Gratuit"
       h1="Flashcards IA avec répétition espacée"
       intro={
         <>
           <p>
-            La méthode des flashcards combinée à l'IA : Revix génère
+            La méthode des flashcards combinée à l'IA : Diplo génère
             automatiquement tes cartes recto-verso depuis n'importe quel cours.
           </p>
           <p>
@@ -30,7 +30,7 @@ export default function FlashcardsIA() {
         "Synchronisation web et mobile",
       ]}
       steps={[
-        { title: "Upload ton cours", desc: "PDF, photo ou texte — Revix accepte tous les formats." },
+        { title: "Upload ton cours", desc: "PDF, photo ou texte — Diplo accepte tous les formats." },
         { title: "L'IA crée les cartes", desc: "Recto question, verso réponse, généré automatiquement." },
         { title: "Révise au bon moment", desc: "L'algorithme te ressort les cartes juste avant que tu les oublies." },
       ]}

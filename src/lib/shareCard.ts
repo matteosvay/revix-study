@@ -1,5 +1,5 @@
 /**
- * Génère une carte de score partageable (image PNG) façon story, aux couleurs Revix,
+ * Génère une carte de score partageable (image PNG) façon story, aux couleurs Diplo,
  * puis la partage via l'API native (mobile) ou la télécharge (fallback desktop).
  * Tout est dessiné sur un <canvas> — aucune dépendance.
  */
@@ -196,7 +196,7 @@ export async function makeStreakCard({ days, record }: { days: number; record: n
   ctx.fillText("Tiendras-tu la série ?", W / 2, cardY + cardH - 100);
   ctx.fillStyle = "#5a6478";
   ctx.font = "500 26px 'Inter', system-ui, sans-serif";
-  ctx.fillText("Révise chaque jour sur Revix", W / 2, cardY + cardH - 58);
+  ctx.fillText("Révise chaque jour sur Diplo", W / 2, cardY + cardH - 58);
 
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b as Blob), "image/png", 0.95));
 }
@@ -205,7 +205,7 @@ async function shareBlob(blob: Blob, filename: string, text: string): Promise<"s
   const file = new File([blob], filename, { type: "image/png" });
   const nav = navigator as Navigator & { canShare?: (d: any) => boolean; share?: (d: any) => Promise<void> };
   if (nav.canShare && nav.share && nav.canShare({ files: [file] })) {
-    try { await nav.share({ files: [file], title: "Revix", text }); return "shared"; } catch { /* annulé */ }
+    try { await nav.share({ files: [file], title: "Diplo", text }); return "shared"; } catch { /* annulé */ }
   }
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
@@ -217,7 +217,7 @@ async function shareBlob(blob: Blob, filename: string, text: string): Promise<"s
 
 export async function shareStreakCard(data: { days: number; record: number }): Promise<"shared" | "downloaded"> {
   const blob = await makeStreakCard(data);
-  return shareBlob(blob, "revix-serie.png", `${data.days} jours de série sur Revix ! 🔥`);
+  return shareBlob(blob, "revix-serie.png", `${data.days} jours de série sur Diplo ! 🔥`);
 }
 
 /** Partage (mobile) ou télécharge (desktop) la carte de score. */
@@ -227,7 +227,7 @@ export async function shareScoreCard(data: ScoreData): Promise<"shared" | "downl
   const nav = navigator as Navigator & { canShare?: (d: any) => boolean; share?: (d: any) => Promise<void> };
   if (nav.canShare && nav.share && nav.canShare({ files: [file] })) {
     try {
-      await nav.share({ files: [file], title: "Mon score Revix", text: `J'ai fait ${data.pct}% sur Revix ! 📚` });
+      await nav.share({ files: [file], title: "Mon score Diplo", text: `J'ai fait ${data.pct}% sur Diplo ! 📚` });
       return "shared";
     } catch { /* annulé → on tente le téléchargement */ }
   }

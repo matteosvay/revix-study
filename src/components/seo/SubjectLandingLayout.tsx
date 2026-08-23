@@ -123,7 +123,7 @@ export function SubjectLandingLayout({
     description: metaDescription,
     url: `https://revix-study.lovable.app${path}`,
     inLanguage: "fr",
-    provider: { "@type": "Organization", name: "Revix", url: "https://revix-study.lovable.app" },
+    provider: { "@type": "Organization", name: "Diplo", url: "https://revix-study.lovable.app" },
     about: subject,
   };
 

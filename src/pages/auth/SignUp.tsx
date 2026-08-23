@@ -74,7 +74,7 @@ export default function SignUp() {
           ...(gender ? { gender } : {}),
         }).eq("id", signUpData.session.user.id);
       }
-      toast.success("Compte créé ! Bienvenue sur Revix.");
+      toast.success("Compte créé ! Bienvenue sur Diplo.");
       nav("/app");
     } else {
       setSubmittedEmail(email);
@@ -232,7 +232,7 @@ export default function SignUp() {
             <Link to="/confidentialite" target="_blank" className="text-primary font-medium hover:underline">
               Politique de confidentialité
             </Link>{" "}
-            de Revix.
+            de Diplo.
           </Label>
         </div>
         {formError && (

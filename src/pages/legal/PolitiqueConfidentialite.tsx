@@ -4,18 +4,18 @@ export default function PolitiqueConfidentialite() {
   return (
     <LegalLayout
       title="Politique de confidentialité"
-      subtitle="Comment Revix collecte, utilise et protège vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD — UE 2016/679) et à la loi Informatique et Libertés."
+      subtitle="Comment Diplo collecte, utilise et protège vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD — UE 2016/679) et à la loi Informatique et Libertés."
       updatedAt="19 mai 2026"
       seo={{
-        title: "Politique de confidentialité — Revix",
-        description: "Comment Revix collecte, utilise et protège vos données personnelles dans le respect du RGPD.",
+        title: "Politique de confidentialité — Diplo",
+        description: "Comment Diplo collecte, utilise et protège vos données personnelles dans le respect du RGPD.",
         path: "/confidentialite",
       }}
     >
       <LegalHighlight>
         <p className="text-sm font-bold mb-1">En résumé</p>
         <ul className="text-sm space-y-1 text-muted-foreground">
-          <li>Nous collectons uniquement ce dont nous avons besoin pour faire fonctionner Revix.</li>
+          <li>Nous collectons uniquement ce dont nous avons besoin pour faire fonctionner Diplo.</li>
           <li>Nous ne vendons jamais vos données à des tiers.</li>
           <li>Vos fichiers ne servent pas à entraîner des modèles d'IA tiers.</li>
           <li>Vous pouvez demander la suppression de votre compte et de toutes vos données à tout moment.</li>
@@ -107,12 +107,12 @@ export default function PolitiqueConfidentialite() {
 
       <LegalSection number="3" title="Utilisateurs mineurs">
         <p>
-          Revix est accessible à tout public, y compris aux mineurs. Conformément à l'article 8 du RGPD,
+          Diplo est accessible à tout public, y compris aux mineurs. Conformément à l'article 8 du RGPD,
           le traitement des données d'un mineur de moins de 15 ans (âge retenu en droit français) nécessite
           le consentement d'un titulaire de l'autorité parentale.
         </p>
         <p>
-          En créant un compte sur Revix, l'utilisateur déclare :
+          En créant un compte sur Diplo, l'utilisateur déclare :
         </p>
         <ul className="list-disc pl-4 space-y-1">
           <li>Avoir au moins 15 ans, ou</li>
@@ -201,7 +201,7 @@ export default function PolitiqueConfidentialite() {
 
       <LegalSection number="8" title="Cookies">
         <p>
-          Revix utilise uniquement des cookies (et technologies de stockage local) strictement nécessaires
+          Diplo utilise uniquement des cookies (et technologies de stockage local) strictement nécessaires
           au fonctionnement du service : maintien de ta session de connexion et mémorisation de tes préférences
           (thème clair/sombre, son). Aucun cookie publicitaire ni traceur tiers à des fins marketing n'est déposé.
           Ces cookies essentiels ne nécessitent pas de consentement préalable au sens de la réglementation applicable.

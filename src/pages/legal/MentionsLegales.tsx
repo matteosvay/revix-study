@@ -7,8 +7,8 @@ export default function MentionsLegales() {
       subtitle="Informations obligatoires conformément à la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN)."
       updatedAt="19 mai 2026"
       seo={{
-        title: "Mentions légales — Revix",
-        description: "Mentions légales de Revix : éditeur, hébergeur et coordonnées de contact.",
+        title: "Mentions légales — Diplo",
+        description: "Mentions légales de Diplo : éditeur, hébergeur et coordonnées de contact.",
         path: "/mentions-legales",
       }}
     >
@@ -25,7 +25,7 @@ export default function MentionsLegales() {
 
       <LegalSection number="2" title="Hébergement">
         <p>
-          L'application Revix est hébergée par les prestataires suivants :
+          L'application Diplo est hébergée par les prestataires suivants :
         </p>
         <div className="space-y-3">
           <LegalTable rows={[
@@ -44,7 +44,7 @@ export default function MentionsLegales() {
 
       <LegalSection number="3" title="Propriété intellectuelle">
         <p>
-          L'ensemble des éléments constituant l'application Revix (marque, logo, design, textes,
+          L'ensemble des éléments constituant l'application Diplo (marque, logo, design, textes,
           fonctionnalités, code source) est la propriété exclusive de Matteo Svay, sauf mention contraire.
         </p>
         <p>
@@ -53,15 +53,15 @@ export default function MentionsLegales() {
         </p>
         <p>
           Les contenus pédagogiques (cours, fiches, quizz) créés et uploadés par les utilisateurs
-          restent la propriété intellectuelle de leurs auteurs respectifs. En les déposant sur Revix,
-          l'utilisateur accorde à Revix une licence non-exclusive d'utilisation limitée à la fourniture
+          restent la propriété intellectuelle de leurs auteurs respectifs. En les déposant sur Diplo,
+          l'utilisateur accorde à Diplo une licence non-exclusive d'utilisation limitée à la fourniture
           du service (traitement par IA, stockage, affichage).
         </p>
       </LegalSection>
 
       <LegalSection number="4" title="Limitation de responsabilité">
         <p>
-          Revix met tout en oeuvre pour assurer la disponibilité et la sécurité du service. Toutefois,
+          Diplo met tout en oeuvre pour assurer la disponibilité et la sécurité du service. Toutefois,
           l'éditeur ne saurait être tenu responsable :
         </p>
         <ul className="list-disc pl-4 space-y-1">
