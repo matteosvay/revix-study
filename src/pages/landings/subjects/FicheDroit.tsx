@@ -3,7 +3,7 @@ import { SubjectLandingLayout } from "@/components/seo/SubjectLandingLayout";
 export default function FicheDroit() {
   return (
     <SubjectLandingLayout
-      title="Fiche de révision Droit — exemples, flashcards et quiz | Revix"
+      title="Fiche de révision Droit — exemples, flashcards et quiz | Diplo"
       metaDescription="Fiche de révision Droit prête à l'emploi : introduction au droit, sources, hiérarchie des normes. Flashcards et mini-quiz interactifs pour réviser efficacement."
       path="/fiches-de-revision/droit"
       subject="Droit"
@@ -17,7 +17,7 @@ export default function FicheDroit() {
             tester tes connaissances.
           </p>
           <p>
-            Tu peux générer la tienne en uploadant ton cours sur Revix — l'IA structure
+            Tu peux générer la tienne en uploadant ton cours sur Diplo — l'IA structure
             tout en moins d'une minute.
           </p>
         </>
@@ -95,7 +95,7 @@ export default function FicheDroit() {
       ]}
       faqs={[
         { q: "À qui s'adresse cette fiche ?", a: "Étudiants en L1 Droit, BTS, classes prépa, terminale spécialité HGGSP/SES et toute personne curieuse du fonctionnement du droit français." },
-        { q: "Puis-je générer une fiche similaire pour mon propre cours ?", a: "Oui. Inscris-toi sur Revix, upload ton PDF ou ta photo de cours, et l'IA produit une fiche structurée comme celle-ci." },
+        { q: "Puis-je générer une fiche similaire pour mon propre cours ?", a: "Oui. Inscris-toi sur Diplo, upload ton PDF ou ta photo de cours, et l'IA produit une fiche structurée comme celle-ci." },
         { q: "Les flashcards sont-elles exportables ?", a: "Oui, les fiches générées dans l'app sont exportables en PDF et révisables en mode flashcards." },
       ]}
     />

@@ -3,7 +3,7 @@ import { SubjectLandingLayout } from "@/components/seo/SubjectLandingLayout";
 export default function FicheMarketing() {
   return (
     <SubjectLandingLayout
-      title="Fiche de révision Marketing — 4P, SWOT, segmentation | Revix"
+      title="Fiche de révision Marketing — 4P, SWOT, segmentation | Diplo"
       metaDescription="Fiche Marketing complète : mix marketing (4P), SWOT, segmentation, ciblage, positionnement. Flashcards et quiz interactifs pour BTS, BUT et école de commerce."
       path="/fiches-de-revision/marketing"
       subject="Marketing"
@@ -16,7 +16,7 @@ export default function FicheMarketing() {
             positionnement (STP). Idéal BTS MCO/NDRC, BUT TC, école de commerce.
           </p>
           <p>
-            Tu peux générer ta propre fiche à partir de ton cours sur Revix.
+            Tu peux générer ta propre fiche à partir de ton cours sur Diplo.
           </p>
         </>
       }
@@ -95,7 +95,7 @@ export default function FicheMarketing() {
       faqs={[
         { q: "Cette fiche correspond à quel niveau ?", a: "BTS MCO/NDRC, BUT TC/GEA, L1/L2 éco-gestion, première année d'école de commerce." },
         { q: "Y a-t-il une fiche sur le marketing digital ?", a: "Pas encore en page dédiée. Génère-la dans l'app à partir de ton cours — l'IA produit une fiche similaire en moins d'une minute." },
-        { q: "Puis-je m'entraîner avec plus de quiz ?", a: "Oui, la fonctionnalité Quiz IA de Revix génère un nombre illimité de questions à partir de ton cours." },
+        { q: "Puis-je m'entraîner avec plus de quiz ?", a: "Oui, la fonctionnalité Quiz IA de Diplo génère un nombre illimité de questions à partir de ton cours." },
       ]}
     />
   );

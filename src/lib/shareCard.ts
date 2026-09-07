@@ -93,9 +93,9 @@ export async function makeScoreCard({ score, total, pct }: ScoreData): Promise<B
   ctx.fillStyle = BLUE; ctx.fillRect(cardX, cardY, cardW, 132);
   ctx.restore();
   ctx.fillStyle = "#fff";
-  ctx.font = "700 46px 'Space Grotesk', system-ui, sans-serif";
+  ctx.font = "700 46px 'Bricolage Grotesque', system-ui, sans-serif";
   ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.fillText("REVIX", W / 2, cardY + 66);
+  ctx.fillText("DIPLO", W / 2, cardY + 66);
   ctx.font = "600 22px 'JetBrains Mono', monospace";
   ctx.fillText("MON SCORE", W / 2, cardY + 104);
 
@@ -110,10 +110,10 @@ export async function makeScoreCard({ score, total, pct }: ScoreData): Promise<B
   // score géant
   const scoreColor = pct >= 80 ? GREEN : pct >= 50 ? BLUE : "#e2564b";
   ctx.fillStyle = INK;
-  ctx.font = "700 150px 'Space Grotesk', system-ui, sans-serif";
+  ctx.font = "700 150px 'Bricolage Grotesque', system-ui, sans-serif";
   ctx.fillText(`${score}/${total}`, W / 2, cardY + 560);
   ctx.fillStyle = scoreColor;
-  ctx.font = "700 96px 'Space Grotesk', system-ui, sans-serif";
+  ctx.font = "700 96px 'Bricolage Grotesque', system-ui, sans-serif";
   ctx.fillText(`${pct}%`, W / 2, cardY + 680);
 
   // étoiles
@@ -123,12 +123,12 @@ export async function makeScoreCard({ score, total, pct }: ScoreData): Promise<B
 
   // tagline
   ctx.fillStyle = INK;
-  ctx.font = "600 34px 'Inter', system-ui, sans-serif";
-  const msg = pct === 100 ? "Sans-faute ! 🎯" : pct >= 80 ? "Bien joué !" : pct >= 50 ? "En progression !" : "On révise et on y retourne !";
-  ctx.fillText(msg.replace(" 🎯", ""), W / 2, cardY + cardH - 150);
+  ctx.font = "600 34px 'Public Sans', system-ui, sans-serif";
+  const msg = pct === 100 ? "Sans-faute !" : pct >= 80 ? "Bien joué !" : pct >= 50 ? "En progression !" : "On révise et on y retourne !";
+  ctx.fillText(msg, W / 2, cardY + cardH - 150);
   ctx.fillStyle = "#5a6478";
-  ctx.font = "500 26px 'Inter', system-ui, sans-serif";
-  ctx.fillText("Révise tes cours avec l'IA · revix", W / 2, cardY + cardH - 100);
+  ctx.font = "500 26px 'Public Sans', system-ui, sans-serif";
+  ctx.fillText("Révise tes cours avec l'IA · diplo", W / 2, cardY + cardH - 100);
 
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b as Blob), "image/png", 0.95));
 }
@@ -170,19 +170,19 @@ export async function makeStreakCard({ days, record }: { days: number; record: n
   ctx.save(); roundRect(ctx, cardX, cardY, cardW, 132, 42); ctx.clip();
   ctx.fillStyle = BLUE; ctx.fillRect(cardX, cardY, cardW, 132); ctx.restore();
   ctx.fillStyle = "#fff"; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-  ctx.font = "700 46px 'Space Grotesk', system-ui, sans-serif"; ctx.fillText("REVIX", W / 2, cardY + 66);
+  ctx.font = "700 46px 'Bricolage Grotesque', system-ui, sans-serif"; ctx.fillText("DIPLO", W / 2, cardY + 66);
   ctx.font = "600 22px 'JetBrains Mono', monospace"; ctx.fillText("MA SÉRIE", W / 2, cardY + 104);
 
   flame(ctx, W / 2, cardY + 290, 2.6);
 
   ctx.fillStyle = INK;
-  ctx.font = "700 210px 'Space Grotesk', system-ui, sans-serif";
+  ctx.font = "700 210px 'Bricolage Grotesque', system-ui, sans-serif";
   ctx.fillText(`${days}`, W / 2, cardY + 560);
-  ctx.font = "700 40px 'Space Grotesk', system-ui, sans-serif";
+  ctx.font = "700 40px 'Bricolage Grotesque', system-ui, sans-serif";
   ctx.fillText(days <= 1 ? "JOUR DE SÉRIE" : "JOURS DE SÉRIE", W / 2, cardY + 690);
 
   ctx.fillStyle = "#5a6478";
-  ctx.font = "600 30px 'Inter', system-ui, sans-serif";
+  ctx.font = "600 30px 'Public Sans', system-ui, sans-serif";
   ctx.fillText(`Record personnel : ${record} jour${record > 1 ? "s" : ""}`, W / 2, cardY + 760);
 
   try {
@@ -192,10 +192,10 @@ export async function makeStreakCard({ days, record }: { days: number; record: n
   } catch { /* ignore */ }
 
   ctx.fillStyle = INK;
-  ctx.font = "600 32px 'Inter', system-ui, sans-serif";
+  ctx.font = "600 32px 'Public Sans', system-ui, sans-serif";
   ctx.fillText("Tiendras-tu la série ?", W / 2, cardY + cardH - 100);
   ctx.fillStyle = "#5a6478";
-  ctx.font = "500 26px 'Inter', system-ui, sans-serif";
+  ctx.font = "500 26px 'Public Sans', system-ui, sans-serif";
   ctx.fillText("Révise chaque jour sur Diplo", W / 2, cardY + cardH - 58);
 
   return new Promise((resolve) => canvas.toBlob((b) => resolve(b as Blob), "image/png", 0.95));
@@ -223,7 +223,7 @@ export async function shareStreakCard(data: { days: number; record: number }): P
 /** Partage (mobile) ou télécharge (desktop) la carte de score. */
 export async function shareScoreCard(data: ScoreData): Promise<"shared" | "downloaded"> {
   const blob = await makeScoreCard(data);
-  const file = new File([blob], "revix-score.png", { type: "image/png" });
+  const file = new File([blob], "diplo-score.png", { type: "image/png" });
   const nav = navigator as Navigator & { canShare?: (d: any) => boolean; share?: (d: any) => Promise<void> };
   if (nav.canShare && nav.share && nav.canShare({ files: [file] })) {
     try {
@@ -233,7 +233,7 @@ export async function shareScoreCard(data: ScoreData): Promise<"shared" | "downl
   }
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url; a.download = "revix-score.png";
+  a.href = url; a.download = "diplo-score.png";
   document.body.appendChild(a); a.click(); a.remove();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
   return "downloaded";

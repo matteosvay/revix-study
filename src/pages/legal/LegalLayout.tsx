@@ -37,7 +37,7 @@ export function LegalLayout({ title, subtitle, updatedAt, children, seo }: Legal
         {/* Page title */}
         <div className="mb-10">
           <div className="inline-block border-[2.5px] border-foreground bg-secondary px-3 py-1 rounded-md shadow-brutal-sm mb-4">
-            <p className="font-mono-tag text-[10px] uppercase tracking-widest">Revix — Document légal</p>
+            <p className="font-mono-tag text-[10px] uppercase tracking-widest">Diplo — Document légal</p>
           </div>
           <h1 className="font-display text-4xl leading-[0.95] mb-3">{title}</h1>
           {subtitle && <p className="text-muted-foreground text-sm mt-2">{subtitle}</p>}

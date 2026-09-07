@@ -1,16 +1,17 @@
 /** Gamification helpers (levels, XP, quests). */
+import { illu } from "@/assets/illu";
 
-export const LEVEL_NAMES: { min: number; max: number; name: string; emoji: string }[] = [
-  { min: 1, max: 5, name: "Bizuth", emoji: "🎒" },
-  { min: 6, max: 10, name: "Galère", emoji: "📚" },
-  { min: 11, max: 15, name: "Studieux", emoji: "📖" },
-  { min: 16, max: 20, name: "Assidu", emoji: "⭐" },
-  { min: 21, max: 25, name: "Mention AB", emoji: "🏅" },
-  { min: 26, max: 30, name: "Mention B", emoji: "🥈" },
-  { min: 31, max: 35, name: "Mention TB", emoji: "🥇" },
-  { min: 36, max: 40, name: "Major de Promo", emoji: "🎓" },
-  { min: 41, max: 45, name: "Surdoué", emoji: "🧠" },
-  { min: 46, max: 50, name: "Légende Diplo", emoji: "👑" },
+export const LEVEL_NAMES: { min: number; max: number; name: string; emoji: string; icon: string }[] = [
+  { min: 1, max: 5, name: "Bizuth", emoji: "🎒", icon: illu.backpack },
+  { min: 6, max: 10, name: "Galère", emoji: "📚", icon: illu.books },
+  { min: 11, max: 15, name: "Studieux", emoji: "📖", icon: illu.notebook },
+  { min: 16, max: 20, name: "Assidu", emoji: "⭐", icon: illu.star },
+  { min: 21, max: 25, name: "Mention AB", emoji: "🏅", icon: illu.medalBronze },
+  { min: 26, max: 30, name: "Mention B", emoji: "🥈", icon: illu.medalSilver },
+  { min: 31, max: 35, name: "Mention TB", emoji: "🥇", icon: illu.medalGold },
+  { min: 36, max: 40, name: "Major de Promo", emoji: "🎓", icon: illu.cap },
+  { min: 41, max: 45, name: "Surdoué", emoji: "🧠", icon: illu.brain },
+  { min: 46, max: 50, name: "Légende Diplo", emoji: "👑", icon: illu.crown },
 ];
 
 export function levelInfo(level: number) {
@@ -145,17 +146,17 @@ export function leagueInfo(weekXp: number) {
 }
 
 /** Prestiges streak — paliers symboliques avec titre et emoji. */
-export const STREAK_PRESTIGES: { days: number; name: string; emoji: string; tagline: string }[] = [
-  { days: 3, name: "Étincelle", emoji: "✨", tagline: "T'as allumé la flamme." },
-  { days: 7, name: "Flammèche", emoji: "🔥", tagline: "Une semaine pleine, respect." },
-  { days: 14, name: "Brasier", emoji: "🔥🔥", tagline: "Deux semaines : c'est solide." },
-  { days: 30, name: "Volcan", emoji: "🌋", tagline: "Un mois entier — tu es chaud." },
-  { days: 60, name: "Tempête de feu", emoji: "⚡🔥", tagline: "Deux mois, t'es hors-norme." },
-  { days: 100, name: "Phénix", emoji: "🐦‍🔥", tagline: "100 jours. Tu renais chaque jour." },
-  { days: 180, name: "Soleil", emoji: "☀️", tagline: "6 mois — tu brilles tout seul." },
-  { days: 365, name: "Supernova", emoji: "💫", tagline: "Une année. Légendaire." },
-  { days: 500, name: "Constellation", emoji: "🌌", tagline: "Tu fais partie du ciel Diplo." },
-  { days: 1000, name: "Éternel", emoji: "♾️", tagline: "1000 jours. Statut mythique." },
+export const STREAK_PRESTIGES: { days: number; name: string; emoji: string; icon: string; tagline: string }[] = [
+  { days: 3, name: "Étincelle", emoji: "✨", icon: illu.sparkle, tagline: "T'as allumé la flamme." },
+  { days: 7, name: "Flammèche", emoji: "🔥", icon: illu.flame, tagline: "Une semaine pleine, respect." },
+  { days: 14, name: "Brasier", emoji: "🔥🔥", icon: illu.flameDouble, tagline: "Deux semaines : c'est solide." },
+  { days: 30, name: "Volcan", emoji: "🌋", icon: illu.volcano, tagline: "Un mois entier — tu es chaud." },
+  { days: 60, name: "Tempête de feu", emoji: "⚡🔥", icon: illu.storm, tagline: "Deux mois, t'es hors-norme." },
+  { days: 100, name: "Phénix", emoji: "🐦‍🔥", icon: illu.phoenix, tagline: "100 jours. Tu renais chaque jour." },
+  { days: 180, name: "Soleil", emoji: "☀️", icon: illu.sun, tagline: "6 mois — tu brilles tout seul." },
+  { days: 365, name: "Supernova", emoji: "💫", icon: illu.supernova, tagline: "Une année. Légendaire." },
+  { days: 500, name: "Constellation", emoji: "🌌", icon: illu.constellation, tagline: "Tu fais partie du ciel Diplo." },
+  { days: 1000, name: "Éternel", emoji: "♾️", icon: illu.infinity, tagline: "1000 jours. Statut mythique." },
 ];
 
 export function streakPrestige(days: number) {
@@ -169,4 +170,30 @@ export function streakPrestige(days: number) {
   }
   const next = STREAK_PRESTIGES[nextIdx] ?? null;
   return { current, next };
+}
+
+/**
+ * Illustration associee a une quete. Aventure.tsx l'appelle pour chaque quete
+ * et retombe sur un rendu texte quand la cle est inconnue, donc renvoyer
+ * undefined est sans danger.
+ */
+const QUEST_ICONS: Record<string, string> = {
+  quiz_done: illu.quiz,
+  w_5_quizzes: illu.quiz,
+  questions_answered: illu.target,
+  high_score: illu.star,
+  w_3_high_scores: illu.medalGold,
+  perfect_quiz: illu.trophy,
+  streak_kept: illu.flame,
+  w_7_streak: illu.streak,
+  course_uploaded: illu.upload,
+  w_4_uploads: illu.folder,
+  task_added: illu.planning,
+  w_5_planning_tasks: illu.planning,
+  coach_question: illu.brain,
+};
+
+export function questIcon(questKey: string | null | undefined): string | undefined {
+  if (!questKey) return undefined;
+  return QUEST_ICONS[questKey];
 }

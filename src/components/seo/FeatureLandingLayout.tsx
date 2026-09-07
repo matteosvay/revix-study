@@ -44,7 +44,7 @@ export function FeatureLandingLayout({
   const softwareJsonLd = {
     "@context": "https://schema.org",
     "@type": "SoftwareApplication",
-    name: `Revix — ${h1}`,
+    name: `Diplo — ${h1}`,
     applicationCategory: "EducationalApplication",
     operatingSystem: "Web, iOS, Android",
     description: metaDescription,

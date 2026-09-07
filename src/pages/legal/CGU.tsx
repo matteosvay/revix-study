@@ -4,25 +4,25 @@ export default function CGU() {
   return (
     <LegalLayout
       title="Conditions Générales d'Utilisation"
-      subtitle="En créant un compte sur Revix, vous acceptez les présentes Conditions Générales d'Utilisation (CGU). Veuillez les lire attentivement."
+      subtitle="En créant un compte sur Diplo, vous acceptez les présentes Conditions Générales d'Utilisation (CGU). Veuillez les lire attentivement."
       updatedAt="19 mai 2026"
       seo={{
-        title: "Conditions Générales d'Utilisation — Revix",
-        description: "Conditions Générales d'Utilisation (CGU) de l'application Revix : règles d'usage, compte utilisateur et responsabilités.",
+        title: "Conditions Générales d'Utilisation — Diplo",
+        description: "Conditions Générales d'Utilisation (CGU) de l'application Diplo : règles d'usage, compte utilisateur et responsabilités.",
         path: "/cgu",
       }}
     >
       <LegalHighlight>
         <p className="text-sm">
-          <strong>Version :</strong> 1.0 — Ces CGU s'appliquent à toute utilisation de l'application Revix,
+          <strong>Version :</strong> 1.0 — Ces CGU s'appliquent à toute utilisation de l'application Diplo,
           accessible sur le web et en version installée (PWA). Elles forment un contrat entre vous
-          (l'utilisateur) et Matteo Svay (auto-entrepreneur, éditeur de Revix).
+          (l'utilisateur) et Matteo Svay (auto-entrepreneur, éditeur de Diplo).
         </p>
       </LegalHighlight>
 
       <LegalSection number="1" title="Présentation du service">
         <p>
-          Revix est une application d'aide à la révision scolaire et universitaire. Elle permet aux
+          Diplo est une application d'aide à la révision scolaire et universitaire. Elle permet aux
           utilisateurs de :
         </p>
         <ul className="list-disc pl-4 space-y-1">
@@ -55,7 +55,7 @@ export default function CGU() {
       </LegalSection>
 
       <LegalSection number="3" title="Utilisation acceptable du service">
-        <p>En utilisant Revix, vous vous engagez à :</p>
+        <p>En utilisant Diplo, vous vous engagez à :</p>
         <ul className="list-disc pl-4 space-y-1">
           <li>N'uploader que des contenus dont vous êtes l'auteur ou pour lesquels vous disposez des droits nécessaires ;</li>
           <li>Ne pas partager de contenus illicites, injurieux, diffamatoires, pornographiques ou portant atteinte aux droits de tiers ;</li>
@@ -71,7 +71,7 @@ export default function CGU() {
 
       <LegalSection number="4" title="Contenus générés par intelligence artificielle">
         <p>
-          Revix utilise des services d'intelligence artificielle (IA) pour générer des fiches, quizz,
+          Diplo utilise des services d'intelligence artificielle (IA) pour générer des fiches, quizz,
           corrections, conseils de révision et réponses du coach. À ce titre :
         </p>
         <ul className="list-disc pl-4 space-y-1">
@@ -82,7 +82,7 @@ export default function CGU() {
             sources officielles.
           </li>
           <li>
-            Revix décline toute responsabilité quant aux conséquences résultant de l'utilisation
+            Diplo décline toute responsabilité quant aux conséquences résultant de l'utilisation
             de contenus générés par IA dans un contexte d'examen ou d'évaluation officielle.
           </li>
           <li>
@@ -96,7 +96,7 @@ export default function CGU() {
       <LegalSection number="5" title="Propriété intellectuelle des contenus utilisateurs">
         <p>
           Vous conservez l'intégralité des droits de propriété intellectuelle sur les contenus que vous
-          uploadez (cours, photos, textes, fiches créées). En les déposant sur Revix, vous accordez à
+          uploadez (cours, photos, textes, fiches créées). En les déposant sur Diplo, vous accordez à
           Matteo Svay une licence non exclusive, mondiale, gratuite et limitée dans le temps, uniquement
           pour les finalités suivantes :
         </p>
@@ -112,7 +112,7 @@ export default function CGU() {
 
       <LegalSection number="6" title="Disponibilité du service">
         <p>
-          Revix s'efforce d'assurer la disponibilité du service 24h/24, 7j/7. Toutefois, des
+          Diplo s'efforce d'assurer la disponibilité du service 24h/24, 7j/7. Toutefois, des
           interruptions peuvent survenir pour maintenance, mises à jour ou incidents techniques.
           L'éditeur ne s'engage pas sur un taux de disponibilité garanti.
         </p>
@@ -129,7 +129,7 @@ export default function CGU() {
           (voir CGV).
         </p>
         <p>
-          <strong>Par Revix :</strong> Nous nous réservons le droit de suspendre ou supprimer tout
+          <strong>Par Diplo :</strong> Nous nous réservons le droit de suspendre ou supprimer tout
           compte qui violerait les présentes CGU, sans préavis et sans indemnité. Les abonnements
           prépayés ne sont pas remboursés en cas de suspension pour violation des CGU.
         </p>
@@ -137,7 +137,7 @@ export default function CGU() {
 
       <LegalSection number="8" title="Limitation de responsabilité">
         <p>
-          Dans les limites autorisées par la loi française, Revix ne saurait être tenu responsable :
+          Dans les limites autorisées par la loi française, Diplo ne saurait être tenu responsable :
         </p>
         <ul className="list-disc pl-4 space-y-1">
           <li>Des pertes de données résultant d'une mauvaise utilisation du service ;</li>
@@ -146,7 +146,7 @@ export default function CGU() {
           <li>Des dommages indirects, perte de chance, ou préjudice moral.</li>
         </ul>
         <p>
-          La responsabilité de Revix est en tout état de cause limitée au montant des sommes
+          La responsabilité de Diplo est en tout état de cause limitée au montant des sommes
           effectivement versées par l'utilisateur au cours des 12 derniers mois.
         </p>
       </LegalSection>

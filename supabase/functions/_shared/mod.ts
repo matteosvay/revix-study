@@ -1,4 +1,4 @@
-// Shared utilities for Revix edge functions.
+// Shared utilities for Diplo edge functions.
 // - CORS headers
 // - JWT auth check (with the calling user's Supabase client)
 // - Claude (Anthropic) wrapper with text + tool_use support
