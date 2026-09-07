@@ -6,8 +6,13 @@
 
 import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
+const EXTRA_ORIGINS = (Deno.env.get("EXTRA_ALLOWED_ORIGINS") ?? "")
+  .split(",").map((o) => o.trim()).filter(Boolean);
+
 const ALLOWED_ORIGINS = [
   "https://revix-study.lovable.app",
+  "https://diplo.lovable.app",
+  ...EXTRA_ORIGINS,
   "http://localhost:5173",
   "http://localhost:8080",
   "http://localhost:3000",
@@ -154,6 +159,17 @@ export async function callClaude(params: ClaudeCallParams): Promise<ClaudeRawRes
     if (block.type === "text") text += block.text;
     else if (block.type === "tool_use" && !toolInput) toolInput = block.input ?? {};
   }
+
+  // Si le modele a atteint max_tokens au milieu d'un bloc structure, l'input est
+  // partiel ou vide. Sans ce test, l'appelant conclut a tort "rien genere".
+  if (data.stop_reason === "max_tokens") {
+    console.error("[claude] TRONQUE", { max_tokens: params.maxTokens, usage: data.usage });
+    throw Object.assign(new Error("Reponse IA tronquee (max_tokens atteint)"), {
+      status: 507,
+      truncated: true,
+    });
+  }
+
   return { text, toolInput, raw: data };
 }
 
@@ -188,19 +204,30 @@ export async function callClaudeVision(params: {
 }
 
 /** Translate Claude error status into the same shape we used to return from Lovable AI Gateway. */
-export function claudeErrorResponse(err: unknown): Response {
-  const status = (err as { status?: number })?.status;
-  if (status === 429) return jsonResponse({ error: "Trop de requêtes, réessaie dans un instant." }, { status: 429 });
-  if (status === 402 || status === 403) return jsonResponse({ error: "Crédits IA épuisés." }, { status: 402 });
-  if (status === 401) return jsonResponse({ error: "Configuration IA invalide." }, { status: 500 });
-  return jsonResponse({ error: "Erreur IA" }, { status: 500 });
+export function claudeErrorResponse(err: unknown, req?: Request): Response {
+  const e = err as { status?: number; truncated?: boolean; message?: string };
+  if (e?.truncated) {
+    return jsonResponse(
+      {
+        error: "ai_truncated",
+        message: "Ce cours est trop dense pour une seule passe. Reessaie avec moins de questions, ou decoupe le cours.",
+      },
+      { status: 507 },
+      req,
+    );
+  }
+  if (e?.status === 429) return jsonResponse({ error: "Trop de requetes, reessaie dans un instant." }, { status: 429 }, req);
+  if (e?.status === 402) return jsonResponse({ error: "Credits IA epuises." }, { status: 402 }, req);
+  if (e?.status === 403) return jsonResponse({ error: "Acces IA refuse (cle ou permissions)." }, { status: 500 }, req);
+  if (e?.status === 401) return jsonResponse({ error: "Configuration IA invalide." }, { status: 500 }, req);
+  return jsonResponse({ error: "Erreur IA", message: e?.message }, { status: 500 }, req);
 }
 
 // =====================================================================
 // Rate limiting
 // =====================================================================
 
-export type ActionType = "fiche" | "quiz_ia" | "coach" | "correction" | "planning" | "oral" | "transcription";
+export type ActionType = "fiche" | "quiz_ia" | "coach" | "correction" | "planning" | "oral" | "transcription" | "ocr";
 export type Tier = "free" | "pro" | "max";
 
 interface Limits {
@@ -220,6 +247,7 @@ const TIER_LIMITS: Record<Tier, Record<ActionType, Limits>> = {
     planning:   { daily: 1,  weekly: 1 },
     oral:          { daily: 1,  weekly: 3 },
     transcription: { daily: 3,  weekly: 8 },
+    ocr:           { daily: 6,  weekly: 12 },
   },
   pro: {
     fiche:      { daily: 2,  weekly: 3 },
@@ -229,6 +257,7 @@ const TIER_LIMITS: Record<Tier, Record<ActionType, Limits>> = {
     planning:   { daily: 1,  weekly: 2 },
     oral:          { daily: 4,  weekly: 15 },
     transcription: { daily: 12, weekly: 45 },
+    ocr:           { daily: 20, weekly: 60 },
   },
   max: {
     fiche:      { daily: 4,  weekly: 7 },
@@ -238,6 +267,7 @@ const TIER_LIMITS: Record<Tier, Record<ActionType, Limits>> = {
     planning:   { daily: 3,  weekly: 8 },
     oral:          { daily: 12, weekly: 40 },
     transcription: { daily: 30, weekly: 120 },
+    ocr:           { daily: 50, weekly: 150 },
   },
 };
 
@@ -260,17 +290,26 @@ export async function enforceLimit(
   userId: string,
   action: ActionType,
 ): Promise<{ allowed: true; usage: any } | { allowed: false; response: Response }> {
-  // Resolve user tier from profiles.plan
+  // PHASE DE TEST : le client force le tier "max" pour tout le monde
+  // (useSubscription.tsx / useUsage.ts). Tant que le paywall n'est pas rallume,
+  // le serveur doit appliquer le MEME tier, sinon l'app affiche un quota et le
+  // serveur en applique un autre. Au lancement payant : passer FREE_ACCESS_TIER
+  // a vide (ou supprimer la variable) et rallumer le paywall cote client.
+  const forcedTier = (Deno.env.get("FREE_ACCESS_TIER") ?? "max").trim();
   let tier: Tier = "free";
-  try {
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("plan")
-      .eq("id", userId)
-      .maybeSingle();
-    tier = getUserTier(profile?.plan ?? null);
-  } catch (e) {
-    console.error("[enforceLimit] profile read failed", e);
+  if (forcedTier === "max" || forcedTier === "pro") {
+    tier = forcedTier as Tier;
+  } else {
+    try {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", userId)
+        .maybeSingle();
+      tier = getUserTier(profile?.plan ?? null);
+    } catch (e) {
+      console.error("[enforceLimit] profile read failed", e);
+    }
   }
   const limits = getLimits(tier, action);
 

@@ -154,20 +154,39 @@ export function GenerateQuizDialog({
         .single();
       if (qErr) throw qErr;
 
-      const rows = qs.map((q: any, i: number) => ({
-        quiz_id: quiz.id,
-        user_id: user.id,
-        question: q.question,
-        type: q.type ?? type,
-        answers: q.answers ?? null,
-        correct_index: typeof q.correct_index === "number" ? q.correct_index : null,
-        accepted_answers: q.accepted_answers ?? null,
-        explanation: q.explanation ?? "",
-        position: i,
-        chapter: q.chapter ?? (scope === "chapters" && selectedChapters.length === 1 ? selectedChapters[0] : null),
-      }));
+      const rows = qs.map((q: any, i: number) => {
+        // La table ne stocke que answers + accepted_answers. Sans cette projection,
+        // les types multi / ordre / association perdent leur solution et deviennent
+        // impossibles a reussir. Meme conversion que CourseDetail.
+        let answers = q.answers ?? null;
+        let acceptedAnswers = q.accepted_answers ?? null;
+        if (q.type === "qcm_multi" && Array.isArray(q.correct_indices)) {
+          acceptedAnswers = q.correct_indices.map((n: number) => String(n));
+        } else if (q.type === "ordre" && Array.isArray(q.correct_order)) {
+          acceptedAnswers = q.correct_order.map((n: number) => String(n));
+        } else if (q.type === "association" && Array.isArray(q.pairs)) {
+          answers = q.pairs.map((pair: any) => pair.left);
+          acceptedAnswers = [JSON.stringify(q.pairs)];
+        }
+        return {
+          quiz_id: quiz.id,
+          user_id: user.id,
+          question: q.question,
+          type: q.type ?? type,
+          answers,
+          correct_index: typeof q.correct_index === "number" ? q.correct_index : null,
+          accepted_answers: acceptedAnswers,
+          explanation: q.explanation ?? "",
+          position: i,
+          chapter: q.chapter ?? (scope === "chapters" && selectedChapters.length === 1 ? selectedChapters[0] : null),
+        };
+      });
       const { error: rowsErr } = await supabase.from("quiz_questions").insert(rows);
-      if (rowsErr) throw rowsErr;
+      if (rowsErr) {
+        // Sans ce nettoyage, un quizz sans question reste en base et s'ouvre vide.
+        await supabase.from("quizzes").delete().eq("id", quiz.id);
+        throw rowsErr;
+      }
 
  toast.success("Quizz prêt ");
       onOpenChange(false);

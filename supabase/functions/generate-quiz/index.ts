@@ -53,7 +53,7 @@ Deno.serve(async (req) => {
 
     const { content, subject, level, title, count = 10, quizType = "qcm", chapter = null, chapters = [], difficulty = "mixte", avoidQuestions = [] } = await req.json();
     if (!content || content.trim().length < 20) {
-      return jsonResponse({ error: "Contenu trop court" }, { status: 400 });
+      return jsonResponse({ error: "Contenu trop court" }, { status: 400 }, req);
     }
 
     const limit = await enforceLimit(auth.supabase, auth.userId, "quiz_ia");
@@ -123,13 +123,13 @@ ${content.slice(0, 30000)}
       result = await callClaude({
         system,
         messages: [{ role: "user", content: userPrompt }],
-        maxTokens: Math.min(8000, 400 + safeCount * 350),
+        maxTokens: Math.min(16000, 900 + safeCount * 650),
         temperature: 0.6,
         tools: [QUIZ_TOOL],
         toolChoice: { type: "tool", name: "save_quiz" },
       });
     } catch (e) {
-      return claudeErrorResponse(e);
+      return claudeErrorResponse(e, req);
     }
 
     let questions = (result.toolInput as any)?.questions ?? [];
@@ -172,9 +172,9 @@ ${content.slice(0, 30000)}
       return q;
     });
 
-    return jsonResponse({ questions });
+    return jsonResponse({ questions }, {}, req);
   } catch (e) {
     console.error("[generate-quiz]", e);
-    return claudeErrorResponse(e);
+    return claudeErrorResponse(e, req);
   }
 });

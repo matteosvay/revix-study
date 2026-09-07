@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
     }
 
     // ----- Rate limit (quota 'fiche') -----
-    const limit = await enforceLimit(auth.supabase, auth.userId, "fiche");
+    const limit = await enforceLimit(auth.supabase, auth.userId, "ocr");
     if (!limit.allowed) return limit.response;
 
     try {

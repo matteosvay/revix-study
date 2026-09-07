@@ -12,11 +12,7 @@ const ACTION_META: Record<UsageAction, { label: string; icon: React.ComponentTyp
   planning:   { label: "Planning IA", icon: Calendar },
 };
 
-const TIER_LABEL: Record<string, string> = {
-  free: "Gratuit",
-  pro: "Pro",
-  ultra: "Ultra",
-};
+const TIER_LABEL: Record<string, string> = { free: "Gratuit", pro: "Pro", max: "Max", ultra: "Max" };
 
 function barColor(pct: number) {
   if (pct >= 100) return "bg-destructive";

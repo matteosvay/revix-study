@@ -54,6 +54,7 @@ import { ThemeProvider } from "next-themes";
 import { DiploMascot } from "./components/revix/DiploMascot";
 import { GlobalSound } from "./components/revix/GlobalSound";
 import { SplashScreen } from "./components/revix/SplashScreen";
+import { DiploState } from "./components/revix/DiploState";
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -90,7 +91,16 @@ const App = () => (
             <CookieBanner />
             <DiploMascot />
             <GlobalSound />
-            <Suspense fallback={null}>
+            <Suspense
+              fallback={
+                /* fallback={null} laissait un ecran totalement blanc pendant le
+                   telechargement du morceau de route : l'utilisateur croyait que
+                   son tap n'avait pas ete pris en compte. */
+                <div className="min-h-screen flex items-center justify-center bg-background">
+                  <DiploState variant="loading" title="Un instant" />
+                </div>
+              }
+            >
             <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/login" element={<Login />} />

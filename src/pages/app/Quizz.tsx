@@ -424,6 +424,9 @@ export default function Quizz() {
           // Bonus combo : +5 XP par palier de 5 combos atteints (max combo)
           const comboBonus = Math.floor(maxCombo / 5) * 25;
           if (comboBonus > 0) total += comboBonus;
+          // award_xp plafonne la raison "quiz_finish" a 300 et leve une exception
+          // au-dela : sans ce clamp, un quizz parfait de 40 questions rapportait 0 XP.
+          total = Math.min(total, 300);
           await awardXp(user.id, total, "quiz_finish");
           // Log group activity (streak partagée des groupes d'étude)
           await supabase.rpc("log_group_activity", { p_xp: total });

@@ -101,7 +101,7 @@ Génère exactement 15 questions (11 QCM + 4 Vrai/Faux).`;
   }
 }
 
-function chunkContent(raw: string, maxChars = 9000): string[] {
+function chunkContent(raw: string, maxChars = 6000): string[] {
   const text = raw.trim();
   if (text.length <= maxChars) return [text];
   const paragraphs = text.split(/\n\s*\n/);
@@ -182,8 +182,13 @@ Deno.serve(async (req) => {
 
     const { content, subject, level, title, course_id } = await req.json();
     if (!content || content.trim().length < 20) {
-      return jsonResponse({ error: "Contenu trop court" }, { status: 400 });
+      return jsonResponse({ error: "Contenu trop court" }, { status: 400 }, req);
     }
+    // Plafond de taille : sans lui, un fichier enorme part en centaines d'appels
+    // paralleles vers Claude pour un seul credit de quota decompte.
+    const MAX_CONTENT_CHARS = 120_000;
+    const wasTruncated = String(content).length > MAX_CONTENT_CHARS;
+    const safeContent = wasTruncated ? String(content).slice(0, MAX_CONTENT_CHARS) : String(content);
 
     const limit = await enforceLimit(auth.supabase, auth.userId, "fiche");
     if (!limit.allowed) return limit.response;
@@ -218,8 +223,9 @@ FORMAT — chaque section a un titre + des "blocs" parmi :
 VOLUME : chaque section doit contenir AU MOINS 6 blocs, jusqu'à 20 si le chapitre est dense.
 Tu utilises "tu" et un ton clair, motivant, jamais condescendant. Pas d'emoji dans le texte.`;
 
-    const chunks = chunkContent(content);
-    console.log(`[generate-fiches] ${content.length} chars → ${chunks.length} chunk(s)`);
+    const MAX_CHUNKS = 20;
+    const chunks = chunkContent(safeContent).slice(0, MAX_CHUNKS);
+    console.log(`[generate-fiches] ${safeContent.length} chars → ${chunks.length} chunk(s)`);
 
     const results = await Promise.all(chunks.map(async (chunk, i) => {
       const isMulti = chunks.length > 1;
@@ -246,7 +252,7 @@ Produis la fiche en respectant SCRUPULEUSEMENT la structure de chapitres du cour
           messages: [{ role: "user", content: userPrompt }],
           // Budget dynamique : ~1 token ≈ 4 chars FR. Pour des fiches exhaustives
           // (6-20 blocs/section), on alloue large mais plafonné.
-          maxTokens: Math.min(8000, 2500 + Math.floor(chunk.length / 4)),
+          maxTokens: Math.min(16000, 3000 + Math.floor(chunk.length / 1.6)),
           temperature: 0.4,
           tools: [SUMMARY_TOOL],
           toolChoice: { type: "tool", name: "save_course" },
@@ -261,7 +267,7 @@ Produis la fiche en respectant SCRUPULEUSEMENT la structure de chapitres du cour
     let intro: string | undefined;
 
     for (const r of results) {
-      if (!r.ok) return claudeErrorResponse(r.error);
+      if (!r.ok) return claudeErrorResponse(r.error, req);
       const partSummary = (r.input as any)?.summary;
       if (!partSummary?.sections?.length) {
         console.error(`[generate-fiches] no sections returned for chunk ${r.i + 1}`);
@@ -285,7 +291,7 @@ Produis la fiche en respectant SCRUPULEUSEMENT la structure de chapitres du cour
     const finalSections = order.map(k => merged[k]);
 
     if (!allSections.length) {
-      return jsonResponse({ error: "L'IA n'a pas pu générer la fiche." }, { status: 500 });
+      return jsonResponse({ error: "L'IA n'a pas pu générer la fiche." }, { status: 500 }, req);
     }
 
     const summary = { intro, sections: finalSections };
@@ -311,9 +317,9 @@ Produis la fiche en respectant SCRUPULEUSEMENT la structure de chapitres du cour
       }
     }
 
-    return jsonResponse({ summary });
+    return jsonResponse({ summary, truncated: wasTruncated }, {}, req);
   } catch (e) {
     console.error("[generate-fiches]", e);
-    return claudeErrorResponse(e);
+    return claudeErrorResponse(e, req);
   }
 });
