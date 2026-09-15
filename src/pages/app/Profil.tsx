@@ -25,6 +25,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogD
 import { StripeEmbeddedCheckout } from "@/components/revix/StripeEmbeddedCheckout";
 import { useSubscription } from "@/hooks/useSubscription";
 import { getStripeEnvironment, isPaymentsConfigured } from "@/lib/stripe";
+import { PLANS as PRICING, PLAN_PERKS, formatPrice } from "@/lib/pricing";
 
 export default function Profil() {
   const { user } = useAuth();
@@ -185,22 +186,22 @@ export default function Profil() {
 
   const PLANS = [
     {
-      id: "pro_monthly",
+      id: PRICING.pro.lookupKey,
       tier: "pro" as const,
-      name: "Pro",
-      price: "4,99 €",
+      name: PRICING.pro.label,
+      price: formatPrice(PRICING.pro.priceTTC),
       tagline: "L'essentiel pour cartonner",
-      perks: ["≈ 5 quizz IA par jour", "Coach IA (200 msg/mois)", "Fiches de cours IA", "Révisions ciblées & planning"],
+      perks: PLAN_PERKS.pro,
       badge: "Le plus choisi",
       theme: "pro" as const,
     },
     {
-      id: "max_monthly",
+      id: PRICING.max.lookupKey,
       tier: "max" as const,
-      name: "Max",
-      price: "8,99 €",
+      name: PRICING.max.label,
+      price: formatPrice(PRICING.max.priceTTC),
       tagline: "La puissance maximale",
-      perks: ["≈ 10 quizz IA par jour", "Coach IA (500 msg/mois)", "3× plus de fiches IA", "Tout Pro + priorité"],
+      perks: PLAN_PERKS.max,
       badge: "Puissance max",
       theme: "max" as const,
     },

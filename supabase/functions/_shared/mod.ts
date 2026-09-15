@@ -1,4 +1,4 @@
-// Shared utilities for Diplo edge functions.
+// Shared utilities for Revix edge functions.
 // - CORS headers
 // - JWT auth check (with the calling user's Supabase client)
 // - Claude (Anthropic) wrapper with text + tool_use support
@@ -281,6 +281,28 @@ export function getUserTier(plan: string | null | undefined): Tier {
   return "free";
 }
 
+// =====================================================================
+// Enveloppe gratuite
+// =====================================================================
+// Le plan gratuit ne se recharge plus. Chaque compte recoit une dotation
+// unique a l'inscription, consommee action par action. Consequence
+// economique : le cout d'un inscrit qui ne paiera jamais devient fini et
+// connu d'avance (environ 0,25 EUR), au lieu d'etre illimite dans le temps.
+// Doit rester synchronise avec src/lib/pricing.ts.
+
+export const FREE_CREDITS_GRANT = 20;
+
+const FREE_CREDIT_COST: Record<ActionType, number> = {
+  fiche: 4,
+  quiz_ia: 2,
+  coach: 1,
+  planning: 1,
+  correction: 1,
+  ocr: 1,
+  oral: 2,
+  transcription: 1,
+};
+
 /**
  * Check + atomically increment usage counters for the current user.
  * Returns either { allowed: true, ... } or a Response (HTTP 429) ready to return to the client.
@@ -311,6 +333,49 @@ export async function enforceLimit(
       console.error("[enforceLimit] profile read failed", e);
     }
   }
+  // Plan gratuit : enveloppe unique, pas de quota qui se recharge.
+  if (tier === "free") {
+    const cost = FREE_CREDIT_COST[action] ?? 1;
+    const { data: credits, error: cErr } = await supabase.rpc("consume_free_credits", {
+      p_user_id: userId,
+      p_action_type: action,
+      p_cost: cost,
+      p_total: FREE_CREDITS_GRANT,
+    });
+
+    if (cErr) {
+      console.error("[enforceLimit] consume_free_credits failed", cErr);
+      return {
+        allowed: false,
+        response: jsonResponse(
+          { error: "limit_check_failed", message: "Service de quota indisponible, reessaie dans un instant." },
+          { status: 503 },
+        ),
+      };
+    }
+
+    if (credits?.allowed === false) {
+      return {
+        allowed: false,
+        response: jsonResponse(
+          {
+            error: "limit_reached",
+            tier,
+            action,
+            reason: "free_credits_exhausted",
+            credits_used: credits.used,
+            credits_total: credits.total,
+            credits_left: 0,
+            cost,
+          },
+          { status: 429 },
+        ),
+      };
+    }
+
+    return { allowed: true, usage: { tier, action, ...credits } };
+  }
+
   const limits = getLimits(tier, action);
 
   const { data, error } = await supabase.rpc("check_and_increment_usage", {

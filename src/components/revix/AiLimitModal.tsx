@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
+import { PLANS, PLAN_PERKS, formatPrice, PRICE_SUFFIX, VAT_NOTICE } from "@/lib/pricing";
 import { Check, Sparkles, Zap } from "lucide-react";
 import { AI_LIMIT_EVENT, type AiLimitInfo } from "@/lib/aiLimits";
 
@@ -56,12 +57,14 @@ export function AiLimitModal() {
                 <Sparkles className="h-4 w-4 text-primary" />
                 <span className="font-serif text-lg font-semibold">Pro</span>
               </div>
-              <span className="font-bold text-primary">4,99 €<span className="text-xs font-normal text-muted-foreground">/mois TTC</span></span>
+              <span className="font-bold text-primary">{formatPrice(PLANS.pro.priceTTC)}<span className="text-xs font-normal text-muted-foreground">{PRICE_SUFFIX}</span></span>
             </div>
             <ul className="space-y-1 text-xs text-muted-foreground">
-              <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-primary shrink-0" /> 10 quizz IA / jour</li>
-              <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-primary shrink-0" /> 20 messages coach / jour</li>
-              <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-primary shrink-0" /> 5 fiches IA / semaine</li>
+              {PLAN_PERKS.pro.slice(0, 3).map((perk) => (
+                <li key={perk} className="flex items-center gap-1.5">
+                  <Check className="h-3 w-3 text-primary shrink-0" /> {perk}
+                </li>
+              ))}
             </ul>
           </button>
 
@@ -77,15 +80,19 @@ export function AiLimitModal() {
                 <Zap className="h-4 w-4 text-amber-500" />
                 <span className="font-serif text-lg font-semibold">Max</span>
               </div>
-              <span className="font-bold text-amber-600">8,99 €<span className="text-xs font-normal text-muted-foreground">/mois TTC</span></span>
+              <span className="font-bold text-amber-600">{formatPrice(PLANS.max.priceTTC)}<span className="text-xs font-normal text-muted-foreground">{PRICE_SUFFIX}</span></span>
             </div>
             <ul className="space-y-1 text-xs text-muted-foreground">
-              <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-amber-500 shrink-0" /> 30 quizz IA / jour</li>
-              <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-amber-500 shrink-0" /> 50 messages coach / jour</li>
-              <li className="flex items-center gap-1.5"><Check className="h-3 w-3 text-amber-500 shrink-0" /> 3 fiches IA / jour + planning illimité</li>
+              {PLAN_PERKS.max.slice(0, 3).map((perk) => (
+                <li key={perk} className="flex items-center gap-1.5">
+                  <Check className="h-3 w-3 text-amber-500 shrink-0" /> {perk}
+                </li>
+              ))}
             </ul>
           </button>
         </div>
+
+        <p className="text-[11px] text-muted-foreground text-center">{VAT_NOTICE}</p>
 
         <Button variant="ghost" size="sm" onClick={() => setInfo(null)} className="text-muted-foreground">
           Plus tard

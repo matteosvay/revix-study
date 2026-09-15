@@ -3,6 +3,7 @@ import { PageHead } from "@/components/seo/PageHead";
 import { Button } from "@/components/ui/button";
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Logo } from "@/components/revix/Logo";
+import { PLANS as PRICING, PLAN_PERKS, formatPrice, VAT_NOTICE } from "@/lib/pricing";
 import { Upload, Brain, Calendar, Flame, Check, ArrowRight, BookOpen, Target } from "lucide-react";
 
 const features = [
@@ -19,24 +20,24 @@ const plans = [
     name: "Gratuit",
     price: "0 €",
     period: "",
-    features: ["2 quizz IA / jour", "5 messages coach / jour", "1 fiche IA / semaine", "Accès communauté"],
+    features: ["20 crédits IA offerts à l'inscription", "Environ 5 fiches ou 10 quizz", "Flashcards et révisions illimitées", "Accès communauté"],
     cta: "Commencer",
     highlighted: false,
   },
   {
-    name: "Pro",
-    price: "4,99 €",
+    name: PRICING.pro.label,
+    price: formatPrice(PRICING.pro.priceTTC),
     period: "/mois TTC",
-    features: ["10 quizz IA / jour", "20 messages coach / jour", "5 fiches IA / semaine", "Planning IA hebdo"],
+    features: PLAN_PERKS.pro.slice(0, 4),
     cta: "Passer en Pro",
     highlighted: true,
     badge: "Populaire",
   },
   {
-    name: "Max",
-    price: "8,99 €",
+    name: PRICING.max.label,
+    price: formatPrice(PRICING.max.priceTTC),
     period: "/mois TTC",
-    features: ["30 quizz IA / jour", "50 messages coach / jour", "3 fiches IA / jour", "Planning IA illimité", "Flashcards illimitées"],
+    features: PLAN_PERKS.max,
     cta: "Devenir Max",
     highlighted: false,
   },
@@ -49,7 +50,7 @@ const steps = [
 ];
 
 const faqs = [
-  { q: "Est-ce vraiment gratuit ?", a: "Oui. Le plan Gratuit te donne 2 quizz IA par jour, 5 messages coach et 1 fiche IA par semaine, sans carte bancaire." },
+  { q: "Est-ce vraiment gratuit ?", a: "Oui, sans carte bancaire. Tu reçois 20 crédits IA à l'inscription, de quoi faire environ 5 fiches ou 10 quizz. Ensuite, les flashcards et les révisions de ce que tu as déjà généré restent illimitées." },
   { q: "Mes cours sont-ils en sécurité ?", a: "100%. Tes données restent en Europe et ne sont jamais utilisées pour entraîner d'IA tierces." },
   { q: "Quels formats sont acceptés ?", a: "PDF, photos (JPG/PNG), screenshots et texte collé directement. L'IA s'occupe du reste." },
   { q: "Puis-je annuler à tout moment ?", a: "Oui, sans engagement. Tu peux passer du Pro/Max au Gratuit en un clic depuis ton profil." },
@@ -177,6 +178,7 @@ export default function Landing() {
           <div className="text-center max-w-2xl mx-auto mb-14">
             <h2 className="font-display text-3xl md:text-5xl tracking-tight">Des tarifs étudiants, vraiment.</h2>
             <p className="mt-4 text-muted-foreground font-medium">Commence gratuitement, passe en Pro ou Max quand tu veux.</p>
+            <p className="mt-2 font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">{VAT_NOTICE}</p>
           </div>
           <div className="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {plans.map((p) => (

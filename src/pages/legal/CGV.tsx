@@ -4,11 +4,11 @@ export default function CGV() {
   return (
     <LegalLayout
       title="Conditions Générales de Vente"
-      subtitle="Les présentes Conditions Générales de Vente (CGV) s'appliquent à tout achat d'abonnement payant sur Diplo. Elles complètent les Conditions Générales d'Utilisation (CGU)."
+      subtitle="Les présentes Conditions Générales de Vente (CGV) s'appliquent à tout achat d'abonnement payant sur Revix. Elles complètent les Conditions Générales d'Utilisation (CGU)."
       updatedAt="19 mai 2026"
       seo={{
-        title: "Conditions Générales de Vente — Diplo",
-        description: "CGV de Diplo : tarifs, abonnements Pro et Max, paiement, droit de rétractation et remboursement.",
+        title: "Conditions Générales de Vente — Revix",
+        description: "CGV de Revix : tarifs, abonnements Pro et Max, paiement, droit de rétractation et remboursement.",
         path: "/cgv",
       }}
     >
@@ -22,12 +22,12 @@ export default function CGV() {
 
       <LegalSection number="1" title="Offres et tarifs">
         <p>
-          Diplo propose trois formules d'accès au service :
+          Revix propose trois formules d'accès au service :
         </p>
         <LegalTable rows={[
           ["Gratuit", "0 € — Accès limité (2 quizz IA/jour, 5 messages coach/jour, 1 fiche IA/semaine)"],
-          ["Pro", "4,99 € TTC/mois — 10 quizz IA/jour, 20 messages coach/jour, 5 fiches IA/semaine, Planning IA"],
-          ["Max", "8,99 € TTC/mois — 30 quizz IA/jour, 50 messages coach/jour, 3 fiches IA/jour, Planning illimité, Mode Oral"],
+          ["Pro", "7,99 € TTC/mois : 12 quizz IA/jour, 16 messages coach/jour, 2 fiches IA/jour, Planning IA"],
+          ["Max", "12,99 € TTC/mois : 25 quizz IA/jour, 40 messages coach/jour, 4 fiches IA/jour, 3 plannings IA/jour"],
         ]} />
         <p>
           Les tarifs sont affichés TTC (Toutes Taxes Comprises) en euros. L'éditeur se réserve le
@@ -46,7 +46,7 @@ export default function CGV() {
           Pour souscrire à un abonnement payant :
         </p>
         <ol className="list-decimal pl-4 space-y-1">
-          <li>Connectez-vous à votre compte Diplo ;</li>
+          <li>Connectez-vous à votre compte Revix ;</li>
           <li>Accédez à la section Abonnement depuis votre Profil ;</li>
           <li>Sélectionnez l'offre souhaitée (Pro ou Max) ;</li>
           <li>Renseignez vos informations de paiement dans le formulaire sécurisé Stripe ;</li>
@@ -61,7 +61,7 @@ export default function CGV() {
       <LegalSection number="3" title="Paiement">
         <p>
           Le paiement s'effectue exclusivement via <strong>Stripe, Inc.</strong>, prestataire de
-          paiement sécurisé certifié PCI-DSS. Diplo n'a pas accès à vos coordonnées bancaires.
+          paiement sécurisé certifié PCI-DSS. Revix n'a pas accès à vos coordonnées bancaires.
         </p>
         <p>Les moyens de paiement acceptés sont :</p>
         <ul className="list-disc pl-4 space-y-1">
@@ -105,7 +105,7 @@ export default function CGV() {
           <p className="text-sm font-bold mb-2">Important — Accès immédiat au service</p>
           <p className="text-sm">
             Conformément à l'article L. 221-28 du Code de la consommation, en souscrivant à un
-            abonnement Diplo, vous demandez expressément que l'exécution du service commence
+            abonnement Revix, vous demandez expressément que l'exécution du service commence
             immédiatement, avant l'expiration du délai de rétractation de 14 jours.
           </p>
           <p className="text-sm mt-2">
