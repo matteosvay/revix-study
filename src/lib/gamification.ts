@@ -121,15 +121,15 @@ export const XP_REWARDS = {
 } as const;
 
 /** Ligues hebdomadaires, classées par XP de la semaine. */
-export const LEAGUES: { key: string; name: string; emoji: string; minWeekXp: number }[] = [
-  { key: "bronze", name: "Bronze", emoji: "🥉", minWeekXp: 0 },
-  { key: "argent", name: "Argent", emoji: "🥈", minWeekXp: 300 },
-  { key: "or", name: "Or", emoji: "🥇", minWeekXp: 700 },
-  { key: "saphir", name: "Saphir", emoji: "💎", minWeekXp: 1200 },
-  { key: "rubis", name: "Rubis", emoji: "❤️‍🔥", minWeekXp: 1800 },
-  { key: "diamant", name: "Diamant", emoji: "💠", minWeekXp: 2500 },
-  { key: "maitre", name: "Maître", emoji: "🏆", minWeekXp: 3500 },
-  { key: "legende", name: "Légende", emoji: "👑", minWeekXp: 5000 },
+export const LEAGUES: { key: string; name: string; emoji: string; icon: string; minWeekXp: number }[] = [
+  { key: "bronze", name: "Bronze", emoji: "🥉", icon: illu.medalBronze, minWeekXp: 0 },
+  { key: "argent", name: "Argent", emoji: "🥈", icon: illu.medalSilver, minWeekXp: 300 },
+  { key: "or", name: "Or", emoji: "🥇", icon: illu.medalGold, minWeekXp: 700 },
+  { key: "saphir", name: "Saphir", emoji: "💎", icon: illu.gem, minWeekXp: 1200 },
+  { key: "rubis", name: "Rubis", emoji: "❤️‍🔥", icon: illu.heartFire, minWeekXp: 1800 },
+  { key: "diamant", name: "Diamant", emoji: "💠", icon: illu.diamond, minWeekXp: 2500 },
+  { key: "maitre", name: "Maître", emoji: "🏆", icon: illu.trophy, minWeekXp: 3500 },
+  { key: "legende", name: "Légende", emoji: "👑", icon: illu.crown, minWeekXp: 5000 },
 ];
 
 export function leagueInfo(weekXp: number) {

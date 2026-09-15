@@ -76,15 +76,14 @@ BEGIN
   ELSIF position('diplo_guard_caller' in v_src) > 0 THEN
     RAISE NOTICE 'check_and_increment_usage : garde déjà posée';
   ELSE
-    v_src := replace(
+    v_src := regexp_replace(
       v_src,
       'BEGIN',
       'BEGIN' || chr(10) ||
       '  -- diplo_guard_caller : interdit d''incrementer le compteur d''autrui' || chr(10) ||
       '  IF auth.uid() IS NOT NULL AND auth.uid() <> p_user_id THEN' || chr(10) ||
       '    RAISE EXCEPTION ''forbidden'';' || chr(10) ||
-      '  END IF;',
-      1
+      '  END IF;'
     );
     EXECUTE v_src;
     RAISE NOTICE 'check_and_increment_usage : garde posée';
@@ -97,23 +96,30 @@ END $$;
 --    L'espace avatars est public : sans filtre MIME, un fichier HTML piégé
 --    y serait servi tel quel et exécutable.
 -- ---------------------------------------------------------------------
-UPDATE storage.buckets
-   SET file_size_limit    = 5242880,
-       allowed_mime_types = ARRAY['image/jpeg','image/png','image/webp']
- WHERE id = 'avatars';
+DO $$
+BEGIN
+  UPDATE storage.buckets
+     SET file_size_limit    = 5242880,
+         allowed_mime_types = ARRAY['image/jpeg','image/png','image/webp']
+   WHERE id = 'avatars';
 
-UPDATE storage.buckets
-   SET file_size_limit    = 26214400,
-       allowed_mime_types = ARRAY[
-         'application/pdf','image/jpeg','image/png','image/webp','image/gif',
-         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-       ]
- WHERE id = 'course-uploads';
+  UPDATE storage.buckets
+     SET file_size_limit    = 26214400,
+         allowed_mime_types = ARRAY[
+           'application/pdf','image/jpeg','image/png','image/webp','image/gif',
+           'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+         ]
+   WHERE id = 'course-uploads';
 
-UPDATE storage.buckets
-   SET file_size_limit    = 10485760,
-       allowed_mime_types = ARRAY['audio/webm','audio/mpeg','audio/mp4','audio/ogg']
- WHERE id = 'voice-notes';
+  UPDATE storage.buckets
+     SET file_size_limit    = 10485760,
+         allowed_mime_types = ARRAY['audio/webm','audio/mpeg','audio/mp4','audio/ogg']
+   WHERE id = 'voice-notes';
+
+  RAISE NOTICE 'storage : limites de taille et de type posees';
+EXCEPTION WHEN insufficient_privilege OR undefined_table THEN
+  RAISE NOTICE 'storage : droits insuffisants depuis cet editeur, a regler dans le panneau Storage';
+END $$;
 
 -- ---------------------------------------------------------------------
 -- 6) duel_attempts : on pouvait insérer directement un score arbitraire
