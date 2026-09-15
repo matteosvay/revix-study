@@ -418,7 +418,7 @@ export default function Quizz() {
           }
           // XP : finir un quiz + bonus score
           const pct = (finalScore / questions.length) * 100;
-          let total = XP_REWARDS.quiz_finish;
+          let total: number = XP_REWARDS.quiz_finish;
           if (pct >= 80) total += XP_REWARDS.quiz_high_score;
           if (pct === 100) total += XP_REWARDS.quiz_perfect;
           // Bonus combo : +5 XP par palier de 5 combos atteints (max combo)
