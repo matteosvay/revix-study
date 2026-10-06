@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { AppLayout } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Brain, Trash2, Loader2, ListChecks, CheckSquare, ToggleLeft, ArrowDownUp, Link2, Sparkles, FileDown } from "lucide-react";
+import { Brain, Trash2, Loader2, ListChecks, CheckSquare, ToggleLeft, ArrowDownUp, Link2, FileDown } from "lucide-react";
 import { BackButton } from "@/components/revix/BackButton";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
@@ -139,7 +139,7 @@ export default function CourseDetail() {
         };
       });
       await supabase.from("quiz_questions").insert(rows);
- toast.success("Quizz créé ");
+ toast.success("Quizz créé");
       setQuizSheetOpen(false);
       nav(`/app/quizz?id=${quiz.id}`);
     } catch (e: any) { toast.error(e?.message ?? "Erreur"); }
@@ -226,7 +226,7 @@ export default function CourseDetail() {
           } else if (b.kind === "definition") {
             const term = clean(b.term ?? "");
             const text = clean(b.text ?? "");
-            if (term || text) writeText(term && text ? `${term} — ${text}` : term || text, { style: term ? "bold" : "normal" });
+            if (term || text) writeText(term && text ? `${term} : ${text}` : term || text, { style: term ? "bold" : "normal" });
           } else if (b.kind === "key_point" && b.text) {
             writeText(`• Point clé : ${b.text}`, { style: "bold" });
           } else if (b.kind === "example" && b.text) {
@@ -252,7 +252,7 @@ export default function CourseDetail() {
 
       const safeTitle = course.title.replace(/[^\w\-]+/g, "_").slice(0, 60) || "cours";
       pdf.save(`${safeTitle}.pdf`);
- toast.success("PDF téléchargé ");
+ toast.success("PDF téléchargé");
     } catch (e: any) {
       console.error("[exportPdf]", e);
       toast.error("Erreur lors de l'export PDF");
@@ -272,13 +272,13 @@ export default function CourseDetail() {
         <BackButton fallback="/app/fiches" />
         <div className="flex-1" />
         {course.summary && (
-          <Button variant="ghost" size="icon" className="rounded-full mt-4" onClick={exportPdf} title="Exporter PDF">
+          <Button variant="ghost" size="icon" className="rounded-full mt-4" onClick={exportPdf} title="Exporter en PDF" aria-label="Exporter en PDF">
             <FileDown className="h-4 w-4" />
           </Button>
         )}
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button variant="ghost" size="icon" className="rounded-full text-destructive mt-4">
+            <Button variant="ghost" size="icon" className="rounded-full text-destructive mt-4" aria-label="Supprimer ce cours">
               <Trash2 className="h-4 w-4" />
             </Button>
           </AlertDialogTrigger>
@@ -350,7 +350,6 @@ export default function CourseDetail() {
               {/* Type d'exercice — gros visuels */}
               <div>
                 <div className="flex items-center gap-2 mb-2.5">
-                  <Sparkles className="h-3.5 w-3.5 text-primary" />
                   <Label className="text-[11px] uppercase tracking-wider text-muted-foreground font-mono">Type d'exercice</Label>
                 </div>
                 <div className="grid grid-cols-2 gap-2.5">

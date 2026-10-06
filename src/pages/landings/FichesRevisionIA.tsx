@@ -3,7 +3,7 @@ import { FeatureLandingLayout } from "@/components/seo/FeatureLandingLayout";
 export default function FichesRevisionIA() {
   return (
     <FeatureLandingLayout
-      title="Fiches de révision IA — créer une fiche depuis un PDF | Diplo"
+      title="Fiches de révision IA : créer une fiche depuis un PDF | Diplo"
       metaDescription="Génère une fiche de révision claire et synthétique à partir d'un PDF, d'une photo de cours ou de notes. L'IA Diplo structure, résume et met en forme automatiquement."
       path="/fiches-de-revision-ia"
       tagline="Fiches IA · Gratuit"
@@ -16,7 +16,7 @@ export default function FichesRevisionIA() {
             quelques secondes.
           </p>
           <p>
-            Idéal pour le bac, le BTS, la licence, la prépa ou la fac — fini les
+            Idéal pour le bac, le BTS, la licence, la prépa ou la fac, fini les
             heures passées à reformuler tes notes.
           </p>
         </>
@@ -39,7 +39,7 @@ export default function FichesRevisionIA() {
         { q: "Est-ce vraiment gratuit ?", a: "Le plan Gratuit te donne 1 fiche IA par semaine. Les plans Pro et Max augmentent ce quota." },
         { q: "Puis-je éditer la fiche générée ?", a: "Oui, la fiche est entièrement modifiable après génération." },
         { q: "Mes cours sont-ils en sécurité ?", a: "100%. Tes données restent en Europe et ne sont jamais partagées." },
-        { q: "Ça marche pour toutes les matières ?", a: "Droit, marketing, maths, histoire, philo, langues, médecine — tout ce qui est texte ou notes." },
+        { q: "Ça marche pour toutes les matières ?", a: "Droit, marketing, maths, histoire, philo, langues, médecine : tout ce qui est texte ou notes." },
       ]}
     />
   );

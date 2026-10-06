@@ -107,41 +107,41 @@ export function pickDailyTip(ctx: CoachContext): { label: string; text: string; 
     return {
       label: "[CONSEIL DU JOUR]",
       tone: "warn",
-      text: `T'as un exam ${ctx.nextExam.subject} dans ${ctx.nextExam.daysLeft} jours. Arrête les nouveaux chapitres — révise ce que tu connais déjà à 70%. Le cerveau consolide mieux ce qui est presque maîtrisé.`,
+      text: `T'as un exam ${ctx.nextExam.subject} dans ${ctx.nextExam.daysLeft} jours. Arrête les nouveaux chapitres. Révise ce que tu connais déjà à 70%. Le cerveau consolide mieux ce qui est presque maîtrisé.`,
     };
   }
   if (ctx.brokenStreak) {
     return {
       label: "[CONSEIL DU JOUR]",
       tone: "fire",
-      text: `Ta série s'est cassée. Pas de panique — une étude de Cambridge montre que reprendre dans les 48h repart comme avant. Ce soir, juste 15 min.`,
+      text: `Ta série s'est cassée. Pas de panique : le plus important, c'est de reprendre vite. Ce soir, juste 15 min.`,
     };
   }
   if (ctx.weakSubjects.length) {
     return {
       label: "[CONSEIL DU JOUR]",
       tone: "tip",
-      text: `Ton score en ${ctx.weakSubjects[0]} est faible. Avant de refaire des exercices, relis tes fiches — la compréhension avant la mémorisation, toujours.`,
+      text: `Ton score en ${ctx.weakSubjects[0]} est faible. Avant de refaire des exercices, relis tes fiches : la compréhension avant la mémorisation, toujours.`,
     };
   }
   if (ctx.lateStudyHabit) {
     return {
       label: "[CONSEIL DU JOUR]",
       tone: "info",
-      text: `Tu révises souvent après 23h. Ton hippocampe consolide la mémoire pendant le sommeil — 30 min le matin valent 2h la nuit. Essaie demain matin.`,
+      text: `Tu révises souvent après 23 h. Le sommeil aide à fixer ce que tu apprends, et 30 min reposé le matin rendent plus que 2 h épuisé la nuit. Essaie demain matin.`,
     };
   }
   if (ctx.emptyPlanningThisWeek && ctx.nextExam && ctx.nextExam.daysLeft < 14) {
     return {
       label: "[CONSEIL DU JOUR]",
       tone: "warn",
-      text: `Ton planning est vide cette semaine et t'as un exam dans ${ctx.nextExam.daysLeft} jours. Clique sur 'IA' dans le planning — ça prend 30 secondes.`,
+      text: `Ton planning est vide cette semaine et t'as un exam dans ${ctx.nextExam.daysLeft} jours. Clique sur 'IA' dans le planning, ça prend 30 secondes.`,
     };
   }
   return {
     label: "[CONSEIL DU JOUR]",
     tone: "tip",
-    text: `Alterner les matières (pas 3h d'affilée sur la même) améliore la rétention de 23%. Essaie 45 min Maths puis 45 min Histoire ce soir.`,
+    text: `Alterner les matières plutôt que 3 h d'affilée sur la même aide à mieux retenir. Essaie 45 min sur une matière, puis 45 min sur une autre ce soir.`,
   };
 }
 
@@ -156,7 +156,7 @@ export function pickSmartAlert(ctx: CoachContext, weekTaskCount: number): SmartA
   if (ctx.nextExam && ctx.nextExam.daysLeft >= 0 && ctx.nextExam.daysLeft <= 2) {
     return {
       tone: "urgent",
- text: ` Exam ${ctx.nextExam.subject} dans ${ctx.nextExam.daysLeft} ${ctx.nextExam.daysLeft <= 1? "jour": "jours"}! Coach recommande: révision espacée ce soir + quizz demain matin.`,
+ text: `Exam ${ctx.nextExam.subject} dans ${ctx.nextExam.daysLeft} ${ctx.nextExam.daysLeft <= 1 ? "jour": "jours"} ! Le coach te conseille une révision espacée ce soir et un quizz demain matin.`,
       cta: "Voir le plan d'urgence",
       ctaAction: "generate_plan",
     };
@@ -164,7 +164,7 @@ export function pickSmartAlert(ctx: CoachContext, weekTaskCount: number): SmartA
   if (ctx.nextExam && ctx.nextExam.daysLeft <= 7 && weekTaskCount < 3) {
     return {
       tone: "warn",
- text: ` T'as un exam ${ctx.nextExam.subject} dans ${ctx.nextExam.daysLeft} jours et seulement ${weekTaskCount} session${weekTaskCount > 1? "s": ""} de prévue. Coach suggère d'ajouter 3 sessions.`,
+ text: `T'as un exam ${ctx.nextExam.subject} dans ${ctx.nextExam.daysLeft} jours et seulement ${weekTaskCount} session${weekTaskCount > 1 ? "s": ""} de prévue. Le coach te conseille d'en ajouter 3.`,
       cta: "Générer le planning",
       ctaAction: "generate_plan",
     };
@@ -172,14 +172,14 @@ export function pickSmartAlert(ctx: CoachContext, weekTaskCount: number): SmartA
   if (ctx.streak >= 5 && weekTaskCount >= 4) {
     return {
       tone: "ok",
- text: ` T'es à fond cette semaine (streak ${ctx.streak} jours). Coach suggère d'attaquer une matière plus dure pendant que t'as l'élan.`,
+ text: `T'es à fond cette semaine (série de ${ctx.streak} jours). Profite de l'élan pour attaquer une matière plus dure.`,
       cta: "OK",
       ctaAction: "none",
     };
   }
   return {
     tone: "info",
- text: ` Conseil pro: alterner les matières (pas 3h de la même d'affilée) améliore la rétention de 23%.`,
+ text: `Conseil : alterne les matières plutôt que 3 h d'affilée sur la même, tu retiendras mieux.`,
     cta: "En savoir plus",
     ctaAction: "open_techniques",
   };

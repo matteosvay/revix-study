@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
-import { Play, Pause, SkipForward, LogOut, Send, Plus, Check, Copy, BookOpen, Sparkles, X, Download, StickyNote, Loader2 } from "lucide-react";
+import { Play, Pause, SkipForward, LogOut, Send, Plus, Check, Copy, BookOpen, X, Download, StickyNote, Loader2, PenLine } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { BackButton } from "@/components/revix/BackButton";
 import { Textarea } from "@/components/ui/textarea";
@@ -226,7 +226,7 @@ export default function StudyRoom() {
       const myGoals = goals.filter(x => x.user_id === user?.id);
       const allDone = myGoals.every(x => x.id === g.id ? true : x.done);
       if (allDone && myGoals.length > 0) {
- toast.success("Tous tes objectifs Bien joué!");
+ toast.success("Tous tes objectifs sont cochés. Bien joué !");
       }
     }
   };
@@ -259,7 +259,7 @@ export default function StudyRoom() {
       else toast.error(error.message);
       return;
     }
- toast.success("Fiche partagée ");
+ toast.success("Fiche partagée");
     setShareDialogOpen(false);
   };
 
@@ -284,7 +284,7 @@ export default function StudyRoom() {
       summary: original.summary,
     });
     if (error) toast.error(error.message);
- else toast.success("Sauvegardée dans tes cours ");
+ else toast.success("Sauvegardée dans tes cours");
   };
 
   const askCoach = async () => {
@@ -300,7 +300,7 @@ export default function StudyRoom() {
       else if (data?.error === "credits_exhausted") toast.error("Crédits IA épuisés.");
       else if (data?.error) toast.error("Erreur du coach IA.");
       else {
- toast.success("Le coach a répondu dans le chat ");
+ toast.success("Le coach a répondu dans le chat");
         setSelection("");
         setOpenCourseId(null);
       }
@@ -403,7 +403,7 @@ export default function StudyRoom() {
                       m.status === "focus" ? "bg-success" : m.status === "pause" ? "bg-accent" : "bg-muted-foreground"
                     }`} />
                   </div>
-                  <p className="text-[9px] font-bold mt-1 truncate max-w-[60px]">
+                  <p className="text-[10px] font-bold mt-1 truncate max-w-[60px]">
                     {m.user_id === user?.id ? "Toi" : p?.display_name?.split(" ")[0] ?? "?"}
                   </p>
                 </div>
@@ -443,7 +443,7 @@ export default function StudyRoom() {
                 onKeyDown={(e) => e.key === "Enter" && addGoal()}
                 className="text-xs h-8"
               />
-              <Button onClick={addGoal} size="icon" className="h-8 w-8 gradient-primary border-2 border-foreground"><Plus className="h-4 w-4" /></Button>
+              <Button onClick={addGoal} size="icon" aria-label="Ajouter l'objectif" className="h-8 w-8 gradient-primary border-2 border-foreground"><Plus className="h-4 w-4" /></Button>
             </div>
             {goals.length > 0 && (
               <div className="pt-2">
@@ -480,13 +480,13 @@ export default function StudyRoom() {
             <div className="flex gap-2 pt-2 border-t border-foreground/10">
               <Input
                 value={msgInput} onChange={(e) => setMsgInput(e.target.value.slice(0, 120))}
- placeholder="Un message rapide... reste focus "
+ placeholder="Un message rapide… reste concentré"
                 onKeyDown={(e) => e.key === "Enter" && sendMsg()}
                 className="text-xs h-8"
               />
-              <Button onClick={sendMsg} size="icon" className="h-8 w-8 gradient-primary border-2 border-foreground"><Send className="h-4 w-4" /></Button>
+              <Button onClick={sendMsg} size="icon" aria-label="Envoyer le message" className="h-8 w-8 gradient-primary border-2 border-foreground"><Send className="h-4 w-4" /></Button>
             </div>
-            <p className="text-[9px] text-right text-muted-foreground mt-1">{msgInput.length}/120</p>
+            <p className="text-[10px] text-right text-muted-foreground mt-1">{msgInput.length}/120</p>
           </div>
         </div>
 
@@ -513,7 +513,7 @@ export default function StudyRoom() {
  <img src={illu.notebook} alt="" className="h-5 w-5 shrink-0 object-contain" />
                     <div className="min-w-0">
                       <p className="text-xs font-bold truncate">{c.title}</p>
-                      <p className="text-[9px] text-muted-foreground">par {sharedByMe ? "toi" : sharer?.display_name?.split(" ")[0] ?? "?"}</p>
+                      <p className="text-[10px] text-muted-foreground">par {sharedByMe ? "toi" : sharer?.display_name?.split(" ")[0] ?? "?"}</p>
                     </div>
                   </button>
                   {!sharedByMe && (
@@ -548,7 +548,7 @@ export default function StudyRoom() {
                     className={`group relative ${noteColorClass[n.color] ?? noteColorClass.yellow} border-2 border-foreground rounded-md px-2 py-1.5 max-w-[180px] shadow-brutal-sm`}
                   >
                     <p className="text-xs font-bold leading-tight whitespace-pre-wrap break-words">{n.content}</p>
-                    <p className="text-[8px] text-foreground/60 mt-1">— {mine ? "toi" : p?.display_name?.split(" ")[0] ?? "?"}</p>
+                    <p className="text-[10px] text-foreground/60 mt-1">par {mine ? "toi" : p?.display_name?.split(" ")[0] ?? "?"}</p>
                     <button
                       onClick={() => removeNote(n)}
                       className="absolute -top-1.5 -right-1.5 h-4 w-4 bg-destructive text-destructive-foreground rounded-full opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"
@@ -578,7 +578,7 @@ export default function StudyRoom() {
                 onKeyDown={(e) => e.key === "Enter" && addNote()}
                 className="text-xs h-8 flex-1"
               />
-              <Button onClick={addNote} size="icon" className="h-8 w-8 gradient-primary border-2 border-foreground"><StickyNote className="h-4 w-4" /></Button>
+              <Button onClick={addNote} size="icon" aria-label="Ajouter la note" className="h-8 w-8 gradient-primary border-2 border-foreground"><StickyNote className="h-4 w-4" /></Button>
             </div>
           </div>
         </div>
@@ -641,7 +641,7 @@ export default function StudyRoom() {
                       onClick={() => { setAllFichesOpen(false); setOpenCourseId(c.id); setSelection(""); }}
                       size="sm" variant="ghost" className="text-[10px] h-7"
                     >
-                      <Sparkles className="h-3 w-3 mr-1" /> Approfondir avec l'IA
+                      <PenLine className="h-3 w-3 mr-1" /> Approfondir avec l'IA
                     </Button>
                   </div>
                 </div>
@@ -695,7 +695,7 @@ export default function StudyRoom() {
           </div>
           <div className="space-y-2 border-t pt-3">
             <p className="text-[11px] font-bold uppercase tracking-wide text-muted-foreground flex items-center gap-1">
-              <Sparkles className="h-3 w-3" /> Demander au coach IA
+              <PenLine className="h-3 w-3" /> Demander au coach IA
             </p>
             <p className="text-[10px] text-muted-foreground">Colle/écris un point précis à approfondir. La réponse sera postée dans le chat pour toute la salle.</p>
             <Textarea
@@ -713,7 +713,7 @@ export default function StudyRoom() {
                   </Button>
                 )}
                 <Button onClick={askCoach} disabled={!selection.trim() || askingAI} size="sm" className="gradient-primary">
-                  {askingAI ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <Sparkles className="h-3.5 w-3.5 mr-1" />}
+                  {askingAI ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <PenLine className="h-3.5 w-3.5 mr-1" />}
                   Approfondir
                 </Button>
               </div>

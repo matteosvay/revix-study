@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { UploadCloud, Sparkles, Loader2, FileText, Image as ImageIcon, CheckCircle2, X } from "lucide-react";
+import { UploadCloud, Loader2, FileText, Image as ImageIcon, CheckCircle2, X, PenLine } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { extractPdfText, fileToBase64, extractDocxText, isDocx, DOCX_MIME } from "@/lib/pdf";
@@ -339,7 +339,7 @@ export default function Upload() {
       await bumpQuest(user.id, "w_4_uploads", 1);
 
  playSuccess();
- toast.success("Ta fiche de cours est prête ");
+ toast.success("Ta fiche de cours est prête");
       nav(`/app/fiches/${course.id}`);
     } catch (e: any) {
       console.error(e);
@@ -397,7 +397,7 @@ export default function Upload() {
 
   return (
     <AppLayout>
-      <PageHeader illustration={illu.upload} title="Nouveau cours" subtitle="Upload un PDF ou une photo, l'IA s'occupe du reste." />
+      <PageHeader illustration={illu.upload} title="Nouveau cours" subtitle="Ajoute un PDF ou une photo, l'IA s'occupe du reste." />
 
       <div className="px-5 space-y-5 pb-6">
         <label
@@ -429,13 +429,13 @@ export default function Upload() {
           ) : (
             <>
               <UploadCloud className="h-10 w-10 mx-auto text-primary" />
- <p className="mt-3 font-hand text-xl"> Photo · PDF · Word</p>
-              <p className="font-mono-tag text-[10px] uppercase text-muted-foreground mt-0.5">Glisse ou clique ici (plusieurs fichiers acceptés)</p>
-              <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-1">
-                Max 3 images · 1 seul PDF ou Word
+ <p className="mt-3 font-hand text-xl">Photo, PDF ou Word</p>
+              <p className="text-xs text-muted-foreground mt-1">Glisse tes fichiers ici ou touche pour choisir.</p>
+              <p className="text-xs text-muted-foreground/80 mt-1">
+                Jusqu'à 3 images, ou un seul PDF ou Word.
               </p>
-              <p className="font-mono-tag text-[9px] uppercase text-muted-foreground/70 mt-1">
-                Google Docs : Fichier → Télécharger → .docx
+              <p className="text-xs text-muted-foreground/80 mt-1">
+                Google Docs : Fichier, puis Télécharger, puis .docx
               </p>
             </>
           )}
@@ -452,7 +452,7 @@ export default function Upload() {
                 )}
                 <div className="flex-1 min-w-0">
                   <p className="font-hand text-base truncate">{f.name}</p>
-                  <p className="font-mono-tag text-[9px] uppercase text-muted-foreground">
+                  <p className="font-mono-tag text-[10px] uppercase text-muted-foreground">
                     {(f.size / 1024 / 1024).toFixed(2)} Mo
                   </p>
                 </div>
@@ -479,7 +479,7 @@ export default function Upload() {
 
         <div className="space-y-1.5">
           <Label className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">Titre</Label>
-          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex. Droit des contrats — chap. 3" />
+          <Input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ex. Droit des contrats, chapitre 3" />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -493,14 +493,13 @@ export default function Upload() {
                 for (const name of userSubjects) {
                   if (seen.has(name)) continue;
                   seen.add(name);
-                  const match = SUBJECTS.find(s => s.name === name);
-                  items.push({ value: name, label: name, group: "Mes matières", emoji: match?.emoji });
+                  items.push({ value: name, label: name, group: "Mes matières" });
                 }
                 // 2) Toute la base curée
                 for (const s of SUBJECTS) {
                   if (seen.has(s.name)) continue;
                   seen.add(s.name);
-                  items.push({ value: s.name, label: s.name, group: s.category, emoji: s.emoji });
+                  items.push({ value: s.name, label: s.name, group: s.category });
                 }
                 return items;
               })()}
@@ -516,7 +515,7 @@ export default function Upload() {
         </div>
 
         <Button onClick={generate} className="w-full rounded-full gradient-primary border-0 h-12 text-base shadow-glow">
-          <Sparkles className="h-4 w-4 mr-2" /> Générer mes fiches
+          <PenLine className="h-4 w-4 mr-2" /> Générer mes fiches
         </Button>
       </div>
     </AppLayout>

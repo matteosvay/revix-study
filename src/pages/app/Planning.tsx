@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Sparkles, Loader2, Plus, Target, Trash2, BookOpen, Brain, ChevronLeft, ChevronRight } from "lucide-react";
+import { Loader2, Plus, Target, Trash2, BookOpen, Brain, ChevronLeft, ChevronRight, PenLine, Lightbulb, CheckCircle2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -109,7 +109,7 @@ export default function Planning() {
       await supabase.from("planning_tasks").insert(rows);
       await bumpQuest(user.id, "task_added", rows.length);
       await bumpQuest(user.id, "w_5_planning_tasks", rows.length);
- toast.success("Planning généré ");
+ toast.success("Planning généré");
       setOpen(false);
       load();
     } catch (e: any) { toast.error(e?.message ?? "Erreur"); }
@@ -132,7 +132,7 @@ export default function Planning() {
           <div className="flex gap-1.5">
             <Dialog open={addOpen} onOpenChange={setAddOpen}>
               <DialogTrigger asChild>
-                <Button size="sm" variant="outline" className="rounded-full"><Plus className="h-3.5 w-3.5" /></Button>
+                <Button size="sm" variant="outline" className="rounded-full" aria-label="Ajouter une session"><Plus className="h-3.5 w-3.5" /></Button>
               </DialogTrigger>
               <DialogContent className="rounded-2xl">
                 <DialogHeader><DialogTitle className="font-serif">Nouvelle tâche</DialogTitle></DialogHeader>
@@ -151,7 +151,7 @@ export default function Planning() {
             <Dialog open={open} onOpenChange={setOpen}>
               <DialogTrigger asChild>
                 <Button size="sm" className="rounded-full gradient-primary border-0">
-                  <Sparkles className="h-3.5 w-3.5 mr-1" /> IA
+                  <PenLine className="h-3.5 w-3.5 mr-1" /> IA
                 </Button>
               </DialogTrigger>
               <DialogContent className="rounded-2xl">
@@ -226,14 +226,14 @@ export default function Planning() {
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center gap-2">
                       <div className={`h-9 w-9 rounded-xl flex flex-col items-center justify-center shrink-0 ${isToday ? "gradient-primary text-primary-foreground" : "bg-muted text-foreground"}`}>
-                        <span className="text-[8px] font-bold uppercase leading-none">{dayLabels[dowIdx]}</span>
+                        <span className="text-[10px] font-bold uppercase leading-none">{dayLabels[dowIdx]}</span>
                         <span className="text-sm font-bold leading-none mt-0.5">{d.getDate()}</span>
                       </div>
                       <div>
                         <p className="text-xs font-semibold capitalize">
                           {d.toLocaleDateString("fr-FR", { weekday: "long" })}
                         </p>
-                        {isToday && <span className="text-[9px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-bold uppercase tracking-wider">Aujourd'hui</span>}
+                        {isToday && <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-primary/15 text-primary font-bold uppercase tracking-wider">Aujourd'hui</span>}
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
@@ -287,7 +287,7 @@ export default function Planning() {
                 action={
                   <div className="flex gap-2 justify-center">
                     <Button size="sm" onClick={() => setOpen(true)} className="rounded-full gradient-primary border-0">
-                      <Sparkles className="h-3.5 w-3.5 mr-1" /> Générer
+                      <PenLine className="h-3.5 w-3.5 mr-1" /> Générer
                     </Button>
                     <Button size="sm" variant="outline" onClick={() => setAddOpen(true)} className="rounded-full">
                       <Plus className="h-3.5 w-3.5 mr-1" /> Tâche
@@ -303,29 +303,29 @@ export default function Planning() {
             <p className="text-xs text-muted-foreground">Tes objectifs de la semaine, mis à jour en temps réel.</p>
 
             {[
-              { icon: BookOpen, label: "Cours créés", value: weekStats.fiches, goal: goalFiches, color: "from-violet-500 to-purple-500" },
-              { icon: Brain, label: "Quizz générés", value: weekStats.quizzes, goal: goalQuizzes, color: "from-pink-500 to-rose-500" },
-              { icon: Target, label: "Quizz complétés", value: weekStats.attempts, goal: goalAttempts, color: "from-amber-500 to-orange-500" },
-              { icon: Sparkles, label: "Tâches accomplies", value: done, goal: total || 1, color: "from-emerald-500 to-teal-500" },
+              { icon: BookOpen, label: "Cours créés", value: weekStats.fiches, goal: goalFiches, color: "bg-primary text-primary-foreground" },
+              { icon: Brain, label: "Quizz générés", value: weekStats.quizzes, goal: goalQuizzes, color: "bg-accent text-accent-foreground" },
+              { icon: Target, label: "Quizz complétés", value: weekStats.attempts, goal: goalAttempts, color: "bg-success text-success-foreground" },
+              { icon: CheckCircle2, label: "Tâches accomplies", value: done, goal: total || 1, color: "bg-foreground text-background" },
             ].map(g => {
               const pct = Math.min(100, Math.round((g.value / g.goal) * 100));
               const reached = g.value >= g.goal;
               return (
                 <div key={g.label} className="glass rounded-2xl p-4">
                   <div className="flex items-center gap-3 mb-2.5">
-                    <div className={`h-10 w-10 rounded-xl bg-gradient-to-br ${g.color} flex items-center justify-center text-white shrink-0`}>
+                    <div className={`h-10 w-10 rounded-xl border-2 border-foreground ${g.color} flex items-center justify-center shrink-0`}>
                       <g.icon className="h-4 w-4" />
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-sm font-medium">{g.label}</p>
                       <p className="text-[11px] text-muted-foreground">
- {g.value} / {g.goal} {reached && "· objectif atteint "}
+ {g.value} / {g.goal} {reached && "· objectif atteint"}
                       </p>
                     </div>
                     <p className="font-serif text-xl">{pct}%</p>
                   </div>
                   <div className="h-1.5 rounded-full bg-muted overflow-hidden">
-                    <div className={`h-full bg-gradient-to-r ${g.color} transition-all`} style={{ width: `${pct}%` }} />
+                    <div className={`h-full ${g.color.split(" ")[0]} transition-all`} style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );
@@ -333,10 +333,10 @@ export default function Planning() {
 
             <div className="rounded-2xl border-2 border-dashed border-primary/20 p-4 mt-2">
               <p className="text-xs font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
-                <Sparkles className="h-3 w-3" /> Astuce
+                <Lightbulb className="h-3 w-3" /> Astuce
               </p>
               <p className="text-xs text-muted-foreground mt-1.5">
-                Atteindre tes 4 objectifs hebdo te garantit une streak solide et débloque +1 jeton bonus tous les 10 quiz complétés.
+                Atteindre tes 4 objectifs hebdo te garantit une série solide et débloque un jeton bonus tous les 10 quizz terminés.
               </p>
             </div>
           </TabsContent>

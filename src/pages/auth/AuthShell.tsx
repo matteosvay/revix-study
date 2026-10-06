@@ -11,7 +11,7 @@ interface AuthShellProps {
 }
 
 export const AuthShell = ({ children, title, subtitle, seo }: AuthShellProps) => (
-  <div className="min-h-screen grid lg:grid-cols-2 paper-grain relative overflow-hidden">
+  <div className="min-h-screen grid grid-cols-1 lg:grid-cols-2 paper-grain relative overflow-hidden">
     {seo && <PageHead title={seo.title} description={seo.description} path={seo.path} />}
     {/* Post-its décoratifs flottants */}
     <div className="absolute top-10 left-10 h-20 w-20 postit p-2 hidden lg:block font-hand text-sm">
@@ -31,7 +31,7 @@ export const AuthShell = ({ children, title, subtitle, seo }: AuthShellProps) =>
         <p className="font-serif text-base mt-4 text-muted-foreground">Fiches, quizz et planning générés par l'IA depuis tes propres cours.</p>
       </div>
       <div className="flex items-end justify-between gap-4">
-        <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">© 2025 Diplo · Fait en France</p>
+        <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">© {new Date().getFullYear()} Diplo · Fait en France</p>
         <div className="shrink-0 -mb-2 pointer-events-none" aria-hidden="true">
           <DiploFace size={104} expr="happy" cap="#2456d6" />
         </div>
@@ -39,9 +39,9 @@ export const AuthShell = ({ children, title, subtitle, seo }: AuthShellProps) =>
     </div>
 
     {/* Colonne droite : formulaire en notebook-card */}
-    <div className="flex flex-col justify-center p-6 lg:p-12 relative z-10">
+    <div className="flex flex-col justify-center px-4 py-6 sm:p-6 lg:p-12 relative z-10 min-w-0">
       <div className="lg:hidden mb-6"><Logo /></div>
-      <div className="notebook-card dog-ear max-w-md w-full mx-auto p-8 relative tilt-l">
+      <div className="notebook-card dog-ear max-w-md w-full mx-auto p-6 sm:p-8 relative tilt-l">
         <h1 className="font-serif text-3xl tracking-tight">{title}</h1>
         <p className="font-hand text-lg text-primary mt-1">{subtitle}</p>
         <div className="mt-6">{children}</div>

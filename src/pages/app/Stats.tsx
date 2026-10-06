@@ -114,15 +114,15 @@ export default function Stats() {
 
       <div className="px-5 pb-8 space-y-5">
         {/* KPIs */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           {[
             { icon: BookOpen, label: "Cours", n: totalCourses, suffix: "" },
             { icon: Brain, label: "Quizz", n: totalQuizzes, suffix: "" },
             { icon: TrendingUp, label: "Moyenne", n: globalAvg, suffix: "%" },
           ].map(({ icon: Icon, label, n, suffix }) => (
-            <div key={label} className="rounded-xl border-2 border-foreground bg-card shadow-brutal-sm p-3 text-center hover-lift">
+            <div key={label} className="rounded-xl border-2 border-foreground bg-card shadow-brutal-sm p-3 text-center">
               <Icon className="h-4 w-4 mx-auto text-primary mb-1" />
-              <p className="font-serif text-2xl leading-none"><AnimatedNumber value={n} suffix={suffix} animateOnMount={false} /></p>
+              <p className="font-serif text-2xl leading-none">{label === "Moyenne" && attempts.length === 0 ? "–" : <AnimatedNumber value={n} suffix={suffix} animateOnMount={false} />}</p>
               <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider font-mono">{label}</p>
             </div>
           ))}
@@ -151,7 +151,7 @@ export default function Stats() {
                 const pct = Math.round((a.score / a.total) * 100);
                 const h = Math.max(4, (pct / maxPct) * 100);
                 return (
-                  <div key={i} className="flex-1 flex flex-col items-center justify-end gap-0.5" title={`${pct}% — ${new Date(a.created_at).toLocaleDateString("fr-FR")}`}>
+                  <div key={i} className="flex-1 flex flex-col items-center justify-end gap-0.5" title={`${pct} %, le ${new Date(a.created_at).toLocaleDateString("fr-FR")}`}>
                     <div
                       className="w-full rounded-t-sm transition-all"
                       style={{

@@ -5,7 +5,7 @@ import { DiploState } from "@/components/revix/DiploState";
 import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { ArrowLeft, Check, Loader2, Sparkles } from "lucide-react";
+import { ArrowLeft, Check, Loader2, Palette } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -79,7 +79,7 @@ export default function Cosmetics() {
     if (list.length === 0) {
       return (
         <div className="text-center py-10 text-sm text-muted-foreground">
-          <Sparkles className="h-8 w-8 mx-auto mb-2 opacity-50" />
+          <Palette className="h-8 w-8 mx-auto mb-2 opacity-50" />
           <p>Aucun item dans cette catégorie.</p>
           <p className="text-xs mt-1">Ouvre la boîte mystère pour en découvrir !</p>
         </div>

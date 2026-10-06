@@ -85,7 +85,7 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
     if (result?.error === "already_pending") {
       toast.info("Fiche déjà envoyée à cette personne");
     } else {
- toast.success(`Fiche envoyée à ${recipient.display_name?? recipient.username?? "ton ami"} `);
+ toast.success(`Fiche envoyée à ${recipient.display_name?? recipient.username?? "ton ami"}`);
       onOpenChange(false);
     }
   };
@@ -169,7 +169,7 @@ export const SendCourseDialog = ({ open, onOpenChange, courseId, courseTitle }: 
     <AlertDialog open={!!confirmFriend} onOpenChange={(o) => { if (!o && !sendingTo) setConfirmFriend(null); }}>
       <AlertDialogContent>
         <AlertDialogHeader>
- <AlertDialogTitle>Envoyer cette fiche? </AlertDialogTitle>
+ <AlertDialogTitle>Envoyer cette fiche ?</AlertDialogTitle>
           <AlertDialogDescription>
             Tu vas envoyer <span className="font-bold">« {courseTitle} »</span> à{" "}
             <span className="font-bold">{confirmFriend?.display_name ?? confirmFriend?.username ?? "cet ami"}</span>.

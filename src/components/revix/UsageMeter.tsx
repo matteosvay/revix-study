@@ -1,7 +1,7 @@
 // Affichage des quotas IA quotidiens/hebdo de l'utilisateur (style neo-brutaliste).
 // Utilisé dans le Dashboard.
 import { Link } from "react-router-dom";
-import { Sparkles, BookOpen, Brain, Calendar, MessageSquare, CheckCircle2 } from "lucide-react";
+import { BookOpen, Brain, Calendar, MessageSquare, CheckCircle2, Gauge } from "lucide-react";
 import { useUsage, type UsageAction } from "@/hooks/useUsage";
 
 const ACTION_META: Record<UsageAction, { label: string; icon: React.ComponentType<{ className?: string }> }> = {
@@ -37,7 +37,7 @@ export function UsageMeter() {
     <div className="rounded-md border-[2.5px] border-foreground bg-card p-4 shadow-brutal-sm">
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center gap-2">
-          <Sparkles className="h-4 w-4 text-primary" />
+          <Gauge className="h-4 w-4 text-primary" />
           <p className="text-sm font-bold uppercase tracking-wider">Quotas IA</p>
         </div>
         <span className="text-[10px] font-mono uppercase tracking-wider px-2 py-0.5 rounded border-[1.5px] border-foreground bg-secondary">

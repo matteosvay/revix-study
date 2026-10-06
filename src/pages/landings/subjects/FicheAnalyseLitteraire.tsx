@@ -3,7 +3,7 @@ import { SubjectLandingLayout } from "@/components/seo/SubjectLandingLayout";
 export default function FicheAnalyseLitteraire() {
   return (
     <SubjectLandingLayout
-      title="Fiche Analyse littéraire — méthode, figures, quiz | Diplo"
+      title="Fiche Analyse littéraire : méthode, figures, quiz | Diplo"
       metaDescription="Méthode complète d'analyse littéraire : axes de lecture, figures de style, registres. Flashcards et quiz interactifs pour réussir le bac de français."
       path="/fiches-de-revision/analyse-litteraire"
       subject="Analyse littéraire"
@@ -81,7 +81,7 @@ export default function FicheAnalyseLitteraire() {
           question: "Quel registre vise à faire rire en se moquant ?",
           choices: ["Tragique", "Lyrique", "Satirique", "Élégiaque"],
           correctIndex: 2,
-          explanation: "Le registre satirique critique en se moquant — La Fontaine, Voltaire en sont maîtres.",
+          explanation: "Le registre satirique critique en se moquant. La Fontaine, Voltaire en sont maîtres.",
         },
         {
           question: "Un alexandrin est un vers de :",
@@ -92,7 +92,7 @@ export default function FicheAnalyseLitteraire() {
       ]}
       faqs={[
         { q: "Pour quel examen cette fiche est-elle utile ?", a: "Bac de français (écrit et oral), brevet, concours d'entrée en classe prépa littéraire." },
-        { q: "Comment générer ma fiche sur un texte précis ?", a: "Sur Diplo, upload le texte ou ton cours d'analyse — l'IA produit une fiche personnalisée avec procédés repérés." },
+        { q: "Comment générer ma fiche sur un texte précis ?", a: "Sur Diplo, upload le texte ou ton cours d'analyse, l'IA produit une fiche personnalisée avec procédés repérés." },
         { q: "Y a-t-il des flashcards sur d'autres figures de style ?", a: "Oui, la fonctionnalité Flashcards IA crée un deck complet à partir de n'importe quel cours." },
       ]}
     />

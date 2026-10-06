@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { CURSUS_OPTIONS } from "@/data/cursus";
 import { DiploFace } from "./DiploFace";
 import { Button } from "@/components/ui/button";
-import { Plus, ArrowRight, Sparkles, Brain, BookMarked } from "lucide-react";
+import { Plus, ArrowRight, Brain, BookMarked, Layers } from "lucide-react";
 
 const ONBOARDED_KEY = "revix-onboarded-v1";
 
@@ -91,7 +91,7 @@ export function OnboardingFlow({ userId, onClose }: { userId: string; onClose: (
               {[
                 { Icon: BookMarked, t: "Fiches" },
                 { Icon: Brain, t: "Quizz" },
-                { Icon: Sparkles, t: "Flashcards" },
+                { Icon: Layers, t: "Flashcards" },
               ].map(({ Icon, t }) => (
                 <div key={t} className="rounded-xl border-2 border-foreground bg-card p-3 text-center shadow-brutal-sm">
                   <Icon className="h-5 w-5 mx-auto text-primary" />

@@ -61,7 +61,7 @@ export default function CheckoutReturn() {
             <Loader2 className="h-12 w-12 animate-spin text-primary" />
             <p className="text-sm text-muted-foreground max-w-sm">
               {waited
-                ? "Le paiement est confirmé côté Stripe, mais la mise à jour de ton compte prend un peu plus de temps que prévu. Ça peut arriver — réessaie dans 1 à 2 minutes en rafraîchissant la page."
+                ? "Le paiement est confirmé côté Stripe, mais la mise à jour de ton compte prend un peu plus de temps que prévu. Ça peut arriver. Réessaie dans 1 à 2 minutes en rafraîchissant la page."
                 : "On confirme ton paiement…"}
             </p>
             {sessionId && (

@@ -43,14 +43,14 @@ export default function Login() {
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" placeholder="ton@email.fr" aria-invalid={!!formError} required />
+          <Input id="email" name="email" type="email" autoComplete="email" inputMode="email" placeholder="ton@email.fr" aria-invalid={!!formError} required />
         </div>
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <Label htmlFor="pwd">Mot de passe</Label>
             <Link to="/reset-password" className="text-xs text-primary hover:underline">Oublié ?</Link>
           </div>
-          <Input id="pwd" name="pwd" type="password" aria-invalid={!!formError} required />
+          <Input id="pwd" name="pwd" type="password" autoComplete="current-password" aria-invalid={!!formError} required />
         </div>
         {formError && (
           <p role="alert" className="text-sm font-medium text-destructive bg-destructive/10 border-2 border-destructive/30 rounded-md px-3 py-2">

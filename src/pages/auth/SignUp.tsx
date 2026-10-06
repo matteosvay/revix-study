@@ -171,15 +171,15 @@ export default function SignUp() {
       <form className="space-y-4" onSubmit={onSubmit}>
         <div className="space-y-2">
           <Label htmlFor="name">Prénom</Label>
-          <Input id="name" name="name" required placeholder="Ton prénom" />
+          <Input id="name" name="name" autoComplete="given-name" required placeholder="Ton prénom" />
         </div>
         <div className="space-y-2">
           <Label htmlFor="email">Email</Label>
-          <Input id="email" name="email" type="email" placeholder="prenom@etudiant.fr" required />
+          <Input id="email" name="email" type="email" autoComplete="email" inputMode="email" placeholder="prenom@etudiant.fr" required />
         </div>
         <div className="space-y-2">
           <Label htmlFor="pwd">Mot de passe</Label>
-          <Input id="pwd" name="pwd" type="password" placeholder="Min. 6 caractères" required minLength={6} />
+          <Input id="pwd" name="pwd" type="password" autoComplete="new-password" placeholder="8 caractères minimum" required minLength={8} />
         </div>
         <div className="space-y-2">
           <Label>Je suis étudiant en...</Label>

@@ -201,7 +201,7 @@ export default function Fiches() {
                   <Link to={`/app/fiches/${c.id}`} className="flex items-center gap-3 flex-1 min-w-0">
  <img src={illu.notebook} alt="" className="h-8 w-8 shrink-0 object-contain" />
                     <div className="flex-1 min-w-0">
-                      <p className="font-serif text-lg leading-tight truncate">{c.title}</p>
+                      <p className="font-serif text-lg leading-tight line-clamp-2 [overflow-wrap:anywhere]">{c.title}</p>
                       <div className="flex items-center gap-2 mt-1">
                         {c.subject && <span className="label-tape">{c.subject}</span>}
                         <span className="font-mono-tag text-[10px] uppercase text-muted-foreground">

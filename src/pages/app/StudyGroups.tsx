@@ -134,7 +134,7 @@ export default function StudyGroups() {
     const { data, error } = await supabase.rpc("create_study_group", { p_name: name.trim(), p_emoji: "" });
     setBusy(false);
     if (error) { toast.error(error.message); return; }
-    toast.success("Groupe créé — partage le code à tes potes !");
+    toast.success("Groupe créé. Partage le code à tes potes !");
     setCreateOpen(false); setName("");
     load();
   };
@@ -150,7 +150,7 @@ export default function StudyGroups() {
           : error.message;
       toast.error(msg); return;
     }
- toast.success("Bienvenue dans le groupe ");
+ toast.success("Bienvenue dans le groupe");
     setJoinOpen(false); setCode("");
     load();
   };
@@ -171,7 +171,7 @@ export default function StudyGroups() {
 
   return (
     <AppLayout>
-      <PageHeader illustration={illu.group} title="Groupes d'étude" subtitle="Streak partagée · entraidez-vous" />
+      <PageHeader illustration={illu.group} title="Groupes d'étude" subtitle="Une série partagée, on s'entraide." />
 
       <div className="px-5 pb-6 space-y-4">
         <div className="grid grid-cols-2 gap-2">
@@ -210,12 +210,12 @@ export default function StudyGroups() {
                       <Flame className={`h-4 w-4 ${g.group_streak_days > 0 ? "text-accent" : "text-muted-foreground"}`} />
                       <p className="font-mono text-lg font-bold">{g.group_streak_days}</p>
                     </div>
-                    <p className="text-[9px] text-muted-foreground uppercase">jours</p>
+                    <p className="text-[10px] text-muted-foreground uppercase">jours</p>
                   </div>
                 </div>
                 <div className="mt-3">
                   <div className="flex items-center justify-between text-[10px] font-bold uppercase tracking-wider mb-1">
- <span className="flex items-center gap-1">Contribution <span className="font-normal normal-case text-muted-foreground">(1 quiz =)</span></span>
+ <span className="flex items-center gap-1">Contribution <span className="font-normal normal-case text-muted-foreground">(1 quizz =)</span></span>
                     <span className={g.all_contributed_today ? "text-success" : "text-muted-foreground"}>
                       {g.contributed_today}/{g.member_count}
                     </span>
@@ -224,7 +224,7 @@ export default function StudyGroups() {
                     <div className={`h-full transition-all ${g.all_contributed_today ? "bg-success" : "bg-accent"}`} style={{ width: `${g.member_count > 0 ? (g.contributed_today / g.member_count) * 100 : 0}%` }} />
                   </div>
                   {g.all_contributed_today && (
- <p className="text-[10px] font-bold text-success mt-1"> Streak validée pour aujourd'hui!</p>
+ <p className="text-[10px] font-bold text-success mt-1">Série validée pour aujourd'hui !</p>
                   )}
                 </div>
               </button>
@@ -283,7 +283,7 @@ export default function StudyGroups() {
             <div className="flex items-center gap-2 px-2 py-1.5 rounded-md bg-primary/5 border border-primary/20">
               <Info className="h-3 w-3 text-primary shrink-0" />
               <p className="text-[10px] text-muted-foreground">
- <span className="font-semibold text-foreground">Contribution</span> = terminer au moins 1 quizz aujourd'hui. = contribué, — = pas encore.
+ <span className="font-semibold text-foreground">Contribution</span> : terminer au moins 1 quizz aujourd'hui. La coche verte indique que c'est fait.
               </p>
             </div>
 
@@ -316,12 +316,12 @@ export default function StudyGroups() {
                           {m.display_name ?? "—"}
                           {m.role === "owner" && <Crown className="h-3 w-3 text-accent" />}
                         </p>
-                        <p className="text-[9px] text-muted-foreground">N{m.level} · {m.xp_today} XP aujourd'hui</p>
+                        <p className="text-[10px] text-muted-foreground">N{m.level} · {m.xp_today} XP aujourd'hui</p>
                       </div>
                       {m.contributed_today ? (
                         <Check className="h-4 w-4 text-success shrink-0" />
                       ) : (
-                        <span className="text-[10px] text-muted-foreground shrink-0">—</span>
+                        <span className="text-[10px] text-muted-foreground shrink-0">pas encore</span>
                       )}
                     </Link>
                     {openGroup?.is_owner && m.role !== "owner" && (

@@ -1,4 +1,4 @@
-import { Lightbulb, BookMarked, Sparkles, Quote, ListChecks } from "lucide-react";
+import { Lightbulb, BookMarked, Quote, ListChecks, Highlighter } from "lucide-react";
 
 export type SummaryBlock =
   | { kind: "paragraph"; text: string }
@@ -39,7 +39,7 @@ function Block({ b }: { b: SummaryBlock }) {
           </div>
           <p className="text-[15px] leading-relaxed">
             <span className="font-semibold text-primary">{b.term ?? ""}</span>
-            {b.term && b.text ? " — " : ""}
+            {b.term && b.text ? " : " : ""}
             {b.text ? renderInline(b.text) : null}
           </p>
         </div>
@@ -104,7 +104,7 @@ export function CourseSummary({ data }: { data: CourseSummaryData }) {
       {data.intro && (
         <div className="rounded-2xl gradient-primary text-primary-foreground p-4 shadow-glow">
           <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider opacity-90 mb-1">
-            <Sparkles className="h-3 w-3" /> En bref
+            <Highlighter className="h-3 w-3" /> En bref
           </div>
           <p className="text-[15px] leading-relaxed">{data.intro}</p>
         </div>

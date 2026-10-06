@@ -2,7 +2,7 @@ import { useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { useGamification } from "@/hooks/useGamification";
 import { Tape, Pin, ScribbleUnderline, Stamp } from "@/components/revix/AcademicDecor";
-import { Flame, Sparkles, Trophy, Target, Zap, Lock, ChevronRight } from "lucide-react";
+import { Flame, Trophy, Target, Zap, Lock, ChevronRight, Flag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { levelInfo, xpForLevel, LEVEL_NAMES, LEAGUES, leagueInfo, questIcon } from "@/lib/gamification";
@@ -40,7 +40,7 @@ export default function Aventure() {
               <div className="h-16 w-16 rounded-2xl gradient-primary flex items-center justify-center shadow-glow">
                 <img src={levelTier.icon} alt="" width={48} height={48} className="h-12 w-12 object-contain" />
               </div>
-              <span className="rubber-stamp-purple rubber-stamp absolute -bottom-2 -right-3 text-[8px] !px-1.5 !py-0.5 stamp-pop">
+              <span className="rubber-stamp-purple rubber-stamp absolute -bottom-2 -right-3 text-[10px] !px-1.5 !py-0.5 stamp-pop">
                 Lv {profile.level}
               </span>
             </div>
@@ -70,7 +70,7 @@ export default function Aventure() {
               <Flame className="h-6 w-6 text-orange-500" />
               <div>
                 <p className="font-serif text-2xl leading-none">{profile.streak_days}j</p>
-                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">Streak</p>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">Série</p>
               </div>
             </div>
           </Link>
@@ -96,7 +96,7 @@ export default function Aventure() {
             <div className="rounded-2xl bg-card p-4 relative">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-1.5 text-[11px] font-semibold uppercase tracking-wider text-primary">
-                  <Sparkles className="h-3 w-3" /> Quête de la semaine
+                  <Flag className="h-3 w-3" /> Quête de la semaine
                 </div>
                 <div className="flex items-center gap-2">
                   {(() => { const day = new Date().getDay(); const left = day === 0 ? 0 : 7 - day; return left > 0 ? (
@@ -126,7 +126,7 @@ export default function Aventure() {
                 </div>
               </div>
               {weeklyQuest.completed && (
- <p className="font-hand text-primary text-lg mt-3">Complétée! </p>
+ <p className="font-hand text-primary text-lg mt-3">Complétée !</p>
               )}
             </div>
           </div>
@@ -140,7 +140,7 @@ export default function Aventure() {
             <div>
               <p className="font-mono-tag text-xs font-bold uppercase tracking-wider text-white/95 drop-shadow-sm">Quêtes du jour</p>
             </div>
- {allDailyDone && <span className="font-hand text-white text-lg drop-shadow">tout fait! </span>}
+ {allDailyDone && <span className="font-hand text-white text-lg drop-shadow">Tout fait !</span>}
           </div>
 
           <div className="space-y-2.5">
@@ -224,10 +224,10 @@ export default function Aventure() {
                         {tier.name}
                       </p>
                       {current && (
-                        <span className="rubber-stamp-purple rubber-stamp text-[8px] !px-1.5 !py-0.5">ici</span>
+                        <span className="rubber-stamp-purple rubber-stamp text-[10px] !px-1.5 !py-0.5">ici</span>
                       )}
                     </div>
-                    <p className="font-mono-tag text-[9px] uppercase tracking-wider text-muted-foreground">
+                    <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">
                       Niv. {tier.min}–{tier.max} · {xpToReach} XP
                     </p>
                   </div>
@@ -271,10 +271,10 @@ export default function Aventure() {
                     <div className="flex items-center gap-2">
                       <p className="font-serif text-base leading-tight">{l.name}</p>
                       {current && (
-                        <span className="rubber-stamp-purple rubber-stamp text-[8px] !px-1.5 !py-0.5">ici</span>
+                        <span className="rubber-stamp-purple rubber-stamp text-[10px] !px-1.5 !py-0.5">ici</span>
                       )}
                     </div>
-                    <p className="font-mono-tag text-[9px] uppercase tracking-wider text-muted-foreground">
+                    <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">
                       {l.minWeekXp} XP / semaine
                     </p>
                   </div>

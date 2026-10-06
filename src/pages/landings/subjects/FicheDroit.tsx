@@ -3,7 +3,7 @@ import { SubjectLandingLayout } from "@/components/seo/SubjectLandingLayout";
 export default function FicheDroit() {
   return (
     <SubjectLandingLayout
-      title="Fiche de révision Droit — exemples, flashcards et quiz | Diplo"
+      title="Fiche de révision Droit : exemples, flashcards et quiz | Diplo"
       metaDescription="Fiche de révision Droit prête à l'emploi : introduction au droit, sources, hiérarchie des normes. Flashcards et mini-quiz interactifs pour réviser efficacement."
       path="/fiches-de-revision/droit"
       subject="Droit"
@@ -17,7 +17,7 @@ export default function FicheDroit() {
             tester tes connaissances.
           </p>
           <p>
-            Tu peux générer la tienne en uploadant ton cours sur Diplo — l'IA structure
+            Tu peux générer la tienne en uploadant ton cours sur Diplo, l'IA structure
             tout en moins d'une minute.
           </p>
         </>

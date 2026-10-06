@@ -4,7 +4,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Loader2, CheckCircle2, XCircle, RefreshCw, Sparkles, BookOpen } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, RefreshCw, BookOpen } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -98,7 +98,6 @@ export function ReviewBankDialog({ open, onOpenChange, courseId, courseTitle, li
             Réviser {courseTitle ? `· ${courseTitle}` : ""}
           </DialogTitle>
           <DialogDescription className="flex items-center gap-1.5 text-xs">
-            <Sparkles className="h-3 w-3 text-emerald-500" />
             Sans coût IA · Banque de questions
           </DialogDescription>
         </DialogHeader>

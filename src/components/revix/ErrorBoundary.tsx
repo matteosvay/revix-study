@@ -79,7 +79,7 @@ export class ErrorBoundary extends Component<Props, State> {
             {/* Title */}
             <h1 className="font-serif text-2xl text-center mb-2"
               style={{ color: "hsl(var(--foreground))" }}>
- {chunkErr? "Nouvelle version disponible ": "Oups, quelque chose a planté "}
+ {chunkErr? "Nouvelle version disponible ": "Oups, quelque chose a planté"}
             </h1>
 
             {/* Message */}
@@ -87,7 +87,7 @@ export class ErrorBoundary extends Component<Props, State> {
               style={{ color: "hsl(var(--muted-foreground))" }}>
               {chunkErr
                 ? "Recharge la page pour récupérer la dernière version."
-                : "Pas de panique — tes données sont en sécurité."}
+                : "Pas de panique, tes données sont en sécurité."}
             </p>
             <p className="text-xs text-center mb-6 font-mono"
               style={{ color: "hsl(var(--muted-foreground))" }}>

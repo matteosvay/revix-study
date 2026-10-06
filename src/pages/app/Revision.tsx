@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { illu } from "@/assets/illu";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Brain, CheckCircle2, XCircle, Repeat, Sparkles } from "lucide-react";
+import { ArrowLeft, Brain, CheckCircle2, XCircle, Repeat } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { awardXp } from "@/hooks/useGamification";
@@ -84,7 +84,7 @@ export default function Revision() {
   if (queue.length === 0) {
     return (
       <AppLayout>
-        <PageHeader illustration={illu.brain} title="Révision" subtitle="Spaced repetition" />
+        <PageHeader illustration={illu.brain} title="Révision" subtitle="Répétition espacée : on te repose les questions juste avant que tu les oublies." />
         {skippedCount > 0 && (
           <div className="mx-5 mt-3 px-3 py-2 rounded-md border border-muted bg-muted/40 text-xs text-muted-foreground">
             {skippedCount} question{skippedCount > 1 ? "s" : ""} de type texte libre ou ordre ne sont pas encore disponibles en révision ciblée.
@@ -92,8 +92,8 @@ export default function Revision() {
         )}
         <DiploState
           title="Tout est à jour !"
-          subtitle="Aucune question à réviser. Explore tes chapitres ci-dessous ou lance un nouveau quiz."
-          action={<Button asChild size="sm" className="rounded-full"><Link to="/app/quizz"><Brain className="h-4 w-4 mr-1" /> Faire un quiz</Link></Button>}
+          subtitle="Aucune question à réviser. Explore tes chapitres ci-dessous ou lance un nouveau quizz."
+          action={<Button asChild size="sm" className="rounded-full"><Link to="/app/quizz"><Brain className="h-4 w-4 mr-1" />Faire un quizz</Link></Button>}
         />
         <div className="px-5 mt-6 pb-24">
           <RevisionExplorer />

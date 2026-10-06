@@ -120,7 +120,7 @@ export function QuizBonusLootBoxCard() {
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-serif text-lg leading-none flex items-center gap-1.5">
-              Boîte bonus quiz
+              Boîte bonus quizz
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Récompense pour 5 quiz complétés{remaining > 1 ? ` · ${remaining} disponibles` : ""}

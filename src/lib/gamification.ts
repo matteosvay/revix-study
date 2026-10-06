@@ -41,13 +41,13 @@ export function xpProgress(totalXp: number, level: number) {
 
 /** Pool of daily quests — a random subset of 3 is chosen each day. */
 export const DAILY_QUEST_POOL = [
-  { key: "quiz_done", title: "Révise bien", description: "Termine 1 quiz", emoji: "🧠", target: 1, xp: 60 },
+  { key: "quiz_done", title: "Révise bien", description: "Termine 1 quizz", emoji: "🧠", target: 1, xp: 60 },
   { key: "course_uploaded", title: "Fiche express", description: "Upload 1 cours", emoji: "📄", target: 1, xp: 60 },
-  { key: "streak_kept", title: "Chaud devant", description: "Garde ta streak aujourd'hui", emoji: "🔥", target: 1, xp: 60 },
+  { key: "streak_kept", title: "Chaud devant", description: "Garde ta série aujourd'hui", emoji: "🔥", target: 1, xp: 60 },
   { key: "questions_answered", title: "Sprint", description: "Réponds à 20 questions", emoji: "⚡", target: 20, xp: 60 },
-  { key: "high_score", title: "Précision", description: "Score 80%+ à un quiz", emoji: "🎯", target: 1, xp: 80 },
+  { key: "high_score", title: "Précision", description: "Fais 80 % ou plus à un quizz", emoji: "🎯", target: 1, xp: 80 },
   { key: "task_added", title: "Planificateur", description: "Ajoute une session au planning", emoji: "🗓️", target: 1, xp: 50 },
-  { key: "perfect_quiz", title: "Sans faute", description: "Termine un quiz sans erreur", emoji: "💪", target: 1, xp: 100 },
+  { key: "perfect_quiz", title: "Sans faute", description: "Termine un quizz sans erreur", emoji: "💪", target: 1, xp: 100 },
   { key: "coach_question", title: "Consulte ton coach", description: "Pose 1 question au coach IA", emoji: "🧠", target: 1, xp: 60 },
 ] as const;
 
@@ -55,7 +55,7 @@ export const WEEKLY_QUEST_POOL = [
   { key: "w_5_quizzes", title: "Semaine de feu", description: "Termine 5 quizzes cette semaine", emoji: "🏆", target: 5, xp: 200 },
   { key: "w_4_uploads", title: "Bibliothécaire", description: "Upload 4 cours cette semaine", emoji: "📖", target: 4, xp: 200 },
   { key: "w_3_high_scores", title: "Major", description: "3 scores au-dessus de 80%", emoji: "🎓", target: 3, xp: 250 },
-  { key: "w_7_streak", title: "Consistance", description: "Valide 7 jours de streak sur la semaine", emoji: "🌟", target: 7, xp: 300 },
+  { key: "w_7_streak", title: "Consistance", description: "Révise 7 jours sur 7 cette semaine", emoji: "🌟", target: 7, xp: 300 },
   { key: "w_5_planning_tasks", title: "Agenda blindé", description: "Ajoute 5 sessions au planning cette semaine", emoji: "🗂️", target: 5, xp: 220 },
 ] as const;
 
@@ -150,10 +150,10 @@ export const STREAK_PRESTIGES: { days: number; name: string; emoji: string; icon
   { days: 3, name: "Étincelle", emoji: "✨", icon: illu.sparkle, tagline: "T'as allumé la flamme." },
   { days: 7, name: "Flammèche", emoji: "🔥", icon: illu.flame, tagline: "Une semaine pleine, respect." },
   { days: 14, name: "Brasier", emoji: "🔥🔥", icon: illu.flameDouble, tagline: "Deux semaines : c'est solide." },
-  { days: 30, name: "Volcan", emoji: "🌋", icon: illu.volcano, tagline: "Un mois entier — tu es chaud." },
+  { days: 30, name: "Volcan", emoji: "🌋", icon: illu.volcano, tagline: "Un mois entier. Tu es chaud." },
   { days: 60, name: "Tempête de feu", emoji: "⚡🔥", icon: illu.storm, tagline: "Deux mois, t'es hors-norme." },
   { days: 100, name: "Phénix", emoji: "🐦‍🔥", icon: illu.phoenix, tagline: "100 jours. Tu renais chaque jour." },
-  { days: 180, name: "Soleil", emoji: "☀️", icon: illu.sun, tagline: "6 mois — tu brilles tout seul." },
+  { days: 180, name: "Soleil", emoji: "☀️", icon: illu.sun, tagline: "6 mois. Tu brilles tout seul." },
   { days: 365, name: "Supernova", emoji: "💫", icon: illu.supernova, tagline: "Une année. Légendaire." },
   { days: 500, name: "Constellation", emoji: "🌌", icon: illu.constellation, tagline: "Tu fais partie du ciel Diplo." },
   { days: 1000, name: "Éternel", emoji: "♾️", icon: illu.infinity, tagline: "1000 jours. Statut mythique." },

@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
-import { Copy, Check, X, UserPlus, Search, Trophy, Flame, Sparkles, AtSign, Loader2, Swords, BookOpen, Plus, LogIn } from "lucide-react";
+import { Copy, Check, X, UserPlus, Search, Trophy, Flame, AtSign, Loader2, Swords, BookOpen, Plus, LogIn } from "lucide-react";
 import { useNavigate, Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -159,7 +159,7 @@ export default function Campus() {
           row.challenger_id === user.id &&
           payload.old?.status === "pending"
         ) {
- toast.success("Ton adversaire a accepté Le duel commence!");
+ toast.success("Ton adversaire a accepté. Le duel commence !");
           nav(`/app/duel/${row.id}`);
         }
       })
@@ -205,7 +205,7 @@ export default function Campus() {
       if (error.code === "23505") toast.error("Demande déjà envoyée");
       else toast.error(error.message);
     } else {
- toast.success("Demande envoyée ");
+ toast.success("Demande envoyée");
       loadAll();
     }
   };
@@ -213,7 +213,7 @@ export default function Campus() {
   const acceptRequest = async (id: string) => {
     const { error } = await supabase.from("friendships").update({ status: "accepted" }).eq("id", id);
     if (error) toast.error(error.message);
- else { toast.success("Ami ajouté +15 XP"); loadAll(); }
+ else { toast.success("Ami ajouté, +15 XP"); loadAll(); }
   };
 
   const rejectRequest = async (id: string) => {
@@ -241,13 +241,13 @@ export default function Campus() {
       p_num_questions: duelNum, p_seconds_per_question: duelSecs,
     });
     if (error) {
-      const msg = error.message.includes("not_enough_questions") ? "Pas assez de QCM dans ce cours (mini 3). Génère un quiz d'abord."
+      const msg = error.message.includes("not_enough_questions") ? "Pas assez de QCM dans ce cours (mini 3). Génère un quizz d'abord."
         : error.message.includes("not_friends") ? "Tu dois être ami avec cette personne"
         : error.message;
       toast.error(msg);
       return;
     }
- toast.success("Défi envoyé ");
+ toast.success("Défi envoyé");
     setCreateDuelOpen(false);
     loadAll();
   };
@@ -265,7 +265,7 @@ export default function Campus() {
       timer_preset: roomPreset, max_members: roomMax, privacy: "open",
     }).select().single();
     if (error) { toast.error(error.message); return; }
- toast.success("Salle créée ");
+ toast.success("Salle créée");
     setCreateRoomOpen(false);
     setRoomName("");
     nav(`/app/room/${data.id}`);
@@ -374,7 +374,7 @@ export default function Campus() {
               <Input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
-                placeholder="Pseudo, code REVIX-XXXX, ou prénom..."
+                placeholder="Pseudo, code étudiant ou prénom"
               />
               {searching && <p className="text-xs text-muted-foreground">Recherche...</p>}
               {!searching && query.length >= 2 && results.length === 0 && (
@@ -403,7 +403,7 @@ export default function Campus() {
                             name={r.title_name}
                             emoji={r.title_emoji}
                             rarity={r.title_rarity ?? "common"}
-                            size="text-[9px]"
+                            size="text-[10px]"
                           />
                           <p className="text-[10px] font-mono text-muted-foreground truncate">
                             {r.username ? `@${r.username} · ` : ""}#{r.student_code}
@@ -486,7 +486,7 @@ export default function Campus() {
                           sticker={p.sticker_emoji}
                           size="md"
                         />
-                        <span className="absolute -bottom-1 -right-1 text-[9px] font-mono font-bold bg-accent text-accent-foreground border border-foreground rounded px-1">
+                        <span className="absolute -bottom-1 -right-1 text-[10px] font-mono font-bold bg-accent text-accent-foreground border border-foreground rounded px-1">
                           N{p.level ?? 1}
                         </span>
                       </Link>
@@ -497,7 +497,7 @@ export default function Campus() {
                           name={p.title_name}
                           emoji={p.title_emoji}
                           rarity={p.title_rarity ?? "common"}
-                          size="text-[9px]"
+                          size="text-[10px]"
                         />
                         <p className="text-[10px] font-mono text-muted-foreground truncate">
                           {p.username ? `@${p.username}` : `#${p.student_code}`}
@@ -530,7 +530,7 @@ export default function Campus() {
                         sticker={p?.sticker_emoji}
                         size="sm"
                       />
-                      <span className="flex-1 truncate">{p?.display_name ?? "..."} — en attente</span>
+                      <span className="flex-1 truncate">{p?.display_name ?? "..."}, en attente</span>
                       <button onClick={() => rejectRequest(req.id)} className="text-destructive font-bold text-[10px]">Annuler</button>
                     </div>
                   );
@@ -573,7 +573,7 @@ export default function Campus() {
                       <p className="text-[10px] font-mono text-muted-foreground">{d.subject ?? "—"} · {d.num_questions}Q · {d.seconds_per_question}s</p>
                       {d.status === "completed" && (
                         <p className="text-[11px] font-bold mt-0.5">
- {won? " Victoire": lost? "Défaite": "Égalité"} — {d.challenger_score?? "?"} vs {d.opponent_score?? "?"}
+ {won? "Victoire": lost? "Défaite": "Égalité"}, {d.challenger_score?? "?"} à {d.opponent_score?? "?"}
                         </p>
                       )}
                     </div>
@@ -635,14 +635,14 @@ export default function Campus() {
             <div>
               <label className="text-[10px] font-bold uppercase">Adversaire</label>
               <select value={duelOpponent} onChange={(e) => setDuelOpponent(e.target.value)} className="w-full h-10 rounded-md border-2 border-foreground bg-card px-3 text-sm">
-                <option value="">— choisir —</option>
+                <option value="">Choisir…</option>
                 {acceptedFriends.map((p: any) => <option key={p.id} value={p.id}>{p.display_name ?? p.username ?? p.student_code}</option>)}
               </select>
             </div>
             <div>
               <label className="text-[10px] font-bold uppercase">Cours (avec QCM)</label>
               <select value={duelCourse} onChange={(e) => setDuelCourse(e.target.value)} className="w-full h-10 rounded-md border-2 border-foreground bg-card px-3 text-sm">
-                <option value="">— choisir —</option>
+                <option value="">Choisir…</option>
                 {myCourses.map((c: any) => <option key={c.id} value={c.id}>{c.title}</option>)}
               </select>
             </div>

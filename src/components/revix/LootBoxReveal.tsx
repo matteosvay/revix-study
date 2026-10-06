@@ -218,14 +218,14 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
     !current ? "" :
     current.kind === "cosmetic" ? current.name :
     current.kind === "xp" ? "Bonus XP" :
-    current.kind === "token" ? "Pass de streak" :
+    current.kind === "token" ? "Pass de série" :
     POWERUP_LABELS[current.key]?.name ?? "Power-up";
 
   const subtitle =
     !current ? "" :
     current.kind === "cosmetic" ? `${RARITY_LABEL[curRarity]} · ${current.category}` :
     current.kind === "xp" ? "Expérience gagnée" :
-    current.kind === "token" ? "Protège ton streak" : "Pouvoir spécial";
+    current.kind === "token" ? "Protège ta série" : "Pouvoir spécial";
 
   return (
     <div className="lb-backdrop fixed inset-0 z-[100] overflow-hidden animate-fade-in">

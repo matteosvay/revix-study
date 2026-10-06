@@ -59,7 +59,7 @@ export function LootBoxCard() {
     return (
       <div className="card-paper p-3 mb-3 flex items-center gap-3 opacity-60">
         <Gift className="h-5 w-5 text-muted-foreground" />
- <p className="text-xs text-muted-foreground flex-1">Boîte mystère ouverte Reviens demain.</p>
+ <p className="text-xs text-muted-foreground flex-1">Boîte mystère ouverte. Reviens demain.</p>
       </div>
     );
   }

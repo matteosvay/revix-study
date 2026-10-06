@@ -64,7 +64,13 @@ export const DiploMascot = () => {
   return (
     <>
       <DiploDefs />
-      <div className="fixed left-3 lg:left-[276px] bottom-24 lg:bottom-4 z-30" style={{ pointerEvents: "none" }}>
+      {/* Sur téléphone, Diplo masquait le contenu (cartes, calendrier, libellés) et
+          doublait celui du bouton coach. Il n'apparaît plus qu'au moment où il réagit
+          (XP, niveau). Sur grand écran, il reste à sa place. */}
+      <div
+        className={`fixed left-3 lg:left-[88px] bottom-24 lg:bottom-28 z-30 ${anim || msg ? "" : "hidden lg:block"}`}
+        style={{ pointerEvents: "none" }}
+      >
         {msg && (
           <div
             className="mb-2 ml-1 inline-block max-w-[200px] rounded-xl border-[2.5px] border-foreground bg-card px-3 py-1.5 font-display text-sm text-foreground shadow-brutal-sm"

@@ -3,7 +3,7 @@ import { SubjectLandingLayout } from "@/components/seo/SubjectLandingLayout";
 export default function FicheMarketing() {
   return (
     <SubjectLandingLayout
-      title="Fiche de révision Marketing — 4P, SWOT, segmentation | Diplo"
+      title="Fiche de révision Marketing : 4P, SWOT, segmentation | Diplo"
       metaDescription="Fiche Marketing complète : mix marketing (4P), SWOT, segmentation, ciblage, positionnement. Flashcards et quiz interactifs pour BTS, BUT et école de commerce."
       path="/fiches-de-revision/marketing"
       subject="Marketing"
@@ -26,7 +26,7 @@ export default function FicheMarketing() {
         "STP : segmentation, ciblage, positionnement",
         "Flashcards et quiz pour s'auto-évaluer",
       ]}
-      sheetTitle="Stratégie marketing — les essentiels"
+      sheetTitle="Stratégie marketing : les essentiels"
       sheetSections={[
         {
           heading: "Le mix marketing (4P)",
@@ -52,14 +52,14 @@ export default function FicheMarketing() {
           points: [
             "Segmentation : découper le marché en groupes homogènes (critères socio-démo, géo, comportementaux, psychographiques).",
             "Ciblage : choisir les segments à adresser (concentré, différencié, indifférencié).",
-            "Positionnement : place voulue dans l'esprit du consommateur — exprimée via une promesse + une preuve.",
+            "Positionnement : place voulue dans l'esprit du consommateur, exprimée via une promesse + une preuve.",
           ],
         },
         {
           heading: "Études marketing",
           points: [
-            "Quantitatives : sondages, panels — chiffrer un comportement.",
-            "Qualitatives : entretiens, focus groups — comprendre les motivations.",
+            "Quantitatives : sondages, panels : chiffrer un comportement.",
+            "Qualitatives : entretiens, focus groups : comprendre les motivations.",
             "Veille concurrentielle et benchmarking.",
           ],
         },
@@ -94,7 +94,7 @@ export default function FicheMarketing() {
       ]}
       faqs={[
         { q: "Cette fiche correspond à quel niveau ?", a: "BTS MCO/NDRC, BUT TC/GEA, L1/L2 éco-gestion, première année d'école de commerce." },
-        { q: "Y a-t-il une fiche sur le marketing digital ?", a: "Pas encore en page dédiée. Génère-la dans l'app à partir de ton cours — l'IA produit une fiche similaire en moins d'une minute." },
+        { q: "Y a-t-il une fiche sur le marketing digital ?", a: "Pas encore en page dédiée. Génère-la dans l'app à partir de ton cours, l'IA produit une fiche similaire en moins d'une minute." },
         { q: "Puis-je m'entraîner avec plus de quiz ?", a: "Oui, la fonctionnalité Quiz IA de Diplo génère un nombre illimité de questions à partir de ton cours." },
       ]}
     />

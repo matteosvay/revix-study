@@ -39,7 +39,7 @@ export function StudyPlanCard({ plan, onImported }: { plan: StudyPlan; onImporte
       await bumpQuest(user.id, "task_added", rows.length);
       await bumpQuest(user.id, "w_5_planning_tasks", rows.length);
       await awardXp(user.id, 80, "coach:plan_imported");
- toast.success(`${rows.length} sessions ajoutées à ton planning `);
+ toast.success(`${rows.length} sessions ajoutées à ton planning`);
       setImported(true);
       onImported?.();
     } catch (e: any) {
@@ -62,7 +62,7 @@ export function StudyPlanCard({ plan, onImported }: { plan: StudyPlan; onImporte
               <div key={j} className="flex items-baseline gap-2 text-xs ml-1 mt-0.5">
                 <span className="text-foreground/85 flex-1">{t.description}</span>
                 <span className="text-[10px] text-foreground/50 whitespace-nowrap">({t.duration_min} min)</span>
-                <span className="font-mono text-[9px] tracking-wider bg-primary/10 text-primary px-1.5 rounded">
+                <span className="font-mono text-[10px] tracking-wider bg-primary/10 text-primary px-1.5 rounded">
                   {t.technique}
                 </span>
               </div>

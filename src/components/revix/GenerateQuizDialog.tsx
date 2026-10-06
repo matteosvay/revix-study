@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { Loader2, Sparkles, BookOpen, Hash, CheckCircle2 } from "lucide-react";
+import { Loader2, BookOpen, Hash, CheckCircle2, PenLine } from "lucide-react";
 import { illu } from "@/assets/illu";
 
 type CourseRow = {
@@ -188,7 +188,7 @@ export function GenerateQuizDialog({
         throw rowsErr;
       }
 
- toast.success("Quizz prêt ");
+ toast.success("Quizz prêt");
       onOpenChange(false);
       if (onGenerated) onGenerated(quiz.id);
       else nav(`/app/quizz?id=${quiz.id}`);
@@ -205,7 +205,7 @@ export function GenerateQuizDialog({
       <DialogContent className="max-w-lg max-h-[85vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Sparkles className="h-5 w-5 text-primary" /> Générer un quizz
+            <PenLine className="h-5 w-5 text-primary" /> Générer un quizz
           </DialogTitle>
           <DialogDescription>
             Choisis la fiche, la portée et le type de questions.
@@ -343,7 +343,6 @@ export function GenerateQuizDialog({
                           : "border-border bg-card hover:border-primary/40"
                       }`}
                     >
-                      <span>{t.emoji}</span>
                       <span className="truncate">{t.label}</span>
                     </button>
                   );
@@ -405,7 +404,7 @@ export function GenerateQuizDialog({
             {generating ? (
               <><Loader2 className="h-4 w-4 mr-1.5 animate-spin" /> Génération…</>
             ) : (
-              <><Sparkles className="h-4 w-4 mr-1.5" /> Générer</>
+              <><PenLine className="h-4 w-4 mr-1.5" /> Générer</>
             )}
           </Button>
         </DialogFooter>

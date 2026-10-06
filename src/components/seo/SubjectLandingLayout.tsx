@@ -186,7 +186,7 @@ export function SubjectLandingLayout({
         </section>
 
         <section className="space-y-5">
-          <h2 className="font-display text-3xl md:text-4xl text-center">Exemple de fiche — {sheetTitle}</h2>
+          <h2 className="font-display text-3xl md:text-4xl text-center">Exemple de fiche : {sheetTitle}</h2>
           <div className="rounded-2xl border-[3px] border-foreground bg-card p-6 md:p-8 shadow-brutal space-y-6">
             {sheetSections.map((s, i) => (
               <div key={i}>
@@ -200,7 +200,7 @@ export function SubjectLandingLayout({
         </section>
 
         <section className="space-y-5">
-          <h2 className="font-display text-3xl md:text-4xl text-center">Flashcards — clique pour retourner</h2>
+          <h2 className="font-display text-3xl md:text-4xl text-center">Flashcards : clique pour retourner</h2>
           <div className="grid gap-3 sm:grid-cols-2">
             {flashcards.map((c, i) => <Flashcard key={i} card={c} />)}
           </div>

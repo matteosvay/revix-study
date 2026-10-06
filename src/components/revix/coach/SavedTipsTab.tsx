@@ -38,7 +38,7 @@ export function SavedTipsTab() {
     return (
       <div className="postit p-5 rounded-md min-h-[140px] flex items-center justify-center text-center">
         <p className="font-hand text-lg text-foreground/70">
- Aucun conseil sauvegardé — pose une question au coach pour commencer 
+ Aucun conseil sauvegardé. Pose une question au coach pour commencer.
         </p>
       </div>
     );
@@ -53,7 +53,7 @@ export function SavedTipsTab() {
           style={{ transform: `rotate(${(i % 3) - 1}deg)` }}
         >
           <div className="flex items-start justify-between gap-2 mb-1">
-            <span className="font-mono text-[9px] text-foreground/50">
+            <span className="font-mono text-[10px] text-foreground/50">
               {new Date(t.created_at).toLocaleDateString("fr-FR", { day: "2-digit", month: "short" })}
             </span>
             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition">

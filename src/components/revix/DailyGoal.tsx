@@ -93,7 +93,7 @@ export function DailyGoal() {
         {done ? (
           <>
             <p className="font-display font-bold text-base leading-tight text-foreground">Objectif atteint !</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">Bravo — reviens demain pour garder le rythme.</p>
+            <p className="text-[11px] text-muted-foreground mt-0.5">Bravo, reviens demain pour garder le rythme.</p>
           </>
         ) : (
           <>
@@ -101,7 +101,7 @@ export function DailyGoal() {
               {val} / {GOAL} XP
             </p>
             <p className="text-[11px] text-muted-foreground mt-0.5">
-              Plus que {GOAL - val} XP — un petit quizz et c'est plié.
+              Plus que {GOAL - val} XP : un petit quizz et c'est plié.
             </p>
           </>
         )}

@@ -1,6 +1,6 @@
 import { FRAME_SRC, frameGlow, LEGENDARY_FRAMES } from "@/lib/cosmetics-assets";
-import origineRing from "@/assets/cosmetics/frame_origine_ring.png";
-import reineRing from "@/assets/cosmetics/frame_reine_ring.png";
+import origineRing from "@/assets/cosmetics/frame_origine_ring.webp";
+import reineRing from "@/assets/cosmetics/frame_reine_ring.webp";
 
 type Size = "sm" | "md" | "lg" | "xl";
 

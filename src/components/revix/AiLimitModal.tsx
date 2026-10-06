@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { PLANS, PLAN_PERKS, formatPrice, PRICE_SUFFIX, VAT_NOTICE } from "@/lib/pricing";
-import { Check, Sparkles, Zap } from "lucide-react";
+import { Check, Zap } from "lucide-react";
 import { AI_LIMIT_EVENT, type AiLimitInfo } from "@/lib/aiLimits";
 
 const ACTION_LABELS: Record<string, string> = {
@@ -54,7 +54,6 @@ export function AiLimitModal() {
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-primary" />
                 <span className="font-serif text-lg font-semibold">Pro</span>
               </div>
               <span className="font-bold text-primary">{formatPrice(PLANS.pro.priceTTC)}<span className="text-xs font-normal text-muted-foreground">{PRICE_SUFFIX}</span></span>

@@ -108,7 +108,7 @@ export const NotificationBell = () => {
       toast.error(error.message.includes("share_not_found") ? "Déjà traité" : "Action impossible");
       return;
     }
- toast.success(accept? "Fiche ajoutée à tes cours ": "Fiche refusée");
+ toast.success(accept? "Fiche ajoutée à tes cours": "Fiche refusée");
     await supabase.from("notifications").update({ read: true }).eq("id", n.id);
     await load();
   };
@@ -197,7 +197,7 @@ export const NotificationBell = () => {
                           const verb = genderText(g, "Il", "Elle", "Iel");
                           return (
                             <p className="text-[11px] text-muted-foreground/90 mt-1.5 italic">
-                              {senderName} ({pronoun(g)}) attend ta réponse — {verb.toLowerCase()} pourra le voir.
+                              {senderName} ({pronoun(g)}) attend ta réponse, {verb.toLowerCase()} pourra le voir.
                             </p>
                           );
                         })()}
@@ -228,7 +228,7 @@ export const NotificationBell = () => {
                             size="sm"
                             onClick={(e) => claimQueenLootbox(n, e)}
                             disabled={claimingQueen === n.id}
-                            className="h-8 px-3 text-[11px] bg-gradient-to-r from-pink-400 via-rose-400 to-amber-300 hover:from-pink-500 hover:via-rose-500 hover:to-amber-400 text-white border-2 border-foreground shadow-brutal-sm"
+                            className="h-8 px-3 text-[11px] bg-accent text-accent-foreground hover:bg-accent/90 border-2 border-foreground shadow-brutal-sm"
                           >
                             {claimingQueen === n.id ? (
                               <Loader2 className="h-3 w-3 animate-spin" />

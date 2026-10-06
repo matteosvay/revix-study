@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { LogOut, Trash2, Sparkles, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3, Crown, CreditCard, Check, Pencil, UserPlus, Share2 } from "lucide-react";
+import { LogOut, Trash2, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3, Crown, CreditCard, Check, Pencil, UserPlus, Share2, GraduationCap } from "lucide-react";
 import { DiploFace } from "@/components/revix/DiploFace";
 import { DiploState } from "@/components/revix/DiploState";
 import { AnimatedNumber } from "@/components/revix/AnimatedNumber";
@@ -35,7 +35,7 @@ export default function Profil() {
   const [checkoutPriceId, setCheckoutPriceId] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
-  const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0 });
+  const [stats, setStats] = useState({ courses: 0, quizzes: 0, avg: 0, hasAvg: false });
   const [recentAttempts, setRecentAttempts] = useState<{ score: number; total: number; created_at: string; quizTitle: string }[]>([]);
   const [uploading, setUploading] = useState(false);
   const [pendingFile, setPendingFile] = useState<File | null>(null);
@@ -57,7 +57,7 @@ export default function Profil() {
       ]);
       setProfile(p);
       const avg = attempts && attempts.length ? Math.round(attempts.reduce((s, a) => s + (a.score / a.total) * 100, 0) / attempts.length) : 0;
-      setStats({ courses: cc ?? 0, quizzes: qc ?? 0, avg });
+      setStats({ courses: cc ?? 0, quizzes: qc ?? 0, avg, hasAvg: !!attempts?.length });
       setRecentAttempts((recent ?? []).map((r: any) => ({
         score: r.score, total: r.total, created_at: r.created_at,
         quizTitle: r.quizzes?.title ?? "Quizz",
@@ -101,7 +101,7 @@ export default function Profil() {
       const { error: updErr } = await supabase.from("profiles").update({ avatar_url: url }).eq("id", user.id);
       if (updErr) throw updErr;
       setProfile({ ...profile, avatar_url: url });
- toast.success("Photo mise à jour ");
+ toast.success("Photo mise à jour");
     } catch (err: any) {
       toast.error(err.message ?? "Échec de l'upload");
     } finally {
@@ -120,7 +120,7 @@ export default function Profil() {
     }
     try {
       await navigator.clipboard.writeText(`${text} ${url}`);
-      toast.success("Lien copié — partage-le à tes potes !");
+      toast.success("Lien copié. Partage-le à tes potes !");
     } catch { toast.error("Impossible de copier le lien."); }
   };
 
@@ -140,7 +140,7 @@ export default function Profil() {
       }
       // La session est invalidée côté serveur ; on nettoie aussi le client.
       await supabase.auth.signOut();
- toast.success("Ton compte a été supprimé. À bientôt ");
+ toast.success("Ton compte a été supprimé. À bientôt.");
       nav("/");
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Impossible de supprimer le compte. Réessaie ou contacte le support.";
@@ -160,7 +160,7 @@ export default function Profil() {
 
   const formationItems = FORMATIONS.map(f => ({
     value: f.name,
-    label: f.abbr ? `${f.abbr} — ${f.name.replace(`${f.abbr} - `, "").replace(`${f.abbr} `, "")}` : f.name,
+    label: f.abbr ? `${f.abbr} : ${f.name.replace(`${f.abbr} - `, "").replace(`${f.abbr} `, "")}` : f.name,
     group: f.category,
   }));
   const subjectItems = SUBJECTS.map(s => ({ value: s.name, label: s.name, group: s.category, emoji: s.emoji }));
@@ -251,7 +251,7 @@ export default function Profil() {
             <div className="min-w-0 flex-1 pt-0.5">
               <p className="font-display font-bold text-[22px] leading-tight text-foreground truncate">{profile.display_name ?? "Sans nom"}</p>
               <span className="inline-flex items-center gap-1.5 mt-2 max-w-full text-xs font-semibold text-foreground px-2 py-0.5 rounded-full border-2 border-foreground bg-accent/30">
-                <span aria-hidden="true">🎓</span><span className="truncate">{cursusLabel}</span>
+                <GraduationCap className="h-3.5 w-3.5 shrink-0" aria-hidden="true" /><span className="truncate">{cursusLabel}</span>
               </span>
               {profile.school && (
                 <p className="mt-1.5 text-[12.5px] text-foreground truncate">
@@ -288,9 +288,9 @@ export default function Profil() {
             { n: stats.avg, suffix: "%", l: "Moy.", hot: false },
             { n: profile.streak_days ?? 0, suffix: "j", l: "Série", hot: true },
           ].map(s => (
-            <div key={s.l} className="rounded-xl border-[2.5px] border-foreground bg-card px-1 py-2.5 text-center shadow-brutal-sm hover-lift">
+            <div key={s.l} className="rounded-xl border-[2.5px] border-foreground bg-card px-1 py-2.5 text-center shadow-brutal-sm">
               <p className={`font-display font-bold text-xl leading-none ${s.hot ? "text-accent [-webkit-text-stroke:0.5px_hsl(var(--foreground))]" : "text-foreground"}`}>
-                <AnimatedNumber value={s.n} suffix={s.suffix} animateOnMount={false} />
+                {s.l === "Moy." && !stats.hasAvg ? "–" : <AnimatedNumber value={s.n} suffix={s.suffix} animateOnMount={false} />}
               </p>
               <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wide font-semibold">{s.l}</p>
             </div>
@@ -363,7 +363,7 @@ export default function Profil() {
                       key={p.id}
                       className={`relative rounded-2xl border-[2.5px] border-foreground p-4 shadow-brutal overflow-hidden ${isMax ? "bg-foreground text-background" : "bg-card"}`}
                     >
-                      <span className={`absolute top-3 right-3 text-[9px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border-2 ${isMax ? "bg-accent text-[#1e2c47] border-background" : "bg-primary text-primary-foreground border-foreground"}`}>
+                      <span className={`absolute top-3 right-3 text-[10px] font-mono font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border-2 ${isMax ? "bg-accent text-[#1e2c47] border-background" : "bg-primary text-primary-foreground border-foreground"}`}>
                         {p.badge}
                       </span>
                       <div className="flex items-baseline gap-2">
@@ -554,9 +554,9 @@ export default function Profil() {
                 <span className="block">Cette action est <strong>irréversible</strong>. Vont être supprimés :</span>
                 <span className="block text-sm">
                   • Ton profil et tes statistiques<br />
-                  • Tes cours, fiches et quiz générés<br />
+                  • Tes cours, fiches et quizz générés<br />
                   • Ton historique de révisions et planning<br />
-                  • Tes XP, niveau, streak et cosmétiques<br />
+                  • Tes XP, ton niveau, ta série et tes cosmétiques<br />
                   • Tes participations à des duels et study rooms
                 </span>
                 {isActive && (

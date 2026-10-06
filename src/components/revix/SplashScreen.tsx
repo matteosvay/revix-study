@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Sparkles } from "lucide-react";
+import { DiploHeadMark } from "./Logo";
 
 const SPLASH_FLAG = "revix:splash-shown";
 
@@ -43,8 +43,8 @@ export const SplashScreen = () => {
       }`}
     >
       <div className="flex flex-col items-center gap-6">
-        <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-primary border-[3px] border-foreground shadow-brutal-lg animate-scale-in">
-          <Sparkles className="h-10 w-10 text-primary-foreground" strokeWidth={2.5} />
+        <div className="relative flex h-20 w-20 items-center justify-center rounded-2xl bg-accent border-[3px] border-foreground shadow-brutal-lg -rotate-3 animate-scale-in">
+          <DiploHeadMark className="h-12 w-11" />
         </div>
         <div className="flex flex-col items-center gap-3 animate-fade-in">
           <h1 className="font-display text-4xl tracking-tight text-foreground">Diplo</h1>

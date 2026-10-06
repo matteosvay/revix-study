@@ -61,7 +61,7 @@ export function GlobalChapterHeatmap({ compact = false }: { compact?: boolean })
       if (!qs.length) throw new Error("Aucune question générée");
       const { data: quiz, error: qErr } = await supabase.from("quizzes").insert({
         user_id: user.id, course_id: row.course_id,
- title: ` Boss · ${row.chapter}`, quiz_type: "qcm",
+ title: `Boss · ${row.chapter}`, quiz_type: "qcm",
       }).select().single();
       if (qErr) throw qErr;
       await supabase.from("quiz_questions").insert(qs.map((q: any, i: number) => ({
@@ -71,7 +71,7 @@ export function GlobalChapterHeatmap({ compact = false }: { compact?: boolean })
         accepted_answers: q.accepted_answers ?? null,
         explanation: q.explanation, position: i, chapter: row.chapter,
       })));
- toast.success(" Boss prêt!");
+ toast.success("Boss prêt !");
       nav(`/app/quizz?id=${quiz.id}`);
     } catch (e: any) { toast.error(e?.message ?? "Erreur"); }
     finally { setBossLoading(null); }

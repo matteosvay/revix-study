@@ -84,7 +84,7 @@ export function TechniquesLibrary() {
       });
       if (error) return toast.error(error.message);
       await bumpQuest(user.id, "task_added", 1);
- toast.success("Session Pomodoro ajoutée à aujourd'hui ");
+ toast.success("Session Pomodoro ajoutée à aujourd'hui");
       return;
     }
     if (action === "feynman" || action === "blurt") {
@@ -99,10 +99,10 @@ export function TechniquesLibrary() {
         start_time: "22:00",
         end_time: "22:30",
         subject: "Révision du soir",
-        title: "Sleep learning — 30 min",
+        title: "Sleep learning, 30 min",
       });
       if (error) return toast.error(error.message);
- toast.success("Rappel ajouté à 22h ce soir ");
+ toast.success("Rappel ajouté à 22 h ce soir");
     }
   };
 

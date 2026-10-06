@@ -1735,3 +1735,19 @@
     scroll-behavior: auto !important;
   }
 }
+
+/* =====================================================================
+   Focus clavier : visible sur tout élément interactif, y compris les cartes
+   cliquables qui n'avaient aucun repère. N'apparaît pas au clic souris.
+   ===================================================================== */
+@layer base {
+  a:focus-visible,
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  [role="tab"]:focus-visible,
+  summary:focus-visible,
+  select:focus-visible {
+    outline: 3px solid hsl(var(--primary));
+    outline-offset: 2px;
+  }
+}

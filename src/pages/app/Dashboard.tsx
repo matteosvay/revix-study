@@ -3,7 +3,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Link } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Flame, Plus, Brain, Calendar, Sparkles, ArrowRight, Target, TrendingUp } from "lucide-react";
+import { Flame, Plus, Brain, Calendar, ArrowRight, Target, TrendingUp } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useGamification } from "@/hooks/useGamification";
@@ -191,7 +191,7 @@ export default function Dashboard() {
                     <t.icon className={`h-4 w-4 ${t.accent ? "text-primary-foreground" : ""}`} />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-bold leading-tight truncate ${t.accent ? "text-primary-foreground" : ""}`}>{t.label}</p>
+                    <p className={`text-sm font-bold leading-tight ${t.accent ? "text-primary-foreground" : ""}`}>{t.label}</p>
                     <p className={`text-[11px] truncate mt-0.5 ${t.accent ? "text-primary-foreground/75" : "text-muted-foreground"}`}>{t.desc}</p>
                   </div>
                 </Link>
@@ -213,7 +213,6 @@ export default function Dashboard() {
 
         {/* Quotas IA */}
         <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground px-1 pb-2">Tes quotas IA</p>
           <UsageMeter />
         </div>
       </div>

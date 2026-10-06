@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Star } from "lucide-react";
 import { levelInfo } from "@/lib/gamification";
 import { DiploFace } from "./DiploFace";
 import { firePaperConfetti } from "@/lib/confetti";
@@ -71,7 +71,7 @@ export function XpOverlay() {
             key={p.id}
             className="xp-pill bg-primary text-primary-foreground rounded-full px-3 py-1 text-xs font-bold border-2 border-foreground shadow-brutal-sm flex items-center gap-1"
           >
-            <Sparkles className="h-3 w-3" /> +{p.amount} XP
+            <Star className="h-3 w-3" /> +{p.amount} XP
           </div>
         ))}
       </div>

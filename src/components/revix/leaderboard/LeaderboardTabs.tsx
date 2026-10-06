@@ -62,12 +62,12 @@ function Podium({ rows }: { rows: Row[] }) {
               name={row.title_name}
               emoji={row.title_emoji}
               rarity={row.title_rarity ?? "common"}
-              size="text-[8px]"
+              size="text-[10px]"
             />
               <div className={`${heights[idx]} w-full bg-secondary border-2 border-foreground rounded-t-md mt-1 flex flex-col items-center justify-end p-1`}>
               <img src={medals[idx]} alt="" className="w-7 h-7 object-contain" />
               <p className="font-mono text-[10px] font-bold">{row.xp_week} XP</p>
-              <p className="text-[8px] font-bold uppercase tracking-wider mt-1">{stamps[idx]}</p>
+              <p className="text-[10px] font-bold uppercase tracking-wider mt-1">{stamps[idx]}</p>
             </div>
           </Link>
         );
@@ -111,14 +111,14 @@ function RowList({ rows, scopeLabel }: { rows: Row[]; scopeLabel: string }) {
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1">
                   <p className="text-xs font-bold truncate">{row.is_me ? "Toi" : row.display_name ?? "—"}</p>
-                  <span className="text-[8px] font-mono bg-foreground text-background px-1 rounded">N{row.level}</span>
+                  <span className="text-[10px] font-mono bg-foreground text-background px-1 rounded">N{row.level}</span>
                 </div>
                 <TitleBadge
                   itemKey={row.equipped_title}
                   name={row.title_name}
                   emoji={row.title_emoji}
                   rarity={row.title_rarity ?? "common"}
-                  size="text-[9px]"
+                  size="text-[10px]"
                 />
                 <div className="h-1.5 bg-muted rounded-full overflow-hidden mt-0.5">
                   <div className="h-full bg-primary" style={{ width: `${pct}%` }} />
@@ -126,7 +126,7 @@ function RowList({ rows, scopeLabel }: { rows: Row[]; scopeLabel: string }) {
               </div>
               <div className="text-right">
                 <p className="font-mono text-xs font-bold">{row.xp_week}</p>
-                <p className="text-[9px] text-muted-foreground flex items-center gap-0.5 justify-end">
+                <p className="text-[10px] text-muted-foreground flex items-center gap-0.5 justify-end">
                   <Flame className="h-2.5 w-2.5" />{row.streak_days}
                 </p>
               </div>

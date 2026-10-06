@@ -122,7 +122,7 @@ export function RevisionExplorer() {
       if (!qs.length) throw new Error("Aucune question générée");
       const { data: quiz, error: qErr } = await supabase.from("quizzes").insert({
         user_id: user.id, course_id: row.course_id,
- title: ` Boss · ${row.chapter}`, quiz_type: "qcm",
+ title: `Boss · ${row.chapter}`, quiz_type: "qcm",
       }).select().single();
       if (qErr) throw qErr;
       await supabase.from("quiz_questions").insert(qs.map((q: any, i: number) => ({
@@ -132,7 +132,7 @@ export function RevisionExplorer() {
         accepted_answers: q.accepted_answers ?? null,
         explanation: q.explanation, position: i, chapter: row.chapter,
       })));
- toast.success(" Boss prêt!");
+ toast.success("Boss prêt !");
       nav(`/app/quizz?id=${quiz.id}`);
     } catch (e: any) { toast.error(e?.message ?? "Erreur"); }
     finally { setBossLoading(null); }
@@ -275,7 +275,7 @@ export function RevisionExplorer() {
                   >
                     {bossLoading === key
                       ? <><Loader2 className="h-3 w-3 mr-1.5 animate-spin" /> Préparation…</>
-                      : <><Trophy className="h-3 w-3 mr-1.5" /> Quiz boss · ce chapitre</>}
+                      : <><Trophy className="h-3 w-3 mr-1.5" />Quizz boss sur ce chapitre</>}
                   </Button>
                 )}
               </div>

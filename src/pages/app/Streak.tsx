@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
-import { Flame, Trophy, Sparkles, Zap, Calendar as CalendarIcon, Lock, RotateCcw, ChevronRight, Share2 } from "lucide-react";
+import { Flame, Trophy, Zap, Calendar as CalendarIcon, Lock, RotateCcw, ChevronRight, Share2, Info } from "lucide-react";
 import { shareStreakCard } from "@/lib/shareCard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -65,14 +65,14 @@ export default function Streak() {
     const res = data as any;
     if (!res?.success) {
       const map: Record<string, string> = {
- pro_required: "Réservé aux membres Pro ",
+ pro_required: "Réservé aux membres Pro",
         no_tokens: "Tu n'as pas de pass de restauration",
-        no_broken_streak: "Aucune streak à restaurer",
+        no_broken_streak: "Aucune série à restaurer",
       };
       toast.error(map[res?.error] ?? "Impossible de restaurer");
       return;
     }
- toast.success("Streak restaurée! ");
+ toast.success("Série restaurée !");
     load();
   };
 
@@ -122,7 +122,7 @@ export default function Streak() {
 
   return (
     <AppLayout>
-      <PageHeader illustration={illu.streak} title="Streak" subtitle="Chaque jour compte." />
+      <PageHeader illustration={illu.streak} title="Série" subtitle="Chaque jour compte." />
 
       <div className="px-5 space-y-5 pb-6">
         {/* Hero — clic ouvre les prestiges */}
@@ -160,7 +160,7 @@ export default function Streak() {
             {!todayActive && (
               <div className="mt-4 flex items-center gap-2 text-xs bg-foreground/20 border-[2px] border-foreground/40 rounded-sm px-3 py-2 font-semibold">
                 <Zap className="h-3.5 w-3.5" />
-                <span>Fais un quiz aujourd'hui pour conserver ta série</span>
+                <span>Fais un quizz aujourd'hui pour garder ta série</span>
               </div>
             )}
           </div>
@@ -170,7 +170,7 @@ export default function Streak() {
           onClick={async () => {
             try {
               const r = await shareStreakCard({ days: profile.streak_days, record: profile.streak_record });
-              if (r === "downloaded") toast.success("Carte enregistrée — partage ta série !");
+              if (r === "downloaded") toast.success("Carte enregistrée. Partage ta série !");
             } catch { toast.error("Partage impossible sur cet appareil."); }
           }}
           className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border-[2.5px] border-foreground bg-accent text-accent-foreground font-bold text-sm shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"
@@ -198,19 +198,19 @@ export default function Streak() {
         <div className="card-paper p-4 relative paper-grain">
           <Tape variant="yellow" position="top-left" />
           <div className="mb-3">
-            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Activité — 8 dernières semaines</p>
+            <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Activité des 8 dernières semaines</p>
             <ScribbleUnderline className="w-28" />
           </div>
           <div className="flex gap-1.5">
             <div className="flex flex-col gap-1 pt-[18px] pr-1 shrink-0">
               {WEEK_LABELS.map((l, i) => (
-                <span key={i} className="font-mono-tag text-[9px] text-muted-foreground/70 h-[18px] leading-[18px] text-right w-3">{l}</span>
+                <span key={i} className="font-mono-tag text-[10px] text-muted-foreground/70 h-[18px] leading-[18px] text-right w-3">{l}</span>
               ))}
             </div>
             <div className="flex-1 overflow-hidden">
               <div className="flex gap-1 mb-1">
                 {monthHeaders.map((m, i) => (
-                  <div key={i} className="flex-1 font-mono-tag text-[9px] text-muted-foreground/70 leading-[14px] text-left">{m}</div>
+                  <div key={i} className="flex-1 font-mono-tag text-[10px] text-muted-foreground/70 leading-[14px] text-left">{m}</div>
                 ))}
               </div>
               <div className="flex gap-1">
@@ -220,7 +220,7 @@ export default function Streak() {
                       <div
                         key={d.key}
                         title={`${d.date.toLocaleDateString("fr-FR")}${d.active ? " · actif" : d.future ? "" : " · inactif"}`}
-                        className={`aspect-square w-full rounded-[3px] transition-all hover:scale-110 flex items-center justify-center font-mono-tag text-[9px] leading-none ${
+                        className={`aspect-square w-full rounded-[3px] transition-all hover:scale-110 flex items-center justify-center font-mono-tag text-[10px] leading-none ${
                           d.future
                             ? "bg-muted/25 border border-dashed border-muted-foreground/15 text-muted-foreground/40"
                             : d.active
@@ -252,7 +252,7 @@ export default function Streak() {
           <div className="flex items-start justify-between mb-3 gap-3">
             <div>
               <p className="font-serif text-lg">Pass de restauration</p>
-              <p className="text-xs text-muted-foreground">Colle un scotch sur ta streak perdue</p>
+              <p className="text-xs text-muted-foreground">Colle un scotch sur ta série perdue</p>
             </div>
             <div className="flex gap-2 shrink-0">
               {[0, 1, 2].map((i) => (
@@ -276,7 +276,7 @@ export default function Streak() {
           <div>
             <div className="flex items-center justify-between text-[11px] text-muted-foreground mb-1.5">
               <span>Prochain pass</span>
-              <span>{profile.streak_tokens >= 3 ? "Max atteint" : `${nextTokenIn} quiz restants`}</span>
+              <span>{profile.streak_tokens >= 3 ? "Max atteint" : `${nextTokenIn} quizz restants`}</span>
             </div>
             <div className="h-2 rounded-full bg-muted overflow-hidden">
               <div className="h-full gradient-primary transition-all duration-700" style={{ width: `${profile.streak_tokens >= 3 ? 100 : tokenProgress}%` }} />
@@ -291,7 +291,7 @@ export default function Streak() {
               className="w-full mt-4 rounded-full gradient-primary border-0"
             >
               <RotateCcw className="h-4 w-4 mr-2" />
-              {profile.streak_tokens < 1 ? "Aucun pass" : !lostYesterday ? "Streak intacte" : "Restaurer ma streak"}
+              {profile.streak_tokens < 1 ? "Aucun pass" : !lostYesterday ? "Série intacte" : "Restaurer ma série"}
             </Button>
           ) : (
             <Button asChild variant="outline" className="w-full mt-4 rounded-full border-primary/30">
@@ -305,12 +305,12 @@ export default function Streak() {
         {/* Comment ça marche */}
         <div className="rounded-2xl border-2 border-dashed border-primary/20 p-4 paper-grain">
           <p className="text-xs font-semibold uppercase tracking-wider text-primary flex items-center gap-1.5">
-            <Sparkles className="h-3 w-3" /> Comment ça marche
+            <Info className="h-3 w-3" /> Comment ça marche
           </p>
           <ul className="mt-2 space-y-1.5 text-xs text-muted-foreground">
  <li>• 1 activité par jour pour entretenir la flamme </li>
-            <li>• Tous les <strong className="text-foreground">10 quiz</strong>, tu gagnes 1 pass de scotch (max 3)</li>
-            <li>• Avec Pro, colle un pass pour restaurer une streak perdue la veille</li>
+            <li>• Tous les <strong className="text-foreground">10 quizz</strong>, tu gagnes 1 pass de scotch (max 3)</li>
+            <li>• Avec Pro, colle un pass pour restaurer une série perdue la veille</li>
           </ul>
         </div>
 
@@ -327,7 +327,7 @@ export default function Streak() {
             <div className="rounded-xl border-2 border-foreground bg-muted/30 p-3 mb-4 text-sm">
               <p className="font-semibold mb-1">C'est quoi un prestige ?</p>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Les prestiges sont des titres symboliques débloqués automatiquement selon ta streak. Ils n'affectent pas le gameplay — c'est juste la reconnaissance de ta régularité. Plus tu tiens, plus ton titre est rare. Tu ne peux pas les perdre une fois débloqués.
+                Les prestiges sont des titres symboliques débloqués automatiquement selon ta série. Ils n'affectent pas le gameplay. C'est juste la reconnaissance de ta régularité. Plus tu tiens, plus ton titre est rare. Tu ne peux pas les perdre une fois débloqués.
               </p>
             </div>
             <ol className="space-y-2">
@@ -352,10 +352,10 @@ export default function Streak() {
                       <div className="flex items-center gap-2">
                         <p className="font-serif text-base leading-tight">{p.name}</p>
                         {current && (
-                          <span className="rubber-stamp-purple rubber-stamp text-[8px] !px-1.5 !py-0.5">ici</span>
+                          <span className="rubber-stamp-purple rubber-stamp text-[10px] !px-1.5 !py-0.5">ici</span>
                         )}
                       </div>
-                      <p className="font-mono-tag text-[9px] uppercase tracking-wider text-muted-foreground">
+                      <p className="font-mono-tag text-[10px] uppercase tracking-wider text-muted-foreground">
                         {p.days} jours · {p.tagline}
                       </p>
                     </div>

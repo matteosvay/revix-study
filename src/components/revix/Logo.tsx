@@ -5,7 +5,7 @@ import { Link } from "react-router-dom";
  * Marque Diplo : la tête de la mascotte (visage crème, toque bleue, encre #1e2c47),
  * version compacte et statique pour le logo. Cohérente avec DiploFace.
  */
-function DiploHeadMark({ className = "" }: { className?: string }) {
+export function DiploHeadMark({ className = "" }: { className?: string }) {
   const ink = "#1e2c47";
   const cream = "#fffdf6";
   const cap = "#2456d6";

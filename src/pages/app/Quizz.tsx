@@ -3,7 +3,7 @@ import { useSearchParams, useNavigate } from "react-router-dom";
 import { AppLayout, PageHeader } from "@/components/revix/AppLayout";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
-import { Brain, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, Sparkles, AlertCircle, Scissors, SkipForward, Timer, Zap, Trash2, Link2, Shuffle, Eye } from "lucide-react";
+import { Brain, Target, RefreshCw, CheckCircle2, XCircle, Loader2, ChevronRight, AlertCircle, Scissors, SkipForward, Timer, Zap, Trash2, Link2, Shuffle, Eye, PenLine } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
@@ -55,7 +55,7 @@ const TYPE_LABELS: Record<QType, string> = {
   qcm_multi: "QCM multi",
   vrai_faux: "Vrai / Faux",
   ordre: "Mise en ordre",
- association: "Association ",
+ association: "Association",
 };
 
 export default function Quizz() {
@@ -367,7 +367,7 @@ export default function Quizz() {
         chapter: q.chapter ?? chapter,
       }));
       await supabase.from("quiz_questions").insert(rows);
- toast.success("Quizz prêt ");
+ toast.success("Quizz prêt");
       nav(`/app/quizz?id=${quiz.id}`);
     } catch (e: any) {
       toast.error(e?.message ?? "Erreur");
@@ -414,7 +414,7 @@ export default function Quizz() {
           // Incrémente le compteur quiz et octroie un jeton tous les 10 quiz
           const { data: tokenRes } = await supabase.rpc("increment_quiz_count", { p_user_id: user.id });
           if ((tokenRes as any)?.earned) {
- toast.success(" Pass de restauration gagné!", { description: "Colle-le sur une streak perdue." });
+ toast.success("Pass de restauration gagné !", { description: "Colle-le sur une série perdue." });
           }
           // XP : finir un quiz + bonus score
           const pct = (finalScore / questions.length) * 100;
@@ -431,7 +431,7 @@ export default function Quizz() {
           // Log group activity (streak partagée des groupes d'étude)
           await supabase.rpc("log_group_activity", { p_xp: total });
           if (comboBonus > 0) {
- toast.success(` Combo x${Math.floor(maxCombo / 5) + 1}! +${comboBonus} XP bonus`);
+ toast.success(`Combo x${Math.floor(maxCombo / 5) + 1}! +${comboBonus} XP bonus`);
           }
           // Bump quêtes
           await bumpQuest(user.id, "quiz_done", 1);
@@ -478,9 +478,9 @@ export default function Quizz() {
       const wrongIdx = q.answers.map((_, i) => i).filter(i => i !== q.correct_index);
       const toHide = wrongIdx.sort(() => Math.random() - 0.5).slice(0, Math.max(0, wrongIdx.length - 1));
       setHidden(toHide);
- toast.success(" 50/50 activé");
+ toast.success("50/50 activé");
     } else if (key === "power_skip") {
- toast.success("⏭ Question passée");
+ toast.success("Question passée");
       // Skip = avance sans compter (ni juste ni faux), reset combo neutre
       setCombo(0);
       if (qIdx + 1 >= questions.length) {
@@ -491,7 +491,7 @@ export default function Quizz() {
         setPicked(null); setHidden([]);
       }
     } else if (key === "power_time") {
- toast.success("⏱ +30 sec");
+ toast.success("+30 secondes");
     }
   };
 
@@ -581,9 +581,9 @@ export default function Quizz() {
       if (q) supabase.rpc("review_question", { p_question_id: q.id, p_correct: nextAttempts === 1 });
       // Toast info sur la performance
       if (nextAttempts === 1) {
- toast.success("Parfait du premier coup! ");
+ toast.success("Parfait du premier coup !");
       } else {
-        toast.success(`Bravo ! ${nextAttempts} tentatives — score réduit`);
+        toast.success(`Bravo ! ${nextAttempts} tentatives, score réduit`);
       }
       return;
     }
@@ -600,7 +600,7 @@ export default function Quizz() {
     if (correctCount === 0) {
       toast.error(`Aucune paire correcte. Réessaie !`);
     } else {
- toast.info(`${correctCount} OK — ${wrongCount} à corriger`);
+ toast.info(`${correctCount} justes, ${wrongCount} à corriger`);
     }
     // Si l'utilisateur a fait trop d'erreurs (5+ tentatives), on abandonne et marque faux
     if (nextAttempts >= 5) {
@@ -610,7 +610,7 @@ export default function Quizz() {
       advance(false);
       const q = questions[qIdx];
       if (q) supabase.rpc("review_question", { p_question_id: q.id, p_correct: false });
-      toast.error("Trop de tentatives — on passe à la suivante");
+      toast.error("Trop de tentatives, on passe à la suivante");
     }
   };
   const resetAssoc = () => {
@@ -634,7 +634,7 @@ export default function Quizz() {
               disabled={quizIaRemaining === 0}
               className="rounded-full gradient-primary border-0"
             >
-              <Sparkles className="h-4 w-4 mr-1" />
+              <PenLine className="h-4 w-4 mr-1" />
               Générer
               {quizIaRemaining !== null && quizIaUsage && (
                 <span className="ml-1.5 inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-primary-foreground/20 text-[10px] font-bold tabular-nums">
@@ -659,7 +659,7 @@ export default function Quizz() {
                     : "bg-primary/10 text-primary border-primary/30 gap-1"
                 }
               >
-                <Sparkles className="h-3 w-3" />
+                <PenLine className="h-3 w-3" />
                 Quizz IA : {quizIaRemaining}/{quizIaUsage.daily_limit} restants
               </Badge>
             )}
@@ -668,7 +668,6 @@ export default function Quizz() {
         {gaps.length > 0 && (
           <div className="px-4 mt-2 mb-4">
             <div className="flex items-center gap-2 mb-3 px-1">
-              <Sparkles className="h-4 w-4 text-primary" />
               <p className="font-mono-tag text-[11px] uppercase tracking-wider text-muted-foreground">Chapitres à explorer</p>
             </div>
             <div className="space-y-3">
@@ -690,7 +689,7 @@ export default function Quizz() {
                           disabled={!!generatingChapter}
                           className="group inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full border-2 border-dashed border-primary/40 bg-primary/5 hover:bg-primary/15 hover:border-primary text-xs font-medium transition disabled:opacity-50"
                         >
-                          {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <Sparkles className="h-3 w-3 text-primary" />}
+                          {loading ? <Loader2 className="h-3 w-3 animate-spin" /> : <PenLine className="h-3 w-3 text-primary" />}
                           <span className="max-w-[180px] truncate">{ch}</span>
                         </button>
                       );
@@ -726,10 +725,9 @@ export default function Quizz() {
                     <Brain className="h-5 w-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-serif text-base truncate">{q.title}</p>
+                    <p className="font-serif text-base leading-tight line-clamp-2 [hyphens:auto]">{q.title.replace(/^Quizz · /, "")}</p>
                     <span className="label-tape mt-1">{TYPE_LABELS[(q.quiz_type as QType) ?? "qcm"] ?? "QCM"}</span>
                   </div>
-                  <ChevronRight className="h-4 w-4 text-muted-foreground" />
                 </button>
                 <button
                   onClick={(e) => { e.stopPropagation(); openReview(q); }}
@@ -893,7 +891,7 @@ export default function Quizz() {
           {/* Power-ups bar */}
           {(inventory.power_5050 || inventory.power_skip || inventory.power_time) ? (
             <div className="mt-3 flex items-center gap-2">
-              <span className="font-mono-tag text-[9px] uppercase text-muted-foreground">Power-ups</span>
+              <span className="font-mono-tag text-[10px] uppercase text-muted-foreground">Power-ups</span>
               {inventory.power_5050 > 0 && (
                 <button
                   onClick={() => usePowerup("power_5050")}
@@ -1171,7 +1169,7 @@ export default function Quizz() {
                       {assocCorrect ? <CheckCircle2 className="h-4 w-4 text-success" /> : <XCircle className="h-4 w-4 text-destructive" />}
                       <span>
                         {assocCorrect
-? assocAttempts === 1? "Parfait du premier coup! ": `Réussi en ${assocAttempts} tentatives`
+? assocAttempts === 1? "Parfait du premier coup !": `Réussi en ${assocAttempts} tentatives`
                           : "Trop de tentatives"}
                       </span>
                     </div>
@@ -1337,7 +1335,7 @@ export default function Quizz() {
             onClick={async () => {
               try {
                 const res = await shareScoreCard({ score, total: questions.length, pct });
-                if (res === "downloaded") toast.success("Carte enregistrée — partage-la où tu veux !");
+                if (res === "downloaded") toast.success("Carte enregistrée. Partage-la où tu veux !");
               } catch { toast.error("Partage impossible sur cet appareil."); }
             }}
             className="inline-flex items-center gap-2 px-5 py-2.5 rounded-full border-[2.5px] border-foreground bg-accent text-accent-foreground font-bold text-sm shadow-brutal-sm hover:translate-x-[1px] hover:translate-y-[1px] hover:shadow-none transition-all"

@@ -81,7 +81,7 @@ export function FlashQuizCard() {
 .ilike("title", " Flash%")
         .lt("created_at", yesterday);
 
- const flashTitle = subject? ` Flash · ${subject}`: " Flash 5 min";
+ const flashTitle = subject? `Flash · ${subject}`: "Flash 5 min";
       const { data: quiz, error: qErr } = await supabase
         .from("quizzes")
         .insert({ user_id: user.id, title: flashTitle, quiz_type: "qcm" })
@@ -134,7 +134,7 @@ export function FlashQuizCard() {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetContent side="bottom" className="rounded-t-3xl max-h-[80vh] overflow-y-auto">
         <SheetHeader className="text-left">
- <SheetTitle className="font-serif text-2xl">Quelle matière? </SheetTitle>
+ <SheetTitle className="font-serif text-2xl">Quelle matière ?</SheetTitle>
         </SheetHeader>
         <div className="mt-5 space-y-2">
           <button

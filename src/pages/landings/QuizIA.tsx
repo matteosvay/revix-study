@@ -3,7 +3,7 @@ import { FeatureLandingLayout } from "@/components/seo/FeatureLandingLayout";
 export default function QuizIA() {
   return (
     <FeatureLandingLayout
-      title="Quiz IA — générer un QCM depuis ton cours | Diplo"
+      title="Quiz IA : générer un QCM depuis ton cours | Diplo"
       metaDescription="Crée un quiz personnalisé (QCM, vrai/faux, questions ouvertes) à partir de tes cours. L'IA Diplo génère et corrige automatiquement pour t'entraîner aux examens."
       path="/quiz-ia"
       tagline="Quiz IA · Gratuit"
@@ -37,7 +37,7 @@ export default function QuizIA() {
         { q: "Combien de quizz puis-je faire par jour ?", a: "2 par jour en Gratuit, 10 en Pro, 30 en Max." },
         { q: "Les questions sont-elles fiables ?", a: "Oui : elles sont générées à partir du contenu exact de ton cours, pas inventées." },
         { q: "Puis-je refaire le même quiz ?", a: "Oui, et l'IA varie les questions pour éviter la mémorisation par cœur." },
-        { q: "Y a-t-il un mode multijoueur ?", a: "Oui — défie un ami en duel ou rejoins un groupe d'étude." },
+        { q: "Y a-t-il un mode multijoueur ?", a: "Oui : défie un ami en duel ou rejoins un groupe d'étude." },
         { q: "Ça marche au bac, en BTS, en fac ?", a: "Oui, pour tout niveau du lycée au master." },
       ]}
     />
