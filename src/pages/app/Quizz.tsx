@@ -21,6 +21,7 @@ import { useUsage } from "@/hooks/useUsage";
 import { Badge } from "@/components/ui/badge";
 import { ReviewBankDialog } from "@/components/revix/ReviewBankDialog";
 import { AnimatedNumber, ConfettiBurst } from "@/components/revix/AnimatedNumber";
+import { ReportButton } from "@/components/revix/ReportButton";
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -1180,7 +1181,12 @@ export default function Quizz() {
 
             {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted)) && q.explanation && (
               <div className="mt-4 p-3 rounded-md border-l-4 border-primary/40 bg-primary/10 animate-fade-in font-hand text-base text-foreground/80 -rotate-[0.5deg]">
- {q.explanation}
+                {q.explanation}
+              </div>
+            )}
+            {((isChoice && picked !== null) || (isMulti && multiSubmitted) || (isOrder && orderSubmitted) || (isAssoc && assocSubmitted)) && q.id && (
+              <div className="mt-2 flex justify-end">
+                <ReportButton targetType="question" targetId={q.id} label="Cette question est fausse ?" />
               </div>
             )}
 
@@ -1246,8 +1252,9 @@ export default function Quizz() {
               <p className="font-hand text-3xl mt-1"><AnimatedNumber value={pct} suffix="%" /></p>
             </div>
             <div className="postit postit-pink p-3 rotate-2">
-              <p className="font-mono-tag text-[10px] uppercase opacity-70 flex items-center gap-1"><Target className="h-3 w-3" /> Pré-exam</p>
+              <p className="font-mono-tag text-[10px] uppercase opacity-70 flex items-center gap-1"><Target className="h-3 w-3" /> Estimation</p>
               <p className="font-hand text-3xl mt-1">~<AnimatedNumber value={predicted} />/20</p>
+              <p className="text-[10px] opacity-70 mt-0.5">Simple conversion de ton score, pas une prédiction de ta note.</p>
             </div>
           </div>
 

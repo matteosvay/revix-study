@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { LogOut, Trash2, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3, Crown, CreditCard, Check, Pencil, UserPlus, Share2, GraduationCap } from "lucide-react";
+import { LogOut, Trash2, Download, Mail, Camera, Loader2, Shirt, BookMarked, ChevronRight, BarChart3, Crown, CreditCard, Check, Pencil, UserPlus, Share2, GraduationCap } from "lucide-react";
 import { DiploFace } from "@/components/revix/DiploFace";
 import { DiploState } from "@/components/revix/DiploState";
 import { AnimatedNumber } from "@/components/revix/AnimatedNumber";
@@ -26,12 +26,17 @@ import { StripeEmbeddedCheckout } from "@/components/revix/StripeEmbeddedCheckou
 import { useSubscription } from "@/hooks/useSubscription";
 import { getStripeEnvironment, isPaymentsConfigured } from "@/lib/stripe";
 import { PLANS as PRICING, PLAN_PERKS, formatPrice } from "@/lib/pricing";
+import { downloadDataExport } from "@/lib/dataExport";
+import { LEGAL } from "@/lib/legal";
 
 export default function Profil() {
   const { user } = useAuth();
   const nav = useNavigate();
   const { data: isAdmin } = useIsAdmin();
-  const { subscription, isActive, tier } = useSubscription();
+  const { subscription, isActive, tier, testPhase, refresh: refreshSubscription } = useSubscription();
+  const [cancelOpen, setCancelOpen] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
+  const [cancelResult, setCancelResult] = useState<{ endsAt: string | null; requestedAt: string; reference: string; emailSent: boolean } | null>(null);
   const [checkoutPriceId, setCheckoutPriceId] = useState<string | null>(null);
   const [portalLoading, setPortalLoading] = useState(false);
   const [profile, setProfile] = useState<any>(null);
@@ -43,6 +48,7 @@ export default function Profil() {
   // RGPD article 17 : suppression de compte
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
 
   useEffect(() => {
@@ -129,6 +135,20 @@ export default function Profil() {
    * Appelle l'Edge Function delete-account qui utilise auth.admin.deleteUser ;
    * tout le contenu de l'utilisateur est cascadé via les FK ON DELETE CASCADE.
    */
+  /** Export JSON de toutes les données du compte (RGPD article 20). */
+  const exportData = async () => {
+    if (!user) return;
+    setExporting(true);
+    try {
+      await downloadDataExport(user.id);
+      toast.success("Export téléchargé.");
+    } catch {
+      toast.error("L'export n'a pas abouti. Réessaie dans un instant.");
+    } finally {
+      setExporting(false);
+    }
+  };
+
   const deleteAccount = async () => {
     setDeleting(true);
     try {
@@ -140,7 +160,7 @@ export default function Profil() {
       }
       // La session est invalidée côté serveur ; on nettoie aussi le client.
       await supabase.auth.signOut();
- toast.success("Ton compte a été supprimé. À bientôt.");
+      toast.success("Ton compte a été supprimé. À bientôt.");
       nav("/");
     } catch (e: unknown) {
       const msg = e instanceof Error ? e.message : "Impossible de supprimer le compte. Réessaie ou contacte le support.";
@@ -164,6 +184,30 @@ export default function Profil() {
     group: f.category,
   }));
   const subjectItems = SUBJECTS.map(s => ({ value: s.name, label: s.name, group: s.category, emoji: s.emoji }));
+
+  // Résiliation directe (loi « résiliation en 3 clics ») : un bouton, une
+  // confirmation, et un récapitulatif avec la date d'effet.
+  const cancelSubscription = async () => {
+    setCancelling(true);
+    try {
+      const { data, error } = await supabase.functions.invoke("cancel-subscription", {
+        body: { environment: getStripeEnvironment() },
+      });
+      if (error || !data?.ok) {
+        let msg = (data as { message?: string } | null)?.message;
+        const ctx = (error as { context?: Response } | null)?.context;
+        if (!msg && ctx) { try { msg = (await ctx.clone().json())?.message; } catch { /* ignore */ } }
+        throw new Error(msg || "La résiliation n'a pas pu être enregistrée.");
+      }
+      setCancelResult(data);
+      setCancelOpen(false);
+      await refreshSubscription();
+    } catch (e: any) {
+      toast.error(e?.message || "Erreur");
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   const openManagePortal = async () => {
     if (!user) return;
@@ -326,7 +370,15 @@ export default function Profil() {
         <div className="space-y-3 scroll-mt-20" id="abonnement">
             <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Abonnement</p>
 
-            {isActive ? (
+            {testPhase ? (
+              <div className="rounded-md border-[2.5px] border-foreground bg-card p-4 shadow-brutal-sm space-y-1.5">
+                <p className="font-serif text-lg">Phase de test</p>
+                <p className="text-sm text-muted-foreground">
+                  Pour l'instant, Diplo est entièrement gratuit et toutes les fonctions sont ouvertes.
+                  Les abonnements arriveront plus tard, et tu seras prévenu à l'avance.
+                </p>
+              </div>
+            ) : isActive ? (
               <div className="rounded-md border-[2.5px] border-foreground bg-card p-4 shadow-brutal-sm space-y-2">
                 <div className="flex items-center gap-2">
                   <Crown className="h-5 w-5 text-amber-500" />
@@ -350,8 +402,31 @@ export default function Profil() {
                   className="rounded-full w-full mt-1"
                 >
                   {portalLoading ? <Loader2 className="h-3.5 w-3.5 mr-1 animate-spin" /> : <CreditCard className="h-3.5 w-3.5 mr-1" />}
-                  Gérer mon abonnement
+                  Factures et moyen de paiement
                 </Button>
+                {cancelResult ? (
+                  <div className="rounded-md border-2 border-foreground bg-accent/30 p-3 text-sm space-y-1" role="status">
+                    <p className="font-bold">Résiliation enregistrée</p>
+                    <p>
+                      Ton abonnement reste actif jusqu'au{" "}
+                      {cancelResult.endsAt ? new Date(cancelResult.endsAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }) : "terme de la période en cours"}.
+                      Aucun prélèvement ne sera fait ensuite.
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      Demande du {new Date(cancelResult.requestedAt).toLocaleString("fr-FR")}, référence {cancelResult.reference}.{" "}
+                      {cancelResult.emailSent ? "Un email de confirmation t'a été envoyé." : "Garde une capture de cet écran comme confirmation."}
+                    </p>
+                  </div>
+                ) : !subscription?.cancel_at_period_end ? (
+                  <Button
+                    onClick={() => setCancelOpen(true)}
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full w-full text-destructive hover:text-destructive"
+                  >
+                    Résilier mon abonnement
+                  </Button>
+                ) : null}
               </div>
             ) : (
               <div className="space-y-3">
@@ -531,6 +606,25 @@ export default function Profil() {
           )}
         </div>
 
+        <div className="rounded-md border-[2.5px] border-foreground bg-card p-4 shadow-brutal-sm space-y-3">
+          <p className="font-serif text-lg">Mes données et l'aide</p>
+          <p className="text-sm text-muted-foreground">
+            Tu peux récupérer une copie de tout ce que Diplo garde sur toi, dans un fichier JSON.
+            Une question, un bug ou une demande sur tes données : écris-nous, on répond sous {LEGAL.replyDelay}.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-2">
+            <Button onClick={exportData} disabled={exporting} variant="outline" className="flex-1 rounded-full">
+              {exporting ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Download className="h-4 w-4 mr-2" />}
+              Télécharger mes données
+            </Button>
+            <Button asChild variant="outline" className="flex-1 rounded-full">
+              <a href={`mailto:${LEGAL.contactEmail}?subject=${encodeURIComponent("Diplo, demande d'aide")}`}>
+                <Mail className="h-4 w-4 mr-2" /> Contacter le support
+              </a>
+            </Button>
+          </div>
+        </div>
+
         <Button onClick={logout} variant="outline" className="w-full rounded-full">
           <LogOut className="h-4 w-4 mr-2" /> Se déconnecter
         </Button>
@@ -596,6 +690,25 @@ export default function Profil() {
           </DialogContent>
         </Dialog>
       </div>
+      <Dialog open={cancelOpen} onOpenChange={setCancelOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Résilier ton abonnement ?</DialogTitle>
+            <DialogDescription>
+              Tu gardes ton abonnement jusqu'à la fin de la période déjà payée
+              {subscription?.current_period_end ? `, soit jusqu'au ${new Date(subscription.current_period_end).toLocaleDateString("fr-FR")}` : ""}.
+              Ensuite, tu repasses sur l'offre gratuite. Tes cours et tes fiches restent à toi.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="gap-2">
+            <Button variant="outline" onClick={() => setCancelOpen(false)} disabled={cancelling}>Garder mon abonnement</Button>
+            <Button variant="destructive" onClick={cancelSubscription} disabled={cancelling}>
+              {cancelling ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : null}
+              Confirmer la résiliation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </AppLayout>
   );
 }

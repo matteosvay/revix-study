@@ -9,9 +9,15 @@ import { BackgroundDecor } from "@/components/revix/cosmetics/BackgroundDecor";
 import { backgroundStyle, type Rarity } from "@/lib/cosmetics";
 import { TitleBadge } from "@/components/revix/TitleBadge";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/hooks/useAuth";
+import { useBlocks } from "@/hooks/useBlocks";
+import { ReportButton } from "@/components/revix/ReportButton";
+import { toast } from "sonner";
 
 export default function PublicProfile() {
   const { id } = useParams();
+  const { user } = useAuth();
+  const { isBlocked, block, unblock } = useBlocks();
   const [p, setP] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -80,6 +86,25 @@ export default function PublicProfile() {
             <p className="text-[11px] text-muted-foreground">cette semaine</p>
           </div>
         </div>
+
+        {/* Signaler ou bloquer un élève : indispensable avec des utilisateurs mineurs. */}
+        {id && user && id !== user.id && (
+          <div className="mt-5 flex items-center justify-between gap-3 border-t border-dashed border-border pt-3">
+            <ReportButton targetType="profile" targetId={id} label="Signaler ce profil" />
+            <button
+              type="button"
+              onClick={async () => {
+                const wasBlocked = isBlocked(id);
+                const ok = wasBlocked ? await unblock(id) : await block(id);
+                if (ok) toast.success(wasBlocked ? "Élève débloqué" : "Élève bloqué. Tu ne verras plus ses messages et il ne pourra plus t'ajouter.");
+                else toast.error("Action impossible pour le moment.");
+              }}
+              className="text-xs text-muted-foreground hover:text-destructive underline-offset-2 hover:underline"
+            >
+              {isBlocked(id) ? "Débloquer" : "Bloquer"}
+            </button>
+          </div>
+        )}
       </div>
     </AppLayout>
   );

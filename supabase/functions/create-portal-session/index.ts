@@ -2,8 +2,12 @@
 import { createClient } from "npm:@supabase/supabase-js@2";
 import { type StripeEnv, createStripeClient } from "../_shared/stripe.ts";
 
+// Domaine actuel, ancien domaine, domaines ajoutés plus tard (EXTRA_ALLOWED_ORIGINS,
+// séparés par des virgules, par exemple quand tu auras ton propre nom de domaine).
 const ALLOWED_ORIGINS = [
+  "https://diplo.lovable.app",
   "https://revix-study.lovable.app",
+  ...(Deno.env.get("EXTRA_ALLOWED_ORIGINS") ?? "").split(",").map((o) => o.trim()).filter(Boolean),
   "http://localhost:5173",
   "http://localhost:8080",
   "http://localhost:3000",

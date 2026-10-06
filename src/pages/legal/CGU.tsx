@@ -1,22 +1,23 @@
 import { LegalLayout, LegalSection, LegalHighlight } from "./LegalLayout";
+import { LEGAL, editorStatus, AI_PROVIDERS_LABEL } from "@/lib/legal";
 
 export default function CGU() {
   return (
     <LegalLayout
       title="Conditions Générales d'Utilisation"
       subtitle="En créant un compte sur Diplo, vous acceptez les présentes Conditions Générales d'Utilisation (CGU). Veuillez les lire attentivement."
-      updatedAt="19 mai 2026"
+      updatedAt="6 octobre 2026"
       seo={{
-        title: "Conditions Générales d'Utilisation — Diplo",
+        title: "Conditions Générales d'Utilisation | Diplo",
         description: "Conditions Générales d'Utilisation (CGU) de l'application Diplo : règles d'usage, compte utilisateur et responsabilités.",
         path: "/cgu",
       }}
     >
       <LegalHighlight>
         <p className="text-sm">
-          <strong>Version :</strong> 1.0 — Ces CGU s'appliquent à toute utilisation de l'application Diplo,
+          <strong>Version :</strong> 1.0. Ces CGU s'appliquent à toute utilisation de l'application Diplo,
           accessible sur le web et en version installée (PWA). Elles forment un contrat entre vous
-          (l'utilisateur) et Matteo Svay (auto-entrepreneur, éditeur de Diplo).
+          (l'utilisateur) et {LEGAL.editorName}, éditeur de Diplo ({editorStatus().toLowerCase()}).
         </p>
       </LegalHighlight>
 
@@ -45,7 +46,7 @@ export default function CGU() {
         </p>
         <ul className="list-disc pl-4 space-y-1">
           <li>Fournir une adresse e-mail valide et un mot de passe ;</li>
-          <li>Avoir au moins 15 ans, ou disposer du consentement d'un représentant légal si vous avez moins de 15 ans ;</li>
+          <li>Avoir au moins 15 ans ;</li>
           <li>Accepter les présentes CGU et la Politique de confidentialité.</li>
         </ul>
         <p>
@@ -86,7 +87,7 @@ export default function CGU() {
             de contenus générés par IA dans un contexte d'examen ou d'évaluation officielle.
           </li>
           <li>
-            Vos contenus uploadés sont transmis aux APIs d'IA partenaires (Anthropic, OpenAI)
+            Vos contenus envoyés sont transmis aux services d'IA partenaires ({AI_PROVIDERS_LABEL})
             pour traitement, dans le strict respect de leur politique de confidentialité.
             Vos documents <strong>ne servent pas à entraîner ces modèles.</strong>
           </li>
@@ -97,7 +98,7 @@ export default function CGU() {
         <p>
           Vous conservez l'intégralité des droits de propriété intellectuelle sur les contenus que vous
           uploadez (cours, photos, textes, fiches créées). En les déposant sur Diplo, vous accordez à
-          Matteo Svay une licence non exclusive, mondiale, gratuite et limitée dans le temps, uniquement
+          {LEGAL.editorName} une licence non exclusive, mondiale, gratuite et limitée dans le temps, uniquement
           pour les finalités suivantes :
         </p>
         <ul className="list-disc pl-4 space-y-1">
@@ -107,6 +108,20 @@ export default function CGU() {
         </ul>
         <p>
           Cette licence prend fin dès la suppression du contenu ou de votre compte.
+        </p>
+        <p>
+          Les supports de cours de vos enseignants sont protégés par le droit d'auteur. Vous pouvez
+          les utiliser dans Diplo pour vos propres révisions. Avant de partager une fiche avec
+          d'autres personnes (ami, salle d'étude), vous vous assurez d'en avoir le droit. Vous restez
+          responsable des contenus que vous partagez.
+        </p>
+        <p>
+          <strong>Signaler un contenu.</strong> Tout contenu illicite ou qui porte atteinte à vos
+          droits (par exemple un cours diffusé sans votre accord) peut être signalé depuis l'app avec
+          le bouton « Signaler », ou par email à{" "}
+          <a href={`mailto:${LEGAL.contactEmail}`} className="text-primary font-medium underline">{LEGAL.contactEmail}</a>.
+          Indiquez le contenu concerné et la raison. Les contenus manifestement illicites sont retirés
+          dans les meilleurs délais, en général sous 48 heures.
         </p>
       </LegalSection>
 
@@ -163,24 +178,21 @@ export default function CGU() {
       <LegalSection number="10" title="Droit applicable et litiges">
         <p>
           Les présentes CGU sont régies par le droit français. En cas de litige, une solution amiable
-          sera recherchée en priorité. À défaut, les tribunaux compétents du ressort de [À COMPLÉTER]
-          seront saisis.
+          sera recherchée en priorité. À défaut, les tribunaux français compétents
+          {LEGAL.courtCity ? ` du ressort de ${LEGAL.courtCity}` : ""} seront saisis.
         </p>
         <p>
           Conformément à l'article L. 612-1 du Code de la consommation, vous avez le droit de
-          recourir à un médiateur de la consommation. Vous pouvez également utiliser la plateforme
-          de règlement en ligne des litiges (RLL) de la Commission européenne :{" "}
-          <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" className="text-primary font-medium underline">
-            ec.europa.eu/consumers/odr
-          </a>
+          recourir gratuitement à un médiateur de la consommation
+          {LEGAL.mediator.name ? ` : ${LEGAL.mediator.name}` : ""}.
         </p>
       </LegalSection>
 
       <LegalSection number="11" title="Contact">
         <p>
           Pour toute question relative aux présentes CGU :
-          <a href="mailto:matteosvay4@gmail.com" className="text-primary font-medium underline ml-1">
-            matteosvay4@gmail.com
+          <a href={`mailto:${LEGAL.contactEmail}`} className="text-primary font-medium underline ml-1">
+            {LEGAL.contactEmail}
           </a>
         </p>
       </LegalSection>

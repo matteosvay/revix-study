@@ -11,3 +11,5 @@ verify_jwt = false
 
 [functions.delete-account]
 verify_jwt = false
+[functions.cancel-subscription]
+verify_jwt = false

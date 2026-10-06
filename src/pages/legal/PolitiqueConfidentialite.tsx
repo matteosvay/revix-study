@@ -1,13 +1,15 @@
 import { LegalLayout, LegalSection, LegalHighlight, LegalTable } from "./LegalLayout";
+import { LEGAL, editorStatus, SUBPROCESSORS } from "@/lib/legal";
+import { ANALYTICS_ENABLED } from "@/lib/analytics";
 
 export default function PolitiqueConfidentialite() {
   return (
     <LegalLayout
       title="Politique de confidentialité"
-      subtitle="Comment Diplo collecte, utilise et protège vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD — UE 2016/679) et à la loi Informatique et Libertés."
-      updatedAt="19 mai 2026"
+      subtitle="Comment Diplo collecte, utilise et protège vos données personnelles, conformément au Règlement Général sur la Protection des Données (RGPD, UE 2016/679) et à la loi Informatique et Libertés."
+      updatedAt="6 octobre 2026"
       seo={{
-        title: "Politique de confidentialité — Diplo",
+        title: "Politique de confidentialité | Diplo",
         description: "Comment Diplo collecte, utilise et protège vos données personnelles dans le respect du RGPD.",
         path: "/confidentialite",
       }}
@@ -23,17 +25,17 @@ export default function PolitiqueConfidentialite() {
       </LegalHighlight>
 
       <LegalSection number="1" title="Responsable du traitement">
-        <LegalTable rows={[
-          ["Responsable", "Matteo Svay"],
-          ["Statut", "Auto-entrepreneur"],
-          ["SIRET", "[À COMPLÉTER]"],
-          ["Email", "matteosvay4@gmail.com"],
-          ["Adresse", "[À COMPLÉTER]"],
-        ]} />
+        <LegalTable rows={([
+          ["Responsable", LEGAL.editorName],
+          ["Statut", editorStatus()],
+          ["SIRET", LEGAL.siret],
+          ["Email", LEGAL.contactEmail],
+          ["Adresse", LEGAL.address],
+        ] as [string, string][]).filter(([, v]) => v)} />
         <p>
           Pour toute demande relative à vos données personnelles, contactez-nous à :
-          <a href="mailto:matteosvay4@gmail.com" className="text-primary font-medium underline ml-1">
-            matteosvay4@gmail.com
+          <a href={`mailto:${LEGAL.contactEmail}`} className="text-primary font-medium underline ml-1">
+            {LEGAL.contactEmail}
           </a>
         </p>
       </LegalSection>
@@ -76,7 +78,7 @@ export default function PolitiqueConfidentialite() {
             <p className="font-bold mb-2">2.4 Données de paiement</p>
             <LegalTable rows={[
               ["Donnée", "Informations de carte bancaire et de facturation"],
-              ["Traitement", "Stripe, Inc. — nous ne stockons jamais vos données de paiement"],
+              ["Traitement", "Stripe, Inc. (nous ne stockons jamais vos données de paiement)"],
               ["Finalité", "Traitement des abonnements Pro et Max"],
               ["Base légale", "Exécution du contrat (CGV)"],
               ["Durée", "Selon la politique de conservation de Stripe (5 ans)"],
@@ -107,20 +109,18 @@ export default function PolitiqueConfidentialite() {
 
       <LegalSection number="3" title="Utilisateurs mineurs">
         <p>
-          Diplo est accessible à tout public, y compris aux mineurs. Conformément à l'article 8 du RGPD,
-          le traitement des données d'un mineur de moins de 15 ans (âge retenu en droit français) nécessite
-          le consentement d'un titulaire de l'autorité parentale.
+          Diplo est réservé aux personnes de 15 ans et plus. En France, le traitement des données
+          d'un mineur de moins de 15 ans nécessite l'accord d'un titulaire de l'autorité parentale
+          (article 45 de la loi Informatique et Libertés). Lors de l'inscription, l'utilisateur
+          déclare avoir au moins 15 ans.
         </p>
         <p>
-          En créant un compte sur Diplo, l'utilisateur déclare :
+          La souscription d'un abonnement payant est réservée aux personnes majeures. Un parent peut
+          souscrire pour son enfant.
         </p>
-        <ul className="list-disc pl-4 space-y-1">
-          <li>Avoir au moins 15 ans, ou</li>
-          <li>Avoir obtenu le consentement de son représentant légal pour utiliser le service.</li>
-        </ul>
         <p>
           Si vous êtes parent ou tuteur et pensez que votre enfant a créé un compte sans votre accord,
-          contactez-nous à <a href="mailto:matteosvay4@gmail.com" className="text-primary font-medium underline">matteosvay4@gmail.com</a> pour procéder à la suppression du compte.
+          contactez-nous à <a href={`mailto:${LEGAL.contactEmail}`} className="text-primary font-medium underline">{LEGAL.contactEmail}</a> pour procéder à la suppression du compte.
         </p>
       </LegalSection>
 
@@ -129,12 +129,7 @@ export default function PolitiqueConfidentialite() {
           Pour fournir le service, nous faisons appel aux sous-traitants suivants. Conformément à
           l'article 28 du RGPD, chacun présente des garanties suffisantes en matière de protection des données :
         </p>
-        <LegalTable rows={[
-          ["Supabase, Inc.", "Base de données, authentification — AWS (UE/US) — Clauses contractuelles types UE"],
-          ["Stripe, Inc.", "Paiement en ligne — USA — Certifié PCI-DSS, Clauses contractuelles types UE"],
-          ["Anthropic / OpenAI", "Traitement IA de vos contenus — USA — Clauses contractuelles types UE"],
-          ["[Hébergeur front-end]", "[À COMPLÉTER]"],
-        ]} />
+        <LegalTable rows={SUBPROCESSORS} />
         <p>
           Ces transferts sont encadrés par les Clauses Contractuelles Types (CCT) de la Commission européenne,
           conformément à l'article 46 du RGPD.
@@ -149,14 +144,14 @@ export default function PolitiqueConfidentialite() {
           ["Droit d'accès (art. 15)", "Obtenir une copie de toutes vos données personnelles"],
           ["Droit de rectification (art. 16)", "Corriger des données inexactes ou incomplètes"],
           ["Droit à l'effacement (art. 17)", "Demander la suppression de votre compte et de vos données"],
-          ["Droit à la portabilité (art. 20)", "Recevoir vos données dans un format structuré et lisible"],
+          ["Droit à la portabilité (art. 20)", "Recevoir vos données dans un format structuré et lisible, directement via Profil, puis Télécharger mes données"],
           ["Droit d'opposition (art. 21)", "Vous opposer au traitement fondé sur l'intérêt légitime"],
           ["Droit à la limitation (art. 18)", "Suspendre temporairement le traitement de vos données"],
         ]} />
         <p>
           Pour exercer ces droits, envoyez votre demande à{" "}
-          <a href="mailto:matteosvay4@gmail.com" className="text-primary font-medium underline">
-            matteosvay4@gmail.com
+          <a href={`mailto:${LEGAL.contactEmail}`} className="text-primary font-medium underline">
+            {LEGAL.contactEmail}
           </a>.
           Nous répondrons dans un délai maximum de 30 jours.
         </p>
@@ -194,7 +189,7 @@ export default function PolitiqueConfidentialite() {
         <ul className="list-disc pl-4 space-y-1">
           <li>Chiffrement des données en transit (HTTPS/TLS) et au repos</li>
           <li>Authentification sécurisée via Supabase Auth (hachage des mots de passe)</li>
-          <li>Règles de sécurité au niveau base de données (Row Level Security — RLS)</li>
+          <li>Règles de sécurité au niveau base de données (Row Level Security, RLS)</li>
           <li>Accès aux données restreint aux personnes autorisées</li>
         </ul>
       </LegalSection>
@@ -206,6 +201,14 @@ export default function PolitiqueConfidentialite() {
           (thème clair/sombre, son). Aucun cookie publicitaire ni traceur tiers à des fins marketing n'est déposé.
           Ces cookies essentiels ne nécessitent pas de consentement préalable au sens de la réglementation applicable.
         </p>
+        {ANALYTICS_ENABLED && (
+          <p>
+            Pour savoir quelles pages sont visitées, Diplo utilise Plausible Analytics, un outil de mesure
+            d'audience hébergé dans l'Union européenne qui ne dépose aucun cookie et ne collecte aucune donnée
+            permettant de t'identifier. Si tu refuses les cookies dans la bannière, cette mesure n'est pas
+            chargée non plus.
+          </p>
+        )}
       </LegalSection>
 
       <LegalSection number="9" title="Modifications de la politique">

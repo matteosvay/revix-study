@@ -8,6 +8,7 @@ import {
   enforceLimit,
   extractJSON,
   jsonResponse,
+  serveWithCors,
 } from "../_shared/mod.ts";
 
 interface Body {
@@ -26,7 +27,7 @@ interface Grade {
   improvements: string[];
 }
 
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(req) });
   if (req.method !== "POST") return jsonResponse({ error: "Method not allowed" }, { status: 405 });
 

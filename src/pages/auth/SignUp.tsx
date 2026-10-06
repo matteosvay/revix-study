@@ -12,6 +12,7 @@ import { CURSUS_OPTIONS } from "@/data/cursus";
 import { SearchableCombobox } from "@/components/revix/SearchableCombobox";
 import { FORMATIONS } from "@/data/formations";
 import { GENDER_OPTIONS } from "@/lib/gender";
+import { isDisposableEmail } from "@/lib/disposableEmails";
 import { Mail, CheckCircle2, RefreshCw } from "lucide-react";
 
 export default function SignUp() {
@@ -26,6 +27,8 @@ export default function SignUp() {
   const [formError, setFormError] = useState<string | null>(null);
   // RGPD : consentement explicite obligatoire avant la création de compte.
   const [acceptedTerms, setAcceptedTerms] = useState(false);
+  // Sous 15 ans, le RGPD exige l'accord d'un parent : Diplo est réservé aux 15 ans et plus.
+  const [isOver15, setIsOver15] = useState(false);
 
   const formationItems = FORMATIONS.map(f => ({
     value: f.name, label: f.abbr ? `${f.abbr} · ${f.name.replace(`${f.abbr} - `, "").replace(`${f.abbr} `, "")}` : f.name, group: f.category,
@@ -34,6 +37,12 @@ export default function SignUp() {
   const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setFormError(null);
+    if (!isOver15) {
+      const msg = "Diplo est réservé aux personnes de 15 ans et plus.";
+      setFormError(msg);
+      toast.error(msg);
+      return;
+    }
     if (!acceptedTerms) {
       const msg = "Tu dois accepter les CGU et la politique de confidentialité pour créer un compte.";
       setFormError(msg);
@@ -43,6 +52,12 @@ export default function SignUp() {
     const data = new FormData(e.currentTarget);
     const email = String(data.get("email"));
     const name = String(data.get("name"));
+    if (isDisposableEmail(email)) {
+      const msg = "Utilise une adresse email que tu consultes vraiment, les adresses jetables ne sont pas acceptées.";
+      setFormError(msg);
+      toast.error(msg);
+      return;
+    }
     setLoading(true);
     const { data: signUpData, error } = await supabase.auth.signUp({
       email,
@@ -55,6 +70,7 @@ export default function SignUp() {
           gender: gender || null,
           // Trace de l'acceptation pour pouvoir prouver le consentement RGPD a posteriori
           terms_accepted_at: new Date().toISOString(),
+          age_15_plus_declared_at: new Date().toISOString(),
         },
       },
     });
@@ -193,7 +209,7 @@ export default function SignUp() {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>Je suis...</Label>
+          <Label>Je suis... <span className="font-normal text-muted-foreground">(facultatif, sert seulement à accorder les phrases)</span></Label>
           <Select value={gender} onValueChange={setGender}>
             <SelectTrigger><SelectValue placeholder="Choisis ton genre" /></SelectTrigger>
             <SelectContent>
@@ -206,7 +222,7 @@ export default function SignUp() {
           </Select>
         </div>
         <div className="space-y-2">
-          <Label>Ma formation précise (optionnel)</Label>
+          <Label>Ma formation précise (facultatif)</Label>
           <SearchableCombobox
             items={formationItems}
             value={formation}
@@ -214,6 +230,17 @@ export default function SignUp() {
             placeholder="ex : BUT GEA, Licence Droit, Prépa MPSI..."
             searchPlaceholder="Rechercher une formation..."
           />
+        </div>
+        <div className="flex items-start gap-2">
+          <Checkbox
+            id="age15"
+            checked={isOver15}
+            onCheckedChange={(v) => setIsOver15(v === true)}
+            className="mt-0.5"
+          />
+          <Label htmlFor="age15" className="text-xs leading-relaxed text-muted-foreground font-normal cursor-pointer">
+            J'ai 15 ans ou plus.
+          </Label>
         </div>
         {/* RGPD : consentement explicite obligatoire avant la création de compte */}
         <div className="flex items-start gap-2">

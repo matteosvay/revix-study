@@ -1,26 +1,27 @@
 import { LegalLayout, LegalSection, LegalTable } from "./LegalLayout";
+import { LEGAL, editorStatus } from "@/lib/legal";
 
 export default function MentionsLegales() {
   return (
     <LegalLayout
       title="Mentions légales"
       subtitle="Informations obligatoires conformément à la loi n° 2004-575 du 21 juin 2004 pour la confiance dans l'économie numérique (LCEN)."
-      updatedAt="19 mai 2026"
+      updatedAt="6 octobre 2026"
       seo={{
-        title: "Mentions légales — Diplo",
+        title: "Mentions légales | Diplo",
         description: "Mentions légales de Diplo : éditeur, hébergeur et coordonnées de contact.",
         path: "/mentions-legales",
       }}
     >
       <LegalSection number="1" title="Éditeur de l'application">
-        <LegalTable rows={[
-          ["Nom", "Matteo Svay"],
-          ["Statut", "Auto-entrepreneur"],
-          ["SIRET", "[À COMPLÉTER]"],
-          ["Adresse", "[À COMPLÉTER]"],
-          ["Email", "matteosvay4@gmail.com"],
-          ["Directeur de la publication", "Matteo Svay"],
-        ]} />
+        <LegalTable rows={([
+          ["Nom", LEGAL.editorName],
+          ["Statut", editorStatus()],
+          ["SIRET", LEGAL.siret],
+          ["Adresse", LEGAL.address],
+          ["Email", LEGAL.contactEmail],
+          ["Directeur de la publication", LEGAL.editorName],
+        ] as [string, string][]).filter(([, v]) => v)} />
       </LegalSection>
 
       <LegalSection number="2" title="Hébergement">
@@ -29,9 +30,8 @@ export default function MentionsLegales() {
         </p>
         <div className="space-y-3">
           <LegalTable rows={[
-            ["Hébergeur front-end", "[À COMPLÉTER — ex : Vercel, Inc.]"],
-            ["Adresse", "[À COMPLÉTER — ex : 340 S Lemon Ave #4133, Walnut, CA 91789, USA]"],
-            ["Site web", "[À COMPLÉTER — ex : vercel.com]"],
+            ["Hébergeur de l'application", "Lovable"],
+            ["Site web", "lovable.dev"],
           ]} />
           <LegalTable rows={[
             ["Hébergeur base de données", "Supabase, Inc."],
@@ -75,14 +75,14 @@ export default function MentionsLegales() {
       <LegalSection number="5" title="Droit applicable et juridiction">
         <p>
           Les présentes mentions légales sont régies par le droit français.
-          En cas de litige, les tribunaux français seront seuls compétents.
+          En cas de litige, les tribunaux français seront seuls compétents{LEGAL.courtCity ? `, en particulier ceux du ressort de ${LEGAL.courtCity}` : ""}.
         </p>
       </LegalSection>
 
       <LegalSection number="6" title="Contact">
         <p>
           Pour toute question relative aux présentes mentions légales, vous pouvez contacter l'éditeur
-          à l'adresse suivante : <a href="mailto:matteosvay4@gmail.com" className="text-primary font-medium underline">matteosvay4@gmail.com</a>
+          à l'adresse suivante : <a href={`mailto:${LEGAL.contactEmail}`} className="text-primary font-medium underline">{LEGAL.contactEmail}</a>
         </p>
       </LegalSection>
     </LegalLayout>

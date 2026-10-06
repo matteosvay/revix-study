@@ -9,7 +9,7 @@ import { Label } from "@/components/ui/label";
 import { UploadCloud, Loader2, FileText, Image as ImageIcon, CheckCircle2, X, PenLine } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { extractPdfText, fileToBase64, extractDocxText, isDocx, DOCX_MIME } from "@/lib/pdf";
+import { extractPdfText, renderPdfPagesToJpeg, fileToBase64, extractDocxText, isDocx, DOCX_MIME } from "@/lib/pdf";
 import { toast } from "sonner";
 import { playSuccess } from "@/lib/sfx";
 import { awardXp, bumpQuest } from "@/hooks/useGamification";
@@ -27,6 +27,41 @@ async function sha256Hex(input: string): Promise<string> {
   return Array.from(new Uint8Array(buf))
     .map((b) => b.toString(16).padStart(2, "0"))
     .join("");
+}
+
+/** Pages lues au maximum sur un PDF scanné (une lecture d'image par page). */
+const SCANNED_PDF_MAX_PAGES = 6;
+
+/**
+ * Lit un PDF scanné page par page via l'OCR (edge function extract-pdf).
+ * S'arrête proprement si le quota du jour est atteint après au moins une page.
+ */
+async function ocrScannedPdf(file: File): Promise<string> {
+  const { images, totalPages } = await renderPdfPagesToJpeg(file, SCANNED_PDF_MAX_PAGES);
+  if (images.length === 0) {
+    throw new Error(`"${file.name}" ne contient pas de texte lisible. Essaie une photo nette des pages ou un .docx.`);
+  }
+  toast.message(
+    totalPages > images.length
+      ? `PDF scanné : lecture des ${images.length} premières pages sur ${totalPages}.`
+      : `PDF scanné : lecture de ${images.length} page${images.length > 1 ? "s" : ""}.`,
+  );
+  const texts: string[] = [];
+  for (const imageBase64 of images) {
+    const { data, error } = await supabase.functions.invoke("extract-pdf", {
+      body: { imageBase64, mimeType: "image/jpeg" },
+    });
+    if (error) {
+      if (texts.length > 0) {
+        toast.message("Limite de lecture atteinte, la fiche portera sur les pages déjà lues.");
+        break;
+      }
+      throw error;
+    }
+    const t = (data?.text ?? "").trim();
+    if (t) texts.push(t);
+  }
+  return texts.join("\n\n");
 }
 
 const STEPS = [
@@ -230,7 +265,9 @@ export default function Upload() {
               throw new Error(`Impossible de lire "${file.name}". S'il est scanné, exporte-le en image ou .docx.`);
             }
             if (extracted.trim().length < 20) {
-              throw new Error(`"${file.name}" ne contient pas de texte lisible (probablement scanné). Exporte-le en image ou en .docx.`);
+              // PDF scanné : pas de couche texte. On passe les premières pages à l'OCR,
+              // une page par appel (chaque page compte dans le quota de lecture d'images).
+              extracted = await ocrScannedPdf(file);
             }
           } else if (isDocx(file)) {
             extracted = await extractDocxText(file);

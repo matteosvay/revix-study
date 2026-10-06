@@ -13,6 +13,8 @@ import { BackButton } from "@/components/revix/BackButton";
 import { Textarea } from "@/components/ui/textarea";
 import { CosmeticAvatar } from "@/components/revix/CosmeticAvatar";
 import { Link } from "react-router-dom";
+import { useBlocks } from "@/hooks/useBlocks";
+import { ReportButton } from "@/components/revix/ReportButton";
 
 type RoomMember = { id: string; user_id: string; status: string; last_seen: string };
 type Msg = { id: string; user_id: string; content: string; is_system: boolean; created_at: string };
@@ -69,6 +71,7 @@ function summaryToText(summary: any): string {
 export default function StudyRoom() {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+  const { isBlocked } = useBlocks();
   const nav = useNavigate();
   const [room, setRoom] = useState<any>(null);
   const [members, setMembers] = useState<RoomMember[]>([]);
@@ -458,8 +461,9 @@ export default function StudyRoom() {
  <div className="label-tape label-tape-violet inline-block mb-2"> CHAT</div>
           <div className="bg-card border-2 border-foreground rounded-md p-3">
             <div className="space-y-1.5 max-h-48 overflow-y-auto mb-2">
- {messages.length === 0 && <p className="text-xs text-muted-foreground italic">Reste focus </p>}
-              {messages.slice(-8).map(m => {
+              {messages.length === 0 && <p className="text-xs text-muted-foreground italic">Pas encore de message. Reste concentré.</p>}
+              {/* Les messages des élèves bloqués ne s'affichent pas. */}
+              {messages.filter(m => m.is_system || !isBlocked(m.user_id)).slice(-8).map(m => {
                 const p = profiles[m.user_id];
                 const mine = m.user_id === user?.id;
                 if (m.is_system) {
@@ -472,6 +476,7 @@ export default function StudyRoom() {
                 return (
                   <div key={m.id} className={`text-xs ${mine ? "text-right" : ""}`}>
                     <span className="font-bold">{mine ? "Toi" : p?.display_name?.split(" ")[0] ?? "?"} :</span> <span className={`inline-block px-2 py-0.5 rounded ${mine ? "bg-primary text-primary-foreground" : "bg-muted"}`}>{m.content}</span>
+                    {!mine && <ReportButton targetType="message" targetId={m.id} compact className="align-middle ml-1" />}
                   </div>
                 );
               })}

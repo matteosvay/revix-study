@@ -193,7 +193,7 @@ export function CoachChat({ ctx }: { ctx: CoachContext | null }) {
 
   return (
     <div className="notebook-card p-3">
- <p className="font-hand text-xl text-foreground mb-2"> Pose ta question à Diplo</p>
+ <p className="font-hand text-xl text-foreground mb-2">Pose ta question à Diplo</p>
 
       <div ref={scrollRef} className="max-h-[340px] overflow-y-auto space-y-2.5 pr-1 mb-3">
         {!hydrated && (
@@ -214,7 +214,7 @@ export function CoachChat({ ctx }: { ctx: CoachContext | null }) {
                   </div>
                 </div>
                 {m.plan && <StudyPlanCard plan={m.plan} />}
-                {!m.plan && (
+                {!m.plan && m.id !== "welcome" && (
                   <div className="flex gap-1.5 mt-1.5 ml-2">
                     <button
                       onClick={() => addToPlanning(m.content)}
@@ -269,7 +269,7 @@ export function CoachChat({ ctx }: { ctx: CoachContext | null }) {
         <input
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          placeholder="Ex: Comment réviser le droit en 3 jours ?"
+          placeholder="Ex. : comment réviser le droit en 3 jours ?"
           disabled={loading}
           className="flex-1 bg-transparent border-0 border-b border-foreground/20 focus:border-primary outline-none text-sm py-1.5 placeholder:text-foreground/40 placeholder:italic"
         />
@@ -281,6 +281,13 @@ export function CoachChat({ ctx }: { ctx: CoachContext | null }) {
           {loading ? <Loader2 className="h-3 w-3 animate-spin inline" /> : <>Envoyer <Send className="h-3 w-3 inline ml-0.5" /></>}
         </button>
       </form>
+      {/* Transparence IA (AI Act, article 50) et aide humaine toujours visible pour
+          les élèves qui ne vont pas bien. */}
+      <p className="mt-2 text-[11px] leading-snug text-muted-foreground">
+        Diplo Coach est une IA, il peut se tromper. Besoin de parler à quelqu'un ? Fil Santé Jeunes au{" "}
+        <a href="tel:0800235236" className="underline">0800 235 236</a> (gratuit, 9 h à 23 h) ou le{" "}
+        <a href="tel:3114" className="underline">3114</a> (24 h/24).
+      </p>
     </div>
   );
 }

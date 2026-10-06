@@ -1,8 +1,8 @@
 // Aggregate stats for admin dashboard. Requires the caller to have role 'admin'.
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
-import { authenticate, corsHeaders, jsonResponse } from "../_shared/mod.ts";
+import { authenticate, corsHeaders, jsonResponse, serveWithCors } from "../_shared/mod.ts";
 
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders(req) });
   if (req.method !== "GET" && req.method !== "POST") {
     return jsonResponse({ error: "Method not allowed" }, { status: 405 });

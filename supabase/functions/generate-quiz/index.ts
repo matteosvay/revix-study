@@ -7,6 +7,7 @@ import {
   jsonResponse,
   type ClaudeTool,
   type SystemBlock,
+  serveWithCors,
 } from "../_shared/mod.ts";
 
 const QUIZ_TOOL: ClaudeTool = {
@@ -46,7 +47,7 @@ const QUIZ_TOOL: ClaudeTool = {
   },
 };
 
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders(req) });
   try {
     const auth = await authenticate(req);

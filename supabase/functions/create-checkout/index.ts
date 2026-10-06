@@ -2,8 +2,12 @@
 import { type StripeEnv, createStripeClient } from "../_shared/stripe.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
+// Domaine actuel, ancien domaine, domaines ajoutés plus tard (EXTRA_ALLOWED_ORIGINS,
+// séparés par des virgules, par exemple quand tu auras ton propre nom de domaine).
 const ALLOWED_ORIGINS = [
+  "https://diplo.lovable.app",
   "https://revix-study.lovable.app",
+  ...(Deno.env.get("EXTRA_ALLOWED_ORIGINS") ?? "").split(",").map((o) => o.trim()).filter(Boolean),
   "http://localhost:5173",
   "http://localhost:8080",
   "http://localhost:3000",
@@ -25,8 +29,12 @@ function corsHeaders(req: Request): Record<string, string> {
  * Empêche un attaquant d'utiliser cette fonction comme open redirect / phishing.
  */
 const ALLOWED_RETURN_HOSTS = [
+  "diplo.lovable.app",
   "revix-study.lovable.app",
   "lovable.app",
+  ...(Deno.env.get("EXTRA_ALLOWED_ORIGINS") ?? "").split(",")
+    .map((o) => { try { return new URL(o.trim()).hostname; } catch { return ""; } })
+    .filter(Boolean),
   "lovableproject.com",
   "localhost",
   "127.0.0.1",
@@ -46,11 +54,19 @@ interface CheckoutBody {
   quantity?: number;
   returnUrl: string;
   environment: StripeEnv;
+  /**
+   * Cases cochées par l'acheteur juste avant le paiement.
+   * adult : il a 18 ans ou plus (un mineur peut voir un contrat d'abonnement annulé).
+   * waiveWithdrawal : il demande que le service démarre tout de suite et renonce
+   * au délai de rétractation de 14 jours (article L221-28 du Code de la consommation).
+   */
+  consent?: { adult?: boolean; waiveWithdrawal?: boolean };
 }
 
 interface CheckoutOpts extends CheckoutBody {
   userId: string;
   customerEmail: string | null;
+  consentAt: string;
 }
 
 /**
@@ -120,9 +136,24 @@ async function createCheckoutSession(opts: CheckoutOpts): Promise<string | null>
     return_url: opts.returnUrl,
     managed_payments: { enabled: true },
     ...(opts.customerEmail && { customer_email: opts.customerEmail }),
-    metadata: { userId: opts.userId, managed_payments: "true" },
+    // Trace horodatée des deux consentements, conservée chez Stripe : c'est ta preuve
+    // en cas de demande de remboursement pendant les 14 jours.
+    metadata: {
+      userId: opts.userId,
+      managed_payments: "true",
+      consent_adult: "true",
+      consent_waive_withdrawal: "true",
+      consent_at: opts.consentAt,
+    },
     ...(isRecurring && {
-      subscription_data: { metadata: { userId: opts.userId } },
+      subscription_data: {
+        metadata: {
+          userId: opts.userId,
+          consent_adult: "true",
+          consent_waive_withdrawal: "true",
+          consent_at: opts.consentAt,
+        },
+      },
     }),
   });
 
@@ -156,9 +187,29 @@ Deno.serve(async (req) => {
       });
     }
 
+    // Aucune vente tant que l'entreprise n'est pas immatriculée : passe le secret
+    // PAYMENTS_ENABLED à "true" dans Lovable Cloud le jour où tout est en règle.
+    if ((Deno.env.get("PAYMENTS_ENABLED") ?? "").trim() !== "true") {
+      return new Response(JSON.stringify({
+        error: "payments_closed",
+        message: "Les abonnements ouvrent bientôt. Pour l'instant, Diplo est gratuit pour tout le monde.",
+      }), {
+        status: 403,
+        headers: { ...corsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
+
     const body = (await req.json()) as CheckoutBody;
     if (!body.priceId || !body.returnUrl || !body.environment) {
       return new Response(JSON.stringify({ error: "Missing required fields" }), {
+        status: 400,
+        headers: { ...corsHeaders(req), "Content-Type": "application/json" },
+      });
+    }
+    // Les deux cases sont vérifiées ici, côté serveur : cocher dans le navigateur
+    // ne suffit pas, un appel direct à la fonction sans elles est refusé.
+    if (body.consent?.adult !== true || body.consent?.waiveWithdrawal !== true) {
+      return new Response(JSON.stringify({ error: "consent_required", message: "Coche les deux cases avant de payer." }), {
         status: 400,
         headers: { ...corsHeaders(req), "Content-Type": "application/json" },
       });
@@ -176,6 +227,7 @@ Deno.serve(async (req) => {
       environment: body.environment,
       userId: u.user.id,
       customerEmail: u.user.email ?? null,
+      consentAt: new Date().toISOString(),
     });
     return new Response(JSON.stringify({ clientSecret }), {
       status: 200,

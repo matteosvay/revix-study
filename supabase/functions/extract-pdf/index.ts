@@ -5,6 +5,7 @@ import {
   corsHeaders,
   enforceLimit,
   jsonResponse,
+  serveWithCors,
 } from "../_shared/mod.ts";
 
 // Magic-bytes signatures for allowed image formats.
@@ -35,7 +36,7 @@ function detectMimeFromBase64(base64: string): string | null {
 // Sécurité : déclenche un appel Claude Vision (coûteux). Doit être rate-limité au même
 // titre que les autres actions IA. On le compte sur le quota 'fiche' car c'est la
 // première étape du pipeline d'upload.
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders(req) });
   try {
     const auth = await authenticate(req);

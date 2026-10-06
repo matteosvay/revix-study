@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { getStripeEnvironment } from "@/lib/stripe";
+import { TEST_PHASE } from "@/lib/pricing";
 
 export interface SubscriptionRow {
   id: string;
@@ -66,8 +67,12 @@ export function useSubscription() {
     return false;
   })();
 
-  // 🧪 PHASE DE TEST : tout le monde a accès aux fonctionnalités "max".
-  const tier: "free" | "pro" | "max" = "max";
-
-  return { subscription, isActive: true, tier, loading, refresh: load };
+  // Phase de test : tout le monde a Max gratuitement. Pour la terminer, mets
+  // TEST_PHASE à false dans src/lib/pricing.ts, et le secret serveur
+  // FREE_ACCESS_TIER à "off" dans Lovable Cloud. Les deux vont ensemble.
+  if (TEST_PHASE) {
+    return { subscription, isActive: true, tier: "max" as const, loading, refresh: load, testPhase: true };
+  }
+  const tier: "free" | "pro" | "max" = isActive ? (subscription?.tier === "max" ? "max" : "pro") : "free";
+  return { subscription, isActive, tier, loading, refresh: load, testPhase: false };
 }

@@ -43,6 +43,54 @@ export function jsonResponse(body: unknown, init: ResponseInit = {}, req?: Reque
   });
 }
 
+/**
+ * Lance une fonction avec les bons en-têtes CORS sur TOUTES ses réponses.
+ *
+ * Avant, une réponse construite sans passer `req` repartait avec l'origine
+ * revix-study.lovable.app. Depuis le passage sur diplo.lovable.app, le navigateur
+ * bloquait ces réponses : messages d'erreur, quotas atteints, refus d'accès
+ * arrivaient comme des erreurs réseau incompréhensibles. Ce wrapper corrige
+ * l'origine après coup, quelle que soit la façon dont la réponse a été créée.
+ */
+export function serveWithCors(handler: (req: Request) => Response | Promise<Response>) {
+  Deno.serve(async (req) => {
+    const res = await handler(req);
+    const headers = new Headers(res.headers);
+    for (const [k, v] of Object.entries(corsHeaders(req))) headers.set(k, v);
+    return new Response(res.body, { status: res.status, statusText: res.statusText, headers });
+  });
+}
+
+/**
+ * Envoi d'un email transactionnel (confirmation de résiliation, etc.).
+ * Inactif tant que RESEND_API_KEY et EMAIL_FROM ne sont pas configurés dans les
+ * secrets : la fonction renvoie false sans erreur, et l'appelant affiche la
+ * confirmation à l'écran à la place.
+ */
+export async function sendEmail(to: string, subject: string, text: string): Promise<boolean> {
+  const key = Deno.env.get("RESEND_API_KEY");
+  const from = Deno.env.get("EMAIL_FROM");
+  if (!key || !from || !to) {
+    console.warn("[email] non configuré, email non envoyé", { subject });
+    return false;
+  }
+  try {
+    const res = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+      body: JSON.stringify({ from, to: [to], subject, text }),
+    });
+    if (!res.ok) {
+      console.error("[email] échec", res.status, (await res.text().catch(() => "")).slice(0, 300));
+      return false;
+    }
+    return true;
+  } catch (e) {
+    console.error("[email] erreur", e);
+    return false;
+  }
+}
+
 /** Verify the JWT in the Authorization header. Returns user + supabase client scoped to that user. */
 export async function authenticate(req: Request): Promise<
   | { ok: true; userId: string; supabase: SupabaseClient; authHeader: string }

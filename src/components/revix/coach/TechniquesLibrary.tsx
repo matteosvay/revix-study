@@ -53,7 +53,7 @@ const TECHNIQUES = [
     name: "SLEEP LEARNING",
     desc: "Révise 30 min avant de dormir. Le cerveau consolide pendant le sommeil.",
     use: "Idéal pour : les révisions du soir.",
-    cta: "Rappel à 22h",
+    cta: "Relecture à 21 h",
     action: "sleep" as const,
     tape: "tape-mint" as const,
   },
@@ -84,7 +84,7 @@ export function TechniquesLibrary() {
       });
       if (error) return toast.error(error.message);
       await bumpQuest(user.id, "task_added", 1);
- toast.success("Session Pomodoro ajoutée à aujourd'hui");
+      toast.success("Session Pomodoro ajoutée à aujourd'hui");
       return;
     }
     if (action === "feynman" || action === "blurt") {
@@ -96,13 +96,14 @@ export function TechniquesLibrary() {
       const { error } = await supabase.from("planning_tasks").insert({
         user_id: user.id,
         task_date: today,
-        start_time: "22:00",
-        end_time: "22:30",
+        // 21 h plutôt que 22 h : une relecture avant de dormir, sans empiéter sur le sommeil.
+        start_time: "21:00",
+        end_time: "21:30",
         subject: "Révision du soir",
         title: "Sleep learning, 30 min",
       });
       if (error) return toast.error(error.message);
- toast.success("Rappel ajouté à 22 h ce soir");
+      toast.success("Relecture ajoutée à 21 h ce soir");
     }
   };
 

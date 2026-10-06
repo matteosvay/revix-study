@@ -18,7 +18,14 @@ export function useFomoChecks() {
 
     (async () => {
       try {
-        const today = new Date().toISOString().slice(0, 10);
+        // Heures calmes : aucun rappel entre 21 h et 7 h. Un lycéen qui ouvre l'app
+        // tard le soir n'a pas besoin d'une pression supplémentaire.
+        const hour = new Date().getHours();
+        if (hour >= 21 || hour < 7) return;
+
+        // Date locale (et non UTC) : sinon, entre minuit et 2 h, « aujourd'hui » était faux.
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
 
       const { data: profile } = await supabase
         .from("profiles")
@@ -49,8 +56,8 @@ export function useFomoChecks() {
         toInsert.push({
           user_id: user.id,
           type: "fomo_streak",
- title: "Ta série est en danger !",
-          message: `${profile.streak_days} jours d'affilée. Ne laisse pas tomber maintenant.`,
+          title: `Ta série de ${profile.streak_days} jours t'attend`,
+          message: "Un petit quizz suffit pour la garder. Et si tu fais une pause aujourd'hui, un jour de repos par semaine ne la casse pas.",
           link: "/app/streak",
         });
       }
@@ -71,7 +78,7 @@ export function useFomoChecks() {
         toInsert.push({
           user_id: user.id,
           type: "fomo_quest",
- title: "Quête presque finie !",
+          title: "Quête presque finie",
           message: `"${almostDone.title}" : ${almostDone.progress}/${almostDone.target}`,
           link: "/app/aventure",
         });
@@ -86,8 +93,8 @@ export function useFomoChecks() {
         toInsert.push({
           user_id: user.id,
           type: "fomo_level",
- title: "Niveau supérieur en vue",
-          message: `Plus que ${remaining} XP avant le niveau ${L + 1} !`,
+          title: "Niveau supérieur en vue",
+          message: `Plus que ${remaining} XP avant le niveau ${L + 1}.`,
           link: "/app/aventure",
         });
       }
@@ -99,8 +106,7 @@ export function useFomoChecks() {
         await supabase.from("notifications").insert(toInsert);
       }
 
-      // 4. Group streaks at risk — only run in the evening (>= 18h local time)
-      const hour = new Date().getHours();
+      // 4. Séries de groupe en danger : seulement en fin de journée (18 h à 21 h).
         if (hour >= 18) {
           await supabase.rpc("notify_groups_at_risk" as any);
         }

@@ -1,8 +1,8 @@
-import { authenticate, corsHeaders, enforceLimit, jsonResponse } from "../_shared/mod.ts";
+import { authenticate, corsHeaders, enforceLimit, jsonResponse, serveWithCors } from "../_shared/mod.ts";
 
 const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
 
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders(req) });
   try {
     const auth = await authenticate(req);

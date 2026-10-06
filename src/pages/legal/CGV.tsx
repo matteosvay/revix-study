@@ -1,22 +1,34 @@
 import { LegalLayout, LegalSection, LegalHighlight, LegalTable } from "./LegalLayout";
+import { LEGAL, editorStatus } from "@/lib/legal";
+import { PLANS, FREE_CREDITS_GRANT, formatPrice, VAT_NOTICE } from "@/lib/pricing";
 
 export default function CGV() {
   return (
     <LegalLayout
       title="Conditions Générales de Vente"
       subtitle="Les présentes Conditions Générales de Vente (CGV) s'appliquent à tout achat d'abonnement payant sur Diplo. Elles complètent les Conditions Générales d'Utilisation (CGU)."
-      updatedAt="19 mai 2026"
+      updatedAt="6 octobre 2026"
       seo={{
         title: "Conditions Générales de Vente | Diplo",
         description: "CGV de Diplo : tarifs, abonnements Pro et Max, paiement, droit de rétractation et remboursement.",
         path: "/cgv",
       }}
     >
+      {!LEGAL.registered && (
+        <LegalHighlight>
+          <p className="text-sm">
+            <strong>Aucun abonnement payant n'est proposé pour l'instant.</strong> Diplo est en phase
+            de test et entièrement gratuit. Ces conditions s'appliqueront à l'ouverture des offres
+            payantes, et seront mises à jour avec les informations du vendeur à ce moment-là.
+          </p>
+        </LegalHighlight>
+      )}
       <LegalHighlight>
         <p className="text-sm">
-          <strong>Vendeur :</strong> Matteo Svay, auto-entrepreneur — SIRET [À COMPLÉTER]<br />
-          <strong>Email :</strong> matteosvay4@gmail.com<br />
-          <strong>Paiement sécurisé :</strong> Stripe, Inc. — PCI-DSS Niveau 1
+          <strong>Vendeur :</strong> {LEGAL.editorName}, {editorStatus().toLowerCase()}
+          {LEGAL.siret ? <>, SIRET {LEGAL.siret}</> : null}<br />
+          <strong>Email :</strong> {LEGAL.contactEmail}<br />
+          <strong>Paiement sécurisé :</strong> Stripe, Inc., certifié PCI-DSS niveau 1
         </p>
       </LegalHighlight>
 
@@ -25,9 +37,9 @@ export default function CGV() {
           Diplo propose trois formules d'accès au service :
         </p>
         <LegalTable rows={[
-          ["Gratuit", "0 € — Accès limité (2 quizz IA/jour, 5 messages coach/jour, 1 fiche IA/semaine)"],
-          ["Pro", "7,99 € TTC/mois : 12 quizz IA/jour, 16 messages coach/jour, 2 fiches IA/jour, Planning IA"],
-          ["Max", "12,99 € TTC/mois : 25 quizz IA/jour, 40 messages coach/jour, 4 fiches IA/jour, 3 plannings IA/jour"],
+          ["Gratuit", `0 € : ${FREE_CREDITS_GRANT} crédits offerts une seule fois à l'inscription, puis révisions illimitées sur tes fiches et quizz existants`],
+          ["Pro", `${formatPrice(PLANS.pro.priceTTC)} TTC par mois : 12 quizz IA par jour, 16 messages coach par jour, 2 fiches IA par jour, planning IA`],
+          ["Max", `${formatPrice(PLANS.max.priceTTC)} TTC par mois : 25 quizz IA par jour, 40 messages coach par jour, 4 fiches IA par jour, 3 plannings IA par jour`],
         ]} />
         <p>
           Les tarifs sont affichés TTC (Toutes Taxes Comprises) en euros. L'éditeur se réserve le
@@ -50,7 +62,7 @@ export default function CGV() {
           <li>Accédez à la section Abonnement depuis votre Profil ;</li>
           <li>Sélectionnez l'offre souhaitée (Pro ou Max) ;</li>
           <li>Renseignez vos informations de paiement dans le formulaire sécurisé Stripe ;</li>
-          <li>Validez votre commande en cliquant sur "Confirmer l'abonnement".</li>
+          <li>Cochez les deux confirmations (18 ans ou plus, accès immédiat), puis validez le paiement dans le formulaire Stripe.</li>
         </ol>
         <p>
           La commande est définitivement validée à réception du paiement. Un email de confirmation
@@ -79,9 +91,6 @@ export default function CGV() {
           Les abonnements sont souscrits au mois, sans engagement minimum. Ils se renouvellent
           automatiquement chaque mois à la date anniversaire de la souscription, jusqu'à résiliation.
         </p>
-        <p>
-          Vous recevrez un rappel par email 3 jours avant chaque renouvellement.
-        </p>
       </LegalSection>
 
       <LegalSection number="5" title="Résiliation">
@@ -102,7 +111,7 @@ export default function CGV() {
 
       <LegalSection number="6" title="Droit de rétractation">
         <LegalHighlight>
-          <p className="text-sm font-bold mb-2">Important — Accès immédiat au service</p>
+          <p className="text-sm font-bold mb-2">Important : accès immédiat au service</p>
           <p className="text-sm">
             Conformément à l'article L. 221-28 du Code de la consommation, en souscrivant à un
             abonnement Diplo, vous demandez expressément que l'exécution du service commence
@@ -120,8 +129,8 @@ export default function CGV() {
         </p>
         <p>
           Pour exercer ce droit, envoyez votre demande à{" "}
-          <a href="mailto:matteosvay4@gmail.com" className="text-primary font-medium underline">
-            matteosvay4@gmail.com
+          <a href={`mailto:${LEGAL.contactEmail}`} className="text-primary font-medium underline">
+            {LEGAL.contactEmail}
           </a>{" "}
           en indiquant votre adresse email de compte et la date de souscription.
           Le remboursement sera effectué dans les 14 jours suivant la réception de votre demande,
@@ -136,9 +145,9 @@ export default function CGV() {
           Stripe Customer Portal, accessible depuis votre Profil.
         </p>
         <p>
-          Matteo Svay, auto-entrepreneur, est soumis au régime de la franchise en base de TVA
-          conformément à l'article 293 B du Code général des impôts. À ce titre, la TVA n'est pas
-          applicable — mention portée sur les factures : "TVA non applicable, art. 293 B du CGI."
+          {VAT_NOTICE} Le vendeur relève du régime de la franchise en base de TVA prévu à
+          l'article 293 B du Code général des impôts. La mention « TVA non applicable, art. 293 B
+          du CGI » figure sur les factures.
         </p>
         <p className="text-sm text-muted-foreground italic">
           Note : si le chiffre d'affaires dépasse le seuil de franchise, la TVA sera applicable
@@ -158,18 +167,23 @@ export default function CGV() {
       <LegalSection number="9" title="Médiation et litiges">
         <p>
           En cas de litige relatif à votre abonnement, contactez-nous d'abord à{" "}
-          <a href="mailto:matteosvay4@gmail.com" className="text-primary font-medium underline">
-            matteosvay4@gmail.com
+          <a href={`mailto:${LEGAL.contactEmail}`} className="text-primary font-medium underline">
+            {LEGAL.contactEmail}
           </a>.
-          Nous nous engageons à répondre dans les 5 jours ouvrés.
+          Nous nous engageons à répondre sous {LEGAL.replyDelay}.
         </p>
         <p>
-          Si aucune solution amiable n'est trouvée, vous pouvez saisir un médiateur de la
-          consommation conformément à l'article L. 612-1 du Code de la consommation, ou utiliser
-          la plateforme européenne de résolution en ligne des litiges :{" "}
-          <a href="https://ec.europa.eu/consumers/odr" target="_blank" rel="noopener noreferrer" className="text-primary font-medium underline">
-            ec.europa.eu/consumers/odr
-          </a>
+          Si aucune solution amiable n'est trouvée, vous pouvez saisir gratuitement le médiateur de
+          la consommation, conformément à l'article L. 612-1 du Code de la consommation
+          {LEGAL.mediator.name ? (
+            <>
+              {" "}: {LEGAL.mediator.name}
+              {LEGAL.mediator.address ? <>, {LEGAL.mediator.address}</> : null}
+              {LEGAL.mediator.website ? (
+                <>, <a href={LEGAL.mediator.website} target="_blank" rel="noopener noreferrer" className="text-primary font-medium underline">{LEGAL.mediator.website}</a></>
+              ) : null}
+            </>
+          ) : null}.
         </p>
         <p>
           Les présentes CGV sont régies par le droit français. Les tribunaux français sont compétents

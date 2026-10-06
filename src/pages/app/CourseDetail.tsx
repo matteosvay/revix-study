@@ -151,6 +151,13 @@ export default function CourseDetail() {
     try {
       const { default: jsPDF } = await import("jspdf");
       const pdf = new jsPDF({ unit: "pt", format: "a4" });
+      // Marquage lisible par machine du contenu généré (AI Act, article 50).
+      pdf.setProperties({
+        title: course.title ?? "Fiche Diplo",
+        creator: "Diplo",
+        subject: "Fiche de révision générée par intelligence artificielle",
+        keywords: "AI-generated, généré par IA, Diplo",
+      });
       const pageWidth = pdf.internal.pageSize.getWidth();
       const pageHeight = pdf.internal.pageSize.getHeight();
       const marginX = 48;
@@ -329,7 +336,7 @@ export default function CourseDetail() {
 
       <div className="px-5 pb-32">
         {course.summary ? (
-          <CourseSummary data={course.summary} />
+          <CourseSummary data={course.summary} courseId={course.id} />
         ) : (
           <p className="text-sm text-muted-foreground">Aucun résumé pour ce cours.</p>
         )}

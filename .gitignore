@@ -28,3 +28,6 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Documents de travail (business, juridique, prompts) : jamais dans le dépôt
+Claude outputs/

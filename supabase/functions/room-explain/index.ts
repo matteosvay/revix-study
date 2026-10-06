@@ -5,9 +5,10 @@ import {
   corsHeaders,
   enforceLimit,
   jsonResponse,
+  serveWithCors,
 } from "../_shared/mod.ts";
 
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders(req) });
 
   try {

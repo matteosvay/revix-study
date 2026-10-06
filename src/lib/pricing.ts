@@ -11,6 +11,13 @@
  * la ventilation HT / TVA change sur le reçu et dans la comptabilité.
  */
 
+/**
+ * Phase de test : tout le monde a Max gratuitement et aucun prix n'est proposé.
+ * À passer à false au lancement payant, en même temps que le secret serveur
+ * FREE_ACCESS_TIER = off et PAYMENTS_ENABLED = true.
+ */
+export const TEST_PHASE = true;
+
 /** Passe à true le jour de l'assujettissement à la TVA. Rien d'autre à changer. */
 export const VAT_APPLICABLE = false;
 

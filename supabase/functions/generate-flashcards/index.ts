@@ -8,6 +8,7 @@ import {
   enforceLimit,
   jsonResponse,
   type ClaudeTool,
+  serveWithCors,
 } from "../_shared/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
 
@@ -41,7 +42,7 @@ const FLASHCARD_TOOL: ClaudeTool = {
   },
 };
 
-Deno.serve(async (req) => {
+serveWithCors(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders(req) });
   try {
     const auth = await authenticate(req);

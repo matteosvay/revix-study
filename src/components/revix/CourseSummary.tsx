@@ -1,4 +1,5 @@
 import { Lightbulb, BookMarked, Quote, ListChecks, Highlighter } from "lucide-react";
+import { ReportButton } from "@/components/revix/ReportButton";
 
 export type SummaryBlock =
   | { kind: "paragraph"; text: string }
@@ -95,12 +96,17 @@ function Block({ b }: { b: SummaryBlock }) {
   }
 }
 
-export function CourseSummary({ data }: { data: CourseSummaryData }) {
+export function CourseSummary({ data, courseId }: { data: CourseSummaryData; courseId?: string }) {
   if (!data?.sections?.length) {
     return <p className="text-sm text-muted-foreground">Aucun résumé disponible pour ce cours.</p>;
   }
   return (
     <article className="space-y-7">
+      {/* Transparence IA (AI Act, article 50) : la fiche est générée, l'élève vérifie. */}
+      <p className="text-xs text-muted-foreground border-l-2 border-primary/40 pl-2">
+        Fiche générée par IA à partir de ton cours. Elle peut contenir des erreurs : vérifie les
+        points importants dans ton support.
+      </p>
       {data.intro && (
         <div className="rounded-2xl gradient-primary text-primary-foreground p-4 shadow-glow">
           <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider opacity-90 mb-1">
@@ -120,6 +126,11 @@ export function CourseSummary({ data }: { data: CourseSummaryData }) {
           </div>
         </section>
       ))}
+      {courseId && (
+        <div className="pt-2 border-t border-dashed border-border">
+          <ReportButton targetType="fiche" targetId={courseId} label="Signaler une erreur dans cette fiche" />
+        </div>
+      )}
     </article>
   );
 }

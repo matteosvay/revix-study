@@ -19,7 +19,7 @@ export function CoachFab() {
       </button>
 
       <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="bottom" className="rounded-t-3xl h-[82vh] flex flex-col p-0 overflow-hidden border-t-[3px] border-foreground">
+        <SheetContent side="bottom" hideClose className="rounded-t-3xl h-[82vh] flex flex-col p-0 overflow-hidden border-t-[3px] border-foreground">
           <SheetHeader className="shrink-0 px-5 pt-5 pb-3 border-b-2 border-foreground flex-row items-center justify-between">
             <div className="flex items-center gap-3">
               <div className="h-11 w-11 rounded-xl border-2 border-foreground bg-background flex items-center justify-center overflow-hidden shrink-0">

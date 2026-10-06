@@ -42,6 +42,45 @@ export async function extractPdfText(file: File): Promise<string> {
   return text.trim();
 }
 
+/**
+ * Rend les premières pages d'un PDF en images JPEG (base64, sans préfixe data:).
+ * Sert aux PDF scannés, qui n'ont pas de couche texte : chaque image part
+ * ensuite à l'OCR. La largeur est plafonnée pour garder des envois légers.
+ */
+export async function renderPdfPagesToJpeg(
+  file: File,
+  maxPages = 6,
+  maxWidth = 1400,
+): Promise<{ images: string[]; totalPages: number }> {
+  const pdfjs = await loadPdfjs();
+  const buf = await file.arrayBuffer();
+  const pdf = await pdfjs.getDocument({ data: buf, isEvalSupported: false, disableFontFace: true }).promise;
+  const count = Math.min(pdf.numPages, maxPages);
+  const images: string[] = [];
+  for (let i = 1; i <= count; i++) {
+    try {
+      const page = await pdf.getPage(i);
+      const base = page.getViewport({ scale: 1 });
+      const scale = Math.min(2, maxWidth / base.width);
+      const viewport = page.getViewport({ scale });
+      const canvas = document.createElement("canvas");
+      canvas.width = Math.floor(viewport.width);
+      canvas.height = Math.floor(viewport.height);
+      const ctx = canvas.getContext("2d");
+      if (!ctx) continue;
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      await page.render({ canvasContext: ctx, viewport, canvas } as any).promise;
+      images.push(canvas.toDataURL("image/jpeg", 0.8).split(",")[1]);
+      canvas.width = 0;
+      canvas.height = 0;
+    } catch (err) {
+      console.warn(`[pdf] rendu page ${i} impossible`, err);
+    }
+  }
+  return { images, totalPages: pdf.numPages };
+}
+
 export async function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
