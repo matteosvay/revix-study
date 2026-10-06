@@ -385,7 +385,7 @@ export default function CourseDetail() {
                           </div>
                         </div>
                         {active && (
-                          <div className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary animate-pulse" />
+                          <div className="absolute top-1.5 right-1.5 h-2 w-2 rounded-full bg-primary" />
                         )}
                       </button>
                     );

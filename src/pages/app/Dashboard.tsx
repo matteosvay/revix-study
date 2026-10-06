@@ -95,7 +95,7 @@ export default function Dashboard() {
         {!dataLoading && streakAtRisk && profile && (
           <Link to={focus.to} className="block rounded-2xl border-[2.5px] border-foreground bg-accent text-accent-foreground p-3.5 shadow-brutal tap-press">
             <div className="flex items-center gap-3">
-              <Flame className="h-7 w-7 shrink-0 wiggle" />
+              <Flame className="h-7 w-7 shrink-0" />
               <div className="flex-1 min-w-0">
                 <p className="font-bold text-sm leading-tight">Ta série de {profile.streak_days} jours est en jeu !</p>
                 <p className="text-[11px] opacity-80">Fais une activité aujourd'hui pour la garder.</p>
@@ -166,9 +166,9 @@ export default function Dashboard() {
               <div className="rounded-xl border-[2.5px] border-foreground/20 bg-card p-3" />
             )}
             <Link to="/app/streak" className="rounded-xl border-[2.5px] border-foreground gradient-hero p-3 shadow-brutal-sm tap-press flex items-center gap-2.5 text-primary-foreground">
-              <Flame className="h-7 w-7 wiggle shrink-0" />
+              <Flame className="h-7 w-7 shrink-0" />
               <div>
-                <p className="font-serif text-3xl leading-none"><AnimatedNumber value={profile?.streak_days ?? 0} /></p>
+                <p className="font-serif text-3xl leading-none"><AnimatedNumber value={profile?.streak_days ?? 0} animateOnMount={false} /></p>
                 <p className="text-xs opacity-80 mt-0.5">jours</p>
                 <p className="text-[10px] opacity-60">record {profile?.streak_record ?? 0}j</p>
               </div>

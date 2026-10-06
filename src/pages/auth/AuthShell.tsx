@@ -14,10 +14,10 @@ export const AuthShell = ({ children, title, subtitle, seo }: AuthShellProps) =>
   <div className="min-h-screen grid lg:grid-cols-2 paper-grain relative overflow-hidden">
     {seo && <PageHead title={seo.title} description={seo.description} path={seo.path} />}
     {/* Post-its décoratifs flottants */}
-    <div className="absolute top-10 left-10 h-20 w-20 postit p-2 hidden lg:block drift-slow font-hand text-sm">
+    <div className="absolute top-10 left-10 h-20 w-20 postit p-2 hidden lg:block font-hand text-sm">
       Pense à<br/>réviser !
     </div>
-    <div className="absolute bottom-16 left-[42%] h-16 w-16 postit postit-pink hidden lg:block drift-slow" style={{ animationDelay: "1.5s" }} />
+    <div className="absolute bottom-16 left-[42%] h-16 w-16 postit postit-pink hidden lg:block" />
     <div className="absolute top-20 right-12 h-14 w-14 hidden lg:block" style={{ background: "hsl(var(--tape-mint) / 0.85)", transform: "rotate(8deg)" }} />
 
     {/* Colonne gauche : citation académique */}

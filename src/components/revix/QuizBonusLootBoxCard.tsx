@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Gift, Sparkles, Loader2 } from "lucide-react";
+import { Gift, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { emitXp } from "@/hooks/useGamification";
 import { LootBoxReveal } from "@/components/revix/LootBoxReveal";
@@ -115,12 +115,12 @@ export function QuizBonusLootBoxCard() {
       >
         <span className="tape" />
         <div className="flex items-center gap-3">
-          <div className={`h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-glow ${opening ? "" : "loot-bounce"}`}>
+          <div className="h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
             {opening ? <Loader2 className="h-6 w-6 animate-spin text-primary-foreground" /> : <img src={illu.lootbox} alt="" className="h-9 w-9 object-contain" />}
           </div>
           <div className="flex-1 min-w-0">
             <p className="font-serif text-lg leading-none flex items-center gap-1.5">
-              Boîte bonus quiz <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+              Boîte bonus quiz
             </p>
             <p className="text-xs text-muted-foreground mt-1">
               Récompense pour 5 quiz complétés{remaining > 1 ? ` · ${remaining} disponibles` : ""}

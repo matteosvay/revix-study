@@ -9,7 +9,7 @@
    Palette : papier crème (#faf6ea) / encre bleu-nuit (#1e2c47)
              bleu stylo #2456d6 (principal) / jaune surligneur #f6c945 (récompense)
    Forme   : bordures encre 2-3px, ombres décalées (sticker), coins arrondis doux
-   Typo    : Space Grotesk (titres) / Inter (UI) / Caveat (annotations)
+   Typo    : Bricolage Grotesque (titres) / Public Sans (UI) / Caveat (annotations)
    ============================================================ */
 
 @layer base {
@@ -1371,20 +1371,15 @@
     will-change: transform, opacity;
   }
 
-  /* Stagger : enfants apparaissent un par un avec un délai réduit pour plus de vivacité */
+  /* Entrée d'écran : un fondu court et commun à tous les blocs. L'ancienne
+     cascade carte par carte rejouait à chaque visite de l'accueil. */
   .stagger-in > * {
-    opacity: 0;
-    animation: slide-up-fade 0.45s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    animation: calm-fade 0.18s ease-out both;
   }
-  .stagger-in > *:nth-child(1)  { animation-delay: 20ms; }
-  .stagger-in > *:nth-child(2)  { animation-delay: 60ms; }
-  .stagger-in > *:nth-child(3)  { animation-delay: 100ms; }
-  .stagger-in > *:nth-child(4)  { animation-delay: 140ms; }
-  .stagger-in > *:nth-child(5)  { animation-delay: 175ms; }
-  .stagger-in > *:nth-child(6)  { animation-delay: 205ms; }
-  .stagger-in > *:nth-child(7)  { animation-delay: 230ms; }
-  .stagger-in > *:nth-child(8)  { animation-delay: 250ms; }
-  .stagger-in > *:nth-child(n+9){ animation-delay: 265ms; }
+  @keyframes calm-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+  }
 
   @keyframes slide-up-fade {
     0%   { opacity: 0; transform: translateY(18px); }
@@ -1617,7 +1612,10 @@
 @layer utilities {
   .diplo-bob { transform-box: fill-box; transform-origin: center bottom; animation: diplo-bob 3.2s ease-in-out infinite; }
   .diplo-eyes { transform-box: fill-box; transform-origin: center; animation: diplo-blink 4.2s infinite; }
-  .diplo-tassel { transform-box: fill-box; transform-origin: left top; animation: diplo-sway 2.8s ease-in-out infinite; }
+  /* Le pompon suit le corps : immobile au repos, il se balance quand Diplo bouge. */
+  .diplo-tassel { transform-box: fill-box; transform-origin: left top; }
+  .diplo-bob .diplo-tassel { animation: diplo-sway 2.8s ease-in-out infinite; }
+  .diplo-hop .diplo-tassel, .diplo-party .diplo-tassel { animation: diplo-sway 0.6s ease-in-out 2; }
   @keyframes diplo-bob { 0%, 100% { transform: translateY(0) rotate(-1deg); } 50% { transform: translateY(-5px) rotate(1.5deg); } }
   @keyframes diplo-blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.1); } }
   @keyframes diplo-sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(9deg); } }
@@ -1717,19 +1715,23 @@
   .rise-in { animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
   @keyframes rise-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
 
-  /* Entrée en cascade pour les listes/grilles */
-  .stagger-in > * { animation: rise-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
-  .stagger-in > *:nth-child(1) { animation-delay: 0.02s; }
-  .stagger-in > *:nth-child(2) { animation-delay: 0.06s; }
-  .stagger-in > *:nth-child(3) { animation-delay: 0.10s; }
-  .stagger-in > *:nth-child(4) { animation-delay: 0.14s; }
-  .stagger-in > *:nth-child(5) { animation-delay: 0.18s; }
-  .stagger-in > *:nth-child(6) { animation-delay: 0.22s; }
-  .stagger-in > *:nth-child(7) { animation-delay: 0.26s; }
-  .stagger-in > *:nth-child(8) { animation-delay: 0.30s; }
+  /* La cascade carte par carte qui était ici est remplacée par le fondu court
+     défini plus haut (.stagger-in, calm-fade). */
 
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
     .hover-lift, .press, .rise-in, .stagger-in > * { animation: none; transition: none; }
+  }
+}
+
+/* =====================================================================
+   Mouvement réduit : réglage du téléphone ou de l'ordinateur respecté partout.
+   ===================================================================== */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }

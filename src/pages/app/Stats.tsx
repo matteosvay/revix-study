@@ -122,7 +122,7 @@ export default function Stats() {
           ].map(({ icon: Icon, label, n, suffix }) => (
             <div key={label} className="rounded-xl border-2 border-foreground bg-card shadow-brutal-sm p-3 text-center hover-lift">
               <Icon className="h-4 w-4 mx-auto text-primary mb-1" />
-              <p className="font-serif text-2xl leading-none"><AnimatedNumber value={n} suffix={suffix} /></p>
+              <p className="font-serif text-2xl leading-none"><AnimatedNumber value={n} suffix={suffix} animateOnMount={false} /></p>
               <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wider font-mono">{label}</p>
             </div>
           ))}

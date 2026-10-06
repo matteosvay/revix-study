@@ -70,9 +70,11 @@ export default {
       },
       fontFamily: {
         hand: ["Caveat", "cursive"],
-        serif: ["Space Grotesk", "Inter", "sans-serif"],
-        display: ["Space Grotesk", "Inter", "sans-serif"],
-        sans: ["Inter", "system-ui", "sans-serif"],
+        // Mêmes polices que celles chargées dans index.css. Space Grotesk et Inter
+        // n'étaient jamais chargées : les titres en font-serif tombaient sur la police système.
+        serif: ["Bricolage Grotesque", "Public Sans", "sans-serif"],
+        display: ["Bricolage Grotesque", "Public Sans", "sans-serif"],
+        sans: ["Public Sans", "system-ui", "sans-serif"],
         mono: ["JetBrains Mono", "ui-monospace", "monospace"],
         marker: ["Caveat", "cursive"],
       },

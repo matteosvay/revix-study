@@ -9,18 +9,35 @@ export function AnimatedNumber({
   duration = 900,
   className,
   suffix = "",
+  animateOnMount = true,
 }: {
   value: number;
   duration?: number;
   className?: string;
   suffix?: string;
+  /**
+   * false : le nombre s'affiche directement à l'arrivée sur l'écran, et ne
+   * s'anime que s'il change ensuite. Pour les écrans du quotidien (accueil,
+   * stats, profil), où un compteur qui défile à chaque visite fait du bruit.
+   */
+  animateOnMount?: boolean;
 }) {
-  const [display, setDisplay] = useState(0);
+  const [display, setDisplay] = useState(animateOnMount ? 0 : value);
   const startRef = useRef<number | null>(null);
-  const fromRef = useRef(0);
+  const fromRef = useRef(animateOnMount ? 0 : value);
+  // Les données arrivent souvent après l'affichage (0 puis la vraie valeur).
+  // Tant que la première vraie valeur n'est pas arrivée, on l'affiche sans animer.
+  const settled = useRef(animateOnMount || value !== 0);
 
   useEffect(() => {
+    if (!settled.current) {
+      setDisplay(value);
+      fromRef.current = value;
+      if (value !== 0) settled.current = true;
+      return;
+    }
     fromRef.current = display;
+    if (display === value) return;
     startRef.current = null;
     let raf = 0;
     const step = (ts: number) => {

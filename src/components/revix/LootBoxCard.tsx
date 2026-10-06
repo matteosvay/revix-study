@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Gift, Sparkles, Loader2 } from "lucide-react";
+import { Gift, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { emitXp } from "@/hooks/useGamification";
 import { LootBoxReveal } from "@/components/revix/LootBoxReveal";
@@ -66,6 +66,8 @@ export function LootBoxCard() {
 
   return (
     <>
+      {/* Carte immobile : plus de rebond, d'étincelles ni de clignotement en continu.
+          L'animation est gardée pour l'ouverture, qui est le vrai moment. */}
       {!openedToday && (
         <button
           onClick={open}
@@ -75,22 +77,17 @@ export function LootBoxCard() {
           <span className="tape" />
           <div className="flex items-center gap-3">
             <div className="relative shrink-0">
-              <div className={`h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-glow ${opening ? "" : "loot-bounce rainbow-glow-pulse"}`}>
+              <div className="h-14 w-14 rounded-xl gradient-primary flex items-center justify-center shadow-glow">
                 {opening ? <Loader2 className="h-6 w-6 animate-spin text-primary-foreground" /> : <img src={illu.lootbox} alt="" className="h-9 w-9 object-contain" />}
               </div>
-              {!opening && (<>
- <span className="float-sparkle absolute top-1 left-1 text-yellow-300 text-sm pointer-events-none leading-none" style={{ animationDelay: "0s" }}></span>
- <span className="float-sparkle absolute top-2 right-0 text-pink-300 text-xs pointer-events-none leading-none" style={{ animationDelay: "0.75s" }}></span>
- <span className="float-sparkle absolute bottom-1 left-3 text-purple-300 text-xs pointer-events-none leading-none" style={{ animationDelay: "1.4s" }}></span>
-              </>)}
             </div>
             <div className="flex-1 min-w-0">
               <p className="font-serif text-lg leading-none flex items-center gap-1.5">
-                Boîte mystère <Sparkles className="h-4 w-4 text-primary animate-pulse" />
+                Boîte mystère
               </p>
               <p className="text-xs text-muted-foreground mt-1">XP, jetons, power-ups, cosmétiques…</p>
             </div>
-            <span className="dispo-pulse font-mono-tag text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-primary text-primary-foreground">
+            <span className="font-mono-tag text-[10px] uppercase tracking-wider px-2 py-1 rounded-full bg-primary text-primary-foreground">
               DISPO
             </span>
           </div>

@@ -67,7 +67,7 @@ export default function Aventure() {
           <Link to="/app/streak" className="card-paper p-4 relative tilt-l hover:shadow-glow transition-shadow">
             <Tape variant="pink" position="top" />
             <div className="flex items-center gap-2.5 mt-1">
-              <Flame className="h-6 w-6 text-orange-500 wiggle" />
+              <Flame className="h-6 w-6 text-orange-500" />
               <div>
                 <p className="font-serif text-2xl leading-none">{profile.streak_days}j</p>
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground mt-0.5">Streak</p>

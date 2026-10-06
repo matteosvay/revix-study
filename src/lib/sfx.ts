@@ -35,7 +35,8 @@ function ctx(): AudioContext | null {
   if (!AC) {
     AC = new AudioCtor();
     master = AC.createGain();
-    master.gain.value = 0.5;
+    // Volume général baissé : les sons accompagnent, ils ne doivent pas se remarquer.
+    master.gain.value = 0.32;
     const lp = AC.createBiquadFilter();
     lp.type = "lowpass";
     lp.frequency.value = 4600;
@@ -45,7 +46,7 @@ function ctx(): AudioContext | null {
     reverb = AC.createConvolver();
     reverb.buffer = impulse(1.5, 2.6);
     const rev = AC.createGain();
-    rev.gain.value = 0.16;
+    rev.gain.value = 0.1;
     reverb.connect(rev);
     rev.connect(lp);
   }
@@ -100,24 +101,46 @@ export function unlock() {
   if (c && c.state === "suspended") c.resume().catch(() => {});
 }
 
+/* ── Hiérarchie des sons ──────────────────────────────────────────────
+ * Plusieurs événements arrivent souvent ensemble (fin de quizz + XP + niveau).
+ * Sans arbitrage, trois sons se superposaient. Règle : un son plus important
+ * couvre les sons moins importants qui arrivent dans la foulée, et le son
+ * d'XP ne joue pas plus d'une fois toutes les 1,5 s.
+ * Priorités : 1 petit retour, 2 réponse ou validation, 3 fin ou coffre, 4 niveau.
+ */
+let lastAt = 0;
+let lastPrio = 0;
+const lastByName: Record<string, number> = {};
+
+function allow(name: string, prio: number, cooldownMs = 0): boolean {
+  if (!soundEnabled()) return false;
+  const now = typeof performance !== "undefined" ? performance.now() : Date.now();
+  if (now - lastAt < 700 && prio < lastPrio) return false;
+  if (cooldownMs && now - (lastByName[name] ?? -Infinity) < cooldownMs) return false;
+  lastAt = now;
+  lastPrio = prio;
+  lastByName[name] = now;
+  return true;
+}
+
 const P = { C5: 523.25, E5: 659.25, G5: 783.99, A5: 880, C6: 1046.5, E6: 1318.5 };
 
 export function playPop() {
-  if (!soundEnabled()) return;
+  if (!allow("pop", 1)) return;
   unlock();
   const c = ctx();
   if (c) pluck(P.E5, c.currentTime, 0.16, 0.08, 0.35);
 }
 
 export function playXp() {
-  if (!soundEnabled()) return;
+  if (!allow("xp", 1, 1500)) return;
   unlock();
   const c = ctx();
   if (c) pluck(P.A5, c.currentTime, 0.34, 0.1, 0.55);
 }
 
 export function playCorrect() {
-  if (!soundEnabled()) return;
+  if (!allow("correct", 2)) return;
   unlock();
   const c = ctx();
   if (!c) return;
@@ -126,7 +149,7 @@ export function playCorrect() {
 }
 
 export function playLevel() {
-  if (!soundEnabled()) return;
+  if (!allow("level", 4)) return;
   unlock();
   const c = ctx();
   if (!c) return;
@@ -161,7 +184,7 @@ function noiseBurst(t0: number, dur: number, f0: number, f1: number, vol = 0.1, 
 
 /** Anticipation — petit scintillement qui monte pendant que le paquet tremble. */
 export function playShimmer() {
-  if (!soundEnabled()) return;
+  if (!allow("loot", 3)) return;
   unlock();
   const c = ctx();
   if (!c) return;
@@ -171,7 +194,7 @@ export function playShimmer() {
 
 /** Déballage — whoosh de papier + pop doux. */
 export function playUnwrap() {
-  if (!soundEnabled()) return;
+  if (!allow("loot", 3)) return;
   unlock();
   const c = ctx();
   if (!c) return;
@@ -183,7 +206,7 @@ export function playUnwrap() {
 
 /** Révélation — carillon dont l'ampleur grandit avec la rareté. */
 export function playReveal(rarity: string) {
-  if (!soundEnabled()) return;
+  if (!allow("loot", 3)) return;
   unlock();
   const c = ctx();
   if (!c) return;
@@ -206,7 +229,7 @@ export function playReveal(rarity: string) {
 
 /** Tic ultra-discret pour les clics / la navigation (le plus léger de tous). */
 export function playTick() {
-  if (!soundEnabled()) return;
+  if (!allow("tick", 0)) return;
   unlock();
   const c = ctx();
   if (c) pluck(P.C6, c.currentTime, 0.07, 0.03, 0.1);
@@ -214,7 +237,7 @@ export function playTick() {
 
 /** Mauvaise réponse — deux notes douces qui descendent, jamais agressif. */
 export function playWrong() {
-  if (!soundEnabled()) return;
+  if (!allow("wrong", 2)) return;
   unlock();
   const c = ctx();
   if (!c) return;
@@ -225,7 +248,7 @@ export function playWrong() {
 
 /** Validation / succès — petit accord montant qui confirme (profil, upload, action réussie). */
 export function playSuccess() {
-  if (!soundEnabled()) return;
+  if (!allow("success", 2)) return;
   unlock();
   const c = ctx();
   if (!c) return;
@@ -236,7 +259,7 @@ export function playSuccess() {
 
 /** Fin de session / quizz — petite fanfare douce (moins ample que le level-up). */
 export function playFinish() {
-  if (!soundEnabled()) return;
+  if (!allow("finish", 3)) return;
   unlock();
   const c = ctx();
   if (!c) return;

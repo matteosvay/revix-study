@@ -1069,7 +1069,7 @@ export default function Quizz() {
                       } else if (selected) {
                         stateCls = "border-primary bg-primary/15 ring-2 ring-primary/40 scale-[1.02]";
                       } else if (matched && assocFlashWrong) {
-                        stateCls = "border-destructive bg-destructive/10 animate-pulse";
+                        stateCls = "border-destructive bg-destructive/10";
                       } else if (matched) {
                         stateCls = "border-primary/50 bg-primary/5";
                       } else {
@@ -1110,7 +1110,7 @@ export default function Quizz() {
                         const ok = usedByLeft === rightIdx;
                         stateCls = ok ? "border-success bg-success/10" : isUsed ? "border-destructive bg-destructive/10" : "border-border bg-card opacity-60";
                       } else if (isUsed && assocFlashWrong) {
-                        stateCls = "border-destructive bg-destructive/10 animate-pulse";
+                        stateCls = "border-destructive bg-destructive/10";
                       } else if (isUsed) {
                         stateCls = "border-primary/50 bg-primary/5";
                       } else {

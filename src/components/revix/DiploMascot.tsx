@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useLocation } from "react-router-dom";
-import { playXp, playLevel, playPop } from "@/lib/sfx";
 import { DiploFace, DiploDefs, type DiploExpr } from "./DiploFace";
 import { DiploCapPicker } from "./DiploCapPicker";
 
-type Anim = "diplo-bob" | "diplo-hop" | "diplo-party";
+// "" = immobile. Diplo ne se balance plus en continu dans un coin de l'écran :
+// il saute quand tu gagnes de l'XP et fait la fête quand tu passes un niveau.
+type Anim = "" | "diplo-hop" | "diplo-party";
 
 /**
  * Diplo — la mascotte de Diplo, présente sur les écrans /app.
@@ -15,7 +16,7 @@ export const DiploMascot = () => {
   const { pathname } = useLocation();
   const [msg, setMsg] = useState<string | null>(null);
   const [expr, setExpr] = useState<DiploExpr>("normal");
-  const [anim, setAnim] = useState<Anim>("diplo-bob");
+  const [anim, setAnim] = useState<Anim>("");
   const [pickerOpen, setPickerOpen] = useState(false);
   const msgTimer = useRef<number | undefined>(undefined);
   const animTimer = useRef<number | undefined>(undefined);
@@ -34,21 +35,21 @@ export const DiploMascot = () => {
     window.clearTimeout(animTimer.current);
     animTimer.current = window.setTimeout(() => {
       setExpr("normal");
-      setAnim("diplo-bob");
+      setAnim("");
     }, duration);
   };
 
   useEffect(() => {
     if (!onApp) return;
     const onXp = () => {
+      // Le son est joué par XpOverlay. Ici, Diplo réagit seulement en image,
+      // sinon chaque gain d'XP sonnait deux fois.
       react("happy");
-      playXp();
     };
     const onLvl = (e: Event) => {
       const detail = (e as CustomEvent).detail as { level?: number };
       react("party", 1100);
       say(detail?.level ? `Niveau ${detail.level} !` : "Niveau supérieur !", 2600);
-      playLevel();
     };
     window.addEventListener("revix:xp", onXp);
     window.addEventListener("revix:levelup", onLvl);
@@ -74,10 +75,7 @@ export const DiploMascot = () => {
         )}
         <button
           type="button"
-          onClick={() => {
-            playPop();
-            setPickerOpen(true);
-          }}
+          onClick={() => setPickerOpen(true)}
           aria-label="Personnaliser Diplo"
           style={{
             pointerEvents: "auto",

@@ -52,7 +52,6 @@ import { AiLimitModal } from "./components/revix/AiLimitModal";
 import { CookieBanner } from "./components/revix/CookieBanner";
 import { ThemeProvider } from "next-themes";
 import { DiploMascot } from "./components/revix/DiploMascot";
-import { GlobalSound } from "./components/revix/GlobalSound";
 import { SplashScreen } from "./components/revix/SplashScreen";
 import { DiploState } from "./components/revix/DiploState";
 
@@ -90,7 +89,6 @@ const App = () => (
             <AiLimitModal />
             <CookieBanner />
             <DiploMascot />
-            <GlobalSound />
             <Suspense
               fallback={
                 /* fallback={null} laissait un ecran totalement blanc pendant le

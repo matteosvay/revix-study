@@ -27,7 +27,7 @@ function Medal({ level }: { level: number }) {
         <path d="M92 96 L106 168 L84 150 Z" fill="#e2564b" stroke="#1e2c47" strokeWidth="3.5" strokeLinejoin="round" />
         <circle cx="75" cy="70" r="46" fill="#f6c945" stroke="#1e2c47" strokeWidth="4.5" />
         <circle cx="75" cy="70" r="35" fill="#fff7db" stroke="#1e2c47" strokeWidth="3" />
-        <text x="75" y="72" textAnchor="middle" dominantBaseline="central" fontFamily="Space Grotesk, sans-serif" fontWeight="700" fontSize="34" fill="#1e2c47">
+        <text x="75" y="72" textAnchor="middle" dominantBaseline="central" fontFamily="Bricolage Grotesque, Public Sans, sans-serif" fontWeight="700" fontSize="34" fill="#1e2c47">
           {level}
         </text>
       </svg>

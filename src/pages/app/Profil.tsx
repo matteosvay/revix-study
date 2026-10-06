@@ -290,7 +290,7 @@ export default function Profil() {
           ].map(s => (
             <div key={s.l} className="rounded-xl border-[2.5px] border-foreground bg-card px-1 py-2.5 text-center shadow-brutal-sm hover-lift">
               <p className={`font-display font-bold text-xl leading-none ${s.hot ? "text-accent [-webkit-text-stroke:0.5px_hsl(var(--foreground))]" : "text-foreground"}`}>
-                <AnimatedNumber value={s.n} suffix={s.suffix} />
+                <AnimatedNumber value={s.n} suffix={s.suffix} animateOnMount={false} />
               </p>
               <p className="text-[10px] text-muted-foreground mt-1 uppercase tracking-wide font-semibold">{s.l}</p>
             </div>

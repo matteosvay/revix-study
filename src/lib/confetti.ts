@@ -7,6 +7,7 @@ export function firePaperConfetti(
   count = 64,
   originY = 0.4
 ) {
+  if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
   if (typeof window === "undefined") return;
   const cx = window.innerWidth / 2;
   const cy = window.innerHeight * originY;

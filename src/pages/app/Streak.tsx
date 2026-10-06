@@ -136,7 +136,7 @@ export default function Streak() {
           <div className="relative">
             <div className="flex items-center gap-3">
               <div className="h-14 w-14 rounded-md bg-card text-foreground border-[2.5px] border-foreground flex items-center justify-center shadow-[2px_2px_0_0_hsl(var(--foreground))]">
-                <Flame className="h-8 w-8 wiggle" />
+                <Flame className="h-8 w-8" />
               </div>
               <div>
                 <p className="text-xs uppercase tracking-wider opacity-80">Série actuelle</p>

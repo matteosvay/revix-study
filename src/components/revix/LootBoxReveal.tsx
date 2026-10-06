@@ -5,7 +5,7 @@ import { BackgroundDecor } from "@/components/revix/cosmetics/BackgroundDecor";
 import { StickerDecor, hasCustomSticker } from "@/components/revix/cosmetics/StickerDecor";
 import { backgroundStyle, RARITY_LABEL, RARITY_ORDER, type Rarity } from "@/lib/cosmetics";
 import { cn } from "@/lib/utils";
-import { playShimmer, playUnwrap, playReveal, playPop, unlock } from "@/lib/sfx";
+import { playShimmer, playUnwrap, playReveal, unlock } from "@/lib/sfx";
 import { DiploFace } from "./DiploFace";
 
 const POWERUP_LABELS: Record<string, { name: string }> = {
@@ -138,6 +138,7 @@ function RewardVisual({ card }: { card: Card }) {
 
 /* ─── Confetti papier + étoiles (Web Animations API) ─────────────────────── */
 function firePaperConfetti(scraps: string[]) {
+  if (typeof window !== "undefined" && window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) return;
   const cx = window.innerWidth / 2;
   const cy = window.innerHeight * 0.4;
   for (let i = 0; i < 60; i++) {
@@ -200,7 +201,6 @@ export function LootBoxReveal({ reward, onClose }: { reward: Reward; onClose: ()
   };
 
   const next = () => {
-    playPop();
     if (revealIdx < cards.length - 1) {
       const ni = revealIdx + 1;
       setRevealIdx(ni);
