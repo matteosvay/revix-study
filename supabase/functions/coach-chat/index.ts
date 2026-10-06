@@ -1,6 +1,7 @@
 import {
   authenticate,
   callClaude,
+  callLight,
   claudeErrorResponse,
   corsHeaders,
   enforceLimit,
@@ -145,7 +146,8 @@ Deno.serve(async (req: Request) => {
                 .map((m) => `${m.role === "user" ? "Étudiant" : "Coach"}: ${m.content}`)
                 .join("\n")
                 .slice(0, 4000);
-              const sumRes = await callClaude({
+              // Résumé interne invisible pour l'étudiant : modèle léger.
+              const sumRes = await callLight({
                 system: "Tu condenses une conversation entre un étudiant et son coach de révision en UNE SEULE phrase factuelle (max 30 mots), en français, à la 3e personne. Capte les sujets abordés, les difficultés évoquées et les conseils donnés.",
                 messages: [{ role: "user", content: `Conversation à résumer :\n${transcript}` }],
                 maxTokens: 100,

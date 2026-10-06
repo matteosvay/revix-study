@@ -179,9 +179,14 @@ export default function Upload() {
     try {
       setStep(0);
       const parts: string[] = [];
+      // Texte seul, sans nom de fichier : sert à reconnaître un cours déjà traité.
+      const hashParts: string[] = [];
       let storagePath: string | null = null; // garde le chemin du premier fichier (référence)
 
-      if (text.trim().length >= 20) parts.push(text.trim());
+      if (text.trim().length >= 20) {
+        parts.push(text.trim());
+        hashParts.push(text.trim());
+      }
 
       if (files.length > 0) {
         // Garde-fou : taille totale (timeout extraction / upload)
@@ -238,6 +243,7 @@ export default function Upload() {
 
           if (extracted.trim()) {
             parts.push(`# ${file.name}\n\n${extracted.trim()}`);
+            hashParts.push(extracted.trim());
           }
         }
       }
@@ -250,7 +256,12 @@ export default function Upload() {
       // ---- Déduplication par hash de contenu ----
       // Si exactement le même cours existe déjà (peu importe l'utilisateur), on clone
       // sa fiche + sa banque de quiz au lieu de relancer l'IA.
-      const contentHash = await sha256Hex(content);
+      // L'empreinte ignore le nom du fichier et les espaces : deux étudiants qui
+      // envoient le même PDF sous deux noms différents tombent sur la même fiche,
+      // sans nouvel appel à l'IA.
+      const contentHash = await sha256Hex(
+        "v2:" + hashParts.join("\n").replace(/\s+/g, " ").trim(),
+      );
       const { data: clonedId, error: cloneErr } = await supabase.rpc("clone_course_by_hash", {
         p_content_hash: contentHash,
         p_target_user_id: user.id,

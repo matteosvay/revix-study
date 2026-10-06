@@ -1,6 +1,6 @@
 import {
   authenticate,
-  callClaude,
+  callLight,
   claudeErrorResponse,
   corsHeaders,
   enforceLimit,
@@ -56,18 +56,20 @@ Matières prioritaires : ${(subjects ?? []).join(", ") || "non précisées"}
 Crée un planning sur 7 jours à partir de la date de début.`;
 
     try {
-      const result = await callClaude({
+      // Modèle léger. Plafond relevé : 7 jours x 3 à 6 blocs dépassaient
+      // les 600 tokens d'avant, et la réponse était tronquée.
+      const result = await callLight({
         system,
         messages: [{ role: "user", content: userPrompt }],
-        maxTokens: 600,
+        maxTokens: 2500,
         temperature: 0.4,
         tools: [PLANNING_TOOL],
         toolChoice: { type: "tool", name: "save_planning" },
       });
       const tasks = (result.toolInput as { tasks?: unknown[] })?.tasks ?? [];
-      return jsonResponse({ tasks });
+      return jsonResponse({ tasks }, {}, req);
     } catch (e) {
-      return claudeErrorResponse(e);
+      return claudeErrorResponse(e, req);
     }
   } catch (e) {
     console.error("[generate-planning]", e);

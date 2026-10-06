@@ -102,8 +102,12 @@ export interface ClaudeTool {
   input_schema: Record<string, unknown>;
 }
 
+/** Bloc de prompt système. cache_control marque la fin d'un préfixe réutilisable. */
+export type SystemBlock = { type: "text"; text: string; cache_control?: { type: "ephemeral" } };
+
 export interface ClaudeCallParams {
-  system: string;
+  /** Texte simple, ou blocs pour activer le cache de prompt sur la partie stable. */
+  system: string | SystemBlock[];
   messages: ClaudeMessage[];
   maxTokens: number;
   temperature?: number;
@@ -153,6 +157,11 @@ export async function callClaude(params: ClaudeCallParams): Promise<ClaudeRawRes
   }
 
   const data = await res.json();
+  const u = data.usage ?? {};
+  console.log("[claude] usage", {
+    in: u.input_tokens, out: u.output_tokens,
+    cache_write: u.cache_creation_input_tokens ?? 0, cache_read: u.cache_read_input_tokens ?? 0,
+  });
   let text = "";
   let toolInput: Record<string, unknown> | null = null;
   for (const block of data.content ?? []) {
@@ -171,6 +180,159 @@ export async function callClaude(params: ClaudeCallParams): Promise<ClaudeRawRes
   }
 
   return { text, toolInput, raw: data };
+}
+
+// =====================================================================
+// Modèle léger (Gemini via la passerelle IA Lovable), avec repli sur Claude
+// =====================================================================
+//
+// Pour les tâches mécaniques (OCR, planning, banque de questions, résumé
+// interne du coach), un modèle léger coûte 3 à 4 fois moins cher que Haiku.
+// Chaque appel essaie le modèle léger, puis un second modèle léger, puis
+// Claude. Une panne ou un crédit Lovable épuisé ne casse donc jamais l'app :
+// au pire, la tâche repart sur Claude au prix habituel.
+
+const LOVABLE_AI_URL = "https://ai.gateway.lovable.dev/v1/chat/completions";
+
+function lightModels(): string[] {
+  const primary = (Deno.env.get("LIGHT_AI_MODEL") ?? "google/gemini-3.1-flash-lite").trim();
+  const backup = "google/gemini-2.5-flash-lite";
+  return primary === backup ? [primary] : [primary, backup];
+}
+
+function systemToText(system: string | SystemBlock[]): string {
+  return typeof system === "string" ? system : system.map((b) => b.text).join("\n\n");
+}
+
+/** Convertit un message au format Claude vers le format OpenAI de la passerelle. */
+function toOpenAIContent(content: unknown): unknown {
+  if (typeof content === "string") return content;
+  if (!Array.isArray(content)) return String(content ?? "");
+  return content.map((b: any) => {
+    if (b?.type === "image" && b.source?.type === "base64") {
+      return { type: "image_url", image_url: { url: `data:${b.source.media_type};base64,${b.source.data}` } };
+    }
+    if (b?.type === "text") return { type: "text", text: b.text };
+    return b;
+  });
+}
+
+async function callLightOnce(
+  apiKey: string,
+  model: string,
+  params: ClaudeCallParams,
+  withReasoning: boolean,
+): Promise<ClaudeRawResponse> {
+  const body: Record<string, unknown> = {
+    model,
+    // Marge pour la réflexion du modèle, facturée comme de la sortie et comptée dans ce plafond.
+    max_tokens: params.maxTokens + 1024,
+    temperature: params.temperature ?? 0.7,
+    messages: [
+      { role: "system", content: systemToText(params.system) },
+      ...params.messages.map((m) => ({ role: m.role, content: toOpenAIContent(m.content) })),
+    ],
+  };
+  // Réflexion au minimum utile : sur Gemini 3.x elle est facturée au prix de la sortie.
+  if (withReasoning) body.reasoning_effort = "low";
+  if (params.tools?.length) {
+    body.tools = params.tools.map((t) => ({
+      type: "function",
+      function: { name: t.name, description: t.description, parameters: t.input_schema },
+    }));
+  }
+  if (params.toolChoice) {
+    body.tool_choice = { type: "function", function: { name: params.toolChoice.name } };
+  }
+
+  const res = await fetch(LOVABLE_AI_URL, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${apiKey}`, "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+  if (!res.ok) {
+    const t = await res.text().catch(() => "");
+    throw Object.assign(new Error(`light ${model} ${res.status}`), { status: res.status, body: t.slice(0, 300) });
+  }
+  const data = await res.json();
+  const choice = data.choices?.[0];
+  if (!choice) throw Object.assign(new Error(`light ${model} empty`), { status: 502 });
+  if (choice.finish_reason === "length") {
+    throw Object.assign(new Error(`light ${model} truncated`), { status: 507 });
+  }
+
+  let toolInput: Record<string, unknown> | null = null;
+  const call = choice.message?.tool_calls?.[0];
+  if (call?.function?.arguments) {
+    try {
+      toolInput = typeof call.function.arguments === "string"
+        ? JSON.parse(call.function.arguments)
+        : call.function.arguments;
+    } catch {
+      throw Object.assign(new Error(`light ${model} bad tool json`), { status: 502 });
+    }
+  }
+  if (params.toolChoice && !toolInput) {
+    throw Object.assign(new Error(`light ${model} no tool call`), { status: 502 });
+  }
+  const text = typeof choice.message?.content === "string" ? choice.message.content : "";
+  if (!params.toolChoice && !text.trim()) {
+    throw Object.assign(new Error(`light ${model} empty text`), { status: 502 });
+  }
+  console.log("[light] ok", { model, usage: data.usage });
+  return { text, toolInput, raw: data };
+}
+
+/**
+ * Même signature et même forme de réponse que callClaude, mais sur un modèle
+ * léger. Repli automatique sur Claude si le modèle léger échoue.
+ */
+export async function callLight(params: ClaudeCallParams): Promise<ClaudeRawResponse> {
+  const apiKey = Deno.env.get("LOVABLE_API_KEY");
+  if (apiKey && (Deno.env.get("LIGHT_AI_DISABLED") ?? "") !== "1") {
+    for (const model of lightModels()) {
+      // Le réglage de réflexion ne concerne que Gemini 3.x. Sur 2.5 Flash-Lite,
+      // la réflexion est coupée par défaut et l'activer coûterait plus cher.
+      const attempts = model.includes("gemini-3") ? [true, false] : [false];
+      for (const withReasoning of attempts) {
+        try {
+          return await callLightOnce(apiKey, model, params, withReasoning);
+        } catch (e) {
+          const err = e as { status?: number; message?: string; body?: string };
+          console.warn("[light] échec", { model, withReasoning, status: err.status, msg: err.message, body: err.body });
+          // Seul un 400 justifie de retenter sans le réglage de réflexion.
+          if (!(withReasoning && err.status === 400)) break;
+        }
+      }
+    }
+  }
+  console.warn("[light] repli sur Claude");
+  return callClaude(params);
+}
+
+/** Vision sur le modèle léger, avec repli sur Claude. */
+export async function callLightVision(params: {
+  system: string;
+  prompt: string;
+  imageBase64: string;
+  mimeType: string;
+  maxTokens: number;
+}): Promise<string> {
+  const result = await callLight({
+    system: params.system,
+    maxTokens: params.maxTokens,
+    temperature: 0.2,
+    messages: [
+      {
+        role: "user",
+        content: [
+          { type: "image", source: { type: "base64", media_type: params.mimeType, data: params.imageBase64 } },
+          { type: "text", text: params.prompt },
+        ],
+      } as ClaudeMessage,
+    ],
+  });
+  return result.text;
 }
 
 /**

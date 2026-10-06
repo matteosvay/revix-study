@@ -6,6 +6,7 @@ import {
   enforceLimit,
   jsonResponse,
   type ClaudeTool,
+  type SystemBlock,
 } from "../_shared/mod.ts";
 
 const QUIZ_TOOL: ClaudeTool = {
@@ -103,20 +104,32 @@ Renseigne "type":"association", "pairs" (4-6 {left,right}), "explanation".`,
       ? `\n\nANTI-BIAIS : varie l'index correct entre 0, 1, 2 et 3 de façon équilibrée.`
       : "";
 
-    const system = `Tu es un examinateur français pour étudiants ${level ?? ""}.
+    // Cache de prompt : le cours est placé en tête, dans un bloc identique d'un
+    // appel à l'autre. Un deuxième quizz sur le même cours dans les 5 minutes
+    // relit ce bloc à 10 % du prix. Tout ce qui varie (graine, difficulté,
+    // questions à éviter) vient après, sinon le cache ne servirait jamais.
+    const stableBlock = `Tu es un examinateur français pour étudiants ${level ?? ""}.
 Tu crées des questions rigoureuses en français basées sur le cours fourni.
-${difficultyInstructions[diff]}
+
+Matière : ${subject ?? "non précisée"}
+Titre : ${title ?? "Cours"}
+Cours :
+"""
+${content.slice(0, 30000)}
+"""`;
+
+    const variableBlock = `${difficultyInstructions[diff]}
 Pas de question piège ridicule. Utilise "tu".${scopeInstruction}${chapterInstruction}${avoidBlock}${antiBiasNote}
 Couvre tout le cours. Seed: ${seed}.
 
 Format : ${typeInstructions[type]}`;
 
-    const userPrompt = `Matière : ${subject ?? "non précisée"}
-Titre : ${title ?? "Cours"}
-Génère EXACTEMENT ${safeCount} questions à partir de ce cours :
-"""
-${content.slice(0, 30000)}
-"""`;
+    const system: SystemBlock[] = [
+      { type: "text", text: stableBlock, cache_control: { type: "ephemeral" } },
+      { type: "text", text: variableBlock },
+    ];
+
+    const userPrompt = `Génère EXACTEMENT ${safeCount} questions à partir du cours fourni.`;
 
     let result;
     try {

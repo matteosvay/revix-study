@@ -1,6 +1,6 @@
 import {
   authenticate,
-  callClaudeVision,
+  callLightVision,
   claudeErrorResponse,
   corsHeaders,
   enforceLimit,
@@ -56,12 +56,13 @@ Deno.serve(async (req) => {
     if (!limit.allowed) return limit.response;
 
     try {
-      const text = await callClaudeVision({
+      // Modèle léger : l'OCR est une tâche mécanique, repli sur Claude en cas d'échec.
+      const text = await callLightVision({
         system: "Tu es un expert en OCR pour notes manuscrites et imprimées. Extrais TOUT le texte de l'image fournie en français, en conservant la structure (titres, listes, paragraphes). Ne commente pas, retourne uniquement le texte extrait.",
         prompt: "Extrais le texte de cette image de cours.",
         imageBase64,
         mimeType: detectedMime,
-        maxTokens: 2000,
+        maxTokens: 3000,
       });
       return jsonResponse({ text });
     } catch (e) {

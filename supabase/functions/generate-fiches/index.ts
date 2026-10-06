@@ -1,6 +1,7 @@
 import {
   authenticate,
   callClaude,
+  callLight,
   claudeErrorResponse,
   corsHeaders,
   enforceLimit,
@@ -37,6 +38,23 @@ const QUIZ_BANK_TOOL: ClaudeTool = {
   },
 };
 
+/**
+ * Échantillon réparti sur tout le cours. Avant, seuls les 12 000 premiers
+ * caractères étaient lus : sur un long cours, la banque ne couvrait que le début.
+ */
+function sampleAcross(content: string, budget = 24000, windows = 6): string {
+  const text = content.trim();
+  if (text.length <= budget) return text;
+  const size = Math.floor(budget / windows);
+  const step = (text.length - size) / (windows - 1);
+  const out: string[] = [];
+  for (let k = 0; k < windows; k++) {
+    const start = Math.round(k * step);
+    out.push(text.slice(start, start + size));
+  }
+  return out.join("\n\n[...]\n\n");
+}
+
 /** Best-effort : génère 15 questions et insère dans quiz_bank. N'échoue jamais (logge seulement). */
 async function generateQuizBank(opts: {
   userId: string;
@@ -46,7 +64,7 @@ async function generateQuizBank(opts: {
   title?: string;
 }) {
   try {
-    const truncated = opts.content.slice(0, 12000);
+    const truncated = sampleAcross(opts.content);
     const system = `Tu es un générateur de quizz pour étudiants français. À partir du contenu de cours fourni, génère exactement 15 questions variées :
 - 11 QCM (4 options chacun, une seule bonne réponse — la valeur de "answer" doit être EXACTEMENT l'une des options)
 - 4 Vrai/Faux (answer = "vrai" ou "faux")
@@ -63,10 +81,11 @@ ${truncated}
 
 Génère exactement 15 questions (11 QCM + 4 Vrai/Faux).`;
 
-    const result = await callClaude({
+    // Modèle léger, repli sur Claude. Les questions servent au mode révision gratuit.
+    const result = await callLight({
       system,
       messages: [{ role: "user", content: userPrompt }],
-      maxTokens: 2500,
+      maxTokens: 3000,
       temperature: 0.5,
       tools: [QUIZ_BANK_TOOL],
       toolChoice: { type: "tool", name: "save_quiz_bank" },
@@ -82,6 +101,15 @@ Génère exactement 15 questions (11 QCM + 4 Vrai/Faux).`;
       Deno.env.get("SUPABASE_URL")!,
       Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
     );
+    // Le cours doit appartenir à l'appelant : l'insertion se fait en service role.
+    const { data: owned } = await admin
+      .from("courses").select("id")
+      .eq("id", opts.courseId).eq("user_id", opts.userId).maybeSingle();
+    if (!owned) {
+      console.warn("[quiz_bank] cours introuvable ou pas à cet utilisateur", opts.courseId);
+      return;
+    }
+
     const rows = questions.slice(0, 15).map((q: any) => ({
       course_id: opts.courseId,
       user_id: opts.userId,
@@ -90,7 +118,12 @@ Génère exactement 15 questions (11 QCM + 4 Vrai/Faux).`;
       question_type: q.type === "vrai_faux" ? "vrai_faux" : "qcm",
       options: Array.isArray(q.options) ? q.options.slice(0, 4) : null,
       difficulty: Math.max(1, Math.min(3, Number(q.difficulty) || 1)),
-    })).filter((r) => r.question && r.answer);
+    })).filter((r) => {
+      if (!r.question || !r.answer) return false;
+      if (r.question_type === "vrai_faux") return ["vrai", "faux"].includes(r.answer.trim().toLowerCase());
+      // QCM : la bonne réponse doit être exactement une des options, sinon la question est fausse.
+      return Array.isArray(r.options) && r.options.length >= 2 && r.options.map(String).includes(r.answer);
+    });
 
     if (rows.length === 0) return;
     const { error } = await admin.from("quiz_bank").insert(rows);
@@ -101,7 +134,7 @@ Génère exactement 15 questions (11 QCM + 4 Vrai/Faux).`;
   }
 }
 
-function chunkContent(raw: string, maxChars = 6000): string[] {
+function chunkContent(raw: string, maxChars = 12000): string[] {
   const text = raw.trim();
   if (text.length <= maxChars) return [text];
   const paragraphs = text.split(/\n\s*\n/);
@@ -223,7 +256,9 @@ FORMAT — chaque section a un titre + des "blocs" parmi :
 VOLUME : chaque section doit contenir AU MOINS 6 blocs, jusqu'à 20 si le chapitre est dense.
 Tu utilises "tu" et un ton clair, motivant, jamais condescendant. Pas d'emoji dans le texte.`;
 
-    const MAX_CHUNKS = 20;
+    // 12 000 caractères par morceau au lieu de 6 000 : le prompt système (≈1 300 tokens)
+    // est envoyé deux fois moins souvent, et un chapitre a moins de chances d'être coupé.
+    const MAX_CHUNKS = 12;
     const chunks = chunkContent(safeContent).slice(0, MAX_CHUNKS);
     console.log(`[generate-fiches] ${safeContent.length} chars → ${chunks.length} chunk(s)`);
 
